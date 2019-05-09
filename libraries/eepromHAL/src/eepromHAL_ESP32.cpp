@@ -15,20 +15,26 @@
 #if defined(ESP32)
 #include <EEPROM.h>
 
-#if not defined(DEBUG_H)
+#include <DebugConfig.h>
+
+/*#if not defined(DEBUG_H)
 //Monitor Port 
 #define SerialPort Serial
 
 #define EEPROM_DEBUG
 
-#endif
+#endif*/
+
+//#define EEPROM_DEBUG
 
 #define EEPROM_SIZE 64
+
+EepromHAL EEPROMHAL;
 
 void EepromHal_ESP32::init(void) 
 {
 	
-	#if defined (EEPROM_DEBUG) 
+#if defined (EEPROM_DEBUG) 
     SerialPort.println("initialise EEPROM"); 
 		SerialPort.flush();
 #endif //EEPROM_DEBUG
@@ -45,11 +51,19 @@ void EepromHal_ESP32::init(void)
 
 uint8_t EepromHal_ESP32::read(int address)
 {
-  return EEPROM.read(address);
+	uint8_t value;
+	value = EEPROM.read(address);
+#if defined (EEPROM_DEBUG) 
+    SerialPort.print("EEPROM Read : "); 
+    SerialPort.println(value); 
+	SerialPort.flush();
+#endif //EEPROM_DEBUG
+	
+  return value;
 }
 
 void EepromHal_ESP32::update(int address, uint8_t value)
-{
+{	
 	if (address <= EEPROM_SIZE) {
 		EEPROM.write(address, value);
 		EEPROM.commit();
@@ -58,6 +72,12 @@ void EepromHal_ESP32::update(int address, uint8_t value)
 
 void EepromHal_ESP32::write(int address, uint8_t value)
 {
+#if defined (EEPROM_DEBUG) 
+    SerialPort.print("EEPROM write : "); 
+    SerialPort.println(value); 
+	SerialPort.flush();
+#endif //EEPROM_DEBUG
+	
   if (address <= EEPROM_SIZE) EEPROM.write(address, value);
 }
 

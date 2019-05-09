@@ -12,333 +12,141 @@
 
 #include "toneDAC_esp32.h"
 #include <Arduino.h>
-#include "debug.h"
+#include "DebugConfig.h"
+#include "HardwareConfig.h"
+//#include "utility\DebugConfig.h"
+//#include "utility\Config.h"
 
-// BEEP PIN
+/*#include "ConfigESP32.h"
+#include "ConfigMK0.h"
+#include "ConfigPRO.h"*/
+
+#include "soc/rtc_io_reg.h"
+#include "soc/rtc_cntl_reg.h"
+#include "soc/sens_reg.h"
+#include "soc/rtc.h"
+
+#include "driver/dac.h"
+
+/*// BEEP PIN
+#if not defined(_CONFIG_H_)
 #define SPEAKER_PIN 26		//or 25
-
-#define TONEDAC_DEBUG					//debug Tone
-#define SerialPort Serial
-#
-
-/*#ifndef VARIO_SETTINGS_H
-
-//Monitor Port 
-#if defined(ESP8266)
-
-#elif defined(ESP32)
-
-#elif defined(ARDUINO_ARCH_SAMD)
-#define SerialPort SerialUSB
-#elif defined(_BOARD_GENERIC_STM32F103C_H_)
-
-#elif defined(ARDUINO_AVR_PRO)
-#define SerialPort Serial
-#else
-#define SerialPort Serial
-#endif
-
-#define TONEDAC_DEBUG
-
 #endif*/
 
-uint8_t  	waveForm = WAVEFORM_SINUS;
-volatile	int 			sIndex; //Tracks sinewave points in array
-volatile  int 			*wavSamples; //array to store sinewave points
-volatile  int 			sampleCount = 12; // Number of samples to read in block
+#if not defined(_DEBUG_H_)
+#define TONEDAC_DEBUG					//debug Tone
+//#define SerialPort Serial
+#endif
 
-volatile  bool      tmpstate = 0;
+static int clk_8m_div = 7;  // RTC 8M clock divider (division is by clk_8m_div+1, i.e. 0 means 8MHz frequency)
+static int frequency_step = 8;  // Frequency step for CW generator
+static int scale = 0;           // full scale
+static int offset;              // leave it default / 0 = no any offset
+static int invert = 2;          // invert MSB to get sine waveform
+
+#define AUDIO_AMP_ENABLE()   {GPIO.out1_w1ts.val = ((uint32_t)1 << (pinAudioAmpEna - 32));}
+#define AUDIO_AMP_DISABLE()  {GPIO.out1_w1tc.val = ((uint32_t)1 << (pinAudioAmpEna - 32));}
 
 		// BEEP PIN
 uint8_t Speaker_Pin;	 
 
-bool tone_high = true;
-
-volatile 	uint32_t 	elapsedBytes = 0;
-
 #if defined(TONEDAC_EXTENDED)
-File 			audioFile;
-volatile 	uint32_t 	HeadIndex;
-volatile	bool 			audioFileReady = false;
 #endif //TONEDAC_EXTENDED
 
-hw_timer_t * timer = NULL;
-portMUX_TYPE timerMux = portMUX_INITIALIZER_UNLOCKED;
- 
-volatile int interruptCounter;
-int totalInterruptCounter;
- 
 /***********************************/
-void ToneDacEsp32::setWaveForm(uint8_t form)
+void ToneDacEsp32::dac_cosine_enable(dac_channel_t channel) {
 /***********************************/
-{
+	// Enable tone generator common to both channels
+	SET_PERI_REG_MASK(SENS_SAR_DAC_CTRL1_REG, SENS_SW_TONE_EN);
+	channelDAC = channel;
+	switch(channel) {
+		case DAC_CHANNEL_1:
+		// Enable / connect tone tone generator on / to this channel
+		SET_PERI_REG_MASK(SENS_SAR_DAC_CTRL2_REG, SENS_DAC_CW_EN1_M);
+		// Invert MSB, otherwise part of waveform will have inverted
+		SET_PERI_REG_BITS(SENS_SAR_DAC_CTRL2_REG, SENS_DAC_INV1, 2, SENS_DAC_INV1_S);
+		break;
+
+		case DAC_CHANNEL_2:
+		SET_PERI_REG_MASK(SENS_SAR_DAC_CTRL2_REG, SENS_DAC_CW_EN2_M);
+		SET_PERI_REG_BITS(SENS_SAR_DAC_CTRL2_REG, SENS_DAC_INV2, 2, SENS_DAC_INV2_S);
+		break;
+		default :
 #ifdef TONEDAC_DEBUG	
-	SerialPort.print("Set form : ");
-	SerialPort.println(form);
+		SerialPort.print("Channel : ");
+		SerialPort.println(channel);
 #endif TONEDAC_DEBUG
-
-	waveForm = form;
-	genForm(sampleCount);
-#ifdef TONEDAC_DEBUG	
-	SerialPort.println(waveForm);
-#endif TONEDAC_DEBUG
-}
-
-//This function generates a sine wave and stores it in the wavSamples array
-//The input argument is the number of points the sine wave is made up of
-/***********************************/
-void ToneDacEsp32::genForm(int sCount) {
-/***********************************/
-#ifdef TONEDAC_DEBUG	
-	SerialPort.print("Gen Form : ");
-	SerialPort.println(waveForm);
-#endif TONEDAC_DEBUG
-	
-  switch(waveForm) {
-		case WAVEFORM_SINUS:
-#ifdef TONEDAC_DEBUG	
-		  SerialPort.println("Wave form Sinus");
-#endif TONEDAC_DEBUG
-		  genSin(sCount);
-			break;
-			
-		case WAVEFORM_TRIANGLE:
-#ifdef TONEDAC_DEBUG	
-		  SerialPort.println("Wave form Triangle");
-#endif TONEDAC_DEBUG
-		  genTriangle(sCount);
-			break;
-			
-		case WAVEFORM_SQUARE:
-#ifdef TONEDAC_DEBUG	
-		  SerialPort.println("Wave form Square");
-#endif TONEDAC_DEBUG
-		  genSquare(sCount);
-			break;
-			
-		default:
-#ifdef TONEDAC_DEBUG	
-		  SerialPort.println("Wave form dsefault");
-#endif TONEDAC_DEBUG
-		  genSin(sCount);
-    break;
-  }
-}
-
-/***********************************/
-void ToneDacEsp32::genSin(int sCount) {
-/***********************************/
-  const float pi2 = 6.28; //2 x pi
-  float in, amp; 
- 
-#ifdef TONEDAC_DEBUG	
-  SerialPort.println("GenSin");
-	SerialPort.print("volume = ");
-	SerialPort.println(_tDAC_volume);
-	SerialPort.print("sCount = ");
-	SerialPort.println(sCount);
-#endif TONEDAC_DEBUG
-
-  amp = ((255 * _tDAC_volume) /100) / 2;
-
-#ifdef TONEDAC_DEBUG	
-	SerialPort.print("Ampl = ");
-	SerialPort.println(amp);
-#endif TONEDAC_DEBUG
-	
-  for(int i=0; i<sCount;i++) { //loop to build sine wave based on sample count
-    in = pi2*(1/(float)sCount)*(float)i; //calculate value in radians for sin()
-    wavSamples[i] = ((int)(sin(in)*amp + amp)); //Calculate sine wave value and offset based on DAC resolution 511.5 = 1023/2
-#ifdef TONEDAC_DEBUG	
-/*		SerialPort.print(i);
-    SerialPort.print(" - ");
-		SerialPort.println(wavSamples[i]);*/
-#endif TONEDAC_DEBUG
-  }
-}
-
-/***********************************/
-void ToneDacEsp32::genTriangle(int sCount) {
-/***********************************/
-  float pas;
-  float in, amp; 
-
-#ifdef TONEDAC_DEBUG	
-	SerialPort.println("GenTriangle");
-#endif TONEDAC_DEBUG
-
-  amp = ((255 * _tDAC_volume) / 100);
- 
-  pas = amp / (sCount/ 2);
-#ifdef TONEDAC_DEBUG	
-	SerialPort.print("Pas : ");
-	SerialPort.println(pas);
-#endif TONEDAC_DEBUG
-	in = 0;
-
-  for(int i=0; i<sCount;i++) { //loop to build sine wave based on sample count
-#ifdef TONEDAC_DEBUG	
-	  SerialPort.print("WaveSample : ");
-		SerialPort.println(in);
-#endif TONEDAC_DEBUG
-    wavSamples[i] = (int)in;
-    if (i < (int)(sCount/2))
-      in += pas;
-    else 
-		  in -= pas;
-  }
-}
-
-/***********************************/
-void ToneDacEsp32::genSquare(int sCount) {
-/***********************************/
- float in, amp; 
- 
-#ifdef TONEDAC_DEBUG	
- SerialPort.println("GenSquare");
-#endif TONEDAC_DEBUG
- amp = ((255 * _tDAC_volume) / 100);
-
- for(int i=0; i<sCount;i++) { //loop to build sine wave based on sample count
-  if (i < (int)(sCount/2))
-    wavSamples[i] = ((int)amp); 
-	else 
-		wavSamples[i] = 0;
- }
-}
-
-//Reset Timer 
-/***********************************/
-void ToneDacEsp32::tcReset()
-/***********************************/
-{
-	timerRestart(timer);
-}
-
-//disable Timer
-/***********************************/
-void ToneDacEsp32::tcDisable()
-/***********************************/
-{
-  timerAlarmDisable(timer);
-}
-
-// Configures the TC to generate output events at the sample frequency.
-//Configures the TC in Frequency Generation mode, with an event output once
-//each time the audio sample frequency period expires.
-/***********************************/
-void ToneDacEsp32::tcConfigure(int sampleRate)
-/***********************************/
-{
-  timerAlarmWrite(timer, sampleRate, true);
-
-} 
-
-//This function enables TC5 and waits for it to be ready
-/***********************************/
-void ToneDacEsp32::tcStartCounter()
-/***********************************/
-{
-  timerAlarmEnable(timer);
-}
-
-
-/***********************************/
-void IRAM_ATTR onTimer() 
-/***********************************/
-{
-  portENTER_CRITICAL_ISR(&timerMux);
-/*  interruptCounter++;
- 
-	if (waveForm != WAVEFORM_WAV) { 
-		dacWrite(Speaker_Pin, wavSamples[sIndex]);
-		if (sIndex==sampleCount-1)
-			{
-				sIndex = 0;	
-/*     toneDAC.tcDisable();
-     toneDAC.tcReset();
-	   toneDAC.tcConfigure(toneDAC.sampleRate); //setup the timer counter based off of the user entered sample rate
-//start timer, once timer is done interrupt will occur and DAC value will be updated
-     toneDAC.tcStartCounter(); *
-			}
-		else
-			{		
-				sIndex++;
-			}
 	}
-	#if defined(TONEDAC_EXTENDED)
-	else {
-		 if (audioFile.available()) {
-        
-        
-        uint32_t current_SampleIndex = sIndex;
-            
-        if (current_SampleIndex > HeadIndex) {
-          audioFile.read(&wavSamples[HeadIndex], current_SampleIndex - HeadIndex);
-          HeadIndex = current_SampleIndex;
-        }
-        else if (current_SampleIndex < HeadIndex) {
-          audioFile.read(&wavSamples[HeadIndex],SAMPLECOUNT-1 - HeadIndex);
-          audioFile.read(wavSamples, current_SampleIndex);
-          HeadIndex = current_SampleIndex;
-        }
-        
-        
-        if (sIndex < SAMPLECOUNT - 1)
-        {
-          dacWrite(Speaker_Pin, wavSamples[sIndex++]);
-          elapsedBytes++;
-            // Clear the interrupt
-            //TC5->COUNT16.INTFLAG.bit.MC0 = 1;
-        }
-        else
-        {
-          sIndex = 0;
-            //TC5->COUNT16.INTFLAG.bit.MC0 = 1;
-        }
-		 }
-		 else if (audioFileReady) {
-       audioFile.close();
-       audioFileReady = false;
-       elapsedBytes=0;
-        //tc reset
-        //TC5->COUNT16.CTRLA.reg = TC_CTRLA_SWRST;
-        //while (TC5->COUNT16.STATUS.reg & TC_STATUS_SYNCBUSY);
-        //while (TC5->COUNT16.CTRLA.bit.SWRST);
-    
-        //tc disable
- //      TC5->COUNT16.CTRLA.reg &= ~TC_CTRLA_ENABLE;
- //      while (TC5->COUNT16.STATUS.reg & TC_STATUS_SYNCBUSY);
-        
-       dacWrite(Speaker_Pin, 128);
-     }
-	}
-#endif //#TONEDAC_EXTENDED*/
+}
 
-/*  if (tone_high) {
-    dacWrite(26, 255);
-		tone_high = false;
-	}
-	else {
-    dacWrite(26, 0);
-		tone_high = true;
-	}*/
-	
-	
-/*		dacWrite(26, wavSamples[sIndex]);
-		if (sIndex>=sampleCount-1)
-			{
-				sIndex = 0;	
-			}
-		else
-			{		
-				sIndex++;
-			}*/
-			
-	tmpstate = !tmpstate;		
-	dacWrite(26, tmpstate * 255);
 
-  portEXIT_CRITICAL_ISR(&timerMux);	
+ // Set frequency of internal CW generator common to both DAC channels 
+ // clk_8m_div: 0b000 - 0b111
+ // frequency_step: range 0x0001 - 0xFFFF
+ 
+/***********************************/
+void ToneDacEsp32::dac_frequency_set(int clk_8m_div, int frequency_step) {
+/***********************************/
+	REG_SET_FIELD(RTC_CNTL_CLK_CONF_REG, RTC_CNTL_CK8M_DIV_SEL, clk_8m_div);
+  SET_PERI_REG_BITS(SENS_SAR_DAC_CTRL1_REG, SENS_SW_FSTEP, frequency_step, SENS_SW_FSTEP_S);
+}
+
+
+ // Scale output of a DAC channel using two bit pattern:
+ // 00: no scale
+ // 01: scale to 1/2
+ // 10: scale to 1/4
+ // 11: scale to 1/8
+
+/***********************************/
+void ToneDacEsp32::dac_scale_set(dac_channel_t channel, int scale) {
+/***********************************/
+	switch(channel) {
+		case DAC_CHANNEL_1:
+				SET_PERI_REG_BITS(SENS_SAR_DAC_CTRL2_REG, SENS_DAC_SCALE1, scale, SENS_DAC_SCALE1_S);
+				break;
+		case DAC_CHANNEL_2:
+				SET_PERI_REG_BITS(SENS_SAR_DAC_CTRL2_REG, SENS_DAC_SCALE2, scale, SENS_DAC_SCALE2_S);
+				break;
+		default : break;
+	}
+}
+
+
+// Offset output of a DAC channel
+// Range 0x00 - 0xFF
+/***********************************/
+void ToneDacEsp32::dac_offset_set(dac_channel_t channel, int offset) {
+/***********************************/
+	switch(channel) {
+		case DAC_CHANNEL_1:
+				SET_PERI_REG_BITS(SENS_SAR_DAC_CTRL2_REG, SENS_DAC_DC1, offset, SENS_DAC_DC1_S);
+				break;
+		case DAC_CHANNEL_2:
+				SET_PERI_REG_BITS(SENS_SAR_DAC_CTRL2_REG, SENS_DAC_DC2, offset, SENS_DAC_DC2_S);
+				break;
+		default : break;
+	}
+}
+
+
+ // Invert output pattern of a DAC channel
+ // 00: does not invert any bits,
+ // 01: inverts all bits,
+ // 10: inverts MSB,
+ // 11: inverts all bits except for MSB
+/***********************************/
+void ToneDacEsp32::dac_invert_set(dac_channel_t channel, int invert) {
+/***********************************/
+	switch(channel) {
+		case DAC_CHANNEL_1:
+				SET_PERI_REG_BITS(SENS_SAR_DAC_CTRL2_REG, SENS_DAC_INV1, invert, SENS_DAC_INV1_S);
+				break;
+		case DAC_CHANNEL_2:
+				SET_PERI_REG_BITS(SENS_SAR_DAC_CTRL2_REG, SENS_DAC_INV2, invert, SENS_DAC_INV2_S);
+				break;
+		default : break;
+	}
 }
 
 
@@ -358,26 +166,25 @@ void ToneDacEsp32::init(uint32_t pin) {
 
   if ((pin != 25) or (pin != 26)) pin = 25;
   Speaker_Pin = pin;
-
-	dacWrite(Speaker_Pin, 0);
-
-  _tDAC_volume = 100;
-	waveForm = WAVEFORM_SINUS;
-  
-  /*Allocate the buffer where the samples are stored*/
-//  wavSamples = (int *) malloc(sampleCount * sizeof(int));
-//  genForm(sampleCount); //function generates sine wave
-  wavSamples = (int *) malloc(SAMPLECOUNT * sizeof(int));
-	genForm(SAMPLECOUNT); //function generates sine wave
 	
-  timer = timerBegin(0, 8, true);
-	timerAttachInterrupt(timer, &onTimer, true);
+	if (Speaker_Pin == 25) channelDAC = DAC_CHANNEL_1;
+	else									 channelDAC = DAC_CHANNEL_2;
+	
+	AUDIO_AMP_DISABLE();
+  dac_cosine_enable(channelDAC);
+  dac_output_enable(channelDAC);
+	scale =  3; //3 - opt.misc.speakerVolume;
+	offset = 0;
+	invert = 2;
+  dac_scale_set(channelDAC, scale);
+  dac_offset_set(channelDAC, offset);
+  dac_invert_set(channelDAC, invert);
 }
 
 /***********************************/
 void ToneDacEsp32::begin(uint32_t srate) {
 /***********************************/
-#if defined(TONEDAC_EXTENDED)
+/*#if defined(TONEDAC_EXTENDED)
 	audioFileReady = false;
 #endif //TONEDAC_EXTENDED
 
@@ -385,10 +192,10 @@ void ToneDacEsp32::begin(uint32_t srate) {
 	waveForm = WAVEFORM_WAV;
   sIndex = 0;   //Set to zero to start from beginning of waveform
 	
-	/*Modules configuration */
+	/*Modules configuration *
 //  digitalWrite(Speaker_Pin, 0);
 
-	tcConfigure(srate);
+	tcConfigure(srate);*/
 }
 
 /***********************************/
@@ -402,7 +209,6 @@ void ToneDacEsp32::tone(unsigned long frequency
 #endif
 	    ) {
 
-  uint32_t tmpSampleCount; 			
   /* check if no tone */ 
   if (toneDACMuted || frequency == 0
 #ifdef TONEDAC_VOLUME     
@@ -421,55 +227,32 @@ void ToneDacEsp32::tone(unsigned long frequency
 	if (_tDAC_volume != volume) 
 	  {
 	    _tDAC_volume = volume;
+			uint8_t scaleVolume;
+			if (volume <= 25) scaleVolume = 0;
+			else if ((volume > 25) && (volume <= 50)) scaleVolume = 1;
+			else if ((volume > 50) && (volume <= 72)) scaleVolume = 2;
+			else scaleVolume = 3;
 		}
 #endif
 
   if (frequency > 10000) frequency = 10000;
 	_frequency = frequency;
-  tmpSampleCount = SAMPLERATE / frequency;
-	multiplicateur = 1;
-	while (tmpSampleCount > SAMPLECOUNT) {
-		tmpSampleCount /= 2;
-		multiplicateur *= 2;
-	}
+	
+/*	AUDIO_AMP_DISABLE();
+  dac_cosine_enable(channelDAC);
+  dac_output_enable(channelDAC);
+	scale =  2; //3 - opt.misc.speakerVolume;
+	offset = 0;
+	invert = 2;
+	dac_scale_set(channelDAC, 1); //3 - scale);
+  dac_offset_set(channelDAC, offset);
+  dac_invert_set(channelDAC, invert);*/
 
-#ifdef TONEDAC_DEBUG	
-  SerialPort.print("Multiplicateur : ");
-	SerialPort.println(multiplicateur);
-  SerialPort.print("tmpSampleCount : ");
-	SerialPort.println(tmpSampleCount);
-#endif TONEDAC_DEBUG
-	
-  sIndex = 0;   //Set to zero to start from beginning of waveform
-	sampleCount = tmpSampleCount;
-	sampleRate = (SAMPLERATE / (frequency * sampleCount)); 
-//	if (sampleRate > 120000) sampleRate = 120000;
-	
-#ifdef TONEDAC_DEBUG	
-  SerialPort.print("SampleCount : ");
-	SerialPort.println(sampleCount);
-	
-  SerialPort.print("SampleRate : ");
-	SerialPort.println(sampleRate);
-	
-#endif TONEDAC_DEBUG
-	
-	genForm(sampleCount);	
-  tcConfigure(sampleRate); //setup the timer counter based off of the user entered sample rate
-/*  //loop until all the sine wave points have been played
-  while (sIndex<sampleCount)
-  { 
- //start timer, once timer is done interrupt will occur and DAC value will be updated
-    tcStartCounter(); 
-  }
-  //disable and reset timer counter
-  tcDisable();
-  tcReset();*/
-  
-	tcStartCounter(); 	
-	
-  /* compute length time */
-#ifdef TONEDAC_LENGTH
+	frequency_step = (frequency*(1+clk_8m_div)*65536)/RTC_FAST_CLK_FREQ_APPROX;
+  dac_frequency_set(clk_8m_div, frequency_step);
+  AUDIO_AMP_ENABLE();
+
+	#ifdef TONEDAC_LENGTH
   if (length > 0 && background) {  // Background tone playing, returns control to your sketch.
 
     _tDAC_time = millis() + length; // Set when the note should end.
@@ -483,16 +266,8 @@ void ToneDacEsp32::tone(unsigned long frequency
 /***********************************/
 void ToneDacEsp32::noTone() {
 /***********************************/
-#ifdef TONEDAC_LENGTH
-  //TODO !!!!                     // Remove the timer interrupt.
-#endif
-
-//  digitalWrite(LED3,false);
-//  ledcWriteTone(TONE_PIN_CHANNEL, 0);
-//  digitalWrite(SPEAKER_PIN, 0);
-	dacWrite(Speaker_Pin, 0);
-  tcDisable();
-//  tcReset();
+	dac_output_disable(channelDAC);
+  AUDIO_AMP_DISABLE();
 }
 
 #ifdef TONEDAC_LENGTH
@@ -513,64 +288,9 @@ void ToneDacEsp32::toneMute(bool newMuteState) {
   toneDACMuted = newMuteState;
 }
 
-/***********************************/
-void ToneDacEsp32::end() {
-/***********************************/
-	tcDisable();
-	tcReset();
-	dacWrite(Speaker_Pin, 0);
-}
 
 #if defined(TONEDAC_EXTENDED)
 
-/***********************************/
-void ToneDacEsp32::play(const char *fname) {
-/***********************************/
-  if(audioFileReady) audioFile.close();
-  
-	audioFile = SD.open(fname);
-  fileSize = audioFile.size();
-    
-  if(!audioFile){
-    end();
-    return;
-  }
-    
-  for(int i =0; i<44; i++) audioFile.read();
-    
-  audioFile.read(wavSamples, SAMPLECOUNT);
-  HeadIndex = 0;
-    
-    /*once the buffer is filled for the first time the counter can be started*/
-  tcStartCounter();
-    
-  audioFileReady = true;
-    
-}
-
-/***********************************/
-uint32_t ToneDacEsp32::duration()
-/***********************************/
-{
-  if(audioFileReady)  return (fileSize/sampleRate);
-  return 0;
-}
-
-/***********************************/
-uint32_t ToneDacZero::remaining()
-/***********************************/
-{
-  if(audioFileReady) return ((fileSize-elapsedBytes)/sampleRate);
-  return 0;
-}
-
-
-/***********************************/
-bool ToneDacEsp32::isPlaying()
-/***********************************/
-{
-  return audioFileReady;
-}
 
 #endif //TONEDAC_EXTENDED
 

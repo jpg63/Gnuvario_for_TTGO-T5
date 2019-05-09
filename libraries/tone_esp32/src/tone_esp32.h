@@ -40,11 +40,11 @@
 #if defined(ESP32)
 
 #include "Arduino.h"
-//#include "utility\Config.h"
+//#include "utility\HardwareConfig.h"
 
-#define SPEAKER_PIN 25
+//#define SPEAKER_PIN 25
 //#define SPEAKER_PIN 26
-#define TONE_PIN_CHANNEL 0
+//#define TONE_PIN_CHANNEL 0
 
 
 extern "C" {
@@ -58,14 +58,14 @@ extern "C" {
 	class ToneEsp32 {
 
 	public:
-	  ToneEsp32(void);
+		ToneEsp32(void);
 
 		/* must be run before using toneAC */
 		void init(void);
 
 		void init(uint32_t pin);
 		
-    void tone(unsigned long frequency = 0
+		void tone(unsigned long frequency = 0
   #ifdef TONEAC_VOLUME
                 , uint8_t volume = 10
   #endif
@@ -80,12 +80,12 @@ extern "C" {
     void toneMute(bool newMuteState);
 	
   private:
-		bool 			toneACMuted = false;		
-		uint8_t   Speaker_Pin;
-    uint8_t   Tone_Pin_Channel;
+	bool 		toneACMuted = false;		
+	uint8_t   	Speaker_Pin;
+    uint8_t   	Tone_Pin_Channel;
 		
 #ifdef TONEAC_LENGTH
-		unsigned long _tAC_time; // Used to track end note with timer when playing note in the background.
+	unsigned long _tAC_time; // Used to track end note with timer when playing note in the background.
 #endif
 
 #ifdef TONEAC_VOLUME

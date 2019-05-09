@@ -23,8 +23,8 @@
 
 #if defined(ESP32)
 #include <Arduino.h>
-//#include "Debug.h"
-#include "utility\Debug.h"
+#include "DebugConfig.h"
+//#include "utility\DebugConfig.h"
 
 #define TONEDAC_VOLUME  //set to have volume control
 //#define TONEDAC_LENGTH  //set to have length control
@@ -117,9 +117,9 @@ void ToneHalDAC_Esp32::noTone() {
 }
 
 /***********************************/
-void ToneHalDAC_Esp32::setWaveForm(uint8_t form) {
+void ToneHalDAC_Esp32::Audio_Amp_Enable(void) {
 /***********************************/
-  privateToneDacEsp32.setWaveForm(form);
+  privateToneDacEsp32.Audio_Amp_Enable();
 }
 		
 #if defined(TONEDAC_EXTENDED)

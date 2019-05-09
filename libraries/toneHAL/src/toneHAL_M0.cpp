@@ -23,8 +23,8 @@
 
 #if defined(ARDUINO_ARCH_SAMD)
 #include <Arduino.h>
-#include "Debug.h"
-//#include "utility\Debug.h"
+#include "DebugConfig.h"
+//#include "utility\DebugConfig.h"
 
 #define TONEDAC_VOLUME  //set to have volume control
 //#define TONEDAC_LENGTH  //set to have length control

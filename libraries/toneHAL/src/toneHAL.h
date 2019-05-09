@@ -80,18 +80,20 @@
 /*    1.1.0    24/01/19   Réecriture des classes                                   */
 /*                        répartition en plusieurs fichiers                        */
 /*    1.1.1    26/01/19   Modifications mineures                                   */
-/*    1.3.0    09/02/19   Ajout TONEHAL_EXTENDED_VOLUME							               */
+/*    1.3.0    09/02/19   Ajout TONEHAL_EXTENDED_VOLUME							   */
 /*    1.4.0    02/03/19   Réécriture de la bibliotheque                            */
 /*                        Ajout ESP32                                              */
-/*    1.4.1    12/03/19   Modifications mineures								   							   */
+/*    1.4.1    12/03/19   Modifications mineures								   */
 /*    1.4.2    16/03/19   Ajout description et licence en début de fichier         */
+/*    1.4.3  08/04/19   ToneDAC pour l'ESP32                                       */
+/*    1.4.4    25/04/2019 Modification DebugConfig.h et HardwareConfig.h           */
 /*                                                                                 */
 /***********************************************************************************/
 
 
 /***********************************************************************************/
 /*  ProMini :                                                                      */
-/*                PWM 1 pin                         OK                             */
+/*                PWM 1 pin                         not yet developed              */
 /*                PWM AC 2 pins                     OK                             */
 /*                DAC                               Not available                  */
 /*                I2S                               Not available                  */
@@ -129,9 +131,9 @@
 /****************************/
 
 //#define TONEI2S
-//#define	TONEDAC
+#define	TONEDAC
 //#define	TONEAC // 2 pins Push-Pull PWM
-#define TONE // 1 pin PWM
+//#define TONE // 1 pin PWM
 
 class ToneHal  {
 
@@ -162,6 +164,36 @@ class ToneHal  {
 
 #endif //TONEHAL_EXTENDED_VOLUME		
 };
+
+
+
+#if defined(ESP8266)
+//********************
+// ESP8266
+//********************
+
+#elif defined(ESP32)
+//********************
+// ESP32
+//********************
+
+#include "toneHAL_ESP32.h"
+
+#elif defined(ARDUINO_AVR_PRO)
+//********************
+// ARDUINO PRO MINI
+//********************
+
+#include "toneHAL_PRO.h"
+
+#elif defined(ARDUINO_ARCH_SAMD)
+//********************
+// MKR ZERO
+//********************
+
+#include "toneHAL_M0.h"
+
+#endif
 
 #endif
 	

@@ -37,8 +37,9 @@
 #if defined(ESP32)
  
 #include "tone_esp32.h"
-//#include "debug.h"
-#include "utility\Debug.h"
+#include "DebugConfig.h"
+//#include "utility\Debug.h"
+#include "HardwareConfig.h"
 
 ToneEsp32::ToneEsp32(void) {
 //    _volume = 8;

@@ -7,6 +7,7 @@
 /*                                                  */
 /*  version    Date     Description                 */
 /*    1.0    03/03/19                               */
+/*    1.1    07/04/19   Reecriture librairie        */
 /*                                                  */
 /****************************************************/
 
@@ -17,21 +18,13 @@
 #define TONEDAC_VOLUME  //set to have volume control
 //#define TONEDAC_LENGTH  //set to have length control
 //#define TONEDAC_EXTENDED
-
-#define WAVEFORM_SINUS			1
-#define WAVEFORM_TRIANGLE		2
-#define WAVEFORM_SQUARE			3
-#define WAVEFORM_WAV 				4
-	
-#define SAMPLERATE  				10000000
-#define SAMPLECOUNT					256
 	
 #if defined(TONEDAC_EXTENDED)
 #include <SPI.h>
 #include "SdFat.h"
 #endif //HAVE_SDCARD
 
-void IRAM_ATTR onTimer();
+#include "driver/dac.h"
 
 extern "C" {
 #include "esp32-hal-dac.h"
@@ -39,10 +32,7 @@ extern "C" {
 
 class ToneDacEsp32 {
 
-	public:
-		uint32_t 	fileSize = 0;
- 		uint32_t 	sampleRate = 1000000; //sample rate of the sine wave
- 
+	public: 
     void init(void);
 		void init(uint32_t pin);
 	  void begin(uint32_t srate);
@@ -59,47 +49,36 @@ class ToneDacEsp32 {
     void noTone();
         /* mute/unmute setting */
     void toneMute(bool newMuteState);
-		void setWaveForm(uint8_t form);
+		void Audio_Amp_Enable(void);
 
 #if defined(TONEDAC_EXTENDED)
 		
-    void play(const char *fname) ;
-    bool isPlaying();
-    uint32_t duration();
-    uint32_t remaining();
 #endif //TONEDAC_EXTENDED
 
 		uint8_t getVolume();
 		
 	private:
 
+		dac_channel_t channelDAC;
 		bool 			toneDACMuted = false;
 		uint32_t 	multiplicateur;
 		uint32_t 	_frequency;
 				
-		void genForm(int sCount);
-		void genSin(int sCount);
-		void genSquare(int sCount);
-		void genTriangle(int sCount);
+		void dac_cosine_enable(dac_channel_t channel);
+		void dac_frequency_set(int clk_8m_div, int frequency_step);
+		void dac_scale_set(dac_channel_t channel, int scale);
+		void dac_offset_set(dac_channel_t channel, int offset);
+		void dac_invert_set(dac_channel_t channel, int invert);
+			
 
-		void tcReset();
-		void tcDisable();
-		void tcConfigure(int sampleRate);
-		void tcStartCounter();
-		bool tcIsSyncing();
-				
+			
 #ifdef TONEDAC_LENGTH
 		unsigned long _tDAC_time; // Used to track end note with timer when playing note in the background.
 #endif
 
-		uint8_t _tDAC_volume = 100; //new duty values for three phased Low Power mode
+		uint8_t _tDAC_volume = 100; 
 
 };
-
-#if defined(TONEDAC_EXTENDED)
-//extern Class_ToneDac toneDAC;
-extern SdFat SD;
-#endif //TONEDAC_EXTENDED
 
 #endif //ESP32
 #endif
