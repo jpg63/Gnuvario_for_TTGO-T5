@@ -1,0 +1,13 @@
+(module "trou GPS" (layer F.Cu) (tedit 5D1003D4)
+  (fp_text reference REF** (at -17.6 1.6) (layer F.SilkS)
+    (effects (font (size 1 1) (thickness 0.15)))
+  )
+  (fp_text value "trou GPS" (at -17.6 0.6) (layer F.Fab)
+    (effects (font (size 1 1) (thickness 0.15)))
+  )
+  (pad "" np_thru_hole custom (at 0.8 -0.8) (size 1.524 1.524) (drill 0.762) (layers *.Cu *.Mask)
+    (zone_connect 0)
+    (options (clearance outline) (anchor rect))
+    (primitives
+    ))
+)

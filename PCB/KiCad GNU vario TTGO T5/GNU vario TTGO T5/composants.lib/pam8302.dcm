@@ -1,0 +1,9 @@
+EESchema-DOCLIB  Version 2.0
+#
+$CMP PAM8302AAD
+D 2.5W Filterless Class-D Mono Audio Amplifier, SOIC-8
+K audio amplifier class d
+F https://www.diodes.com/assets/Datasheets/PAM8302A.pdf
+$ENDCMP
+#
+#End Doc Library
