@@ -15,13 +15,16 @@
 
 // mapping suggestion from Waveshare SPI e-Paper to Wemos D1 mini
 // BUSY -> D2, RST -> D4, DC -> D3, CS -> D8, CLK -> D5, DIN -> D7, GND -> GND, 3.3V -> 3.3V
+// NOTE: connect 4.7k pull-down from D8 to GND if your board or shield has level converters
+// NOTE for ESP8266: using SS (GPIO15) for CS may cause boot mode problems, use different pin in case, or 4k7 pull-down
 
 // mapping suggestion from Waveshare SPI e-Paper to generic ESP8266
 // BUSY -> GPIO4, RST -> GPIO2, DC -> GPIO0, CS -> GPIO15, CLK -> GPIO14, DIN -> GPIO13, GND -> GND, 3.3V -> 3.3V
+// NOTE: connect 4.7k pull-down from GPIO15 to GND if your board or shield has level converters
+// NOTE for ESP8266: using SS (GPIO15) for CS may cause boot mode problems, use different pin in case, or 4k7 pull-down
 
 // mapping of Waveshare e-Paper ESP8266 Driver Board
 // BUSY -> GPIO16, RST -> GPIO5, DC -> GPIO4, CS -> GPIO15, CLK -> GPIO14, DIN -> GPIO13, GND -> GND, 3.3V -> 3.3V
-
 // NOTE for ESP8266: using SS (GPIO15) for CS may cause boot mode problems, use different pin in case
 
 // mapping suggestion for ESP32, e.g. LOLIN32, see .../variants/.../pins_arduino.h for your board
@@ -111,6 +114,7 @@
 //GxEPD2_BW<GxEPD2_290_T5, GxEPD2_290_T5::HEIGHT> display(GxEPD2_290_T5(/*CS=5*/ SS, /*DC=*/ 17, /*RST=*/ 16, /*BUSY=*/ 4)); // GDEW029T5
 //GxEPD2_BW<GxEPD2_270, GxEPD2_270::HEIGHT> display(GxEPD2_270(/*CS=5*/ SS, /*DC=*/ 17, /*RST=*/ 16, /*BUSY=*/ 4));
 //GxEPD2_BW<GxEPD2_420, GxEPD2_420::HEIGHT> display(GxEPD2_420(/*CS=5*/ SS, /*DC=*/ 17, /*RST=*/ 16, /*BUSY=*/ 4));
+//GxEPD2_BW<GxEPD2_583, GxEPD2_583::HEIGHT> display(GxEPD2_583(/*CS=5*/ SS, /*DC=*/ 17, /*RST=*/ 16, /*BUSY=*/ 4));
 //GxEPD2_BW<GxEPD2_750, GxEPD2_750::HEIGHT> display(GxEPD2_750(/*CS=5*/ SS, /*DC=*/ 17, /*RST=*/ 16, /*BUSY=*/ 4));
 // 3-color e-papers
 //GxEPD2_3C<GxEPD2_154c, GxEPD2_154c::HEIGHT> display(GxEPD2_154c(/*CS=5*/ SS, /*DC=*/ 17, /*RST=*/ 16, /*BUSY=*/ 4));
@@ -118,6 +122,7 @@
 //GxEPD2_3C<GxEPD2_290c, GxEPD2_290c::HEIGHT> display(GxEPD2_290c(/*CS=5*/ SS, /*DC=*/ 17, /*RST=*/ 16, /*BUSY=*/ 4));
 //GxEPD2_3C<GxEPD2_270c, GxEPD2_270c::HEIGHT> display(GxEPD2_270c(/*CS=5*/ SS, /*DC=*/ 17, /*RST=*/ 16, /*BUSY=*/ 4));
 //GxEPD2_3C<GxEPD2_420c, GxEPD2_420c::HEIGHT> display(GxEPD2_420c(/*CS=5*/ SS, /*DC=*/ 17, /*RST=*/ 16, /*BUSY=*/ 4));
+//GxEPD2_3C<GxEPD2_583c, GxEPD2_583c::HEIGHT> display(GxEPD2_583c(/*CS=5*/ SS, /*DC=*/ 17, /*RST=*/ 16, /*BUSY=*/ 4));
 //GxEPD2_3C<GxEPD2_750c, GxEPD2_750c::HEIGHT> display(GxEPD2_750c(/*CS=5*/ SS, /*DC=*/ 17, /*RST=*/ 16, /*BUSY=*/ 4));
 // grey levels parallel IF e-papers on Waveshare e-Paper IT8951 Driver HAT
 // HRDY -> 4, RST -> 16, CS -> SS(5), SCK -> SCK(18), MOSI -> MOSI(23), MISO -> MISO(19), GND -> GND, 5V -> 5V
@@ -176,7 +181,9 @@
 
 // ***** for mapping of Waveshare Universal e-Paper Raw Panel Driver Shield for Arduino / NUCLEO *****
 // the RST line is not connected through level converter, but has a pull up resistor and a pull down diode to the Arduino pin; this is safe for 5V Arduino
-// NOTE: the 11-pinholes for pin connectors are not through level converter, and the VCC pin is 5V, only FCP connector pins are through level converter
+// NOTE: the 11-pinholes for pin connectors are not through level converter, and the VCC pin is ~4.2V, only FCP connector pins are through level converter
+// NOTE: the VCC pin on the 11-pinholes for pin connectors shouldn't be used, it seems to get back-fed from Arduino data pins through protection diodes of the level converter
+// NOTE: the VCC pin should be fed from Arduino 5V pin for use on any 5V Arduino (did they forget to add this connection or add a jumper?)
 // select one and adapt to your mapping
 //GxEPD2_BW<GxEPD2_154, MAX_HEIGHT(GxEPD2_154)> display(GxEPD2_154(/*CS=10*/ SS, /*DC=*/ 9, /*RST=*/ 8, /*BUSY=*/ 7));
 //GxEPD2_BW<GxEPD2_213, MAX_HEIGHT(GxEPD2_213)> display(GxEPD2_213(/*CS=10*/ SS, /*DC=*/ 9, /*RST=*/ 8, /*BUSY=*/ 7)); // GDE0213B1, phased out
@@ -259,6 +266,8 @@ void setup()
   delay(1000);
   helloEpaper();
   delay(1000);
+  //helloValue(123.9, 1);
+  //delay(1000);
   showFont("FreeMonoBold9pt7b", &FreeMonoBold9pt7b);
   delay(1000);
   drawBitmaps();
@@ -466,6 +475,68 @@ void helloEpaper()
   }
   while (display.nextPage());
   //Serial.println("helloEpaper done");
+}
+
+#if defined(ESP8266) || defined(ESP32)
+#include <StreamString.h>
+#define PrintString StreamString
+#else
+class PrintString : public Print, public String
+{
+public:
+    size_t write(uint8_t data) override
+    {
+      return concat(char(data));
+    };
+};
+#endif
+
+void helloValue(double v, int digits)
+{
+  //Serial.println("helloValue");
+  display.setRotation(1);
+  display.setFont(&FreeMonoBold9pt7b);
+  display.setTextColor(display.epd2.hasColor ? GxEPD_RED : GxEPD_BLACK);
+  PrintString valueString;
+  valueString.print(v, digits);
+  int16_t tbx, tby; uint16_t tbw, tbh;
+  display.getTextBounds(valueString, 0, 0, &tbx, &tby, &tbw, &tbh);
+  uint16_t x = ((display.width() - tbw) / 2) - tbx;
+  uint16_t y = (display.height() * 3 / 4) + tbh / 2; // y is base line!
+  // show what happens, if we use the bounding box for partial window
+  uint16_t wx = (display.width() - tbw) / 2;
+  uint16_t wy = (display.height() * 3 / 4) - tbh / 2;
+  display.setPartialWindow(wx, wy, tbw, tbh);
+  display.firstPage();
+  do
+  {
+    display.fillScreen(GxEPD_WHITE);
+    display.setCursor(x, y);
+    display.print(valueString);
+  }
+  while (display.nextPage());
+  delay(2000);
+  // make the partial window big enough to cover the previous text
+  uint16_t ww = tbw; // remember window width
+  display.getTextBounds(HelloEpaper, 0, 0, &tbx, &tby, &tbw, &tbh);
+  // adjust, because HelloEpaper was aligned, not centered (could calculate this to be precise)
+  ww = max(ww, uint16_t(tbw + 12)); // 12 seems ok 
+  wx = (display.width() - tbw) / 2;
+  // make the window big enough to cover (overwrite) descenders of previous text
+  uint16_t wh = FreeMonoBold9pt7b.yAdvance;
+  wy = (display.height() * 3 / 4) - wh / 2;
+  display.setPartialWindow(wx, wy, ww, wh);
+  // alternately use the whole width for partial window
+  //display.setPartialWindow(0, wy, display.width(), wh);
+  display.firstPage();
+  do
+  {
+    display.fillScreen(GxEPD_WHITE);
+    display.setCursor(x, y);
+    display.print(valueString);
+  }
+  while (display.nextPage());
+  //Serial.println("helloValue done");
 }
 
 void deepSleepTest()

@@ -5,6 +5,40 @@
 #include <sdcardHAL.h>
 
 #include "DebugConfig.h"
+#include <HardwareConfig.h>
+
+/* VarioSettings -- 
+ *
+ * Copyright 2019 Jean-philippe GOI
+ * 
+ * .
+ *
+ * ToneHAL is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * ToneHAL is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+/*********************************************************************************/
+/*                                                                               */
+/*                           VarioSettings                                       */
+/*                                                                               */
+/*  version    Date     Description                                              */
+/*    1.0                                                                        */
+/*    1.0.1  24/06/19   suppression  VARIOMETER_POWER_ON_DELAY 									 */
+/*                                                                               */
+/*********************************************************************************/
+
+
+
 
 
 /*----------------------------*/
@@ -51,11 +85,12 @@
 
 /* time needed to power on all the devices */
 /* Version 1 et 2                          */
-#define VARIOMETER_POWER_ON_DELAY 2000
+//#define VARIOMETER_POWER_ON_DELAY 2000
 
 /******************************************************/
 /******************************************************/
 
+#define VARIOMETER_MODEL_NAME "GnuVario-E"
 
 class VarioSettings {
 
@@ -67,12 +102,12 @@ class VarioSettings {
   uint8_t soundSettingRead(void);
   void soundSettingWrite(uint8_t volume);
 
-#ifdef IMU_DEBUG 
+#ifdef SDCARD_DEBUG 
   int exINT = 15;
   float exFloat = 1.12345;
   boolean exBoolean = true;
   long exLong = 2123456789;
-#endif //IMU_DEBUG
+#endif //SDCARD_DEBUG
   
   String VARIOMETER_PILOT_NAME = "Magali";
   String VARIOMETER_GLIDER_NAME = "MAC-PARA Muse 3";
@@ -86,7 +121,8 @@ class VarioSettings {
 
 /* the duration of the two screen pages in milliseconds */
   int16_t VARIOMETER_BASE_PAGE_DURATION = 3000;
-  int16_t VARIOMETER_ALTERNATE_PAGE_DURATION =3000;
+  int16_t VARIOMETER_ALTERNATE_PAGE_DURATION = 3000;
+	int16_t VARIOMETER_MULTIDISPLAY_DURATION = 2000;
 
   /*********/
   /* Beeps */
@@ -127,6 +163,17 @@ class VarioSettings {
   /* -> As soon as possible (GPS fix)                     */
   /* -> When flight start is detected                     */
    boolean VARIOMETER_RECORD_WHEN_FLIGHT_START = true;
+
+/* Display integrated climb rate or instantaneous values if disabled     */
+/* If enabled set the integration time in ms.                            */
+/* ! Climb rate integration time must not be more than glide ratio one ! */
+/* **************************  boolean VARIOMETER_DISPLAY_INTEGRATED_CLIMB_RATE = false;
+  int VARIOMETER_CLIMB_RATE_INTEGRATION_TIME       = 2000;
+  float VARIOMETER_INTEGRATED_CLIMB_RATE_DISPLAY_FREQ = 2.0;  ******************** */
+
+/* Glide ratio display parameters  */
+/* Integration time in ms.         */
+// **********************************  long VARIOMETER_GLIDE_RATIO_INTEGRATION_TIME = 15000;
 
   /* What type of vario NMEA sentence is sent by bluetooth. */
   /* Possible values are :                                  */
@@ -173,30 +220,34 @@ class VarioSettings {
     uint16_t VARIO_SINK_FREQHZ  =   400;
     uint16_t VARIO_TICK_FREQHZ  =   200;
 
+		float 	 RATIO_MAX_VALUE 		=		30.0;
+		float		 RATIO_MIN_SPEED 		=		10.0;
+		
+
 // audio feedback tones
     uint16_t BATTERY_TONE_FREQHZ	=	400;
     uint16_t CALIB_TONE_FREQHZ		=	800;
     uint16_t MPU9250_ERROR_TONE_FREQHZ	= 200;
     uint16_t MS5611_ERROR_TONE_FREQHZ	= 2500;
     uint16_t SDCARD_ERROR_TONE_FREQHZ	= 2000;  
-	uint16_t BEEP_FREQ                  = 800;
+		uint16_t BEEP_FREQ                  = 800;
 	
 //Setting accelerometer
     double ACCELCALX = 0.0;
-	double ACCELCALY = 0.0;
-	double ACCELCALZ = 0.0;
+		double ACCELCALY = 0.0;
+		double ACCELCALZ = 0.0;
   
  protected:
-  File myFile;
+		File myFile;
 //  File myFile2;
-  char FileName[15] = "SETTINGS.TXT";
-  char FileFlashName[15] = "FLASH.TXT";
+		char FileName[15] = "SETTINGS.TXT";
+		char FileFlashName[15] = "FLASH.TXT";
   
-  void applySetting(String settingName, String settingValue);
-  void applyFlashSetting(String settingName, String settingValue);
-  float toFloat(String settingValue);
-  long toLong(String settingValue);
-  boolean toBoolean(String settingValue);
+		void applySetting(String settingName, String settingValue);
+		void applyFlashSetting(String settingName, String settingValue);
+		float toFloat(String settingValue);
+		long toLong(String settingValue);
+		boolean toBoolean(String settingValue);
 };
 
 extern VarioSettings GnuSettings;

@@ -115,12 +115,6 @@ void ToneHalDAC_Esp32::noTone() {
 /***********************************/
   privateToneDacEsp32.noTone();
 }
-
-/***********************************/
-void ToneHalDAC_Esp32::Audio_Amp_Enable(void) {
-/***********************************/
-  privateToneDacEsp32.Audio_Amp_Enable();
-}
 		
 #if defined(TONEDAC_EXTENDED)
 /***********************************/

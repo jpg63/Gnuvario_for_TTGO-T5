@@ -1,15 +1,16 @@
 #ifndef toneDAC_ESP32_h
 #define toneDAC_ESP32_h
 
-/****************************************************/
-/*                                                  */
-/*          Libraries ToneDAC ESP32                 */
-/*                                                  */
-/*  version    Date     Description                 */
-/*    1.0    03/03/19                               */
-/*    1.1    07/04/19   Reecriture librairie        */
-/*                                                  */
-/****************************************************/
+/*****************************************************************************/
+/*                                                                           */
+/*                        Libraries ToneDAC ESP32                            */
+/*                                                                           */
+/*  version    Date        Description                                       */
+/*    1.0      03/03/19                                                      */
+/*    1.1      07/04/19    Reecriture librairie                              */
+/*    1.1.1    10/06/19    Ajout gestion ampli class D externe               */
+/*                                                                           */
+/*****************************************************************************/
 
 #if defined(ESP32)
 

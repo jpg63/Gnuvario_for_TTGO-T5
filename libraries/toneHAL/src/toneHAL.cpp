@@ -27,12 +27,14 @@
 /*    1.1    24/01/19   Réecriture des classes                                   */
 /*                      répartition en plusieurs fichiers                        */
 /*    1.2    26/01/19   Modifications mineures                                   */
-/*    1.3    09/02/19   Ajout TONEHAL_EXTENDED_VOLUME							 */
+/*    1.3    09/02/19   Ajout TONEHAL_EXTENDED_VOLUME							               */
 /*    1.4    02/03/19   Ajout ESP32                                              */
-/*    1.4.1  12/03/19   Modifications mineures								     */
+/*    1.4.1  12/03/19   Modifications mineures								                   */
 /*    1.4.2  16/03/19   Ajout description et licence en début de fichier         */
 /*    1.4.3  08/04/19   ToneDAC pour l'ESP32                                     */
 /*    1.4.4  25/04/2019 Modification DebugConfig.h et HardwareConfig.h           */
+/*    1.4.5  05/06/2019 Déclaration de l'instance dans toneHAL.cpp						   */
+/*    1.4.6    10/06/2019 Ajout gestion ampli class D                            */ 
 /*                                                                               */
 /*********************************************************************************/
 
@@ -69,3 +71,4 @@ void ToneHal::mute(bool newMuteState) {
 
 #endif //TONEHAL_EXTENDED_VOLUME
 
+ToneHAL toneHAL;

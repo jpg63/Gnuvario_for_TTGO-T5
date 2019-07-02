@@ -1,3 +1,34 @@
+/* HardwareConfig -- 
+ *
+ * Copyright 2019 Jean-philippe GOI
+ * 
+ * HardwareConfig pour ESP32.
+ *
+ * ToneHAL is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * ToneHAL is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+/*********************************************************************************/
+/*                                                                               */
+/*                           HardwareConfig                                      */
+/*                                                                               */
+/*  version    Date     Description                                              */
+/*    1.0    03/06/19                                                            */
+/*    1.0.1  24/06/19   Ajout define VARIOMETER_POWER_ON_DELAY 									 */
+/*                                                                               */
+/*********************************************************************************/
+
+
 /*
 *****************
 MPU 9250 / MS5611
@@ -75,11 +106,11 @@ tension  IO35
 
             vbat
              |
-            100k
+            270k
              |
       IO35 ---
              |
-            100k
+            1M
              |
             GND
 
@@ -97,20 +128,10 @@ tension  IO35
 
 /* Set the pins used for Screen modules */
 
-// pins_arduino.h, e.g. LOLIN32
-//static const uint8_t SS    = 5;
-//static const uint8_t MOSI  = 23;
-//static const uint8_t MISO  = 19;
-//static const uint8_t SCK   = 18;
-
-//GxIO_Class io(SPI, SS, 17, 16);
-//GxEPD_Class display(io, 16, 4);
-
 #define VARIOSCREEN_CS_PIN SS
 #define VARIOSCREEN_DC_PIN 17
 #define VARIOSCREEN_RST_PIN 16
 #define VARIOSCREEN_BUSY_PIN 4
-
 
 
 /****************************/
@@ -131,6 +152,11 @@ tension  IO35
 #define LED_ON() 		   {GPIO.out_w1ts = (1 << (pinLED));}
 #define LED_OFF()		   {GPIO.out_w1tc = (1 << (pinLED));}
 
+#ifndef LED_BUILTIN
+#define LED_BUILTIN pinLED
+#endif
+
+
 /****************************/
 /*           Buttons        */
 /****************************/
@@ -139,11 +165,27 @@ tension  IO35
 #define VARIOBTN_CENTER_PIN 37
 #define VARIOBTN_RIGHT_PIN 39
 
-/***********************/
-/* The voltage divisor */
-/***********************/
+#define BTN_A 0
+#define BTN_B 1
+#define BTN_C 2
+#define BUTTON_A 0
+#define BUTTON_B 1
+#define BUTTON_C 2
 
-#define VOLTAGE_DIVISOR_PIN 35
+#define BUTTON_A_PIN 38
+#define BUTTON_B_PIN 37
+#define BUTTON_C_PIN 39
+
+
+/****************/
+/*     TENSION  */
+/****************/
+
+// The voltage divisor 
+
+#define VOLTAGE_DIVISOR_PIN 35  //ADC1_CH7 (GPIO 35)
+#define VOLTAGE_RESOLUTION  4096.0f
+
 
 /*************************/
 /*        GPS            */
@@ -154,24 +196,53 @@ tension  IO35
 #define pinGpsRTS  (-1)
 #define pinGpsCTS  (-1)
 
+/* The bauds rate used by the GPS and Bluetooth modules. */
+/* GPS and bluetooth need to have the same bauds rate.   */
+#define GPS_BLUETOOTH_BAUDS 9600
+
 #define GPS_UART_NUM          UART_NUM_1
 //#define UART_RX_BUFFER_SIZE   512
 #define UART_RX_BUFFER_SIZE   256
+
+/* GPS / bluetooth pins */
+#define SERIAL_NMEA_RX_PIN 19
+#define SERIAL_NMEA_TX_PIN 21
+
 
 /*************************/
 /*         AUDIO         */
 /*************************/
 
-#define pinAudioAmpEna       (34)
-#define pinAudioDAC          (25)
-#define SPEAKER_PIN 25		//or 26
-#define TONE_PIN_CHANNEL 0	// or 1
+#define PIN_AUDIO_AMP_ENA     34			//Enabled ampli class D
+#define SPEAKER_PIN 					25			//or 26
+#define TONE_PIN_CHANNEL 			0				// or 1
 
-/****************/
-/*     TENSION  */
-/****************/
+#define AUDIO_TYPE_INTERFACE
+#define TONE 													// 1 pin PWM
+//#define	TONEAC 											// 2 pins Push-Pull PWM
+//#define	TONEDAC
+//#define TONEI2S
 
-#define VOLTAGE_DIVISOR_PIN 35
+/*********************/
+/* TWO WIRE settings */
+/* MPU 9250 / MS5611 */
+/*********************/
+
+#define VARIO_TW_SDA_PIN 21
+#define VARIO_TW_SCL_PIN 22
+
+/* Set the freq */
+#define VARIO_TW_FREQ 400000UL
+
+/*************************/
+/*         POWER         */
+/*************************/
+
+#define POWER_PIN 27
+#define POWER_PIN_STATE HIGH
+
+/* time needed to power on all the devices */
+#define VARIOMETER_POWER_ON_DELAY 2000
 
 #endif
 #endif

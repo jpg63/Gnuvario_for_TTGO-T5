@@ -41,8 +41,6 @@ class ToneHalDAC_Esp32 : public ToneHal {
 
 		void noTone();
 
-		void Audio_Amp_Enable(void);
-
 #if defined(TONEDAC_EXTENDED)
 	  void beginPlayWav(uint32_t srate);
 		void endPlayWav();

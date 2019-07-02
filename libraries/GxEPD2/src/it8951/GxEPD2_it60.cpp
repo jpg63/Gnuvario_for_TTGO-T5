@@ -107,9 +107,10 @@ void GxEPD2_it60::init(uint32_t serial_diag_bitrate, bool initial, bool pulldown
 
 void GxEPD2_it60::clearScreen(uint8_t value)
 {
-  if (_initial) _Init_Full();
+  _initial_write = false; // initial full screen buffer clean done
+  if (_initial_refresh) _Init_Full();
   else _Init_Part();
-  _initial = false;
+  _initial_refresh = false;
   _setPartialRamArea(0, 0, WIDTH, HEIGHT);
   SPI.beginTransaction(_spi_settings);
   if (_cs >= 0) digitalWrite(_cs, LOW);
@@ -131,12 +132,13 @@ void GxEPD2_it60::clearScreen(uint8_t value)
 
 void GxEPD2_it60::writeScreenBuffer(uint8_t value)
 {
-  if (_initial) clearScreen(value);
+  if (_initial_refresh) clearScreen(value);
   else _writeScreenBuffer(value);
 }
 
 void GxEPD2_it60::_writeScreenBuffer(uint8_t value)
 {
+  _initial_write = false; // initial full screen buffer clean done
   if (!_using_partial_mode) _Init_Part();
   _setPartialRamArea(0, 0, WIDTH, HEIGHT);
   SPI.beginTransaction(_spi_settings);
@@ -158,6 +160,7 @@ void GxEPD2_it60::_writeScreenBuffer(uint8_t value)
 
 void GxEPD2_it60::writeImage(const uint8_t bitmap[], int16_t x, int16_t y, int16_t w, int16_t h, bool invert, bool mirror_y, bool pgm)
 {
+  if (_initial_write) writeScreenBuffer(); // initial full screen buffer clean
   delay(1); // yield() to avoid WDT on ESP8266 and ESP32
   int16_t wb = (w + 7) / 8; // width bytes, bitmaps are padded
   x -= x % 8; // byte boundary
@@ -210,6 +213,65 @@ void GxEPD2_it60::writeImage(const uint8_t bitmap[], int16_t x, int16_t y, int16
   delay(1); // yield() to avoid WDT on ESP8266 and ESP32
 }
 
+void GxEPD2_it60::writeImagePart(const uint8_t bitmap[], int16_t x_part, int16_t y_part, int16_t w_bitmap, int16_t h_bitmap,
+                                 int16_t x, int16_t y, int16_t w, int16_t h, bool invert, bool mirror_y, bool pgm)
+{
+  if (_initial_write) writeScreenBuffer(); // initial full screen buffer clean
+  delay(1); // yield() to avoid WDT on ESP8266 and ESP32
+  if ((w_bitmap < 0) || (h_bitmap < 0) || (w < 0) || (h < 0)) return;
+  if ((x_part < 0) || (x_part >= w_bitmap)) return;
+  if ((y_part < 0) || (y_part >= h_bitmap)) return;
+  int16_t wb_bitmap = (w_bitmap + 7) / 8; // width bytes, bitmaps are padded
+  x_part -= x_part % 8; // byte boundary
+  w = w_bitmap - x_part < w ? w_bitmap - x_part : w; // limit
+  h = h_bitmap - y_part < h ? h_bitmap - y_part : h; // limit
+  x -= x % 8; // byte boundary
+  w = 8 * ((w + 7) / 8); // byte boundary, bitmaps are padded
+  int16_t x1 = x < 0 ? 0 : x; // limit
+  int16_t y1 = y < 0 ? 0 : y; // limit
+  int16_t w1 = x + w < int16_t(WIDTH) ? w : int16_t(WIDTH) - x; // limit
+  int16_t h1 = y + h < int16_t(HEIGHT) ? h : int16_t(HEIGHT) - y; // limit
+  int16_t dx = x1 - x;
+  int16_t dy = y1 - y;
+  w1 -= dx;
+  h1 -= dy;
+  if ((w1 <= 0) || (h1 <= 0)) return;
+  if (!_using_partial_mode) _Init_Part();
+  _setPartialRamArea(x1, y1, w1, h1);
+  SPI.beginTransaction(_spi_settings);
+  if (_cs >= 0) digitalWrite(_cs, LOW);
+  _transfer16(0x0000); // preamble for write data
+  _waitWhileBusy2("writeImage preamble", default_wait_time);
+  for (int16_t i = 0; i < h1; i++)
+  {
+    for (int16_t j = 0; j < w1 / 8; j++)
+    {
+      uint8_t data;
+      // use wb_bitmap, h_bitmap of bitmap for index!
+      uint32_t idx = mirror_y ? x_part / 8 + (j + dx / 8) + uint32_t((h_bitmap - 1 - (y_part + i + dy))) * uint32_t(wb_bitmap) : x_part / 8 + j + dx / 8 + uint32_t(y_part + i + dy) * uint32_t(wb_bitmap);
+      if (pgm)
+      {
+#if defined(__AVR) || defined(ESP8266) || defined(ESP32)
+        data = pgm_read_byte(&bitmap[idx]);
+#else
+        data = bitmap[idx];
+#endif
+      }
+      else
+      {
+        data = bitmap[idx];
+      }
+      if (invert) data = ~data;
+      _send8pixel(~data);
+    }
+  }
+  if (_cs >= 0) digitalWrite(_cs, HIGH);
+  SPI.endTransaction();
+  _writeCommand16(IT8951_TCON_LD_IMG_END);
+  _waitWhileBusy2("writeImage load end", default_wait_time);
+  delay(1); // yield() to avoid WDT on ESP8266 and ESP32
+}
+
 void GxEPD2_it60::writeImage(const uint8_t* black, const uint8_t* color, int16_t x, int16_t y, int16_t w, int16_t h, bool invert, bool mirror_y, bool pgm)
 {
   if (black)
@@ -218,10 +280,20 @@ void GxEPD2_it60::writeImage(const uint8_t* black, const uint8_t* color, int16_t
   }
 }
 
+void GxEPD2_it60::writeImagePart(const uint8_t* black, const uint8_t* color, int16_t x_part, int16_t y_part, int16_t w_bitmap, int16_t h_bitmap,
+                                 int16_t x, int16_t y, int16_t w, int16_t h, bool invert, bool mirror_y, bool pgm)
+{
+  if (black)
+  {
+    writeImagePart(black, x_part, y_part, w_bitmap, h_bitmap, x, y, w, h, invert, mirror_y, pgm);
+  }
+}
+
 void GxEPD2_it60::writeNative(const uint8_t* data1, const uint8_t* data2, int16_t x, int16_t y, int16_t w, int16_t h, bool invert, bool mirror_y, bool pgm)
 {
   if (data1)
   {
+    if (_initial_write) writeScreenBuffer(); // initial full screen buffer clean
     delay(1); // yield() to avoid WDT on ESP8266 and ESP32
     int16_t x1 = x < 0 ? 0 : x; // limit
     int16_t y1 = y < 0 ? 0 : y; // limit
@@ -278,9 +350,23 @@ void GxEPD2_it60::drawImage(const uint8_t bitmap[], int16_t x, int16_t y, int16_
   _refresh(x, y, w, h, true);
 }
 
+void GxEPD2_it60::drawImagePart(const uint8_t bitmap[], int16_t x_part, int16_t y_part, int16_t w_bitmap, int16_t h_bitmap,
+                                int16_t x, int16_t y, int16_t w, int16_t h, bool invert, bool mirror_y, bool pgm)
+{
+  writeImagePart(bitmap, x_part, y_part, w_bitmap, h_bitmap, x, y, w, h, invert, mirror_y, pgm);
+  _refresh(x, y, w, h, true);
+}
+
 void GxEPD2_it60::drawImage(const uint8_t* black, const uint8_t* color, int16_t x, int16_t y, int16_t w, int16_t h, bool invert, bool mirror_y, bool pgm)
 {
   writeImage(black, color, x, y, w, h, invert, mirror_y, pgm);
+  _refresh(x, y, w, h, true);
+}
+
+void GxEPD2_it60::drawImagePart(const uint8_t* black, const uint8_t* color, int16_t x_part, int16_t y_part, int16_t w_bitmap, int16_t h_bitmap,
+                                int16_t x, int16_t y, int16_t w, int16_t h, bool invert, bool mirror_y, bool pgm)
+{
+  writeImagePart(black, color, x_part, y_part, w_bitmap, h_bitmap, x, y, w, h, invert, mirror_y, pgm);
   _refresh(x, y, w, h, true);
 }
 

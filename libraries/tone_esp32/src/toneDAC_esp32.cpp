@@ -1,11 +1,13 @@
-/****************************************************/
-/*                                                  */
-/*          Libraries ToneDAC ESP32                 */
-/*                                                  */
-/*  version    Date     Description                 */
-/*    1.0    07/03/19                               */
-/*                                                  */
-/****************************************************/
+/*****************************************************************************/
+/*                                                                           */
+/*                        Libraries ToneDAC ESP32                            */
+/*                                                                           */
+/*  version    Date        Description                                       */
+/*    1.0      03/03/19                                                      */
+/*    1.1      07/04/19    Reecriture librairie                              */
+/*    1.1.1    10/06/19    Ajout gestion ampli class D externe               */
+/*                                                                           */
+/*****************************************************************************/
 
 #if defined(ESP32)
 
@@ -28,24 +30,32 @@
 
 #include "driver/dac.h"
 
-/*// BEEP PIN
-#if not defined(_CONFIG_H_)
-#define SPEAKER_PIN 26		//or 25
-#endif*/
+// BEEP PIN
+#if not defined(SPEAKER_PIN)
+#define SPEAKER_PIN 25		//or 26
+#endif
 
 #if not defined(_DEBUG_H_)
 #define TONEDAC_DEBUG					//debug Tone
 //#define SerialPort Serial
 #endif
 
+#ifndef PIN_AUDIO_AMP_ENA
+#define PIN_AUDIO_AMP_ENA 			34
+#endif
+
+#ifndef HAVE_AUDIO_AMPLI
+//#define HAVE_AUDIO_AMPLI
+#endif //HAVE_AUDIO_AMPLI
+
+#define AUDIO_AMP_ENABLE()   {GPIO.out1_w1ts.val = ((uint32_t)1 << (PIN_AUDIO_AMP_ENA - 32));}
+#define AUDIO_AMP_DISABLE()  {GPIO.out1_w1tc.val = ((uint32_t)1 << (PIN_AUDIO_AMP_ENA - 32));}
+
 static int clk_8m_div = 7;  // RTC 8M clock divider (division is by clk_8m_div+1, i.e. 0 means 8MHz frequency)
 static int frequency_step = 8;  // Frequency step for CW generator
 static int scale = 0;           // full scale
 static int offset;              // leave it default / 0 = no any offset
 static int invert = 2;          // invert MSB to get sine waveform
-
-#define AUDIO_AMP_ENABLE()   {GPIO.out1_w1ts.val = ((uint32_t)1 << (pinAudioAmpEna - 32));}
-#define AUDIO_AMP_DISABLE()  {GPIO.out1_w1tc.val = ((uint32_t)1 << (pinAudioAmpEna - 32));}
 
 		// BEEP PIN
 uint8_t Speaker_Pin;	 
@@ -170,7 +180,10 @@ void ToneDacEsp32::init(uint32_t pin) {
 	if (Speaker_Pin == 25) channelDAC = DAC_CHANNEL_1;
 	else									 channelDAC = DAC_CHANNEL_2;
 	
+#ifdef HAVE_AUDIO_AMPLI
 	AUDIO_AMP_DISABLE();
+#endif //HAVE_AUDIO_AMPLI
+
   dac_cosine_enable(channelDAC);
   dac_output_enable(channelDAC);
 	scale =  3; //3 - opt.misc.speakerVolume;
@@ -250,7 +263,9 @@ void ToneDacEsp32::tone(unsigned long frequency
 
 	frequency_step = (frequency*(1+clk_8m_div)*65536)/RTC_FAST_CLK_FREQ_APPROX;
   dac_frequency_set(clk_8m_div, frequency_step);
-  AUDIO_AMP_ENABLE();
+#ifdef HAVE_AUDIO_AMPLI
+  if (PIN_AUDIO_AMP_ENA != -1) AUDIO_AMP_ENABLE();
+#endif //HAVE_AUDIO_AMPLI
 
 	#ifdef TONEDAC_LENGTH
   if (length > 0 && background) {  // Background tone playing, returns control to your sketch.
@@ -267,7 +282,9 @@ void ToneDacEsp32::tone(unsigned long frequency
 void ToneDacEsp32::noTone() {
 /***********************************/
 	dac_output_disable(channelDAC);
-  AUDIO_AMP_DISABLE();
+#ifdef HAVE_AUDIO_AMPLI	
+  if (PIN_AUDIO_AMP_ENA != -1) AUDIO_AMP_DISABLE();
+#endif //HAVE_AUDIO_AMPLI
 }
 
 #ifdef TONEDAC_LENGTH

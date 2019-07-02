@@ -22,6 +22,10 @@
 
 #define pinLED (13)
 
+#ifndef LED_BUILTIN
+#define LED_BUILTIN 22
+#endif
+
 /****************************/
 /*           Buttons        */
 /****************************/
@@ -90,6 +94,12 @@ EXTERNAL_INT_11: RX, SCK*/
 #define SOUND_EEPROM_TAG 9806
 #define SOUND_EEPROM_ADDR 0x30
 
+/*********************/
+/* MPU 9250 / MS5611 */
+/*********************/
+
+#define VARIO_TW_SDA_PIN 21
+#define VARIO_TW_SCL_PIN 22
 
 #endif
 

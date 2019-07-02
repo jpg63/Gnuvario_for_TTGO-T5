@@ -11,17 +11,17 @@
 
 boolean VarioSettings::initSettings() {
     if (!SDHAL.begin()) {
-#ifdef PROG_DEBUG
+#ifdef SDCARD_DEBUG
       SerialPort.println("initialization failed!");
-#endif //PROG_DEBUG
+#endif //SDCARD_DEBUG
       return false;
     }
 		
 	EEPROMHAL.init();
   if (!EEPROMHAL.isValid()) {
-#ifdef PROG_DEBUG
+#ifdef EEPROM_DEBUG
       SerialPort.println("initialization failed!");
-#endif //PROG_DEBUG
+#endif //EEPROM_DEBUG
       return false;
     }
  		
@@ -52,14 +52,14 @@ boolean VarioSettings::readSDSettings(){
       
       if(character == ']'){
  
-#ifdef IMU_DEBUG
+#ifdef SDCARD_DEBUG
 
         //Debuuging Printing
         SerialPort.print("Name:");
         SerialPort.println(settingName);
         SerialPort.print("Value :");
         SerialPort.println(settingValue);
-#endif //IMU_DEBUG
+#endif //SDCARD_DEBUG
 
         // Apply the value to the parameter
         applySetting(settingName,settingValue);
@@ -74,9 +74,9 @@ boolean VarioSettings::readSDSettings(){
 	return true;
   } else {
    // if the file didn't open, print an error:
-#ifdef IMU_DEBUG
+#ifdef SDCARD_DEBUG
    SerialPort.println("error opening settings.txt");
-#endif //IMU_DEBUG   
+#endif //SDCARD_DEBUG   
    return false;
   }
 }
@@ -90,12 +90,12 @@ boolean VarioSettings::readSDSettings(){
  void VarioSettings::applySetting(String settingName, String settingValue) {
  
    if (settingName == "VARIOMETER_PILOT_NAME") {
-#ifdef IMU_DEBUG
+#ifdef SDCARD_DEBUG
        SerialPort.println("Model du vario : " + settingValue);
-#endif //IMU_DEBUG
+#endif //SDCARD_DEBUG
        VARIOMETER_PILOT_NAME=settingValue;
    }
-#ifdef IMU_DEBUG  
+#ifdef SDCARD_DEBUG  
    else if(settingName == "exINT") {
      exINT=settingValue.toInt();
    }
@@ -108,7 +108,7 @@ boolean VarioSettings::readSDSettings(){
    else if(settingName == "exLong") {
      exLong=toLong(settingValue);
    }
-#endif //IMU_DEBUG   
+#endif //SDCARD_DEBUG  
     else if(settingName == "VARIOMETER_GLIDER_NAME") {
      VARIOMETER_GLIDER_NAME = settingValue;
    }
@@ -274,10 +274,34 @@ boolean VarioSettings::readSDSettings(){
  // audio feedback tones
     SDCARD_ERROR_TONE_FREQHZ=settingValue.toInt();
    }  
-   else if(settingName == "SDCARD_ERROR_TONE_FREQHZ") {
+   else if(settingName == "BEEP_FREQ") {
  // audio feedback tones
     BEEP_FREQ=settingValue.toInt();
    }  
+ /* **************************  else if(settingName == "VARIOMETER_DISPLAY_INTEGRATED_CLIMB_RATE") {
+ // audio feedback tones
+    VARIOMETER_DISPLAY_INTEGRATED_CLIMB_RATE=toBoolean(settingValue);
+   }  
+   else if(settingName == "VARIOMETER_CLIMB_RATE_INTEGRATION_TIME") {
+ // audio feedback tones
+    VARIOMETER_CLIMB_RATE_INTEGRATION_TIME=settingValue.toInt();
+   }  
+   else if(settingName == "VARIOMETER_INTEGRATED_CLIMB_RATE_DISPLAY_FREQ") {
+ // audio feedback tones
+    VARIOMETER_INTEGRATED_CLIMB_RATE_DISPLAY_FREQ=toFloat(settingValue);
+   }  
+   else if(settingName == "VARIOMETER_GLIDE_RATIO_INTEGRATION_TIME") {
+ // audio feedback tones
+    VARIOMETER_GLIDE_RATIO_INTEGRATION_TIME=settingValue.toInt();
+   }   */ //************************************************************
+   else if(settingName == "RATIO_MAX_VALUE") {
+ // audio feedback tones
+    RATIO_MAX_VALUE = toFloat(settingValue);
+    }  
+   else if(settingName == "RATIO_MIN_SPEED") {
+ // audio feedback tones
+    RATIO_MIN_SPEED = toFloat(settingValue);
+    }  
    else {       
    }  
 }
@@ -352,10 +376,10 @@ File myFile2;
   myFile2 = SDHAL.open(FileFlashName, FILE_WRITE);
   if (myFile2) {
 	  
-#ifdef IMU_DEBUG
+#ifdef SDCARD_DEBUG
         //Debuuging Printing
     SerialPort.println("Write File SD");
-#endif //IMU_DEBUG
+#endif //SDCARD_DEBUG
 
      // writing in the file works just like regular print()/println() function
     myFile2.print("[");
@@ -387,17 +411,17 @@ File myFile2;
    // myFile.flush();
     myFile2.close();
 	
-#ifdef IMU_DEBUG
+#ifdef SDCARD_DEBUG
         //Debuuging Printing
  	SerialPort.println("Writing done.");
-#endif //IMU_DEBUG
+#endif //SDCARD_DEBUG
 
    } else {
    // if the file didn't open, print an error:
-#ifdef IMU_DEBUG
+#ifdef SDCARD_DEBUG
    SerialPort.print("error opening : ");
    SerialPort.println(FileFlashName);
-#endif //IMU_DEBUG   
+#endif //SDCARD_DEBUG   
   }
 }
 
@@ -407,11 +431,11 @@ boolean VarioSettings::readFlashSDSettings(){
   String settingValue;
   File myFile2;
 
-  #ifdef IMU_DEBUG
+#ifdef SDCARD_DEBUG
 
         //Debuuging Printing
         SerialPort.println("readFlashSDSettings");
-#endif //IMU_DEBUG
+#endif //SDCARD_DEBUG
 
   myFile2 = SDHAL.open(FileFlashName);
   if (myFile2) {
@@ -433,14 +457,14 @@ boolean VarioSettings::readFlashSDSettings(){
       
       if(character == ']'){
  
-#ifdef IMU_DEBUG
+#ifdef SDCARD_DEBUG
 
         //Debuuging Printing
         SerialPort.print("Name:");
         SerialPort.println(settingName);
         SerialPort.print("Value :");
         SerialPort.println(settingValue);
-#endif //IMU_DEBUG
+#endif //SDCARD_DEBUG
 
         // Apply the value to the parameter
         applyFlashSetting(settingName,settingValue);
@@ -455,10 +479,10 @@ boolean VarioSettings::readFlashSDSettings(){
 	return true;
   } else {
    // if the file didn't open, print an error:
-#ifdef IMU_DEBUG
+#ifdef SDCARD_DEBUG
    SerialPort.print("error opening : ");
    SerialPort.println(FileFlashName);
-#endif //IMU_DEBUG   
+#endif //SDCARD_DEBUG   
    return false;
   }
 
@@ -507,9 +531,9 @@ boolean VarioSettings::readFlashSDSettings(){
  void VarioSettings::applyFlashSetting(String settingName, String settingValue) {
  
    if (settingName == "SOUND") {
-#ifdef IMU_DEBUG
+#ifdef SDCARD_DEBUG
        SerialPort.println("Sound Read File : " + settingValue);
-#endif //IMU_DEBUG
+#endif //SDCARD_DEBUG
      VARIOMETER_BEEP_VOLUME = settingValue.toInt();
    }
    else if(settingName == "ACCELCALX") {
@@ -556,28 +580,28 @@ uint8_t VarioSettings::soundSettingRead(void) {
     } else {
       /* read calibration settings */
       tmpValue =  EEPROMHAL.read(SOUND_EEPROM_ADDR + 0x02);
-#ifdef PROG_DEBUG
+#ifdef SDCARD_DEBUG
       SerialPort.print("Read sound value : ");
       SerialPort.println(tmpValue);
-#endif //PRO_DEBBUG
+#endif //SDCARD_DEBUG
 
     }
   }
 
-#ifdef PROG_DEBUG
+#ifdef SDCARD_DEBUG
   SerialPort.print("Sound value : ");
   SerialPort.println(tmpValue);
-#endif //PRO_DEBBUG
+#endif //SDCARD_DEBUG
 
   if ((tmpValue<0) || (tmpValue>10)) {tmpValue=5;}
   return tmpValue;
 }
 
 void VarioSettings::soundSettingWrite(uint8_t volume) {
-#ifdef PROG_DEBUG
+#ifdef SDCARD_DEBUG
   SerialPort.print("Write sound volume : ");
   SerialPort.println(volume);
-#endif //PRO_DEBBUG
+#endif //SDCARD_DEBUG
 
   /* write tag */
   uint16_t eepromTag = SOUND_EEPROM_TAG;

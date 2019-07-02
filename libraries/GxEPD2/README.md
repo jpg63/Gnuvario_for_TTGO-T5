@@ -7,11 +7,13 @@
 - and SPI e-paper boards from Waveshare
 
 ### important note :
-- these displays are for 3.3V supply and 3.3V data lines
+- the display panels are for 3.3V supply and 3.3V data lines
 - never connect data lines directly to 5V Arduino data pins, use e.g. 4k7/10k resistor divider
 - series resistor only is not enough for reliable operation (back-feed effect through protection diodes)
 - 4k7/10k resistor divider may not work with flat cable extensions or Waveshare 4.2 board, use level converter then
 - do not forget to connect GND
+- the actual Waveshare display boards now have level converters and series regulator, safe for 5V
+- use 4k7 pull-down on SS for ESP8266 for boards with level converters
 
 ### Paged Drawing, Picture Loop
  - This library uses paged drawing to limit RAM use and cope with missing single pixel update support
@@ -66,7 +68,25 @@
 #### other supported panels
 - ED060SCT        6" grey levels, on Waveshare e-Paper IT8951 Driver HAT
 
-### Version 1.1.6
+### Version 1.1.9
+- note for ESP8266 when using SS for CS: (wiring suggestion) 
+- connect 4.7k pull-down from GPIO15 to GND if your board or shield has level converters
+- fixes for large displays (use uint16_t for buffer index)
+#### Version 1.1.8
+- fix for incomplete download in GxEPD2_WiFi_Example
+- added missing method displayWindow() to GxEPD2_GFX base class
+- fix and clean up of initial refresh for panels with differential update
+- initial refresh needs to be full update, not "fast partial update", for these panels,
+- as the screen content may differ from the "previous buffer" content.
+- add clean of controller buffer(s) on initial write to controller, for partial update.
+#### Version 1.1.7
+- enhanced support for full buffered, non-paged use, for processors with enough RAM
+- use void display(bool partial_update_mode = false); corresponds to update() in  GxEPD
+- use added void displayWindow(uint16_t x, uint16_t y, uint16_t w, uint16_t h);
+- use added writeImagePart(...), drawImagePart(...), used by displayWindow()
+- added example GxEPD2_NotPagedExample.ino
+- several fixes, e.g. parameter range check in setPartialWindow()
+#### Version 1.1.6
 - added support for GDEH0213B72 2.13" b/w, replacement for GDE0213B1
 - changed SPI speed for IT8951 Driver HAT to 24MHz for write, 10MHz for read
 - minor fixes, e.g. centering of text bounding box in GxEPD2_Example

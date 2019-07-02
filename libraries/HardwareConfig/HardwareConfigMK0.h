@@ -153,9 +153,15 @@ EXTERNAL_INT_11: RX, SCK*/
 /*         AUDIO         */
 /*************************/
 
-#define pinAudioAmpEna       (32)
-#define pinAudioDAC          (25)
+#define PIN_AUDIO_AMP_ENA     6 			//Enabled ampli class D
+#define SPEAKER_PIN 					25			//or 26
+#define TONE_PIN_CHANNEL 			0				// or 1
 
+#define AUDIO_TYPE_INTERFACE
+#define TONE 													// 1 pin PWM
+//#define	TONEAC 											// 2 pins Push-Pull PWM
+//#define	TONEDAC
+//#define TONEI2S
 
 #endif 
 

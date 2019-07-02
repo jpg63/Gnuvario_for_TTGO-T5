@@ -11,6 +11,7 @@
 /*  version    Date          Description                                           */
 /*    1.0.0    17/02/19				                                                     */
 /*    1.0.1    19/03/19                                                            */
+/*    1.0.2    10/06/19      Ajout gestion ampli class D externe                   */
 /*                                                                                 */
 /***********************************************************************************/
 
@@ -35,11 +36,34 @@
  */
  
 #if defined(ESP32)
+
+#include "HardwareConfig.h"
  
 #include "tone_esp32.h"
+
 #include "DebugConfig.h"
 //#include "utility\Debug.h"
-#include "HardwareConfig.h"
+
+// BEEP PIN
+#ifndef SPEAKER_PIN
+#define SPEAKER_PIN 25		//or 26
+#endif
+
+#if not defined(_DEBUG_H_)
+#define TONEDAC_DEBUG					//debug Tone
+//#define SerialPort Serial
+#endif
+
+#ifndef PIN_AUDIO_AMP_ENA
+#define PIN_AUDIO_AMP_ENA 			34
+#endif
+
+#ifndef HAVE_AUDIO_AMPLI
+//#define HAVE_AUDIO_AMPLI
+#endif //HAVE_AUDIO_AMPLI
+
+#define AUDIO_AMP_ENABLE()   {GPIO.out1_w1ts.val = ((uint32_t)1 << (PIN_AUDIO_AMP_ENA - 32));}
+#define AUDIO_AMP_DISABLE()  {GPIO.out1_w1tc.val = ((uint32_t)1 << (PIN_AUDIO_AMP_ENA - 32));}
 
 ToneEsp32::ToneEsp32(void) {
 //    _volume = 8;
@@ -68,8 +92,13 @@ void ToneEsp32::init(uint32_t pin)
 	
 	Tone_Pin_Channel = TONE_PIN_CHANNEL;
 
+#ifdef HAVE_AUDIO_AMPLI
+	AUDIO_AMP_DISABLE();
+#endif //HAVE_AUDIO_AMPLI
+
 	ledcSetup(Tone_Pin_Channel, 0, 8);
   ledcAttachPin(Speaker_Pin, Tone_Pin_Channel);
+	digitalWrite(Speaker_Pin,0);
   // digitalWrite(SPEAKER_PIN, 0);
   setBeep(1000, 100);
 }
@@ -107,6 +136,10 @@ void ToneEsp32::tone(unsigned long frequency
 
   ledcWriteTone(Tone_Pin_Channel, frequency);
 	ledcWrite(Tone_Pin_Channel, duty);
+
+#ifdef HAVE_AUDIO_AMPLI
+  if (PIN_AUDIO_AMP_ENA != -1) AUDIO_AMP_ENABLE();
+#endif //HAVE_AUDIO_AMPLI
 
 /*  ledcWriteTone(Tone_Pin_Channel, 2000);
  
@@ -166,6 +199,10 @@ void ToneEsp32::noTone() {
 #endif
 	ledcWriteTone(Tone_Pin_Channel, 0);
   digitalWrite(Speaker_Pin, 0);
+	
+#ifdef HAVE_AUDIO_AMPLI	
+  if (PIN_AUDIO_AMP_ENA != -1) AUDIO_AMP_DISABLE();
+#endif //HAVE_AUDIO_AMPLI
 }
 
 #ifdef TONEAC_LENGTH

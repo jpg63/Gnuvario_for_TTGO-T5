@@ -80,13 +80,15 @@
 /*    1.1.0    24/01/19   Réecriture des classes                                   */
 /*                        répartition en plusieurs fichiers                        */
 /*    1.1.1    26/01/19   Modifications mineures                                   */
-/*    1.3.0    09/02/19   Ajout TONEHAL_EXTENDED_VOLUME							   */
+/*    1.3.0    09/02/19   Ajout TONEHAL_EXTENDED_VOLUME							               */
 /*    1.4.0    02/03/19   Réécriture de la bibliotheque                            */
 /*                        Ajout ESP32                                              */
-/*    1.4.1    12/03/19   Modifications mineures								   */
+/*    1.4.1    12/03/19   Modifications mineures								                   */
 /*    1.4.2    16/03/19   Ajout description et licence en début de fichier         */
-/*    1.4.3  08/04/19   ToneDAC pour l'ESP32                                       */
+/*    1.4.3    08/04/19   ToneDAC pour l'ESP32                                     */
 /*    1.4.4    25/04/2019 Modification DebugConfig.h et HardwareConfig.h           */
+/*    1.4.5    05/06/2019 Déclaration de l'instance dans toneHAL.cpp							 */
+/*    1.4.6    10/06/2019 Ajout gestion ampli class D                              */ 
 /*                                                                                 */
 /***********************************************************************************/
 
@@ -104,7 +106,7 @@
 /*                DAC                               OK                             */
 /*                I2S                               not yet developed              */
 /*                                                                                 */
-/* ESP32          PWM 1 pin                         OK                             */
+/*  ESP32         PWM 1 pin                         OK                             */
 /*                PWM 2 pins                        not yet developed              */
 /*                DAC                               in development                 */
 /*                I2S                               not yet developed              */
@@ -121,19 +123,26 @@
 #define WAVEFORM_SQUARE			3
 #define WAVEFORM_WAV 			4
 
-	
-#define DEFAULT_VOLUME 			5
-
 #define TONEHAL_EXTENDED_VOLUME
 
 /****************************/
 /* Interface Type           */
 /****************************/
 
-//#define TONEI2S
-#define	TONEDAC
+#ifndef AUDIO_TYPE_INTERFACE
+#define AUDIO_TYPE_INTERFACE
+
+#define TONE // 1 pin PWM
 //#define	TONEAC // 2 pins Push-Pull PWM
-//#define TONE // 1 pin PWM
+//#define	TONEDAC
+//#define TONEI2S
+#endif
+
+#ifndef DEFAULT_VOLUME
+#define DEFAULT_VOLUME 			5
+#endif
+
+//#define HAVE_AUDIO_AMPLI		
 
 class ToneHal  {
 
@@ -195,6 +204,7 @@ class ToneHal  {
 
 #endif
 
+extern ToneHAL toneHAL;
 #endif
 	
 	

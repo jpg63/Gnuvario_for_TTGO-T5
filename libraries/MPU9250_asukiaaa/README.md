@@ -1,4 +1,4 @@
-# MPU9250_asukiaaa
+# MPU9250_asukiaaa [![Build Status](https://travis-ci.org/asukiaaa/MPU9250_asukiaaa.svg?branch=master)](https://travis-ci.org/asukiaaa/MPU9250_asukiaaa)
 A library to read value of MPU9250.
 
 # Installation
@@ -26,7 +26,7 @@ You can see all function on [example project](https://github.com/asukiaaa/MPU925
 ## Accelerometer
 ```c
 #include <MPU9250_asukiaaa.h>
-MPU9250 mySensor;
+MPU9250_asukiaaa mySensor;
 float aX, aY, aZ, aSqrt;
 
 void setup() {
@@ -48,7 +48,7 @@ void loop() {
 ## Gyrometer
 ```c
 #include <MPU9250_asukiaaa.h>
-MPU9250 mySensor;
+MPU9250_asukiaaa mySensor;
 float gX, gY, gZ;
 
 void setup() {
@@ -69,7 +69,7 @@ void loop() {
 ## Magnetometer
 ```c
 #include <MPU9250_asukiaaa.h>
-MPU9250 mySensor;
+MPU9250_asukiaaa mySensor;
 float mDirection;
 uint16_t mX, mY, mZ;
 
@@ -155,7 +155,7 @@ MIT
 - [MPU-9250Register Map and DescriptionsRevision 1.6](http://www.invensense.com/wp-content/uploads/2017/11/RM-MPU-9250A-00-v1.6.pdf)
 - [HaLakeKit-Library](https://github.com/nyampass/HaLakeKit-Library)
 - [Aliexpress MPU9250](https://www.aliexpress.com/wholesale?catId=0&initiative_id=AS_20170706234529&SearchText=MPU9250)
-- [AK8963 datasheet](https://strawberry-linux.com/pub/AK8963.pdf)
+- [AK8963 datasheet](https://www.akm.com/akm/en/file/datasheet/AK8963C.pdf)
 - [jrowberg/i2cdevlib/Arduino/AK8963](https://github.com/jrowberg/i2cdevlib/tree/master/Arduino/AK8963)
 - [SparkFun_MPU-9250](https://github.com/sparkfun/SparkFun_MPU-9250_Breakout_Arduino_Library/blob/master/src/MPU9250.cpp)
 - [「MPU-9250 ９軸センサモジュール (メーカー品番：MPU-9250)」を使う](https://qiita.com/boyaki_machine/items/915f7730c737f2a5cc79)

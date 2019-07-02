@@ -35,10 +35,10 @@ mySD.h
 
 M5Stack.h
 
-CS 			13
+CS 		13
 MOSI		15
 MISO		2
-SCK			14
+SCK		14
 
 *********
 Boutons
@@ -60,6 +60,8 @@ PWM/DAC		25 ou 26
 
 (XT_DAC_Audio) for ESP32  http://www.xtronical.com/the-dacaudio-library-download-and-installation/ 
 
+
+pinAudioAmpEna	34
 
 ******************
 GPS
