@@ -33,8 +33,8 @@
 /*******************/
 
 #define VERSION      0
-#define SUB_VERSION  3
-#define BETA_CODE    2
+#define SUB_VERSION  4
+#define BETA_CODE    1
 #define DEVNAME      "JPG63"
 #define AUTHOR "J"    //J=JPG63  P=PUNKDUMP
 
@@ -50,6 +50,7 @@
  * v 0.3     beta 1      25/06/19    correction mesure tension    *
  *                                   correction mesure de vitesse *
  * v 0.3     beta 2      26/06/19    correction save IGC          *                                 
+ * v 0.4     beta 1      03/07/19    ajout la coupure du son      *
  *                                                                *
 *******************************************************************/
 
@@ -301,30 +302,6 @@ void setup() {
 
    sdcardState = SDCARD_STATE_INITIALIZED;
    GnuSettings.readSDSettings();
-
-//****************************************
-//****************************************
-//****************************************
-/*  createSDCardTrackFile();
-
-  fileIgc = SDHAL.open("TVARIO.TXT", FILE_WRITE);
-  if (fileIgc) {
-    
-#ifdef IMU_DEBUG
-        //Debuuging Printing
-    SerialPort.println("Write File SD");
-#endif //IMU_DEBUG
-
-     // writing in the file works just like regular print()/println() function
-    fileIgc.println("[TEST]");
-    fileIgc.flush();
-//    myFile2.close();
-
-      sdcardState = SDCARD_STATE_READY;
-#ifdef PROG_DEBUG
-      SerialPort.println("fichier test créé");
-#endif //PROG_DEBUG
-    }*/
     
 #ifdef SDCARD_DEBUG
    //Debuuging Printing
@@ -471,6 +448,7 @@ void setup() {
 
 
   screen.ScreenViewInit(VERSION,SUB_VERSION, AUTHOR,BETA_CODE);
+  screen.volLevel->setVolume(toneHAL.getVolume());
 
 #ifdef SCREEN_DEBUG
   SerialPort.println("update screen");
@@ -479,6 +457,7 @@ void setup() {
   screen.schedulerScreen->enableShow();
 #endif //HAVE_SCREEN
 
+  ButtonScheduleur.Set_StatePage(STATE_PAGE_VARIO);
   /* init time */
   lastDisplayTimestamp = millis(); 
   displayLowUpdateState = true;  
@@ -681,8 +660,12 @@ void loop() {
     if( nmeaParser.isParsing() ) {
 
 #ifdef GPS_DEBUG
-    SerialPort.println("mneaParser : isParsing");
+      SerialPort.println("mneaParser : isParsing");
 #endif //GPS_DEBUG
+
+#ifdef SDCARD_DEBUG
+      SerialPort.print("writeGGA : ");
+#endif //SDCARD_DEBUG
       
       while( nmeaParser.isParsing() ) {
         uint8_t c = serialNmea.read();
@@ -701,7 +684,12 @@ void loop() {
         }
 #endif //HAVE_SDCARD
       }
+      
       serialNmea.release();
+      fileIgc.flush();
+#ifdef SDCARD_DEBUG
+      SerialPort.println("");
+#endif //SDCARD_DEBUG
     
 #ifdef HAVE_BLUETOOTH   
       /* if this is the last GPS sentence */
@@ -813,11 +801,7 @@ void loop() {
   //        && (kalmanvert.getVelocity() < FLIGHT_START_VARIO_LOW_THRESHOLD || kalmanvert.getVelocity() > FLIGHT_START_VARIO_HIGH_THRESHOLD) &&
 #ifdef HAVE_GPS
 
-//**************************************************
-//***************************************************
-//**************************************************
-//***************************************************
-            &&(nmeaParser.getSpeed_no_unset() > GnuSettings.FLIGHT_START_MIN_SPEED) 
+            &&((nmeaParser.getSpeed_no_unset() > GnuSettings.FLIGHT_START_MIN_SPEED)|| (!GnuSettings.VARIOMETER_RECORD_WHEN_FLIGHT_START))
 #endif //HAVE_GPS
           ) {
           variometerState = VARIOMETER_STATE_FLIGHT_STARTED;
@@ -1067,7 +1051,12 @@ if (GnuSettings.VARIOMETER_RECORD_WHEN_FLIGHT_START) {
 }
 #endif // defined(HAVE_SDCARD) && defined(VARIOMETER_RECORD_WHEN_FLIGHT_START)
 
+#ifdef SDCARD_DEBUG
+  SerialPort.println("Record Start");        
+#endif //SDCARD_DEBUG
+
   screen.recordIndicator->setActifRECORD();
+  screen.recordIndicator->stateRECORD();
 }
 
 //$GNGGA,064607.000,4546.2282,N,00311.6590,E,1,05,2.6,412.0,M,0.0,M,,*77

@@ -226,12 +226,15 @@ class VOLLevel : public VarioScreenObject {
    : VarioScreenObject(0), posX(posX), posY(posY)   { }
 
   void setVolume(int Volume = 0);
+	void mute(bool newMuteState);
+
   void show(void);
 
  private :
   uint8_t volume=0;
   const uint8_t posX;
   const uint8_t posY;
+	bool _mute = false;
 };
 
 /* satellite level */

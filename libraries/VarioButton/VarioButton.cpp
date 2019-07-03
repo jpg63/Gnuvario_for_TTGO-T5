@@ -3,6 +3,8 @@
 
 #include <HardwareConfig.h>
 #include <sdcardHAL.h>
+#include <toneHAL.h>
+#include <varioscreenGxEPD.h>
 
 extern void printDirectory(File dir, int numTabs);
 
@@ -100,6 +102,10 @@ void VARIOButtonScheduleur::update() {
   VarioButton.update();
 }
 
+void VARIOButtonScheduleur::Set_StatePage(uint8_t state) {
+	StatePage = state;
+}
+
 File root;
 		
 void VARIOButtonScheduleur::treatmentBtnA(bool Debounce) {
@@ -124,24 +130,14 @@ void VARIOButtonScheduleur::treatmentBtnA(bool Debounce) {
 
 void VARIOButtonScheduleur::treatmentBtnB(bool Debounce) {
 	
-/*    SerialPort.println("Write test.txt");
-
-    // open "test.txt" for writing 
-    root = SDHAL.open("test.txt", FILE_WRITE);
-    // if open succesfully -> root != NULL 
-    //   then write string "Hello world!" to it
-    
-    if (root) {
-      root.println("Hello world!");
-      root.flush();
-      // close the file 
-      root.close();
-    } else {
-      // if the file open error, print an error 
-      SerialPort.println("error opening test.txt");
-    }
-    SerialPort.println("done!");	
-	*/
+#ifdef BUTTON_DEBUG
+    SerialPort.println("Mute");
+#endif //BUTTON_DEBUG
+	
+  if (StatePage == STATE_PAGE_VARIO) {
+		toneHAL.mute(!toneHAL.isMute());
+		screen.volLevel->mute(toneHAL.isMute());
+	}		
 	
 }
 

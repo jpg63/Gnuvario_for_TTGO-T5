@@ -51,31 +51,32 @@ uint8_t GPSSentence::begin(double baroAlti) {
 }
 
 void GPSSentence::writePosition(kalmanvert kalmanvert) {
+	
+#ifdef SDCARD_DEBUG
+		SerialPort.print("WritePosition sdcardState : ");
+		SerialPort.println(sdcardState);
+#endif //SDCARD_DEBUG
+	
   if( sdcardState == SDCARD_STATE_READY ) {
 #ifdef VARIOMETER_SDCARD_SEND_CALIBRATED_ALTITUDE
 #ifdef SDCARD_DEBUG
-  SerialPort.println("fileIGC : write");
+		SerialPort.println("fileIGC : writePosition");
 #endif //SDCARD_DEBUG
 
-  fileIgc.write( igc.begin( kalmanvert.getCalibratedPosition() ) );
+		fileIgc.write( igc.begin( kalmanvert.getCalibratedPosition() ) );
 #else
 #ifdef SDCARD_DEBUG
-  SerialPort.println("fileIGC : write");
+		SerialPort.println("fileIGC : writePosition");
 #endif //SDCARD_DEBUG
 
-#ifdef SDCARD_DEBUG
-  SerialPort.println("fileIGC : write Get position");
-#endif //SDCARD_DEBUG
-
-  fileIgc.write( igc.begin( kalmanvert.getPosition() ) );
+		fileIgc.write( igc.begin( kalmanvert.getPosition() ) );
 #endif
-      }
-
+  }
 }
 
 void GPSSentence::writeGGA(void) {
 #ifdef SDCARD_DEBUG
-	SerialPort.print("fileIGC GGA : ");
+//	SerialPort.print("writeGGA : ");
 #endif //SDCARD_DEBUG
 	
 	while( igc.available() ) {
@@ -85,11 +86,11 @@ void GPSSentence::writeGGA(void) {
 		SerialPort.print(char(tmpigc));
 #endif //SDCARD_DEBUG
 		
-		fileIgc.print( char(tmpigc) );
+		fileIgc.write( char(tmpigc) );
 	}
 	
 #ifdef SDCARD_DEBUG
-		SerialPort.println("");
+//		SerialPort.println("");
 #endif //SDCARD_DEBUG
 	
 }
@@ -143,12 +144,10 @@ bool GPSSentence::CreateIgcFile(void) {
       SerialPort.println("createSDCardTrackFile : Write Header ");
 #endif //SDCARD_DEBUG
      
-
-
       /* write the header */
       int16_t datePos = header.begin();
       if( datePos >= 0 ) {
-				for (int i=0; i < 4;i++) {
+				for (int i=0; i < 3;i++) {
 #ifdef SDCARD_DEBUG
 					SerialPort.print(headerStrings[i]);
 #endif //SDCARD_DEBUG
@@ -157,7 +156,7 @@ bool GPSSentence::CreateIgcFile(void) {
 
         /* write date : DDMMYY */
         uint8_t* dateCharP = &dateChar[4];
-        for(int i=0; i<2; i++) {
+        for(int i=0; i<3; i++) {
           fileIgc.write(char(dateCharP[0]));
 #ifdef SDCARD_DEBUG
           SerialPort.print(char(dateCharP[0]));
@@ -307,6 +306,40 @@ const char* headerStrings[] = {	IGCHeader00,
 																IGCHeader09,
 																NULL,
 																IGCHeader11};
+
+
+
+ B Record - Fix
+This is a fixed size record, the size of which is defined in the I Record. The mandatory data is: UTC, latitude, longitude, fix validity and pressure altitude. It is recommended to include GPS altitude and fix accuracy if they are available.
+The format of the mandatory data is:
+
+B H H M M S S D D M M M M M N D D D M M M M M E V P P P P P CR LF 
+
+Description     Size              Element          Remarks
+
+Time            6 bytes           HHMMSS           Valid characters 0-9
+Latitude        8 bytes           DDMMMMMN         Valid characters N, S, 0-9
+Longitude       9 bytes           DDDMMMMME        Valid characters E,W, 0-9
+Fix valid       1 byte            V                A: valid, V:nav warning
+Press Alt.      5 bytes           PPPPP            Valid characters -, 0-9
+The "fix valid" byte should be taken from the NMEA GPRMC sentence. It is the "Nav receiver status flag" of that sentence. If the GPS receiver does not use the NMEA protocol, then an equivalent flag must be provided.
+The format of the recommended data is:
+
+B H H M M S S D D M M M M M N D D D M M M M M E V P P P P P   
+G G G G G A A A CR LF 
+
+Description    Size           Element                Remarks
+
+GPS Alt.       5 bytes        GGGGG                  Valid characters -, 0-9
+Fix Accuracy   3 bytes        AAA                    Valid characters 0-9
+This data may be extended by use of the I Record:
+B H H M M S S D D M M M M M N D D D M M M M M E V P P P P P 
+G G G G G A A A R R R R CR LF
+
+Description     Size          Element                Remarks
+
+Engine RPM      4 bytes       RRRR                   Valid characters 0-9
+The engine data may be appended without the recommended GPS Altitude and Fix Accuracy provided that the I Record specifies that format.
 
 */
 

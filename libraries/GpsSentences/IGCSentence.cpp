@@ -309,11 +309,23 @@ uint8_t IGCSentence::begin(double baroAlti) {
     intAlti = 0;
   }
 
+#ifdef IGC_DEBUG
+  SerialPort.print("IGCSentence begin : ");
+#endif //IGC_DEBUG
+
   /* fill in reverse order */
   for( int i = 0; i<IGC_SENTENCE_ALTI_SIZE; i++ ) {
     digitBuffer[i] = '0' + (intAlti % 10);
     intAlti /= 10;
+#ifdef IGC_DEBUG
+  SerialPort.print(digitBuffer[i]);
+#endif //IGC_DEBUG
+
   }
+
+#ifdef IGC_DEBUG
+  SerialPort.println();
+#endif //IGC_DEBUG
 
   return 'B';
 }
@@ -367,27 +379,27 @@ void IGCSentence::feed(uint8_t c) {
     if( digitCount < IGC_SENTENCE_ALTI_SIZE ) {
       /* if dot was not found get the digit */
       if( c != '.' ) {
-	digitBuffer[digitCount] = c;
-	digitCount--;
+				digitBuffer[digitCount] = c;
+				digitCount--;
       }
 
       /* build alti digits */
       else {
-	uint8_t i = 0;
+				uint8_t i = 0;
 	
-	/* translate digits */
-	digitCount++;
-	while( digitCount < IGC_SENTENCE_ALTI_SIZE ) {
-	  digitBuffer[i] = digitBuffer[digitCount];
-	  i++;
-	  digitCount++;
-	}
+				/* translate digits */
+				digitCount++;
+				while( digitCount < IGC_SENTENCE_ALTI_SIZE ) {
+					digitBuffer[i] = digitBuffer[digitCount];
+					i++;
+					digitCount++;
+				}
 
-	/* fill with 0 */
-	while( i < IGC_SENTENCE_ALTI_SIZE ) {
-	  digitBuffer[i] = '0';
-	  i++;
-	}
+				/* fill with 0 */
+				while( i < IGC_SENTENCE_ALTI_SIZE ) {
+					digitBuffer[i] = '0';
+					i++;
+				}
       }
     }
   }
@@ -395,8 +407,8 @@ void IGCSentence::feed(uint8_t c) {
   /* -> we are outputting digits */
   else {
     if( commaCount < 8 && c != '.' && digitCount ) {
-	digitCount--;
-	outc = c;
+			digitCount--;
+			outc = c;
     }
   }
 }

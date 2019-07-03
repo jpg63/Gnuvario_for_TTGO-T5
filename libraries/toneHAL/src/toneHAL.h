@@ -89,6 +89,7 @@
 /*    1.4.4    25/04/2019 Modification DebugConfig.h et HardwareConfig.h           */
 /*    1.4.5    05/06/2019 Déclaration de l'instance dans toneHAL.cpp							 */
 /*    1.4.6    10/06/2019 Ajout gestion ampli class D                              */ 
+/*    1.4.7    02/07/19   Ajout isMute()                                           */
 /*                                                                                 */
 /***********************************************************************************/
 
@@ -166,6 +167,7 @@ class ToneHal  {
 
 		    /* mute/unmute setting */
     void mute(bool newMuteState);
+		bool isMute(void); 
 
 	protected:
 		uint8_t _volume = 10;	

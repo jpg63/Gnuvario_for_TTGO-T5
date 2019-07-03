@@ -1587,6 +1587,14 @@ void VOLLevel::setVolume(int Volume) {
 }
 
 //****************************************************************************************************************************
+void VOLLevel::mute(bool newMuteState) {
+//****************************************************************************************************************************
+  _mute = newMuteState;
+	
+	reset();
+}
+
+//****************************************************************************************************************************
 void VOLLevel::show(void) {
 //****************************************************************************************************************************
 
@@ -1601,7 +1609,7 @@ void VOLLevel::show(void) {
  
   display.fillRect(posX, posY, 32, 32, GxEPD_WHITE);
 //	display.drawRect(posX, posY, 32, 32, GxEPD_BLACK);
-  if (volume == 0)  display.drawInvertedBitmap(posX, posY, volume0icons, 32, 32, GxEPD_BLACK);   //GxEPD_BLACK);
+  if (_mute || (volume == 0))  display.drawInvertedBitmap(posX, posY, volume0icons, 32, 32, GxEPD_BLACK);   //GxEPD_BLACK);
   else if (volume < 5) display.drawInvertedBitmap(posX, posY, volume1icons, 32, 32, GxEPD_BLACK);   //GxEPD_BLACK);
   else if (volume < 9) display.drawInvertedBitmap(posX, posY, volume2icons, 32, 32, GxEPD_BLACK);   //GxEPD_BLACK);
   else  display.drawInvertedBitmap(posX, posY, volume3icons, 32, 32, GxEPD_BLACK);   //GxEPD_BLACK);
@@ -1771,6 +1779,10 @@ void RECORDIndicator::show(void) {
   display.fillRect(posX, posY, 32, 32, GxEPD_WHITE);
 
   if( recordState==STATE_RECORD) {
+#ifdef SCREEN_DEBUG
+		SerialPort.println("Show : STATE_RECORD");
+#endif //SCREEN_DEBUG
+		
 	  if( displayRecord)
         display.drawInvertedBitmap(posX, posY,recicons,  32, 32, GxEPD_BLACK);   //GxEPD_BLACK);
 	  else
