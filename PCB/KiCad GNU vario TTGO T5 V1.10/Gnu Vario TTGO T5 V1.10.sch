@@ -1,12 +1,13 @@
 EESchema Schematic File Version 4
+LIBS:Gnu Vario TTGO T5 V1.9-cache
 EELAYER 26 0
 EELAYER END
 $Descr A4 11693 8268
 encoding utf-8
 Sheet 1 1
 Title "GNU Vario for TTGO T5"
-Date "2019-06-16"
-Rev "V 1.3"
+Date "2019-07-02"
+Rev "V 1.4"
 Comp "Ratamuse"
 Comment1 ""
 Comment2 ""
@@ -140,10 +141,6 @@ Wire Wire Line
 Wire Wire Line
 	4150 2200 5400 2200
 Wire Wire Line
-	4550 2600 4550 2000
-Wire Wire Line
-	5000 2000 5000 2600
-Wire Wire Line
 	6300 1500 6300 1800
 Wire Wire Line
 	6300 1800 5800 1800
@@ -168,13 +165,6 @@ Wire Wire Line
 	5900 2300 5900 2500
 Wire Wire Line
 	6100 2500 6100 2450
-Wire Wire Line
-	5700 2500 5200 2500
-Wire Wire Line
-	5200 2500 5200 2600
-Wire Wire Line
-	5200 2600 5000 2600
-Connection ~ 5000 2600
 Wire Wire Line
 	5900 4800 4150 4800
 Wire Wire Line
@@ -219,8 +209,6 @@ Wire Wire Line
 	3950 2050 3950 3400
 Wire Wire Line
 	7850 4650 7850 5000
-Wire Wire Line
-	4550 2600 5000 2600
 Wire Wire Line
 	3950 5000 7100 5000
 Wire Wire Line
@@ -285,4 +273,13 @@ Wire Wire Line
 	7150 4400 7150 3400
 Wire Wire Line
 	7150 3400 7200 3400
+Wire Wire Line
+	4550 2000 4550 2500
+Wire Wire Line
+	4550 2500 5000 2500
+Wire Wire Line
+	5000 2000 5000 2500
+Connection ~ 5000 2500
+Wire Wire Line
+	5000 2500 5700 2500
 $EndSCHEMATC
