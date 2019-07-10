@@ -6,22 +6,18 @@
 #endif
 
 MPU9250_asukiaaa mySensor;
-
-uint8_t sensorId;
 float aX, aY, aZ, aSqrt, gX, gY, gZ, mDirection, mX, mY, mZ;
 
 void setup() {
-  while(!Serial);
   Serial.begin(115200);
+  while(!Serial);
   Serial.println("started");
 
 #ifdef _ESP32_HAL_I2C_H_ // For ESP32
-  Wire.begin(SDA_PIN, SCL_PIN); // SDA, SCL
-#else
-  Wire.begin();
+  Wire.begin(SDA_PIN, SCL_PIN);
+  mySensor.setWire(&Wire);
 #endif
 
-  mySensor.setWire(&Wire);
   mySensor.beginAccel();
   mySensor.beginGyro();
   mySensor.beginMag();
@@ -30,40 +26,52 @@ void setup() {
   // mySensor.magXOffset = -50;
   // mySensor.magYOffset = -55;
   // mySensor.magZOffset = -10;
-
-  sensorId = mySensor.readId();
 }
 
 void loop() {
-  Serial.println("sensorId: " + String(sensorId));
+  uint8_t sensorId;
+  if (mySensor.readId(&sensorId) == 0) {
+    Serial.println("sensorId: " + String(sensorId));
+  } else {
+    Serial.println("Cannot read sensorId");
+  }
 
-  mySensor.accelUpdate();
-  aX = mySensor.accelX();
-  aY = mySensor.accelY();
-  aZ = mySensor.accelZ();
-  aSqrt = mySensor.accelSqrt();
-  Serial.println("accelX: " + String(aX));
-  Serial.println("accelY: " + String(aY));
-  Serial.println("accelZ: " + String(aZ));
-  Serial.println("accelSqrt: " + String(aSqrt));
+  if (mySensor.accelUpdate() == 0) {
+    aX = mySensor.accelX();
+    aY = mySensor.accelY();
+    aZ = mySensor.accelZ();
+    aSqrt = mySensor.accelSqrt();
+    Serial.println("accelX: " + String(aX));
+    Serial.println("accelY: " + String(aY));
+    Serial.println("accelZ: " + String(aZ));
+    Serial.println("accelSqrt: " + String(aSqrt));
+  } else {
+    Serial.println("Cannod read accel values");
+  }
 
-  mySensor.gyroUpdate();
-  gX = mySensor.gyroX();
-  gY = mySensor.gyroY();
-  gZ = mySensor.gyroZ();
-  Serial.println("gyroX: " + String(gX));
-  Serial.println("gyroY: " + String(gY));
-  Serial.println("gyroZ: " + String(gZ));
+  if (mySensor.gyroUpdate() == 0) {
+    gX = mySensor.gyroX();
+    gY = mySensor.gyroY();
+    gZ = mySensor.gyroZ();
+    Serial.println("gyroX: " + String(gX));
+    Serial.println("gyroY: " + String(gY));
+    Serial.println("gyroZ: " + String(gZ));
+  } else {
+    Serial.println("Cannot read gyro values");
+  }
 
-  mySensor.magUpdate();
-  mX = mySensor.magX();
-  mY = mySensor.magY();
-  mZ = mySensor.magZ();
-  mDirection = mySensor.magHorizDirection();
-  Serial.println("magX: " + String(mX));
-  Serial.println("maxY: " + String(mY));
-  Serial.println("magZ: " + String(mZ));
-  Serial.println("horizontal direction: " + String(mDirection));
+  if (mySensor.magUpdate() == 0) {
+    mX = mySensor.magX();
+    mY = mySensor.magY();
+    mZ = mySensor.magZ();
+    mDirection = mySensor.magHorizDirection();
+    Serial.println("magX: " + String(mX));
+    Serial.println("maxY: " + String(mY));
+    Serial.println("magZ: " + String(mZ));
+    Serial.println("horizontal direction: " + String(mDirection));
+  } else {
+    Serial.println("Cannot read mag values");
+  }
 
   Serial.println("at " + String(millis()) + "ms");
   Serial.println(""); // Add an empty line

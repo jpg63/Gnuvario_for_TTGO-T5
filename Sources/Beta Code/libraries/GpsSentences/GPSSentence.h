@@ -37,7 +37,7 @@ class GPSSentence {
   uint8_t begin(double baroAlti);
 	void writePosition(kalmanvert kalmanvert);
 	void writeGGA(void);
-	bool CreateIgcFile();
+	uint8_t* CreateIgcFile();
 
  private:
 

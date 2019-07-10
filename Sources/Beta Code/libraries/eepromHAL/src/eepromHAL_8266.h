@@ -1,3 +1,13 @@
+/*********************************************************************************/
+/*                                                                               */
+/*                           Libraries eepromHal_8266                            */
+/*                                                                               */
+/*  version    Date     Description                                              */
+/*    1.0    06/02/19                                                            */
+/*    1.1    09/07/19   Ajout init(size)
+/*                                                                               */
+/*********************************************************************************/
+
 #ifndef eepromHAL_8266_h
 #define eepromHAL_8266_h
 
@@ -10,6 +20,8 @@ class EepromHal_8266 : public EepromHal {
   public:
 
 		void init(void);
+
+	  void init(int size);
 
     /**
      * Read an eeprom cell

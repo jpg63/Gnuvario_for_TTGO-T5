@@ -1,9 +1,10 @@
 /*********************************************************************************/
 /*                                                                               */
-/*                           Libraries eepromHal_PRO                             */
+/*                           Libraries eepromHal_8266                            */
 /*                                                                               */
 /*  version    Date     Description                                              */
 /*    1.0    06/02/19                                                            */
+/*    1.1    09/07/19   Ajout init(size)
 /*                                                                               */
 /*********************************************************************************/
 
@@ -27,6 +28,8 @@
 EepromHAL EEPROMHAL;
 
 void EepromHal_8266::init(void) {}
+
+void EepromHal_8266::init(int size) {}
 
 uint8_t EepromHal_8266::read(int address)
 {

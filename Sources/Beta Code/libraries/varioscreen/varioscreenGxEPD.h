@@ -33,6 +33,7 @@
 
 #include <Arduino.h>
 #include <digit.h>
+#include <variostat.h>
 
 #include <GxEPD2_BW.h>
 #include <GxEPD2_3C.h>
@@ -419,6 +420,7 @@ class ScreenScheduler {
   void previousPage(void);
 	void enableShow(void);
 	void disableShow(void);
+	void displayAll(void);
 	
  private:
   //const 
@@ -429,6 +431,7 @@ class ScreenScheduler {
   int8_t currentPage;
 	int8_t currentMultiDisplay = 1;
   const int8_t endPage;
+	bool   IsDisplayAll = false;
 };
 
 /*
@@ -522,6 +525,7 @@ class VarioScreen {
 //  void clearScreen(void); 
 
   void ScreenViewInit(uint8_t Version, uint8_t Sub_Version, String Author, uint8_t Beta_Code);
+	void ScreenViewStat(VarioStat flystat);
 	void ScreenViewPage(int8_t page, boolean clear);
 		
 	void CreateObjectDisplay(int8_t ObjectDisplayTypeID, VarioScreenObject* object, int8_t page, int8_t multiDisplayID, boolean actif); 

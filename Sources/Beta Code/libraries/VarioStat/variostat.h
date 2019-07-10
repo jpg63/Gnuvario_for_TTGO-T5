@@ -1,3 +1,32 @@
+/* varioStat -- 
+ *
+ * Copyright 2019 Jean-philippe GOI
+ * 
+ * This file is part of GnuVario-E.
+ *
+ * ToneHAL is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * ToneHAL is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+/*********************************************************************************/
+/*                                                                               */
+/*                           VarioStat                                           */
+/*                                                                               */
+/*  version    Date     Description                                              */
+/*    1.0      06/07/19                                                          */
+/*                                                                               */
+/*********************************************************************************/
+
 #ifndef VARIOSTAT_H
 #define VARIOSTAT_H
 
@@ -25,13 +54,18 @@ class VarioStat {
    void SetSpeed(double speed);
    void SetVario(double vario);
    void SetDuration(int8_t* duree);
+	 void SetTime(int8_t* duree);
+	 void SetDate(uint8_t* dateValue);
    double GetAlti(void);
    double GetVarioMin(void);
    double GetVarioMax(void);
    double GetSpeed(void);
-   int8_t* GetDuration(void);
+   void GetDuration(int8_t* dureeValue);
+	 void GetTime(int8_t* timeValue);
+	 void GetDate(uint8_t* dateValue);
    void Display(void);
-   bool  Handle(void);
+   bool Handle(void);
+	 void ForceWrite(void);
 
  private:
    unsigned long Timer;
@@ -40,7 +74,10 @@ class VarioStat {
    double        MaxVario;
    double        MinVario;
    bool          EnableRecord;
-   int8_t 		 time[3];
+   int8_t 		   time[3];
+	 int8_t        duree[3];
+	 uint8_t       date[4];
+	 bool          firsttime;
      
    void ReadEeprom(void);
    void WriteEeprom(void);

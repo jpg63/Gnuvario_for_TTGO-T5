@@ -1,6 +1,6 @@
 /*********************************************************************************/
 /*                                                                               */
-/*                           Libraries ToneHal                                   */
+/*                           Libraries EepromHAL                                 */
 /*                                                                               */
 /*  version    Date     Description                                              */
 /*    1.0    20/01/19                                                            */
@@ -10,6 +10,7 @@
 /*    1.3    01/04/19   Ajout ESP32                                              */
 /*    1.3.1  02/04/19   Ajout fonction init                                      */
 /*    1.3.2  07/05/19   Ajout #include <DebugConfig.h> et EepromHAL EEPROMHAL;   */
+/*    1.3.3  09/07/19   Ajout init(int size)                                     */
 /*                                                                               */
 /*********************************************************************************/
 
@@ -22,12 +23,18 @@ int EepromHal::readInt(int address){
 	int value = 0x0000;
 	value = value | (read(address) << 8);
 	value = value | read(address+1);
-   return value;
+  return value;
 }
 
-void EepromHal::writeInt(int address, int value){
-   write(address, (value >> 8) & 0xFF );
-   write(address+1, value & 0xFF);
+int EepromHal::readInt(int address, int* value){
+  *value = readInt(address);
+	return address+2;
+}
+
+int EepromHal::writeInt(int address, int value){
+  write(address, (value >> 8) & 0xFF );
+  write(address+1, value & 0xFF);
+	return address+2;
 }
  
 float EepromHal::readFloat(int address){
@@ -42,7 +49,7 @@ float EepromHal::readFloat(int address){
    return u.fval;
 }
  
-void EepromHal::writeFloat(int address, float value){
+int EepromHal::writeFloat(int address, float value){
    union u_tag {
      byte b[4];
      float fval;
@@ -53,6 +60,7 @@ void EepromHal::writeFloat(int address, float value){
    write(address+1, u.b[1]);
    write(address+2, u.b[2]);
    write(address+3, u.b[3]);
+	 return address + 4;
 }
 
 void EepromHal::readString(int offset, int bytes, char *buf){
@@ -64,14 +72,62 @@ void EepromHal::readString(int offset, int bytes, char *buf){
   }
 }
 
-void EepromHal::writeString(int offset, int bytes, char *buf){
+int EepromHal::writeString(int offset, int bytes, char *buf){
   char c = 0;
   //int len = (strlen(buf) < bytes) ? strlen(buf) : bytes;
   for (int i = 0; i < bytes; i++) {
     c = buf[i];
     write(offset + i, c); 
   }
+  return offset+bytes+1;
 }
 
+/*template <class T> int EepromHal::writeAnything(int ee, const T& value)
+{
+   const byte* p = (const byte*)(const void*)&value;
+   int i;
+   for (i = 0; i < sizeof(value); i++)
+       EEPROM.write(ee++, *p++);
+   return i;
+}
+
+template <class T> int EepromHal::readAnything(int ee, T& value)
+{
+   byte* p = (byte*)(void*)&value;
+   int i;
+   for (i = 0; i < sizeof(value); i++)
+       *p++ = EEPROM.read(ee++);
+   return i;
+}*/
+
+
+/*double testInt[12] = { -12.5, -10.00, -5.7, 0, 2.45, 2.90, 3.10, 4 , 5.6, 7.9, 5.5, 4};
+byte noElem = 12;
+unsigned int baseAddr = 0;
+unsigned int n = 0;
+
+void setup() {
+ Serial.begin(9600);
+
+ // write data to eeprom 
+ for (int i=0; i <= noElem-1; i++){
+   n = EEPROM_writeAnything( (i*4)+baseAddr, testInt[i]);
+ }
+
+ // read data back
+ for (int i=0; i <= noElem-1; i++){
+   double val;
+   int addr = (i*4)+baseAddr;
+   n = EEPROM_readAnything( addr, val);
+   Serial.println(val);
+ }
+}
+
+void loop() {
+}
+*/
+
 #endif // EEPROMHAL_EXTENDED
+
+
 

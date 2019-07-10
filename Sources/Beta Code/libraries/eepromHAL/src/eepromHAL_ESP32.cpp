@@ -49,6 +49,24 @@ void EepromHal_ESP32::init(void)
   }	
 }
 
+void EepromHal_ESP32::init(int size) 
+{
+	
+#if defined (EEPROM_DEBUG) 
+    SerialPort.println("initialise EEPROM"); 
+		SerialPort.flush();
+#endif //EEPROM_DEBUG
+
+  if (!EEPROM.begin(size))
+  {
+#if defined (EEPROM_DEBUG) 
+    SerialPort.println("failed to initialise EEPROM"); 
+		SerialPort.flush();
+		delay(1000000);
+#endif //EEPROM_DEBUG
+  }	
+}
+
 uint8_t EepromHal_ESP32::read(int address)
 {
 	uint8_t value;

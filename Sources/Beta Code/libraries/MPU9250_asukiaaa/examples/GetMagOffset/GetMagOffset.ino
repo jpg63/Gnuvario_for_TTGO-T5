@@ -1,8 +1,8 @@
 #include <MPU9250_asukiaaa.h>
 
 #ifdef _ESP32_HAL_I2C_H_
-#define SDA_PIN 26
-#define SCL_PIN 25
+#define SDA_PIN 21
+#define SCL_PIN 22
 #endif
 
 #define CALIB_SEC 20
@@ -13,8 +13,8 @@ uint8_t sensorId;
 float mDirection, mX, mY, mZ;
 
 void setup() {
-  while(!Serial);
   Serial.begin(115200);
+  while(!Serial);
   Serial.println("started");
 
 #ifdef _ESP32_HAL_I2C_H_ // For ESP32
@@ -24,8 +24,11 @@ void setup() {
 #endif
 
   mySensor.setWire(&Wire);
+  while (mySensor.readId(&sensorId) != 0) {
+    Serial.println("Cannot find device to read sensorId");
+    delay(2000);
+  }
   mySensor.beginMag();
-  sensorId = mySensor.readId();
 
   float magXMin, magXMax, magYMin, magYMax, magZ, magZMin, magZMax;
 

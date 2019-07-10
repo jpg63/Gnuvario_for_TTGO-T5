@@ -36,7 +36,7 @@
 
 #define VERSION      0
 #define SUB_VERSION  4
-#define BETA_CODE    1
+#define BETA_CODE    2
 #define DEVNAME      "JPG63"
 #define AUTHOR "J"    //J=JPG63  P=PUNKDUMP
 
@@ -48,13 +48,26 @@
 /*                        Historique                              */
 /******************************************************************/
 /* v 0.1                             beta 1 version               *
- * v 0.2     beta 1      23/06/19    debug VarioScreen            *      
- * v 0.3     beta 1      25/06/19    correction mesure tension    *
- *                                   correction mesure de vitesse *
- * v 0.3     beta 2      26/06/19    correction save IGC          *                                 
- * v 0.4     beta 1      03/07/19    ajout la coupure du son      *
- *                                                                *
+*  v 0.2     beta 1      23/06/19    debug VarioScreen            *      
+*  v 0.3     beta 1      25/06/19    correction mesure tension    *
+*                                    correction mesure de vitesse *
+*  v 0.3     beta 2      26/06/19    correction save IGC          *                                 
+*  v 0.4     beta 1      03/07/19    ajout la coupure du son      *
+*  v 0.4     beta 2      06/07/19    ajout statistique            *
+*                                                                 *
+*******************************************************************
+*                                                                 *
+*                   Developpement a venir                         *
+*                                                                 *
+* Bug Affichage ScreenDigit                                       *                                                                
+* Refrech all                                                     *
+* Recupération vol via USB                                        *
 *******************************************************************/
+
+
+
+
+
 
 /*******************/
 /* General objects */
@@ -104,13 +117,8 @@ kalmanvert kalmanvert;
 
 #ifdef HAVE_SPEAKER
 
-//#define volumeDefault 5
-
 #include <beeper.h>
 
-//Beeper beeper(volumeDefault);
-
-//#define BEEP_FREQ 800
 #endif //HAVE_SPEAKER
 
 /**********************/
@@ -259,14 +267,17 @@ void setup() {
   /*****************************/
   /* wait for devices power on */
   /*****************************/
-//  delay(VARIOMETER_POWER_ON_DELAY);
+#ifdef PROG_DEBUG
   delay (5000);
+#else  
+  delay(VARIOMETER_POWER_ON_DELAY);
+#endif  
 
 /************************/
 /*    BOOT SEQUENCE     */
 /************************/
 
-//#ifdef PROG_DEBUG
+#ifdef PROG_DEBUG
 
 ///  while (!SerialPort) { ;}
   char tmpbuffer[100];
@@ -279,7 +290,7 @@ void setup() {
     SerialPort.println(BETA_CODE);
   }
   SerialPort.flush();
-//#endif //PRO_DEBBUG
+#endif //PRO_DEBBUG
 
   
   /******************/
@@ -298,17 +309,17 @@ void setup() {
 
   if (GnuSettings.initSettings()) {
 #ifdef SDCARD_DEBUG
-   SerialPort.println("initialization done.");
-   SerialPort.flush();
+    SerialPort.println("initialization done.");
+    SerialPort.flush();
 #endif //PROG_DEBUG
 
-   sdcardState = SDCARD_STATE_INITIALIZED;
-   GnuSettings.readSDSettings();
+    sdcardState = SDCARD_STATE_INITIALIZED;
+    GnuSettings.readSDSettings();
     
 #ifdef SDCARD_DEBUG
    //Debuuging Printing
-   SerialPort.print("Pilot Name = ");
-   SerialPort.println(GnuSettings.VARIOMETER_PILOT_NAME);
+    SerialPort.print("Pilot Name = ");
+    SerialPort.println(GnuSettings.VARIOMETER_PILOT_NAME);
 #endif //SDCARD_DEBUG
 
 #ifdef PROG_DEBUG
@@ -363,6 +374,57 @@ void setup() {
   }
 #endif //HAVE_SDCARD
 
+  uint8_t tmp[4];
+  tmp[0]=1;
+  tmp[1]=1;
+  tmp[2]=19;
+  tmp[3]=00;
+
+  flystat.SetDate(tmp);
+  flystat.ForceWrite();
+  
+  /***************/
+  /* init screen */
+  /***************/
+#ifdef HAVE_SCREEN
+#ifdef SCREEN_DEBUG
+  SerialPort.println("initialization screen");
+  SerialPort.flush();
+#endif //SCREEN_DEBUG
+
+  screen.begin();
+#endif
+
+  /***************/
+  /* init button */
+  /***************/
+
+#ifdef HAVE_BUTTON
+#ifdef BUTTON_DEBUG
+  SerialPort.println("initialization bouton");
+  SerialPort.flush();
+#endif //BUTTON_DEBUG
+
+  VarioButton.begin();
+#endif 
+
+#ifdef HAVE_SCREEN
+/*----------------------------------------*/
+/*                                        */
+/*             DISPLAY BOOT               */
+/*                                        */
+/*----------------------------------------*/
+
+#ifdef SCREEN_DEBUG
+  SerialPort.println("Display boot");
+#endif //SCREEN_DEBUG
+
+  ButtonScheduleur.Set_StatePage(STATE_PAGE_INIT);
+  screen.ScreenViewInit(VERSION,SUB_VERSION, AUTHOR,BETA_CODE);
+
+  
+#endif //HAVE_SCREEN
+
   /**************************/
   /* init Two Wires devices */
   /**************************/
@@ -372,10 +434,23 @@ void setup() {
   twScheduler.init();
 //  vertaccel.init();
 
+#endif //HAVE_ACCELEROMETER
+
+#ifdef HAVE_SCREEN
+// Affichage Statistique
+  flystat.Display();
+  screen.ScreenViewStat(flystat);
+#endif //HAVE_SCREEN
+
+#ifdef HAVE_ACCELEROMETER
   /******************/
   /* get first data */
   /******************/
-  
+
+#ifdef MS5611_DEBUG
+    SerialPort.println("Attente premiere mesure alti");
+#endif //MS5611_DEBUG
+
   /* wait for first alti and acceleration */
   while( ! twScheduler.havePressure() ) { }
 
@@ -385,6 +460,26 @@ void setup() {
 
   /* init kalman filter with 0.0 accel*/
   double firstAlti = twScheduler.getAlti();
+
+  if (isnan(firstAlti)) {
+#ifdef MS5611_DEBUG
+    SerialPort.println("Fail firstAlti : ");
+    SerialPort.println("reinit");
+#endif //MS5611_DEBUG
+
+#ifdef HAVE_ACCELEROMETER
+    intTW.begin();
+    twScheduler.init();
+//  vertaccel.init();
+
+    while( ! twScheduler.havePressure() ) { }
+
+  /* init kalman filter with 0.0 accel*/
+    firstAlti = twScheduler.getAlti();
+#endif //HAVE_ACCELEROMETER
+     
+  }
+  
 #ifdef MS5611_DEBUG
     SerialPort.print("firstAlti : ");
     SerialPort.println(firstAlti);
@@ -412,44 +507,11 @@ void setup() {
 #endif //GPS_DEBUG
 #endif //HAVE_GPS
 
-  /***************/
-  /* init screen */
-  /***************/
 #ifdef HAVE_SCREEN
-#ifdef SCREEN_DEBUG
-  SerialPort.println("initialization screen");
-  SerialPort.flush();
-#endif //SCREEN_DEBUG
-
-  screen.begin();
-#endif
-
-  /***************/
-  /* init button */
-  /***************/
-
-#ifdef HAVE_BUTTON
-#ifdef BUTTON_DEBUG
-  SerialPort.println("initialization bouton");
-  SerialPort.flush();
-#endif //BUTTON_DEBUG
-
-  VarioButton.begin();
-#endif
-
-#ifdef HAVE_SCREEN
-/*----------------------------------------*/
-/*                                        */
-/*             DISPLAY BOOT               */
-/*                                        */
-/*----------------------------------------*/
-
-#ifdef SCREEN_DEBUG
-  SerialPort.println("Display boot");
-#endif //SCREEN_DEBUG
-
-
-  screen.ScreenViewInit(VERSION,SUB_VERSION, AUTHOR,BETA_CODE);
+ 
+  screen.ScreenViewPage(0,true);
+  screen.updateScreen ();
+  
   screen.volLevel->setVolume(toneHAL.getVolume());
 
 #ifdef SCREEN_DEBUG
@@ -875,6 +937,8 @@ void loop() {
       screen.screenTime->setTime( nmeaParser.time );
       screen.screenTime->correctTimeZone( GnuSettings.VARIOMETER_TIME_ZONE );
       screen.screenElapsedTime->setCurrentTime( screen.screenTime->getTime() );
+      flystat.SetTime(screen.screenTime->getTime());
+      flystat.SetDuration(screen.screenElapsedTime->getTime());      
     }
     
       /* update satelite count */
@@ -983,11 +1047,16 @@ void loop() {
    screen.schedulerScreen->displayStep();
    screen.updateScreen(); 
 #endif //HAVE_SCREEN
+
+   flystat.Handle(); 
  // }
 }
 
+
+/**************************************************/
 #if defined(HAVE_SDCARD) && defined(HAVE_GPS)
 void createSDCardTrackFile(void) {
+/**************************************************/  
   /* start the sdcard record */
 
 #ifdef SDCARD_DEBUG
@@ -1000,10 +1069,13 @@ void createSDCardTrackFile(void) {
     SerialPort.println("createSDCardTrackFile : SDCARD_STATE_INITIALIZED ");
 #endif //SDCARD_DEBUG
 
-    igcSD.CreateIgcFile();
+    flystat.Begin();
+    flystat.SetDate(igcSD.CreateIgcFile());
   }
 }
 #endif //defined(HAVE_SDCARD) && defined(HAVE_GPS)
+
+
 
 
 /*******************************************/
@@ -1059,6 +1131,7 @@ if (GnuSettings.VARIOMETER_RECORD_WHEN_FLIGHT_START) {
 
   screen.recordIndicator->setActifRECORD();
   screen.recordIndicator->stateRECORD();
+  flystat.Enable(); 
 }
 
 //$GNGGA,064607.000,4546.2282,N,00311.6590,E,1,05,2.6,412.0,M,0.0,M,,*77

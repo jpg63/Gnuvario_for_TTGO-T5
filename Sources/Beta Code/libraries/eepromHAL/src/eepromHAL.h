@@ -1,6 +1,6 @@
 /*********************************************************************************/
 /*                                                                               */
-/*                           Libraries ToneHal                                   */
+/*                           Libraries EepromHAL                                 */
 /*                                                                               */
 /*  version    Date     Description                                              */
 /*    1.0    20/01/19                                                            */
@@ -10,8 +10,10 @@
 /*    1.3    01/04/19   Ajout ESP32                                              */
 /*    1.3.1  02/04/19   Ajout fonction init                                      */
 /*    1.3.2  07/05/19   Ajout #include <DebugConfig.h> et EepromHAL EEPROMHAL;   */
+/*    1.3.3  09/07/19   Ajout init(int size)                                     */
 /*                                                                               */
 /*********************************************************************************/
+
 #ifndef eepromHAL_h
 #define eepromHAL_h
 
@@ -24,6 +26,8 @@ class EepromHal  {
   public:
 
 	  virtual void init(void) = 0;
+
+	  virtual void init(int size) = 0;
 
     /**
      * Read an eeprom cell
@@ -60,11 +64,12 @@ class EepromHal  {
 
 #if defined (EEPROMHAL_EXTENDED)	
 	int readInt(int address);
-	void writeInt(int address, int value);
+	int readInt(int address, int *value);
+	int writeInt(int address, int value);
 	float readFloat(int address);
-	void writeFloat(int address, float value);
+	int writeFloat(int address, float value);
 	void readString(int offset, int bytes, char *buf);
-	void writeString(int offset, int bytes, char *buf);
+	int writeString(int offset, int bytes, char *buf);
 		
 #endif	// EEPROMHAL_EXTENDED	
 };

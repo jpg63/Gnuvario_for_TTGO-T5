@@ -4,6 +4,7 @@
 /*                                                                               */
 /*  version    Date     Description                                              */
 /*    1.0    05/02/19                                                            */
+/*    1.1    09/07/19   Ajout init(size)                                         */
 /*                                                                               */
 /*********************************************************************************/
 
@@ -28,6 +29,8 @@
 EepromHAL EEPROMHAL;
 
 void EepromHal_zero::init(void) {}
+
+void EepromHal_zero::init(int size) {}
 
 uint8_t EepromHal_zero::read(int address)
 {

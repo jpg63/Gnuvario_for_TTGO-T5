@@ -561,7 +561,7 @@ void VarioScreen::ScreenViewInit(uint8_t Version, uint8_t Sub_Version, String Au
 	
 	unsigned long TmplastDisplayTimestamp = millis();
 	int compteur = 0;
-	while (compteur < 6) {
+	while (compteur < 3) {
 		if( millis() - TmplastDisplayTimestamp > 1000 ) {
 
 			TmplastDisplayTimestamp = millis();
@@ -588,9 +588,6 @@ void VarioScreen::ScreenViewInit(uint8_t Version, uint8_t Sub_Version, String Au
 	
 // 	display.fillScreen(ColorScreen);
 	
-	ScreenViewPage(0,true);
-	updateScreen ();
-
 //  display..update();
 /*		display..updateWindow(0, 0, display.width(), display.height(), false);
   while (display..GetState() != STATE_OK) {
@@ -674,6 +671,111 @@ bool VarioScreen::clearStep(void) {
   clearingStep++;
   return true;
 }*/
+
+
+//****************************************************************************************************************************
+void VarioScreen::ScreenViewStat(VarioStat flystat)
+//****************************************************************************************************************************
+{
+  char tmpbuffer[100];
+	
+  display.setFullWindow();
+  display.firstPage();
+  do
+  {
+// 	  display.fillScreen(ColorScreen);
+//		display.clearScreen(ColorScreen);
+
+		display.setFont(&FreeSansBold12pt7b);
+		display.setTextColor(ColorText);
+		display.setTextSize(1);
+
+		display.setCursor(20, 30);
+		display.print("STATISTIQUE");
+
+    uint8_t tmpDate[4];
+		int8_t  tmpTime[3];
+		flystat.GetDate(tmpDate);
+		
+#ifdef SCREEN_DEBUG
+    for (int i=0; i< 3; i++) {
+		  SerialPort.print(tmpDate[i]);
+      SerialPort.print(" ");
+    }
+    SerialPort.println("");		
+#endif //SCREEN_DEBUG
+		
+		sprintf(tmpbuffer,"Date : %02d.%02d.%02d%02d", tmpDate[0],tmpDate[1],tmpDate[2],tmpDate[3]);
+		display.setCursor(1, 60);
+		display.print(tmpbuffer);
+
+		flystat.GetTime(tmpTime);
+		sprintf(tmpbuffer,"heure : %02d:%02d",tmpTime[0],tmpTime[1]); 
+		display.setCursor(1, 80);
+		display.print(tmpbuffer);
+
+		flystat.GetDuration(tmpTime);	
+		sprintf(tmpbuffer,"duree : %02d:%02d",tmpTime[0],tmpTime[1]); 
+		display.setCursor(1, 100);
+		display.print(tmpbuffer);
+
+
+    double tmpAlti = flystat.GetAlti();
+		sprintf(tmpbuffer,"Alti Max : %.0f",tmpAlti); 
+		display.setCursor(1, 120);
+		display.print(tmpbuffer);
+	 
+   double tmpVarioMax = flystat.GetVarioMin();
+	 sprintf(tmpbuffer,"Vario Max : %.02f",tmpVarioMax); 
+	 display.setCursor(1, 140);
+	 display.print(tmpbuffer);
+
+   double tmpVarioMin = flystat.GetVarioMax();
+	 sprintf(tmpbuffer,"Vario Min : %.02f",tmpVarioMin); 
+	 display.setCursor(1, 160);
+	 display.print(tmpbuffer);
+	 
+   double tmpSpeed = flystat.GetSpeed();
+	 sprintf(tmpbuffer,"Vitesse : %.0f",tmpSpeed); //%02d.%02d.%02d", tmpDate[0],tmpDate[1],tmpDate[2]);
+	 display.setCursor(1, 180);
+	 display.print(tmpbuffer);
+
+	
+  }
+  while (display.nextPage());
+	
+//	display.powerOff();
+	
+	unsigned long TmplastDisplayTimestamp = millis();
+	int compteur = 0;
+	while (compteur < 3) {
+		if( millis() - TmplastDisplayTimestamp > 1000 ) {
+
+			TmplastDisplayTimestamp = millis();
+			compteur++;
+		
+		}
+	}
+
+/*  altiDigit.setValue(flystat.GetAlti());
+  altiDigit.update();
+  altiDigit.display();
+  varioDigit.setValue(flystat.GetVarioMin());
+  varioDigit.update();
+  varioDigit.display();
+  double tmpspeed = flystat.GetSpeed();
+  if (tmpspeed > 99) tmpspeed = 99;
+  speedDigit.setValue(tmpspeed);
+  speedDigit.update();
+  speedDigit.display();
+  kmhunit.update();
+  kmhunit.display();
+  msunit.update();
+  msunit.display();
+  munit.update();  
+  munit.display();*/
+}
+
 
 //****************************************************************************************************************************
 //****************************************************************************************************************************
@@ -2303,6 +2405,12 @@ void ScreenScheduler::displayStep(void) {
 
 //  display.display(true); // partial update
 	
+}
+
+//****************************************************************************************************************************
+void ScreenScheduler::displayAll(void) {
+//****************************************************************************************************************************
+  IsDisplayAll = false;
 }
 
 //****************************************************************************************************************************

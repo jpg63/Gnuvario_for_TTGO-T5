@@ -95,7 +95,7 @@ void GPSSentence::writeGGA(void) {
 	
 }
 
-bool GPSSentence::CreateIgcFile(void) {
+uint8_t* GPSSentence::CreateIgcFile(void) {
 
     /* build date : convert from DDMMYY to YYMMDD */
     uint8_t dateChar[8]; //two bytes are used for incrementing number on filename
@@ -233,14 +233,15 @@ bool GPSSentence::CreateIgcFile(void) {
 			
 			fileIgc.flush();
 			
-			return true;
     } else {
 #ifdef SDCARD_DEBUG
       SerialPort.println("createSDCardTrackFile : SDCARD_STATE_ERROR ");
 #endif //SDCARD_DEBUG
       sdcardState = SDCARD_STATE_ERROR; //avoid retry 
-			return false;
+			
+			for (int i=0; i<3; i++) dateCharP[i] = 0;
     }
+  return dateCharP;
 }
 
 

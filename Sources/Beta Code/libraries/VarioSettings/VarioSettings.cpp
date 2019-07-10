@@ -17,7 +17,7 @@ boolean VarioSettings::initSettings() {
       return false;
     }
 		
-	EEPROMHAL.init();
+	EEPROMHAL.init(1024);
   if (!EEPROMHAL.isValid()) {
 #ifdef EEPROM_DEBUG
       SerialPort.println("initialization failed!");
