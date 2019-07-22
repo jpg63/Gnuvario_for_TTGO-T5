@@ -1,12 +1,6 @@
-# TONEHAL Library
+# EEPROMHAL Library
 
-ToneHAL is an arduino abstraction library for sound management 
-
-Multi-protocol :
-									PWM		1 pin
-									PWM		2 pins
-									DAC
-									I2S
+EepromHAL is an arduino abstraction library for Eeprom management 
 									
 Multi-platform :
 									Arduino Pro-Mini
@@ -15,29 +9,12 @@ Multi-platform :
 									
 ## Setting
 
-	in toneHAL.h
+	in eepromHAL.h
 
-									TONEI2S		I2S interface
-									TONEDAC		DAC interface
-									TONEAC		2 pins Push-Pull PWM
-									TONE 			1 pin PWM
-									
-  ProMini :                                                                      
-                PWM 1 pin                         OK                             
-                PWM AC 2 pins                     OK                             
-                DAC                               Not available                  
-                I2S                               Not available                  
-                                                                                 
-  MKZERO                                                                         
-                PWM 1 pin                         OK                             
-                PWM 2 pins                        OK                             
-                DAC                               OK                             
-                I2S                               not yet developed              
-                                                                                 
- ESP32          PWM 1 pin                         OK                             
-                PWM 2 pins                        not yet developed              
-                DAC                               in development                 
-                I2S                               not yet developed              
+									EEPROM_SIZE 					Eeprom size alocation
+
+									EEPROMHAL_EXTENDED		Activate extended function
+
 								
-##	VERSION 1.4.1
+##	VERSION 1.3.3
 								

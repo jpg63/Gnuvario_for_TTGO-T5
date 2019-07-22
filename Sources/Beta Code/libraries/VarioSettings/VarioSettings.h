@@ -1,13 +1,4 @@
-#ifndef _VARIO_SETTINGS_H_
-#define _VARIO_SETTINGS_H_
-
-#include <Arduino.h>
-#include <sdcardHAL.h>
-
-#include "DebugConfig.h"
-#include <HardwareConfig.h>
-
-/* VarioSettings -- 
+/* VarioSettings -- Gestion des parametres
  *
  * Copyright 2019 Jean-philippe GOI
  * 
@@ -34,12 +25,19 @@
 /*  version    Date     Description                                              */
 /*    1.0                                                                        */
 /*    1.0.1  24/06/19   suppression  VARIOMETER_POWER_ON_DELAY 									 */
+/*    1.0.2  22/07/19   Ajout SETTINGS_CLIMB_PERIOD_COUNT et                     */
+/*                            SETTINGS_GLIDE_RATIO_PERIOD_COUNT 								 */
 /*                                                                               */
 /*********************************************************************************/
 
+#ifndef _VARIO_SETTINGS_H_
+#define _VARIO_SETTINGS_H_
 
+#include <Arduino.h>
+#include <sdcardHAL.h>
 
-
+#include "DebugConfig.h"
+#include <HardwareConfig.h>
 
 /*----------------------------*/
 /*          SOFTWARE          */
@@ -237,6 +235,14 @@ class VarioSettings {
 		double ACCELCALY = 0.0;
 		double ACCELCALZ = 0.0;
   
+//Setting FightHistory	
+//!!!!!!!!!!!!
+// need to be moved to settings 
+// unit is 500ms
+		int8_t SETTINGS_CLIMB_PERIOD_COUNT  = 10;
+		int8_t SETTINGS_GLIDE_RATIO_PERIOD_COUNT = 20;
+
+	
  protected:
 		File myFile;
 //  File myFile2;

@@ -114,6 +114,14 @@ tension  IO35
              |
             GND
 
+
+
+EEprom
+
+IGC Header			0x00		195+2		0xC8
+Sounnd volume   0xC8    1+2     0xD0
+Fly stat        0xD0		26+2
+
 */
 
 
@@ -243,6 +251,30 @@ tension  IO35
 
 /* time needed to power on all the devices */
 #define VARIOMETER_POWER_ON_DELAY 2000
+
+/*************************/
+/*         EEPROM        */
+/*************************/
+
+
+/*****************************/
+/*  IGC HEADER EEPROM        */
+/*****************************/
+
+#define IGC_SENTENCE_HEADER_EEPROM_ADDRESS 0x0 
+
+/*****************************/
+/*  EEPROM SOUND             */
+/*****************************/
+
+/* eeprom sound setting adresses */
+#define SOUND_EEPROM_ADDR 0xC8
+
+/*****************************/
+/*  EEPROM STAT              */
+/*****************************/
+#define FLY_STAT_HEADER_EEPROM_ADDRESS 0xD0
+
 
 #endif
 #endif

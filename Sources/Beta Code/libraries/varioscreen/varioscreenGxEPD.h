@@ -18,15 +18,18 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-/*********************************************************************************/
-/*                                                                               */
-/*                           VarioScreenGxEPD                                    */
-/*                                                                               */
-/*  version    Date     Description                                              */
-/*    1.0    03/06/19                                                            */
-/*    1.0.1  25/06/19   Correction affichage batterie / affichage vitesse        */
-/*                                                                               */
-/*********************************************************************************/
+/* 
+ *********************************************************************************
+ *                                                                               *
+ *                           VarioScreenGxEPD                                    *
+ *                                                                               *
+ *  version    Date     Description                                              *
+ *    1.0    20/06/19                                                            *
+ *    1.0.1  25/06/19   Correction affichage batterie / affichage vitesse        *
+ *    1.0.2  20/07/19   Correction bug d'affiche screedigit                      *
+ *    1.0.3  21/07/19   Correction affichage statistique                         *
+ *                                                                               *
+ *********************************************************************************/
 
 #ifndef VARIOSCREENGXEPD_H
 #define VARIOSCREENGXEPD_H
@@ -136,9 +139,9 @@ class VarioScreenObject {
 class ScreenDigit: public VarioScreenObject {
 
  public :
- ScreenDigit(uint16_t anchorX, uint16_t anchorY, uint16_t width, uint16_t precision, boolean plusDisplay = false, boolean zero = false, boolean leftAlign = false)
-   : VarioScreenObject(0), anchorX(anchorX), anchorY(anchorY), width(width), precision(precision), plusDisplay(plusDisplay), zero(zero), leftAlign(leftAlign)
-  { lastDisplayWidth = 0; }
+   ScreenDigit(uint16_t anchorX, uint16_t anchorY, uint16_t width, uint16_t precision, boolean plusDisplay = false, boolean zero = false, boolean leftAlign = false);
+ //  : VarioScreenObject(0), anchorX(anchorX), anchorY(anchorY), width(width), precision(precision), plusDisplay(plusDisplay), zero(zero), leftAlign(leftAlign)
+ // { lastDisplayWidth = 0; }
   void show(void);
   void setValue(double value);
    
@@ -151,6 +154,7 @@ class ScreenDigit: public VarioScreenObject {
   boolean plusDisplay, zero, leftAlign;
   uint8_t lastDisplayWidth;
 	int16_t oldw=0, oldh=0, oldx=0, oldy=0;
+	uint16_t Zwidth, Zheight;
 };
 
 /* meters unit */
@@ -534,7 +538,8 @@ class VarioScreen {
  /* void beginClear(void); //multi step clear
   bool clearStep(void); //return true while clearing*/
   
-// private:
+ private:
+   unsigned long timerShow = 0;
 //  uint8_t clearingStep;
 };
 

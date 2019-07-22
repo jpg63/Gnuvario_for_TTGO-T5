@@ -5,21 +5,9 @@
 #endif //ARDUINO_ARCH_SAMD
 
 #include "eepromHAL.h"
-#if defined(ESP8266)
-#include "eepromHAL_8266.h"
-#elif defined(ESP32)
-#include "eepromHAL_ESP32.h"
-#elif defined(ARDUINO_ARCH_SAMD)
-#include "eepromHAL_M0.h"
-#elif defined(_BOARD_GENERIC_STM32F103C_H_)
 
-#elif defined(ARDUINO_AVR_PRO)
-#include "eepromHAL_PRO.h"
-#else
-
-#endif
-
-#include <VarioSettings.h>
+#include <DebugConfig.h>
+#include <HardwareConfig.h>
 
 /*#if not defined(DEBUG_H)
 //Monitor Port 
@@ -45,37 +33,51 @@
 #define VARIOMETER_BEEP_VOLUME 5
 
 /* eeprom sound setting adresses */
-//#define SOUND_EEPROM_TAG 9806
-//#define SOUND_EEPROM_ADDR 0x30
+#define SOUND_EEPROM_TAG 9806
+#define SOUND_EEPROM_ADDR 0x00     
+//0x30
 
 //EepromHal_ESP32 
-EepromHAL EepromHAL_DATA;
+//EepromHAL EepromHAL_DATA;
 
 void setup() {
   
   SerialPort.begin(115200);
+  delay(5000);
   SerialPort.println("start...");
 
-  EepromHAL_DATA.init();
+  EEPROMHAL.init(512);
 
    /* check tag */
-  uint16_t eepromTag;
+  uint16_t eepromTag, eepromTagTmp;
   uint8_t tmpValue=0;
   
-  if (!EepromHAL_DATA.isValid()) {
+  if (!EEPROMHAL.isValid()) {
     SerialPort.println("EEPROM is empty, writing some example data:");
   } else {
-    
-    eepromTag = EepromHAL_DATA.read(SOUND_EEPROM_ADDR);
-    eepromTag <<= 8;
-    eepromTag += EepromHAL_DATA.read(SOUND_EEPROM_ADDR + 0x01);
+
+   
+    eepromTag = EEPROMHAL.read(SOUND_EEPROM_ADDR);
+
+    SerialPort.print("EEprom Tag : ");
+    SerialPort.println(eepromTag);
   
+    eepromTag <<= 8;
+
+    eepromTagTmp = EEPROMHAL.read(SOUND_EEPROM_ADDR + 0x01);
+    
+    SerialPort.println(eepromTagTmp);
+
+    eepromTag += eepromTagTmp;
+
+    SerialPort.println(eepromTag);
+
     uint8_t TmpValue;
     if( eepromTag != SOUND_EEPROM_TAG ) { 
       SerialPort.println("EEPROM Error EpromTag");
     } else {
       /* read calibration settings */
-      tmpValue =  EepromHAL_DATA.read(SOUND_EEPROM_ADDR + 0x02);
+      tmpValue =  EEPROMHAL.read(SOUND_EEPROM_ADDR + 0x02);
       SerialPort.print("Read sound value : ");
       SerialPort.println(tmpValue);
     }
@@ -85,13 +87,27 @@ void setup() {
   SerialPort.println(VARIOMETER_BEEP_VOLUME);
 
   /* write tag */
-  eepromTag = SOUND_EEPROM_TAG;
-  EepromHAL_DATA.write(SOUND_EEPROM_ADDR, (eepromTag>>8) & 0xff);
-  EepromHAL_DATA.write(SOUND_EEPROM_ADDR + 0x01, eepromTag & 0xff);
 
-  EepromHAL_DATA.write(SOUND_EEPROM_ADDR + 0x02 , VARIOMETER_BEEP_VOLUME);
+  SerialPort.print("Write EEprom Tag : ");
+   
+  eepromTag = SOUND_EEPROM_TAG;
+
+  SerialPort.println(eepromTag);
+
+  eepromTagTmp = eepromTag;
+  SerialPort.println((eepromTagTmp>>8) & 0xff);
   
-  EepromHAL_DATA.commit();  
+  EEPROMHAL.write(SOUND_EEPROM_ADDR, (eepromTag>>8) & 0xff);
+
+  SerialPort.println(eepromTag);
+ 
+  EEPROMHAL.write(SOUND_EEPROM_ADDR + 0x01, eepromTag & 0xff);
+
+  SerialPort.println(eepromTagTmp & 0xff);
+
+  EEPROMHAL.write(SOUND_EEPROM_ADDR + 0x02 , VARIOMETER_BEEP_VOLUME);
+  
+  EEPROMHAL.commit();  
 }
 
 void loop() {

@@ -1,6 +1,6 @@
 /* GPSSentences -- Generate some standard GPS sentences 
  *
- * Copyright 2016-2019 Baptiste PELLEGRIN
+ * Copyright 2016-2019 Jean-Philippe GOI
  * 
  * This file is part of GNUVario.
  *
@@ -17,6 +17,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+
+/*********************************************************************************/
+/*                                                                               */
+/*                           GPSSentence                                         */
+/*                                                                               */
+/*  version    Date         Description                                          */
+/*    1.0      06/07/19                                                          */
+/*    1.0.1    22/07/19     Modification CreateIgcFile                           */
+/*                                                                               */
+/*********************************************************************************/
 
 #ifndef GPS_SENTENCE_H
 #define GPS_SENTENCE_H
@@ -37,7 +47,7 @@ class GPSSentence {
   uint8_t begin(double baroAlti);
 	void writePosition(kalmanvert kalmanvert);
 	void writeGGA(void);
-	uint8_t* CreateIgcFile();
+	void CreateIgcFile(uint8_t* dateNum);
 
  private:
 

@@ -22,8 +22,10 @@
 /*                                                                               */
 /*                           VarioStat                                           */
 /*                                                                               */
-/*  version    Date     Description                                              */
+/*  version    Date        Description                                           */
 /*    1.0      06/07/19                                                          */
+/*    1.1      21/07/19    Correction getdate/setdate                            */
+/*    1.1.1    22/07/19    Modification du taux d'enregistrement des statistiques*/
 /*                                                                               */
 /*********************************************************************************/
 
@@ -33,7 +35,7 @@
 #include <toneHAL.h>
 #include <DebugConfig.h>
 
-// Write any data structure or variable to EEPROM
+/*// Write any data structure or variable to EEPROM
 static int EEPROMAnythingWrite(int pos, char *character, int length)
 {
 #ifdef EEPROM_DEBUG	
@@ -83,7 +85,7 @@ static int EEPROMAnythingRead(int pos, char *character, int length)
 #endif //EEPROM_DEBUG
 	
   return pos + length;
-}
+}*/
 
 void VarioStat::Begin(void) {
   Timer        = millis();
@@ -117,25 +119,75 @@ void VarioStat::SetVario(double vario) {
   if (vario < MinVario) MinVario = vario;
 }
 
-void VarioStat::SetDuration(int8_t* duree) {
-  duree[0] = duree[0];	
-  duree[1] = duree[1];	
-  duree[2] = duree[2];	
+void VarioStat::SetDuration(int8_t* dureeValue) {
+#ifdef EEPROM_DEBUG	
+  SerialPort.print("SetDuration : ");	
+#endif //EEPROM_DEBUG
+
+	for (int i=0; i<3; i++) {
+    duree[i] = dureeValue[i];	
+#ifdef EEPROM_DEBUG	
+		SerialPort.print(duree[i]);	
+		SerialPort.print(" - ");	
+#endif //EEPROM_DEBUG
+	}
+#ifdef EEPROM_DEBUG	
+  SerialPort.println("");	
+#endif //EEPROM_DEBUG
 }
 
-void VarioStat::SetTime(int8_t* time) {
+void VarioStat::SetTime(int8_t* timeValue) {
 	if (firsttime && EnableRecord) {
-    time[0] = time[0];	
-    time[1] = time[1];	
-    time[2] = time[2];	
+#ifdef EEPROM_DEBUG	
+		SerialPort.print("SetTime : ");	
+#endif //EEPROM_DEBUG
+
+		for (int i=0; i<3; i++) {
+			time[i] = timeValue[i];	
+#ifdef EEPROM_DEBUG	
+			SerialPort.print(time[i]);	
+		  SerialPort.print(" - ");	
+#endif //EEPROM_DEBUG
+		}
+#ifdef EEPROM_DEBUG	
+		SerialPort.println("");	
+#endif //EEPROM_DEBUG
+		
 		firsttime = false;
 	}
 }
 
 void VarioStat::SetDate(uint8_t* dateValue) {
-	for (int i=0; i<8; i++) {
-    date[i] = dateValue[i];	
+#ifdef EEPROM_DEBUG	
+  SerialPort.print("SetDate : ");	
+#endif //EEPROM_DEBUG
+
+	for (int i=0; i<3; i++) {
+    date[2-i] = dateValue[i];	
+#ifdef EEPROM_DEBUG	
+		SerialPort.print(date[2-i]);	
+		SerialPort.print(" / ");	
+		SerialPort.print(dateValue[i]);	
+		SerialPort.print(" - ");	
+#endif //EEPROM_DEBUG
 	}
+#ifdef EEPROM_DEBUG	
+  SerialPort.println("");	
+#endif //EEPROM_DEBUG
+
+#ifdef EEPROM_DEBUG	
+  SerialPort.print("SetDate date : ");	
+#endif //EEPROM_DEBUG
+
+	for (int i=0; i<3; i++) {
+#ifdef EEPROM_DEBUG	
+		SerialPort.print(date[i]);	
+		SerialPort.print(" - ");	
+#endif //EEPROM_DEBUG
+	}
+#ifdef EEPROM_DEBUG	
+  SerialPort.println("");	
+#endif //EEPROM_DEBUG
 }
    
 double VarioStat::GetAlti() {
@@ -155,24 +207,57 @@ double VarioStat::GetSpeed() {
 }
    
 void VarioStat::GetDuration(int8_t* dureeValue) {
+#ifdef EEPROM_DEBUG	
+		SerialPort.print("GetDuration : ");	
+#endif //EEPROM_DEBUG
+
   for (int i=0; i<3; i++) {
 		if (duree[i] > 99) dureeValue[i] = 0;
 		else							dureeValue[i] = duree[i];
+#ifdef EEPROM_DEBUG	
+		SerialPort.print(duree[i]);	
+#endif //EEPROM_DEBUG
 	}	
+#ifdef EEPROM_DEBUG	
+  SerialPort.println("");	
+#endif //EEPROM_DEBUG
+	
 }
   
 void VarioStat::GetTime(int8_t* timeValue) {
+#ifdef EEPROM_DEBUG	
+		SerialPort.print("GetTime : ");	
+#endif //EEPROM_DEBUG
+
   for (int i=0; i<3; i++) {
 		if (time[i] > 99) timeValue[i] = 0;
 		else							timeValue[i] = time[i];
+#ifdef EEPROM_DEBUG	
+		SerialPort.print(time[i]);	
+#endif //EEPROM_DEBUG
 	}	
+#ifdef EEPROM_DEBUG	
+  SerialPort.println("");	
+#endif //EEPROM_DEBUG
+	
 }
 
 void VarioStat::GetDate(uint8_t* dateValue) {
+#ifdef EEPROM_DEBUG	
+		SerialPort.print("GetDate : ");	
+#endif //EEPROM_DEBUG
+
   for (int i=0; i<3; i++) {
 		if (date[i] > 99) dateValue[i] = 0;
 		else							dateValue[i] = date[i];
+#ifdef EEPROM_DEBUG	
+		SerialPort.print(date[i]);	
+#endif //EEPROM_DEBUG
 	}
+#ifdef EEPROM_DEBUG	
+  SerialPort.println("");	
+#endif //EEPROM_DEBUG
+	
 }
 	
 void VarioStat::Display() {
@@ -186,7 +271,7 @@ void VarioStat::ForceWrite() {
 }
 
 bool VarioStat::Handle() {
-  if ((EnableRecord) && (millis()-Timer) > 10000) {
+  if ((EnableRecord) && (millis()-Timer) > 60000) {
 	  Timer = millis();
 	  WriteEeprom();
 	  return true;
@@ -218,26 +303,30 @@ void VarioStat::ReadEeprom() {
 	
     // Float read to EEPROM
     float   val_float = 0;
-    eepromAddress = EEPROMAnythingRead(eepromAddress, reinterpret_cast<char*>(&val_float), sizeof(val_float));
+    eepromAddress = EEPROMHAL.EEPROMAnythingRead(eepromAddress, reinterpret_cast<char*>(&val_float), sizeof(val_float));
 	  MaxAlti = val_float;
 
-    eepromAddress = EEPROMAnythingRead(eepromAddress, reinterpret_cast<char*>(&val_float), sizeof(val_float));
+    eepromAddress = EEPROMHAL.EEPROMAnythingRead(eepromAddress, reinterpret_cast<char*>(&val_float), sizeof(val_float));
 	  MaxSpeed = val_float;
 
-    eepromAddress = EEPROMAnythingRead(eepromAddress, reinterpret_cast<char*>(&val_float), sizeof(val_float));
+    eepromAddress = EEPROMHAL.EEPROMAnythingRead(eepromAddress, reinterpret_cast<char*>(&val_float), sizeof(val_float));
 	  MinVario = val_float;
 
-    eepromAddress = EEPROMAnythingRead(eepromAddress, reinterpret_cast<char*>(&val_float), sizeof(val_float));
+    eepromAddress = EEPROMHAL.EEPROMAnythingRead(eepromAddress, reinterpret_cast<char*>(&val_float), sizeof(val_float));
 	  MaxVario = val_float;
 	
-    // Read array from EEPROM
-    EEPROMAnythingRead(eepromAddress, reinterpret_cast<char*>(&duree), sizeof(duree));   
+	#ifdef EEPROM_DEBUG	
+		SerialPort.println("Read Date");	
+#endif //EEPROM_DEBUG
 
     // Read array from EEPROM
-    EEPROMAnythingRead(eepromAddress, reinterpret_cast<char*>(&time), sizeof(time));   
+    eepromAddress = EEPROMHAL.EEPROMAnythingRead(eepromAddress, reinterpret_cast<char*>(&duree), sizeof(duree));   
 
     // Read array from EEPROM
-    EEPROMAnythingRead(eepromAddress, reinterpret_cast<char*>(&date), sizeof(date));   
+    eepromAddress = EEPROMHAL.EEPROMAnythingRead(eepromAddress, reinterpret_cast<char*>(&time), sizeof(time));   
+
+    // Read array from EEPROM
+    eepromAddress = EEPROMHAL.EEPROMAnythingRead(eepromAddress, reinterpret_cast<char*>(&date), sizeof(date));   
 
   }
   else {
@@ -283,7 +372,7 @@ void VarioStat::WriteEeprom() {
 
   // Float to EEPROM
   float   val_float = MaxAlti;
-  eepromAddress = EEPROMAnythingWrite(eepromAddress, reinterpret_cast<char*>(&val_float), sizeof(val_float)); 
+  eepromAddress = EEPROMHAL.EEPROMAnythingWrite(eepromAddress, reinterpret_cast<char*>(&val_float), sizeof(val_float)); 
 
 #ifdef EEPROM_DEBUG	
   SerialPort.print("Max Alti : ");	
@@ -291,31 +380,31 @@ void VarioStat::WriteEeprom() {
 #endif //EEPROM_DEBUG
  
   val_float = MaxSpeed;
-  eepromAddress = EEPROMAnythingWrite(eepromAddress, reinterpret_cast<char*>(&val_float), sizeof(val_float)); 
+  eepromAddress = EEPROMHAL.EEPROMAnythingWrite(eepromAddress, reinterpret_cast<char*>(&val_float), sizeof(val_float)); 
 #ifdef EEPROM_DEBUG	
   SerialPort.print("Max Speed : ");	
 	SerialPort.println(val_float);
 #endif //EEPROM_DEBUG
 
   val_float = MinVario;
-  eepromAddress = EEPROMAnythingWrite(eepromAddress, reinterpret_cast<char*>(&val_float), sizeof(val_float)); 
+  eepromAddress = EEPROMHAL.EEPROMAnythingWrite(eepromAddress, reinterpret_cast<char*>(&val_float), sizeof(val_float)); 
 #ifdef EEPROM_DEBUG	
   SerialPort.print("Min vario : ");	
 	SerialPort.println(val_float);
 #endif //EEPROM_DEBUG
 
   val_float = MaxVario;
-  eepromAddress = EEPROMAnythingWrite(eepromAddress, reinterpret_cast<char*>(&val_float), sizeof(val_float)); 
+  eepromAddress = EEPROMHAL.EEPROMAnythingWrite(eepromAddress, reinterpret_cast<char*>(&val_float), sizeof(val_float)); 
 #ifdef EEPROM_DEBUG	
   SerialPort.print("Max Vario : ");	
 	SerialPort.println(val_float);
 #endif //EEPROM_DEBUG
 
-  eepromAddress = EEPROMAnythingWrite(eepromAddress, reinterpret_cast<char*>(&duree), sizeof(duree));   
+  eepromAddress = EEPROMHAL.EEPROMAnythingWrite(eepromAddress, reinterpret_cast<char*>(&duree), sizeof(duree));   
 
-  eepromAddress = EEPROMAnythingWrite(eepromAddress, reinterpret_cast<char*>(&time), sizeof(time)); 
+  eepromAddress = EEPROMHAL.EEPROMAnythingWrite(eepromAddress, reinterpret_cast<char*>(&time), sizeof(time)); 
 
-  eepromAddress = EEPROMAnythingWrite(eepromAddress, reinterpret_cast<char*>(&date), sizeof(date));     
+  eepromAddress = EEPROMHAL.EEPROMAnythingWrite(eepromAddress, reinterpret_cast<char*>(&date), sizeof(date));     
   
 /*  toneAC(900);
   delay(1000);

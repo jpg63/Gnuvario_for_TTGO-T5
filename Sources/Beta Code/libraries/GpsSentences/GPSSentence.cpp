@@ -1,6 +1,6 @@
 /* GPSSentences -- Generate some standard GPS sentences 
  *
- * Copyright 2016-2019 Baptiste PELLEGRIN
+ * Copyright 2016-2019 Jean-Philippe GOI
  * 
  * This file is part of GNUVario.
  *
@@ -17,6 +17,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+
+/*********************************************************************************/
+/*                                                                               */
+/*                           GPSSentence                                         */
+/*                                                                               */
+/*  version    Date         Description                                          */
+/*    1.0      06/07/19                                                          */
+/*    1.0.1    22/07/19     Modification CreateIgcFile                           */
+/*                                                                               */
+/*********************************************************************************/
 
 #include <Arduino.h>
 
@@ -95,12 +105,15 @@ void GPSSentence::writeGGA(void) {
 	
 }
 
-uint8_t* GPSSentence::CreateIgcFile(void) {
+void GPSSentence::CreateIgcFile(uint8_t* dateNum) {
 
     /* build date : convert from DDMMYY to YYMMDD */
     uint8_t dateChar[8]; //two bytes are used for incrementing number on filename
     uint8_t* dateCharP = dateChar;
     uint32_t date = nmeaParser.date;
+		uint32_t tmpdate = date;
+/*		uint8_t dateNum[3];
+		uint8_t* dateNumP = dateNum;*/
     for(uint8_t i=0; i<3; i++) {
       uint8_t num = ((uint8_t)(date%100));
       dateCharP[0] = (num/10) + '0';
@@ -108,6 +121,28 @@ uint8_t* GPSSentence::CreateIgcFile(void) {
       dateCharP += 2;
       date /= 100;
     }
+
+    date = tmpdate;
+#ifdef SDCARD_DEBUG
+		SerialPort.print("DateNum : ");
+#endif //SDCARD_DEBUG
+
+    for(uint8_t i=0; i<3; i++) {
+      uint8_t num = ((uint8_t)(date%100));
+      dateNum[i] = num;
+      date /= 100;
+			
+#ifdef SDCARD_DEBUG
+			SerialPort.print(num);
+			SerialPort.print(" - ");
+			SerialPort.print(dateNum[i]);
+			SerialPort.print(" / ");
+#endif //SDCARD_DEBUG
+    }
+
+#ifdef SDCARD_DEBUG
+		SerialPort.println("");
+#endif //SDCARD_DEBUG
 
     char fileName[13];
 
@@ -153,6 +188,10 @@ uint8_t* GPSSentence::CreateIgcFile(void) {
 #endif //SDCARD_DEBUG
 					fileIgc.print(headerStrings[i]);
 				}
+
+#ifdef SDCARD_DEBUG
+					SerialPort.println("");
+#endif //SDCARD_DEBUG
 
         /* write date : DDMMYY */
         uint8_t* dateCharP = &dateChar[4];
@@ -239,9 +278,9 @@ uint8_t* GPSSentence::CreateIgcFile(void) {
 #endif //SDCARD_DEBUG
       sdcardState = SDCARD_STATE_ERROR; //avoid retry 
 			
-			for (int i=0; i<3; i++) dateCharP[i] = 0;
+			for (int i=0; i<3; i++) dateNum[i] = 0;
     }
-  return dateCharP;
+//  return dateNumP;
 }
 
 

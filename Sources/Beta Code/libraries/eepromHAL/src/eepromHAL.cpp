@@ -82,13 +82,14 @@ int EepromHal::writeString(int offset, int bytes, char *buf){
   return offset+bytes+1;
 }
 
-/*template <class T> int EepromHal::writeAnything(int ee, const T& value)
+
+template <class T> int EepromHal::writeAnything(int ee, const T& value)
 {
    const byte* p = (const byte*)(const void*)&value;
    int i;
    for (i = 0; i < sizeof(value); i++)
-       EEPROM.write(ee++, *p++);
-   return i;
+       write(ee++, *p++);
+   return ee;  //i
 }
 
 template <class T> int EepromHal::readAnything(int ee, T& value)
@@ -96,10 +97,9 @@ template <class T> int EepromHal::readAnything(int ee, T& value)
    byte* p = (byte*)(void*)&value;
    int i;
    for (i = 0; i < sizeof(value); i++)
-       *p++ = EEPROM.read(ee++);
-   return i;
-}*/
-
+       *p++ = read(ee++);
+   return ee;  //i;
+}
 
 /*double testInt[12] = { -12.5, -10.00, -5.7, 0, 2.45, 2.90, 3.10, 4 , 5.6, 7.9, 5.5, 4};
 byte noElem = 12;
@@ -126,6 +126,58 @@ void setup() {
 void loop() {
 }
 */
+
+// Write any data structure or variable to EEPROM
+int EepromHal::EEPROMAnythingWrite(int pos, char *character, int length)
+{
+#ifdef EEPROM_DEBUG	
+	SerialPort.print("length : ");
+	SerialPort.println(length);
+  SerialPort.println("EEPROMAnythingWrite : ");	
+	for (int i = 0; i < length; i++) {
+		SerialPort.printf("%d",int(character[i]));	
+  }
+  SerialPort.println("");
+#endif //EEPROM_DEBUG
+	
+  for (int i = 0; i < length; i++)
+  {
+		char tmpChar = *character;
+
+	  if (read(pos + i) != *character)  {
+      write(pos + i, *character);
+	  }
+    character++;
+  }
+
+  commit();
+  return pos + length;
+}
+ 
+// Read any data structure or variable from EEPROM
+int EepromHal::EEPROMAnythingRead(int pos, char *character, int length)
+{
+#ifdef EEPROM_DEBUG	
+  SerialPort.print("EEPROMAnythingRead : ");	
+#endif //EEPROM_DEBUG
+	
+  for (int i = 0; i < length; i++)
+  {
+		char tmpchar = read(pos + i);
+    *character = tmpchar;
+#ifdef EEPROM_DEBUG	
+		SerialPort.print(tmpchar);	
+#endif //EEPROM_DEBUG
+		
+    character++;
+  }
+	
+#ifdef EEPROM_DEBUG	
+		SerialPort.println("");	
+#endif //EEPROM_DEBUG
+	
+  return pos + length;
+}
 
 #endif // EEPROMHAL_EXTENDED
 

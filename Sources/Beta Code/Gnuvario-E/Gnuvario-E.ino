@@ -36,38 +36,66 @@
 
 #define VERSION      0
 #define SUB_VERSION  4
-#define BETA_CODE    2
+#define BETA_CODE    4
 #define DEVNAME      "JPG63"
 #define AUTHOR "J"    //J=JPG63  P=PUNKDUMP
 
-/******************************************************************/
-/*                          VERSION                               */
-/*                           ESP32                                */
-/*                  Optimisé pour TTGO-T5                         */
-/*                                                                */
-/*                        Historique                              */
-/******************************************************************/
-/* v 0.1                             beta 1 version               *
-*  v 0.2     beta 1      23/06/19    debug VarioScreen            *      
-*  v 0.3     beta 1      25/06/19    correction mesure tension    *
-*                                    correction mesure de vitesse *
-*  v 0.3     beta 2      26/06/19    correction save IGC          *                                 
-*  v 0.4     beta 1      03/07/19    ajout la coupure du son      *
-*  v 0.4     beta 2      06/07/19    ajout statistique            *
-*                                                                 *
-*******************************************************************
-*                                                                 *
-*                   Developpement a venir                         *
-*                                                                 *
-* Bug Affichage ScreenDigit                                       *                                                                
-* Refrech all                                                     *
-* Recupération vol via USB                                        *
-*******************************************************************/
+/************************************************************************/
+/*                          VERSION                                     */
+/*                           ESP32                                      */
+/*                  Optimisé pour TTGO-T5                               */
+/*                                                                      */
+/*                        Historique                                    */
+/************************************************************************/
+/* v 0.1                             beta 1 version                     *
+*  v 0.2     beta 1      23/06/19    debug VarioScreen                  *      
+*  v 0.3     beta 1      25/06/19    correction mesure tension          *
+*                                    correction mesure de vitesse       *
+*  v 0.3     beta 2      26/06/19    correction save IGC                *                                 
+*  v 0.4     beta 1      03/07/19    ajout la coupure du son            *
+*  v 0.4     beta 2      06/07/19    ajout statistique                  *
+*  v 0.4     beta 3      18/07/19    Correction gestion Eeprom          *
+*                                    Correction tache affichage         * 
+*                                    Ajout delete task display          *
+*                                    Correction affichage statistique   *
+* v 0.4      beta 4      22/07/19    Correction effacement screendigit  *                             
+*                                    Correction affichage duree du vol  *
+*                                    Correction affichage statistique   *
+*                                    Modification FlightHistory         *
+*                                    Ajout parametre flighthistory dans *
+*                                    SETTINGS.TXT                       *
+*                                    Enregistrement des statistique     *
+*                                    toutes les 60sec - reduction des   *
+*                                    cycle d'ecriture dans la mémoire   *
+*                                    flash de l'ESP32                   *
+*                                                                       *
+*************************************************************************
+*                                                                       *
+*                   Developpement a venir                               *
+*                                                                       *                                                             
+* V0.4                                                                  *    
+* Refrech all                                                           *
+* Ajout affiche finesse et taux de chute                                *
+* Ajout indicateur de monté/descente                                    *
+*                                                                       *
+* V0.5                                                                  *
+* Recupération vol via USB                                              *
+*                                                                       *
+* VX.X                                                                  *
+* Refaire gestion du son                                                *
+*************************************************************************/
 
-
-
-
-
+/************************************************************************
+ *                   Fonctionalitées                                    *
+ *                                                                      *
+ * Version 0.3                                                          *                                                                     
+ * - Parametre utilisateur dans fichier SETTINGS.TXT                    *
+ * - Coupure du son via le bouton central (en vol)                      *
+ *                                                                      *
+ * Version 0.4                                                          *
+ * - Statistiques de Vol                                                *
+ *                                                                      *
+ ************************************************************************/
 
 /*******************/
 /* General objects */
@@ -132,48 +160,13 @@ VarioSettings GnuSettings;
 /************************************/
 #if defined(HAVE_GPS) || defined(VARIOMETER_DISPLAY_INTEGRATED_CLIMB_RATE)
 
-/* determine history params */
+/* two minutes history */
 #ifdef HAVE_GPS
-
-#ifdef VARIOMETER_DISPLAY_INTEGRATED_CLIMB_RATE
-    /* unsure period divide GPS_PERIOD */
-    constexpr double historyGPSPeriodCountF = (double)(VARIOMETER_INTEGRATED_CLIMB_RATE_DISPLAY_FREQ)*(double)(GPS_PERIOD)/(1000.0);
-    constexpr int8_t historyGPSPeriodCount = (int8_t)(0.5 + historyGPSPeriodCountF);
-
-    constexpr double historyPeriodF = (double)(GPS_PERIOD)/(double)(historyGPSPeriodCount);
-    constexpr unsigned historyPeriod = (unsigned)(0.5 + historyPeriodF);
+constexpr double historyGPSPeriodCountF = (double)(GPS_PERIOD) / 500.0;
+constexpr int8_t historyGPSPeriodCount = (int8_t)(0.5 + historyGPSPeriodCountF);
+SpeedFlightHistory<500, 120, historyGPSPeriodCount> history;
 #else 
-    /* GPS give the period */
-    constexpr int8_t historyGPSPeriodCount = 1;
-    constexpr unsigned historyPeriod = GPS_PERIOD;
-#endif //VARIOMETER_DISPLAY_INTEGRATED_CLIMB_RATE
-
-constexpr double historyCountF = (double)(VARIOMETER_GLIDE_RATIO_INTEGRATION_TIME)/(double)historyPeriod;
-constexpr int8_t historyCount = (int8_t)(0.5 + historyCountF);
-#else //!HAVE_GPS
-constexpr double historyCountF = (double)(VARIOMETER_INTEGRATED_CLIMB_RATE_DISPLAY_FREQ)*(double)(VARIOMETER_CLIMB_RATE_INTEGRATION_TIME)/(1000.0);
-constexpr int8_t historyCount = (int8_t)(0.5 + historyCountF);
-
-constexpr double historyPeriodF = (double)(VARIOMETER_CLIMB_RATE_INTEGRATION_TIME)/(double)historyCount;
-constexpr unsigned historyPeriod = (unsigned)(0.5 + historyPeriodF);
-#endif //HAVE_GPS
-
-/* create history */
-#ifdef HAVE_GPS
-SpeedFlightHistory<historyPeriod, historyCount, historyGPSPeriodCount> history;
-#else
-#ifdef VARIOMETER_DISPLAY_INTEGRATED_CLIMB_RATE
-FlightHistory<historyPeriod, historyCount> history;
-#endif //VARIOMETER_DISPLAY_INTEGRATED_CLIMB_RATE
-#endif //HAVE_GPS
-
-/* compute climb rate period count when differ from glide ratio period count */
-#if defined(HAVE_GPS) && defined(VARIOMETER_DISPLAY_INTEGRATED_CLIMB_RATE)
-#if VARIOMETER_CLIMB_RATE_INTEGRATION_TIME > VARIOMETER_GLIDE_RATIO_INTEGRATION_TIME
-#error VARIOMETER_CLIMB_RATE_INTEGRATION_TIME must be less or equal than VARIOMETER_GLIDE_RATIO_INTEGRATION_TIME
-#endif
-constexpr double historyClimbRatePeriodCountF = (double)(VARIOMETER_CLIMB_RATE_INTEGRATION_TIME)/(double)historyPeriod;
-constexpr int8_t historyClimbRatePeriodCount = (int8_t)historyClimbRatePeriodCountF;
+FlightHistory<500, 120> history;
 #endif
 
 #endif //defined(HAVE_GPS) || defined(VARIOMETER_DISPLAY_INTEGRATED_CLIMB_RATE)
@@ -374,14 +367,14 @@ void setup() {
   }
 #endif //HAVE_SDCARD
 
-  uint8_t tmp[4];
+/*  uint8_t tmp[4];
   tmp[0]=1;
   tmp[1]=1;
   tmp[2]=19;
   tmp[3]=00;
 
   flystat.SetDate(tmp);
-  flystat.ForceWrite();
+  flystat.ForceWrite();*/
   
   /***************/
   /* init screen */
@@ -615,7 +608,7 @@ void loop() {
     screen.altiDigit->setValue((uint16_t)currentalti);
 #ifdef VARIOMETER_DISPLAY_INTEGRATED_CLIMB_RATE
     if( history.haveNewClimbRate() ) {
-      screen.varioDigit->setValue(history.getClimbRate());
+      screen.varioDigit->setValue(history.getClimbRate(GnuSettings.SETTINGS_CLIMB_PERIOD_COUNT));
     }
 #else
     screen.varioDigit->setValue(currentvario);
@@ -624,7 +617,7 @@ void loop() {
 #if (RATIO_CLIMB_RATE > 1) 
     if( history.haveNewClimbRate() ) {
       double TmpTrend;
-      TmpTrend = history.getClimbRate();
+      TmpTrend = history.getClimbRate(GnuSettings.SETTINGS_CLIMB_PERIOD_COUNT);
       if (displayLowUpdateState) {
         if (abs(TmpTrend) < 10) screen.trendDigit->setValue(abs(TmpTrend)); 
         else                    screen.trendDigit->setValue(9.9);
@@ -638,7 +631,7 @@ void loop() {
 #else
 #ifdef VARIOMETER_DISPLAY_INTEGRATED_CLIMB_RATE
     if( history.haveNewClimbRate() ) {
-      screen.varioDigit->setValue(history.getClimbRate());
+      screen.varioDigit->setValue(history.getClimbRate(GnuSettings.SETTINGS_CLIMB_PERIOD_COUNT));
     }
 #else
     screen.varioDigit->setValue(currentvario);
@@ -959,7 +952,7 @@ void loop() {
   if ((variometerState >= VARIOMETER_STATE_DATE_RECORDED ) && ( nmeaParser.haveNewSpeedValue() )) {
 
     double currentSpeed = nmeaParser.getSpeed();
-    double ratio = history.getGlideRatio(currentSpeed, serialNmea.getReceiveTimestamp());
+    double ratio = history.getGlideRatio(currentSpeed, serialNmea.getReceiveTimestamp(), GnuSettings.SETTINGS_GLIDE_RATIO_PERIOD_COUNT);
 
 #ifdef GPS_DEBUG
           SerialPort.print("GpsSpeed : ");
@@ -1070,7 +1063,25 @@ void createSDCardTrackFile(void) {
 #endif //SDCARD_DEBUG
 
     flystat.Begin();
-    flystat.SetDate(igcSD.CreateIgcFile());
+    uint8_t dateN[3];
+    igcSD.CreateIgcFile(dateN);
+
+#ifdef SDCARD_DEBUG
+    SerialPort.print("DateNum Gnuvario-E.ino : ");
+#endif //SDCARD_DEBUG
+
+    for(uint8_t i=0; i<3; i++) {
+#ifdef SDCARD_DEBUG
+      SerialPort.print(dateN[i]);
+      SerialPort.print(" - ");
+#endif //SDCARD_DEBUG
+    }
+
+#ifdef SDCARD_DEBUG
+    SerialPort.println("");
+#endif //SDCARD_DEBUG
+    
+    flystat.SetDate(dateN);
   }
 }
 #endif //defined(HAVE_SDCARD) && defined(HAVE_GPS)
@@ -1082,7 +1093,7 @@ void createSDCardTrackFile(void) {
 void enableflightStartComponents(void) {
 /*******************************************/  
 
-#ifdef SDCARD_DEBUG
+#ifdef PROG_DEBUG
       SerialPort.println("enableflightStartComponents ");
 #endif //SDCARD_DEBUG
 
@@ -1097,6 +1108,15 @@ if (GnuSettings.ALARM_FLYBEGIN) {
   }
 }
 #endif //HAVE_SPEAKER 
+
+  /* set base time */
+#if defined(HAVE_SCREEN) && defined(HAVE_GPS)
+#ifdef PROG_DEBUG
+      SerialPort.println("screenElapsedTime");
+#endif //SDCARD_DEBUG
+
+  screen.screenElapsedTime->setBaseTime( screen.screenTime->getTime() );
+#endif //defined(HAVE_SCREEN) && defined(HAVE_GPS)
 
   /* enable near climbing */
 #ifdef HAVE_SPEAKER

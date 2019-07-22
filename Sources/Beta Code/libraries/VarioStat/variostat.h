@@ -22,10 +22,13 @@
 /*                                                                               */
 /*                           VarioStat                                           */
 /*                                                                               */
-/*  version    Date     Description                                              */
+/*  version    Date        Description                                           */
 /*    1.0      06/07/19                                                          */
+/*    1.1      21/07/19    Correction getdate/setdate                            */
+/*    1.1.1    22/07/19    Modification du taux d'enregistrement des statistiques*/
 /*                                                                               */
 /*********************************************************************************/
+
 
 #ifndef VARIOSTAT_H
 #define VARIOSTAT_H
@@ -53,8 +56,8 @@ class VarioStat {
    void SetAlti(double alti);
    void SetSpeed(double speed);
    void SetVario(double vario);
-   void SetDuration(int8_t* duree);
-	 void SetTime(int8_t* duree);
+   void SetDuration(int8_t* dureeValue);
+	 void SetTime(int8_t* timeValue);
 	 void SetDate(uint8_t* dateValue);
    double GetAlti(void);
    double GetVarioMin(void);
@@ -76,7 +79,7 @@ class VarioStat {
    bool          EnableRecord;
    int8_t 		   time[3];
 	 int8_t        duree[3];
-	 uint8_t       date[4];
+	 uint8_t       date[3];
 	 bool          firsttime;
      
    void ReadEeprom(void);

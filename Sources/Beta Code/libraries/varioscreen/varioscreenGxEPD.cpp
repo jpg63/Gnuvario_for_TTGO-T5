@@ -18,18 +18,27 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-/*********************************************************************************/
-/*                                                                               */
-/*                           VarioScreenGxEPD                                    */
-/*                                                                               */
-/*  version    Date     Description                                              */
-/*    1.0    20/06/19                                                            */
-/*    1.0.1  25/06/19   Correction affichage batterie / affichage vitesse        */
-/*                                                                               */
-/*********************************************************************************/
+/* 
+ *********************************************************************************
+ *                                                                               *
+ *                           VarioScreenGxEPD                                    *
+ *                                                                               *
+ *  version    Date     Description                                              *
+ *    1.0    20/06/19                                                            *
+ *    1.0.1  25/06/19   Correction affichage batterie / affichage vitesse        *
+ *    1.0.2  20/07/19   Correction bug d'affiche screedigit                      *
+ *    1.0.3  21/07/19   Correction affichage statistique                         *
+ *                                                                               *
+ *********************************************************************************/
 
 #include <varioscreenGxEPD.h>
 #include <Arduino.h>
+
+#if defined(ESP32)
+static const char* TAG = "VarioScreen";
+#include "esp_log.h"
+#endif //ESP32
+
 //#include <avr\dtostrf.h>
 #include <stdlib.h>
 #include <DebugConfig.h>
@@ -282,7 +291,6 @@ template<typename GxEPD2_Type, const uint16_t page_height> unsigned int GxEPD2_B
 //****************************************************************************************************************************
 //****************************************************************************************************************************
 
-
 //****************************************************************************************************************************
 VarioScreen::~VarioScreen() {
 //****************************************************************************************************************************
@@ -426,6 +434,8 @@ void VarioScreen::CreateObjectDisplay(int8_t ObjectDisplayTypeID, VarioScreenObj
 	
 }
 
+TaskHandle_t taskDisplay;
+
 //****************************************************************************************************************************
 void genericTask( void * parameter ){
 //****************************************************************************************************************************
@@ -438,10 +448,8 @@ void genericTask( void * parameter ){
 	display.display(true); // partial update
 //	display.
   stateDisplay = STATE_OK;
-  vTaskDelete(NULL);
+  vTaskDelete(taskDisplay);
 }
-
-TaskHandle_t taskDisplay;
 
 //****************************************************************************************************************************
 void VarioScreen::updateScreen (void)
@@ -451,8 +459,16 @@ void VarioScreen::updateScreen (void)
 	SerialPort.println("screen update");	
 #endif //SCREEN_DEBUG
 	
-  if (stateDisplay != STATE_OK) return;
+  if (stateDisplay != STATE_OK) {
+		if (millis() - timerShow > 1500) {
+			stateDisplay = STATE_OK;
+			vTaskDelete(taskDisplay);
+			display.powerOff();
+		}
+	  return;
+	}
 	
+	timerShow = millis();
 	display.setFullWindow();
 #ifdef SCREEN_DEBUG
 	SerialPort.println("screen update : setFullWindows");	
@@ -693,7 +709,7 @@ void VarioScreen::ScreenViewStat(VarioStat flystat)
 		display.setCursor(20, 30);
 		display.print("STATISTIQUE");
 
-    uint8_t tmpDate[4];
+    uint8_t tmpDate[3];
 		int8_t  tmpTime[3];
 		flystat.GetDate(tmpDate);
 		
@@ -705,20 +721,31 @@ void VarioScreen::ScreenViewStat(VarioStat flystat)
     SerialPort.println("");		
 #endif //SCREEN_DEBUG
 		
-		sprintf(tmpbuffer,"Date : %02d.%02d.%02d%02d", tmpDate[0],tmpDate[1],tmpDate[2],tmpDate[3]);
+		sprintf(tmpbuffer,"Date : %02d.%02d.%02d", tmpDate[0],tmpDate[1],tmpDate[2]);
 		display.setCursor(1, 60);
 		display.print(tmpbuffer);
 
+#ifdef SCREEN_DEBUG
+ 		  SerialPort.println(tmpbuffer);
+#endif //SCREEN_DEBUG
+
 		flystat.GetTime(tmpTime);
-		sprintf(tmpbuffer,"heure : %02d:%02d",tmpTime[0],tmpTime[1]); 
+		sprintf(tmpbuffer,"heure : %02d:%02d",tmpTime[2],tmpTime[1]); 
 		display.setCursor(1, 80);
 		display.print(tmpbuffer);
 
+#ifdef SCREEN_DEBUG
+ 		  SerialPort.println(tmpbuffer);
+#endif //SCREEN_DEBUG
+
 		flystat.GetDuration(tmpTime);	
-		sprintf(tmpbuffer,"duree : %02d:%02d",tmpTime[0],tmpTime[1]); 
+		sprintf(tmpbuffer,"duree : %02d:%02d",tmpTime[2],tmpTime[1]); 
 		display.setCursor(1, 100);
 		display.print(tmpbuffer);
 
+#ifdef SCREEN_DEBUG
+ 		  SerialPort.println(tmpbuffer);
+#endif //SCREEN_DEBUG
 
     double tmpAlti = flystat.GetAlti();
 		sprintf(tmpbuffer,"Alti Max : %.0f",tmpAlti); 
@@ -823,7 +850,69 @@ void VarioScreenObject::reset(void) {
 //****************************************************************************************************************************
 
 /* digit */
-#define MAX_CHAR_IN_LINE 7
+#define MAX_CHAR_IN_LINE 20
+
+
+//****************************************************************************************************************************
+ScreenDigit::ScreenDigit(uint16_t anchorX, uint16_t anchorY, uint16_t width, uint16_t precision, boolean plusDisplay, boolean zero, boolean leftAlign) 
+   : VarioScreenObject(0), anchorX(anchorX), anchorY(anchorY), width(width), precision(precision), plusDisplay(plusDisplay), zero(zero), leftAlign(leftAlign) { 
+//****************************************************************************************************************************
+  lastDisplayWidth = 0; 
+
+  display.setFont(&FreeSansBold12pt7b);
+  display.setTextSize(2);
+
+  int16_t box_x = anchorX;
+  int16_t box_y = anchorY;
+  uint16_t w, h;
+  int16_t box_w, box_h; 
+
+#if defined(ESP32)
+	ESP_LOGI(TAG, "ScreenDigit constructeur");
+//  ESP_LOGE(TAG, "Failed to initialize the card (%d). Make sure SD card lines have pull-up resistors in place.", ret);
+#endif //ESP32
+
+
+#ifdef SCREEN_DEBUG	  
+  SerialPort.print("Constructeur ScreenDigit : ");
+  SerialPort.print("-- X : ");
+  SerialPort.print(box_x);
+  SerialPort.print("-- Y: ");
+  SerialPort.print(box_y);
+  SerialPort.print("-- width : ");
+  SerialPort.print(width);
+  SerialPort.print("-- precision :  ");
+  SerialPort.println(precision);
+#endif //SCREEN_DEBUG
+  
+
+	char TmpChar[MAX_CHAR_IN_LINE];
+
+  int i,j,plus=0;
+	
+	if (plusDisplay) {
+		TmpChar[width+1] = '+';
+		plus = 1;
+	}
+
+	if (precision > 0) {
+		for (i=0; i < width-precision-1;i++) TmpChar[i+plus] = '0';
+		
+		i=i+plus+1;
+		TmpChar[i++] = '.';
+
+		for (j=0; j < precision;j++) TmpChar[i+j] = '0';
+		
+	} else {		
+		for (i=0; i < width;i++) TmpChar[i+plus] = '0';
+	}
+
+  TmpChar[width+plus+1] = '\0';		
+	display.getTextBounds(TmpChar, box_x, box_y, &box_w, &box_h, &w, &h);
+	
+	Zwidth   = w-box_x+2;
+	Zheight  = 24+6;
+}
 
 //****************************************************************************************************************************
 void ScreenDigit::setValue(double Value) {
@@ -865,6 +954,7 @@ int ScreenDigit::digitsBe4Decimal(double number) {
 
 //****************************************************************************************************************************
 char * ScreenDigit::dtostrf2(double number, signed char width, unsigned char prec, char *s, boolean zero) {
+//****************************************************************************************************************************	
   char *out;
 	unsigned long long integer;
 	double fraction, rounding;
@@ -1032,6 +1122,10 @@ void ScreenDigit::show() {
   SerialPort.print(width);
   SerialPort.print("-- precision :  ");
   SerialPort.println(precision);
+	SerialPort.print("Zwidth : ");
+	SerialPort.println(Zwidth);
+	SerialPort.print("Zheight : ");
+	SerialPort.println(Zheight);
 #endif //SCREEN_DEBUG
   
 //  display.getTextBounds(digitCharacters, box_x, box_y, &box_w, &box_h, &w, &h);
@@ -1055,6 +1149,10 @@ void ScreenDigit::show() {
   SerialPort.println(w);
   SerialPort.print("H : ");
   SerialPort.println(h);
+	SerialPort.print("Zwidth : ");
+	SerialPort.println(Zwidth);
+	SerialPort.print("Zheight : ");
+	SerialPort.println(Zheight);
 #endif //SCREEN_DEBUG
   
 /*  if (leftAlign) {
@@ -1098,14 +1196,21 @@ void ScreenDigit::show() {
 		SerialPort.println(oldw);
 		SerialPort.print("oldH : ");
 		SerialPort.println(oldh);
+		SerialPort.print("Zwidth : ");
+		SerialPort.println(Zwidth);
+		SerialPort.print("Zheight : ");
+		SerialPort.println(Zheight);
 #endif //SCREEN_DEBUG
 	
 		if ((oldw != 0) && (oldh != 0)) {
-			display.fillRect(oldx, oldy, oldw+2, oldh, GxEPD_WHITE);
+////			display.fillRect(oldx, oldy, oldw+2, oldh, GxEPD_WHITE);
+//			display.fillRect(anchorX-2, anchorY-Zwidth-2, Zwidth+2, Zheight+2, GxEPD_WHITE);
 //    	display.drawRect(oldx, oldy, oldw+2, oldh, GxEPD_BLACK);
 		}	
 	
  //   display.drawRect(box_x, box_y-h-2, w+6, h+6, GxEPD_BLACK);
+
+		display.fillRect(anchorX-2, anchorY-Zwidth-3, Zwidth+4, Zheight+4, GxEPD_WHITE);
 	  
     display.setCursor(box_x, box_y-1);
     display.print(digitCharacters);
@@ -1130,14 +1235,20 @@ void ScreenDigit::show() {
 		SerialPort.println(oldw);
 		SerialPort.print("oldH : ");
 		SerialPort.println(oldh);
+		SerialPort.print("Zwidth : ");
+		SerialPort.println(Zwidth);
+		SerialPort.print("Zheight : ");
+		SerialPort.println(Zheight);
 #endif //SCREEN_DEBUG
 	
 		if ((oldw != 0) && (oldh != 0)) {
-			display.fillRect(oldx, oldy, oldw+4, oldh, GxEPD_WHITE);
+////			display.fillRect(oldx, oldy, oldw+4, oldh, GxEPD_WHITE);
+//				display.fillRect(anchorX-Zwidth-2, anchorY-Zheight-2, Zwidth+2, Zheight+2, GxEPD_WHITE);
 //			display.drawRect(oldx, oldy, oldw+4, oldh, GxEPD_BLACK);
 		}	
 			
 		//display.drawRect(box_x-w-6, box_y-h-2, w+6, h+6, GxEPD_BLACK);
+		display.fillRect(anchorX-Zwidth-1, anchorY-Zheight-3, Zwidth+5, Zheight+4, GxEPD_WHITE);
 		
     display.setCursor(box_x-w-1, box_y-1);
     display.print(digitCharacters);
@@ -1542,7 +1653,7 @@ void BATLevel::show(void) {
   SerialPort.println(uVoltage);
 #endif //SCREEN_DEBUG
 
-  display.fillRect(posX, posY, 32, 32, GxEPD_WHITE);
+//  display.fillRect(posX, posY, 32, 32, GxEPD_WHITE);
 //	display.drawRect(posX, posY, 32, 32, GxEPD_BLACK);
   
   if (pVoltage >= 75)
@@ -2060,7 +2171,7 @@ void ScreenTime::show(void) {
 		SerialPort.println("dot_or_h  : H");
 #endif //SCREEN_DEBUG
 
-    display.drawBitmap(posX-69, posY-24,hicons,  16, 24, GxEPD_BLACK);   //GxEPD_BLACK);
+    display.drawBitmap(posX-68, posY-24,hicons,  16, 24, GxEPD_BLACK);   //GxEPD_BLACK);
 	}
   else {	
 #ifdef SCREEN_DEBUG

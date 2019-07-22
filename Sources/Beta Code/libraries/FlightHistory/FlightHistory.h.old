@@ -151,7 +151,7 @@ class SpeedFlightHistory : public FlightHistory<period, count> {
 
  public:
  SpeedFlightHistory(void) : speedValuesPos(0) { }
-  double getGlideRatio(double speed, unsigned long timestamp, int8_t periodCount = count);
+  double getGlideRatio(double speed, unsigned long timestamp);
 
  private:
   static constexpr int8_t speedValuesSize = (count + speedPeriodCount - 1)/speedPeriodCount;
@@ -161,12 +161,12 @@ class SpeedFlightHistory : public FlightHistory<period, count> {
 
 
 template<unsigned period, int8_t count, int8_t speedPeriodCount>
-double SpeedFlightHistory<period, count, speedPeriodCount>::getGlideRatio(double speed, unsigned long timestamp, int8_t periodCount) {
+double SpeedFlightHistory<period, count, speedPeriodCount>::getGlideRatio(double speed, unsigned long timestamp) {
 
   /* save speed value */
   speedValues[speedValuesPos] = speed;
-  //pos updated later
-  
+  speedValuesPos = (speedValuesPos + 1) % speedValuesSize;
+
   /*******************************/
   /* synchronise alti with speed */
   /*******************************/
@@ -191,7 +191,7 @@ double SpeedFlightHistory<period, count, speedPeriodCount>::getGlideRatio(double
   double distance = 0.0;
   int8_t speedPos = speedValuesPos;
 
-  while( sumCount < periodCount ) {
+  while( sumCount < count ) {
 
     /* check if we need to update speed pos */
     if( sumCount % speedPeriodCount == 0 ) {
@@ -209,10 +209,6 @@ double SpeedFlightHistory<period, count, speedPeriodCount>::getGlideRatio(double
     sumCount++;
   }
 
-  /* update pos */
-  speedValuesPos = (speedValuesPos + 1) % speedValuesSize;
-
-  /* compute glide ratio */
   return -distance*((double)period/3600.0)/computeClimbDelta(); //speed is in km/h and period in ms, so we get m
  }
 

@@ -45,11 +45,21 @@
 #define VOLTAGE_DIVISOR_REF_VOLTAGE 3.3
 
 /*****************************/
+/*   EEPROM                  */
+/*****************************/
+//  IGC Header			0x00		195		0xC8
+//  Sound volume		0xC8    1     0xCA
+//  Fly Stat        0xCA     
+
+/*****************************/
 /*  IGC HEADER EEPROM        */
 /*****************************/
 
+#ifndef IGC_SENTENCE_HEADER_EEPROM_ADDRESS
 #define IGC_SENTENCE_HEADER_EEPROM_ADDRESS 0x30 
 #define IGC_SENTENCE_HEADER_MAX_SIZE (0x200 - 0x30)
+#endif
+
 #define IGC_SENTENCE_EEPROM_TAG 2568
 
 /*****************************/
@@ -57,13 +67,19 @@
 /*****************************/
 
 /* eeprom sound setting adresses */
+#ifndef SOUND_EEPROM_ADDR
 #define SOUND_EEPROM_ADDR 0x210
+#endif
+
 #define SOUND_EEPROM_TAG 9806
 
 /*****************************/
 /*  EEPROM STAT              */
 /*****************************/
-#define FLY_STAT_HEADER_EEPROM_ADDRESS 0x230 
+#ifndef FLY_STAT_HEADER_EEPROM_ADDRESS
+#define FLY_STAT_HEADER_EEPROM_ADDRESS 0x230
+#endif
+ 
 #define FLY_STAT_EEPROM_TAG 2068
 
 /*****************************/

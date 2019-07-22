@@ -1,3 +1,35 @@
+/* VarioSettings -- Gestion des parametres
+ *
+ * Copyright 2019 Jean-philippe GOI
+ * 
+ * .
+ *
+ * ToneHAL is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * ToneHAL is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+/*********************************************************************************/
+/*                                                                               */
+/*                           VarioSettings                                       */
+/*                                                                               */
+/*  version    Date     Description                                              */
+/*    1.0                                                                        */
+/*    1.0.1  24/06/19   suppression  VARIOMETER_POWER_ON_DELAY 									 */
+/*    1.0.2  22/07/19   Ajout SETTINGS_CLIMB_PERIOD_COUNT et                     */
+/*                            SETTINGS_GLIDE_RATIO_PERIOD_COUNT 								 */
+/*                                                                               */
+/*********************************************************************************/
+
 #include <VarioSettings.h>
 #include <Arduino.h>
 //#include <FlashAsEEPROM.h>
@@ -278,6 +310,12 @@ boolean VarioSettings::readSDSettings(){
  // audio feedback tones
     BEEP_FREQ=settingValue.toInt();
    }  
+   else if(settingName == "SETTINGS_CLIMB_PERIOD_COUNT") {
+	   SETTINGS_CLIMB_PERIOD_COUNT=settingValue.toInt();
+   }
+   else if(settingName == "SETTINGS_GLIDE_RATIO_PERIOD_COUNT") {
+	   SETTINGS_GLIDE_RATIO_PERIOD_COUNT=settingValue.toInt();
+   }
  /* **************************  else if(settingName == "VARIOMETER_DISPLAY_INTEGRATED_CLIMB_RATE") {
  // audio feedback tones
     VARIOMETER_DISPLAY_INTEGRATED_CLIMB_RATE=toBoolean(settingValue);
