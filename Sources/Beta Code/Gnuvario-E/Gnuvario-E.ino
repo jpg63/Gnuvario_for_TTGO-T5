@@ -36,7 +36,7 @@
 
 #define VERSION      0
 #define SUB_VERSION  4
-#define BETA_CODE    4
+#define BETA_CODE    5
 #define DEVNAME      "JPG63"
 #define AUTHOR "J"    //J=JPG63  P=PUNKDUMP
 
@@ -68,6 +68,11 @@
 *                                    toutes les 60sec - reduction des   *
 *                                    cycle d'ecriture dans la mémoire   *
 *                                    flash de l'ESP32                   *
+* v 0.4     beta 5    24/07/19       Ajout TrendDigit                   *
+*                                    Modification TrendLevel            *
+*                                    Modification screendigit           *
+*                                    Correction démarrage du vol        *
+*                                    indicateur de monte/descente       *
 *                                                                       *
 *************************************************************************
 *                                                                       *
@@ -75,8 +80,7 @@
 *                                                                       *                                                             
 * V0.4                                                                  *    
 * Refrech all                                                           *
-* Ajout affiche finesse et taux de chute                                *
-* Ajout indicateur de monté/descente                                    *
+* Bug vario figé lors de l'enregistrement                               *
 *                                                                       *
 * V0.5                                                                  *
 * Recupération vol via USB                                              *
@@ -94,6 +98,8 @@
  *                                                                      *
  * Version 0.4                                                          *
  * - Statistiques de Vol                                                *
+ * - taux de chute et finesse                                           *
+ * - indicateur de monte/descente                                       *
  *                                                                      *
  ************************************************************************/
 
@@ -158,7 +164,6 @@ VarioSettings GnuSettings;
 /************************************/
 /* glide ratio / average climb rate */
 /************************************/
-#if defined(HAVE_GPS) || defined(VARIOMETER_DISPLAY_INTEGRATED_CLIMB_RATE)
 
 /* two minutes history */
 #ifdef HAVE_GPS
@@ -168,8 +173,6 @@ SpeedFlightHistory<500, 120, historyGPSPeriodCount> history;
 #else 
 FlightHistory<500, 120> history;
 #endif
-
-#endif //defined(HAVE_GPS) || defined(VARIOMETER_DISPLAY_INTEGRATED_CLIMB_RATE)
 
 /***************/
 /* gps objects */
@@ -489,9 +492,9 @@ void setup() {
 #endif //KALMAN_DEBUG
 #endif //HAVE_ACCELEROMETER
 
-#if defined(HAVE_GPS) || defined(VARIOMETER_DISPLAY_INTEGRATED_CLIMB_RATE)
-  history.init(firstAlti, millis());
-#endif //defined(HAVE_GPS) || defined(VARIOMETER_DISPLAY_INTEGRATED_CLIMB_RATE)
+#if defined(HAVE_GPS) 
+  if (GnuSettings.VARIOMETER_DISPLAY_INTEGRATED_CLIMB_RATE) history.init(firstAlti, millis());
+#endif //defined(HAVE_GPS) 
 
 #ifdef HAVE_GPS
   serialNmea.begin(9600, true);
@@ -587,8 +590,8 @@ void loop() {
 #endif //HAVE_SPEAKER
 
    /* set history */
-#if defined(HAVE_GPS) || defined(VARIOMETER_DISPLAY_INTEGRATED_CLIMB_RATE)
-		history.setAlti(kalmanvert.getCalibratedPosition(), millis());
+#if defined(HAVE_GPS) 
+    if ((GnuSettings.VARIOMETER_DISPLAY_INTEGRATED_CLIMB_RATE)	|| (GnuSettings.RATIO_CLIMB_RATE > 1)) history.setAlti(kalmanvert.getCalibratedPosition(), millis());
 #endif
 
 		double currentalti  = kalmanvert.getCalibratedPosition();
@@ -606,36 +609,45 @@ void loop() {
 #endif //PROG_DEBUG
 
     screen.altiDigit->setValue((uint16_t)currentalti);
-#ifdef VARIOMETER_DISPLAY_INTEGRATED_CLIMB_RATE
-    if( history.haveNewClimbRate() ) {
-      screen.varioDigit->setValue(history.getClimbRate(GnuSettings.SETTINGS_CLIMB_PERIOD_COUNT));
+    if (GnuSettings.VARIOMETER_DISPLAY_INTEGRATED_CLIMB_RATE) {    
+      if( history.haveNewClimbRate() ) {
+        screen.varioDigit->setValue(history.getClimbRate(GnuSettings.SETTINGS_CLIMB_PERIOD_COUNT));
+      }
+    } else {
+      screen.varioDigit->setValue(currentvario);
     }
-#else
-    screen.varioDigit->setValue(currentvario);
-#endif //VARIOMETER_DISPLAY_INTEGRATED_CLIMB_RATE   
 
-#if (RATIO_CLIMB_RATE > 1) 
     if( history.haveNewClimbRate() ) {
       double TmpTrend;
       TmpTrend = history.getClimbRate(GnuSettings.SETTINGS_CLIMB_PERIOD_COUNT);
+#ifdef PROG_DEBUG
+      SerialPort.print("Trend value : ");
+      SerialPort.println(TmpTrend);
+#endif //PROG_DEBUG
+      
       if (displayLowUpdateState) {
-        if (abs(TmpTrend) < 10) screen.trendDigit->setValue(abs(TmpTrend)); 
-        else                    screen.trendDigit->setValue(9.9);
-        
+        if (GnuSettings.RATIO_CLIMB_RATE > 1) {
+          if (abs(TmpTrend) < 10) screen.trendDigit->setValue(abs(TmpTrend)); 
+          else                    screen.trendDigit->setValue(9.9);
+        }
+
+#ifdef PROG_DEBUG
+        SerialPort.println("display trendLevel");
+#endif //PROG_DEBUG
+
         if (TmpTrend == 0)     screen.trendLevel->stateTREND(0);
         else if (TmpTrend > 0) screen.trendLevel->stateTREND(1);
         else                   screen.trendLevel->stateTREND(-1);
       }
     }  
-#endif // (RATIO_CLIMB_RATE > 1)
 #else
-#ifdef VARIOMETER_DISPLAY_INTEGRATED_CLIMB_RATE
-    if( history.haveNewClimbRate() ) {
-      screen.varioDigit->setValue(history.getClimbRate(GnuSettings.SETTINGS_CLIMB_PERIOD_COUNT));
+    if (GnuSettings.VARIOMETER_DISPLAY_INTEGRATED_CLIMB_RATE) {
+      if( history.haveNewClimbRate() ) {
+        screen.varioDigit->setValue(history.getClimbRate(GnuSettings.SETTINGS_CLIMB_PERIOD_COUNT));
+      }
+    else {
+      screen.varioDigit->setValue(currentvario);
     }
-#else
-    screen.varioDigit->setValue(currentvario);
-#endif //VARIOMETER_DISPLAY_INTEGRATED_CLIMB_RATE
 #endif //HAVE_SCREEN
      
   }
@@ -823,9 +835,9 @@ void loop() {
           SerialPort.println("Kalman CalibratePosition");        
 #endif //GPS_DEBUG
           
-#if defined(HAVE_GPS) || defined(VARIOMETER_DISPLAY_INTEGRATED_CLIMB_RATE)
-          history.init(gpsAlti, millis());
-#endif //defined(HAVE_GPS) || defined(VARIOMETER_DISPLAY_INTEGRATED_CLIMB_RATE)
+#if defined(HAVE_GPS) 
+          if (GnuSettings.VARIOMETER_DISPLAY_INTEGRATED_CLIMB_RATE)  history.init(gpsAlti, millis());
+#endif //defined(HAVE_GPS) 
 
           variometerState = VARIOMETER_STATE_CALIBRATED;
 
@@ -858,7 +870,7 @@ void loop() {
   //        && (kalmanvert.getVelocity() < FLIGHT_START_VARIO_LOW_THRESHOLD || kalmanvert.getVelocity() > FLIGHT_START_VARIO_HIGH_THRESHOLD) &&
 #ifdef HAVE_GPS
 
-            &&((nmeaParser.getSpeed_no_unset() > GnuSettings.FLIGHT_START_MIN_SPEED)|| (!GnuSettings.VARIOMETER_RECORD_WHEN_FLIGHT_START))
+            &&((nmeaParser.getSpeed() > GnuSettings.FLIGHT_START_MIN_SPEED)|| (!GnuSettings.VARIOMETER_RECORD_WHEN_FLIGHT_START))
 #endif //HAVE_GPS
           ) {
           variometerState = VARIOMETER_STATE_FLIGHT_STARTED;

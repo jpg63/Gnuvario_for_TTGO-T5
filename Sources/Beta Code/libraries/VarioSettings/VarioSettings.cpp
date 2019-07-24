@@ -27,6 +27,8 @@
 /*    1.0.1  24/06/19   suppression  VARIOMETER_POWER_ON_DELAY 									 */
 /*    1.0.2  22/07/19   Ajout SETTINGS_CLIMB_PERIOD_COUNT et                     */
 /*                            SETTINGS_GLIDE_RATIO_PERIOD_COUNT 								 */
+/*    1.0.3  23/07/19   Ajout VARIOMETER_DISPLAY_INTEGRATED_CLIMB_RATE           */
+/*														RATIO_CLIMB_RATE																	 */
 /*                                                                               */
 /*********************************************************************************/
 
@@ -316,22 +318,12 @@ boolean VarioSettings::readSDSettings(){
    else if(settingName == "SETTINGS_GLIDE_RATIO_PERIOD_COUNT") {
 	   SETTINGS_GLIDE_RATIO_PERIOD_COUNT=settingValue.toInt();
    }
- /* **************************  else if(settingName == "VARIOMETER_DISPLAY_INTEGRATED_CLIMB_RATE") {
- // audio feedback tones
+  else if(settingName == "VARIOMETER_DISPLAY_INTEGRATED_CLIMB_RATE") {
     VARIOMETER_DISPLAY_INTEGRATED_CLIMB_RATE=toBoolean(settingValue);
    }  
-   else if(settingName == "VARIOMETER_CLIMB_RATE_INTEGRATION_TIME") {
- // audio feedback tones
-    VARIOMETER_CLIMB_RATE_INTEGRATION_TIME=settingValue.toInt();
+  else if(settingName == "RATIO_CLIMB_RATE") {
+    RATIO_CLIMB_RATE=settingValue.toInt();
    }  
-   else if(settingName == "VARIOMETER_INTEGRATED_CLIMB_RATE_DISPLAY_FREQ") {
- // audio feedback tones
-    VARIOMETER_INTEGRATED_CLIMB_RATE_DISPLAY_FREQ=toFloat(settingValue);
-   }  
-   else if(settingName == "VARIOMETER_GLIDE_RATIO_INTEGRATION_TIME") {
- // audio feedback tones
-    VARIOMETER_GLIDE_RATIO_INTEGRATION_TIME=settingValue.toInt();
-   }   */ //************************************************************
    else if(settingName == "RATIO_MAX_VALUE") {
  // audio feedback tones
     RATIO_MAX_VALUE = toFloat(settingValue);

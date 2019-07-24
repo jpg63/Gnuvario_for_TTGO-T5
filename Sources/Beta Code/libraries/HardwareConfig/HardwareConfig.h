@@ -32,6 +32,7 @@
 /*  version    Date     Description                                              */
 /*    1.0    03/06/19                                                            */
 /*    1.0.1  24/06/19   Ajout profil GPS - choix entre 2 versions 							 */
+/*    1.0.2  23/07/19   suppression des parametres CLIMB_RATE                    */
 /*                                                                               */
 /*********************************************************************************/
 
@@ -125,24 +126,6 @@
 #define VERTACCEL_ACCEL_CAL_BIAS_MULTIPLIER 7
 #define VERTACCEL_MAG_CAL_BIAS_MULTIPLIER 5
 
-/* Display integrated climb rate or instantaneous values if disabled     */
-/* If enabled set the integration time in ms.                            */
-/* ! Climb rate integration time must not be more than glide ratio one ! */
-//#define VARIOMETER_DISPLAY_INTEGRATED_CLIMB_RATE
-#define VARIOMETER_CLIMB_RATE_INTEGRATION_TIME 2000
-#define VARIOMETER_INTEGRATED_CLIMB_RATE_DISPLAY_FREQ 2.0
-
-/* Glide ratio display parameters  */
-/* Integration time in ms.         */
-#define VARIOMETER_GLIDE_RATIO_INTEGRATION_TIME 15000
-
-
-/* Set the GPS precision needed to use the GPS altitude value  */
-/* to calibrate the barometric altitude.                       */
-/*      !!! the best possible precision is 100 !!!             */ 
-#define VARIOMETER_GPS_ALTI_CALIBRATION_PRECISION_THRESHOLD 350
-
-
 /*****************************/
 /* SDCard/Bluetooth behavior */
 /*****************************/
@@ -178,6 +161,11 @@
 /* The GPS period in ms                             */
 /* use the gps-time-analysis sketch to determine it */
 #define GPS_PERIOD 997.5  //default 1000
+
+/* Set the GPS precision needed to use the GPS altitude value  */
+/* to calibrate the barometric altitude.                       */
+/*      !!! the best possible precision is 100 !!!             */ 
+#define VARIOMETER_GPS_ALTI_CALIBRATION_PRECISION_THRESHOLD 350
 
 /* The GPS RMC and GGA sentences parameters */
 /* Check the SD card ouput or bluetooth output of gps-time-analysis */

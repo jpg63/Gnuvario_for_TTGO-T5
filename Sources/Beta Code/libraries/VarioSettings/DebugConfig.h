@@ -29,7 +29,7 @@
 #define PROG_DEBUG			  //debug principal program
 //#define I2CDEV_SERIAL_DEBUG   //debug I2Cdev
 //#define DEBUG_SERIAL_NMEA_1
-//#define SCREEN_DEBUG
+#define SCREEN_DEBUG
 //#define GPS_DEBUG
 //#define BUTTON_DEBUG
 //#define TONEDAC_DEBUG

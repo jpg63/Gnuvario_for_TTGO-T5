@@ -28,6 +28,8 @@
  *    1.0.1  25/06/19   Correction affichage batterie / affichage vitesse        *
  *    1.0.2  20/07/19   Correction bug d'affiche screedigit                      *
  *    1.0.3  21/07/19   Correction affichage statistique                         *
+ *    1.0.4  23/07/19   Ajout trendDigit                                         *
+ *                      Modification ratioDigit / trendDigit                     *
  *                                                                               *
  *********************************************************************************/
 
@@ -125,7 +127,7 @@ volatile uint8_t stateMulti = 0;
 #define VARIOSCREEN_SPEED_ANCHOR_Y 190
 #define VARIOSCREEN_SPEED_UNIT_ANCHOR_X 52
 #define VARIOSCREEN_SPEED_UNIT_ANCHOR_Y 165
-#define VARIOSCREEN_GR_ANCHOR_X 144
+#define VARIOSCREEN_GR_ANCHOR_X 195
 #define VARIOSCREEN_GR_ANCHOR_Y 135
 #define VARIOSCREEN_INFO_ANCHOR_X 4
 #define VARIOSCREEN_INFO_ANCHOR_Y 0
@@ -145,8 +147,8 @@ volatile uint8_t stateMulti = 0;
 #define VARIOSCREEN_ELAPSED_TIME_ANCHOR_Y 190
 #define VARIOSCREEN_BT_ANCHOR_X 152
 #define VARIOSCREEN_BT_ANCHOR_Y 40
-#define VARIOSCREEN_TREND_ANCHOR_X 120
-#define VARIOSCREEN_TREND_ANCHOR_Y 111
+#define VARIOSCREEN_TREND_ANCHOR_X 150 //120
+#define VARIOSCREEN_TREND_ANCHOR_Y 55  //111
 
 //***********************
 //     GxEPD2_BW_U  
@@ -345,7 +347,8 @@ void VarioScreen::begin(void)
 	msunit = new MSUnit(VARIOSCREEN_VARIO_UNIT_ANCHOR_X, VARIOSCREEN_VARIO_UNIT_ANCHOR_Y);
 	kmhunit = new KMHUnit(VARIOSCREEN_SPEED_UNIT_ANCHOR_X, VARIOSCREEN_SPEED_UNIT_ANCHOR_Y);
 	speedDigit = new ScreenDigit(VARIOSCREEN_SPEED_ANCHOR_X, VARIOSCREEN_SPEED_ANCHOR_Y, 2, 0, false, false, ALIGNRIGHT);
-	ratioDigit = new ScreenDigit(VARIOSCREEN_GR_ANCHOR_X, VARIOSCREEN_GR_ANCHOR_Y, 2, 0, false, true, ALIGNLEFT);
+	ratioDigit = new ScreenDigit(VARIOSCREEN_GR_ANCHOR_X, VARIOSCREEN_GR_ANCHOR_Y, 2, 0, false, true, ALIGNRIGHT);
+	trendDigit = new ScreenDigit(VARIOSCREEN_GR_ANCHOR_X, VARIOSCREEN_GR_ANCHOR_Y, 3, 1, false, true, ALIGNRIGHT);
 
 	infoLevel = new INFOLevel(VARIOSCREEN_INFO_ANCHOR_X, VARIOSCREEN_INFO_ANCHOR_Y);
 	volLevel = new VOLLevel(VARIOSCREEN_VOL_ANCHOR_X, VARIOSCREEN_VOL_ANCHOR_Y);
@@ -380,7 +383,20 @@ void VarioScreen::begin(void)
 		CreateObjectDisplay(DISPLAY_OBJECT_MSUNIT, msunit, 0, 0, true); 
 		CreateObjectDisplay(DISPLAY_OBJECT_KMHUNIT, kmhunit, 0, 0, true); 
 		CreateObjectDisplay(DISPLAY_OBJECT_SPEED, speedDigit, 0, 0, true); 
-		CreateObjectDisplay(DISPLAY_OBJECT_RATIO, ratioDigit, 0, 0, true); 
+	
+#ifdef SCREEN_DEBUG
+		SerialPort.print("RATIO_CLIMB_RATE : ");	
+		SerialPort.println(GnuSettings.RATIO_CLIMB_RATE);	
+#endif //SCREEN_DEBUG
+	
+    if (GnuSettings.RATIO_CLIMB_RATE == 1) {	
+		  CreateObjectDisplay(DISPLAY_OBJECT_RATIO, ratioDigit, 0, 0, true); 
+		} else if (GnuSettings.RATIO_CLIMB_RATE == 2) {	
+		  CreateObjectDisplay(DISPLAY_OBJECT_TREND, trendDigit, 0, 0, true); 
+		} else {
+		  CreateObjectDisplay(DISPLAY_OBJECT_RATIO, ratioDigit, 0, 1, true); 
+		  CreateObjectDisplay(DISPLAY_OBJECT_TREND, trendDigit, 0, 2, true); 			
+    }
 		CreateObjectDisplay(DISPLAY_OBJECT_INFOLEVEL, infoLevel, 0, 0, true); 
 		CreateObjectDisplay(DISPLAY_OBJECT_VOLLEVEL, volLevel, 0, 0, true); 
 		CreateObjectDisplay(DISPLAY_OBJECT_RECORDIND, recordIndicator, 0, 0, true); 
@@ -642,6 +658,7 @@ void VarioScreen::ScreenViewPage(int8_t page, boolean clear)
   varioDigit->setValue(0.0);
 	speedDigit->setValue(0);
 	ratioDigit->setValue(0);
+	trendDigit->setValue(0);
 	infoLevel->set(INFO_NONE);
 	volLevel->setVolume(10);
 	
@@ -896,21 +913,31 @@ ScreenDigit::ScreenDigit(uint16_t anchorX, uint16_t anchorY, uint16_t width, uin
 	}
 
 	if (precision > 0) {
-		for (i=0; i < width-precision-1;i++) TmpChar[i+plus] = '0';
+		for (i=0; i < width-precision-1;i++) TmpChar[i+plus] = '5';
 		
-		i=i+plus+1;
+		i= width-precision+plus-1;
 		TmpChar[i++] = '.';
 
-		for (j=0; j < precision;j++) TmpChar[i+j] = '0';
+		for (j=0; j < precision;j++) TmpChar[i+j] = '5';
 		
 	} else {		
-		for (i=0; i < width;i++) TmpChar[i+plus] = '0';
+		for (i=0; i < width;i++) TmpChar[i+plus] = '5';
 	}
 
   TmpChar[width+plus+1] = '\0';		
-	display.getTextBounds(TmpChar, box_x, box_y, &box_w, &box_h, &w, &h);
 	
-	Zwidth   = w-box_x+2;
+#ifdef SCREEN_DEBUG	  
+  SerialPort.println(TmpChar);
+#endif //SCREEN_DEBUG
+	
+	display.getTextBounds(TmpChar, box_x, box_y, &box_w, &box_h, &w, &h);
+
+  if (w < box_x) 	{
+		display.getTextBounds(TmpChar, 0, box_y, &box_w, &box_h, &w, &h);
+		Zwidth   = w+2;
+	} else {
+	  Zwidth   = w-box_x+2;
+	}
 	Zheight  = 24+6;
 }
 
@@ -982,6 +1009,19 @@ char * ScreenDigit::dtostrf2(double number, signed char width, unsigned char pre
 
 	out = s;
 	before = digitsBe4Decimal(number);
+	
+	// troncate before
+	int tmpwidth = before;
+	if (prec > 0) tmpwidth++;
+	if (plusDisplay) tmpwidth++;
+	if (tmpwidth > abs(width)) {
+		if (width>0) {
+		  before = width;
+		  if (prec > 0) before--;
+		  if (plusDisplay) before--;
+		}
+	}
+	
 
 	// check if padding is required
 	if (width < 0) {
@@ -1077,6 +1117,7 @@ void ScreenDigit::show() {
   uint16_t w, h, w1, h1;
   int16_t box_w, box_w1; 
   int16_t box_h, box_h1; 
+	int tmpWidth;
 
  // dtostrf(value,width,precision,tmpdigitCharacters);
   dtostrf2(value,width,precision,digitCharacters,zero);
@@ -1210,7 +1251,15 @@ void ScreenDigit::show() {
 	
  //   display.drawRect(box_x, box_y-h-2, w+6, h+6, GxEPD_BLACK);
 
-		display.fillRect(anchorX-2, anchorY-Zwidth-3, Zwidth+4, Zheight+4, GxEPD_WHITE);
+		if ((anchorX+Zwidth+2) > display.width()) tmpWidth = display.width()-anchorX+2;
+		else																			tmpWidth = Zwidth+4;
+
+#ifdef SCREEN_DEBUG
+		SerialPort.print("tmpWidth : ");
+		SerialPort.println(tmpWidth);
+#endif //SCREEN_DEBUG
+
+		display.fillRect(anchorX-2, anchorY-Zheight-3, tmpWidth, Zheight+4, GxEPD_WHITE);
 	  
     display.setCursor(box_x, box_y-1);
     display.print(digitCharacters);
@@ -1248,7 +1297,18 @@ void ScreenDigit::show() {
 		}	
 			
 		//display.drawRect(box_x-w-6, box_y-h-2, w+6, h+6, GxEPD_BLACK);
-		display.fillRect(anchorX-Zwidth-1, anchorY-Zheight-3, Zwidth+5, Zheight+4, GxEPD_WHITE);
+
+		if ((anchorX+4) > display.width()) tmpWidth = Zwidth + (display.width()-anchorX);
+		else															 tmpWidth = Zwidth+5;
+
+#ifdef SCREEN_DEBUG
+		SerialPort.print("anchorX : ");
+		SerialPort.println(anchorX);
+		SerialPort.print("tmpWidth : ");
+		SerialPort.println(tmpWidth);
+#endif //SCREEN_DEBUG
+					
+		display.fillRect(anchorX-tmpWidth+6, anchorY-Zheight-3, tmpWidth-1, Zheight+4, GxEPD_WHITE);
 		
     display.setCursor(box_x-w-1, box_y-1);
     display.print(digitCharacters);
@@ -2171,14 +2231,14 @@ void ScreenTime::show(void) {
 		SerialPort.println("dot_or_h  : H");
 #endif //SCREEN_DEBUG
 
-    display.drawBitmap(posX-68, posY-24,hicons,  16, 24, GxEPD_BLACK);   //GxEPD_BLACK);
+    display.drawBitmap(posX-70, posY-24,hicons,  16, 24, GxEPD_BLACK);   //GxEPD_BLACK);
 	}
   else {	
 #ifdef SCREEN_DEBUG
 		SerialPort.println("dot_or_h  : DOT");
 #endif //SCREEN_DEBUG
   
-    display.drawBitmap(posX-69, posY-26, doticons, 16, 24, GxEPD_BLACK);   //GxEPD_BLACK);
+    display.drawBitmap(posX-70, posY-26, doticons, 16, 24, GxEPD_BLACK);   //GxEPD_BLACK);
 	}
 
 #ifdef SCREEN_DEBUG

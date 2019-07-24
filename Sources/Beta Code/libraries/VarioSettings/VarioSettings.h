@@ -27,6 +27,8 @@
 /*    1.0.1  24/06/19   suppression  VARIOMETER_POWER_ON_DELAY 									 */
 /*    1.0.2  22/07/19   Ajout SETTINGS_CLIMB_PERIOD_COUNT et                     */
 /*                            SETTINGS_GLIDE_RATIO_PERIOD_COUNT 								 */
+/*    1.0.3  23/07/19   Ajout VARIOMETER_DISPLAY_INTEGRATED_CLIMB_RATE           */
+/*														RATIO_CLIMB_RATE																	 */
 /*                                                                               */
 /*********************************************************************************/
 
@@ -162,17 +164,6 @@ class VarioSettings {
   /* -> When flight start is detected                     */
    boolean VARIOMETER_RECORD_WHEN_FLIGHT_START = true;
 
-/* Display integrated climb rate or instantaneous values if disabled     */
-/* If enabled set the integration time in ms.                            */
-/* ! Climb rate integration time must not be more than glide ratio one ! */
-/* **************************  boolean VARIOMETER_DISPLAY_INTEGRATED_CLIMB_RATE = false;
-  int VARIOMETER_CLIMB_RATE_INTEGRATION_TIME       = 2000;
-  float VARIOMETER_INTEGRATED_CLIMB_RATE_DISPLAY_FREQ = 2.0;  ******************** */
-
-/* Glide ratio display parameters  */
-/* Integration time in ms.         */
-// **********************************  long VARIOMETER_GLIDE_RATIO_INTEGRATION_TIME = 15000;
-
   /* What type of vario NMEA sentence is sent by bluetooth. */
   /* Possible values are :                                  */
   /*  - VARIOMETER_SENT_LXNAV_SENTENCE                      */
@@ -242,6 +233,9 @@ class VarioSettings {
 		int8_t SETTINGS_CLIMB_PERIOD_COUNT  = 10;
 		int8_t SETTINGS_GLIDE_RATIO_PERIOD_COUNT = 20;
 
+
+		boolean VARIOMETER_DISPLAY_INTEGRATED_CLIMB_RATE = false;
+		uint8_t RATIO_CLIMB_RATE = 1;
 	
  protected:
 		File myFile;

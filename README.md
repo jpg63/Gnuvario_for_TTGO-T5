@@ -1,6 +1,6 @@
 # Gnuvario_for_TTGO-T5
 # GNUVARIO-E     Stable version 0.3
-# GNUVARIO-E     Developement version 0.4 beta 4
+# GNUVARIO-E     Developement version 0.4 beta 5
 # PCB            version 1.10
 # 3D CASE        version 1.05
 
@@ -26,14 +26,16 @@
                                     toutes les 60sec - reduction des   
                                     cycle d'ecriture dans la mémoire   
                                     flash de l'ESP32                   
-                                                                       
+ v 0.4     beta 5    24/07/19       Ajout TrendDigit                   
+                                    Modification TrendLevel            
+                                    Modification screendigit           
+                                    Correction démarrage du vol                                                                              
                                                                        
                    Developpement à venir                               
                                                                                                                                     
  V0.4                                                                      
  Refrech all                                                           
- Ajout affiche finesse et taux de chute                                
- Ajout indicateur de monté/descente                                    
+ Bug vario figé lors de l'enregistrement                                  
                                                                        
  V0.5                                                                  
  Recupération vol via USB                                              
@@ -49,5 +51,7 @@
                                                                        
   Version 0.4                                                          
     Statistiques de Vol                                                
+    taux de chute et finesse                                           
+    indicateur de monte/descente                                       
                                                                        
  

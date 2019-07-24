@@ -3,6 +3,7 @@
 [exBoolean=1] /*DEBBUG*/
 [exLong=2123456789] /*DEBBUG*/
 
+[VERSION=1.0]
 [VARIOMETER_PILOT_NAME=Magali]
 [VARIOMETER_GLIDER_NAME=MAC-PARA Muse 3]
 [VARIOMETER_TIME_ZONE=2] /* time zone relative to UTC */
@@ -39,13 +40,16 @@
 /* Display integrated climb rate or instantaneous values if disabled     */
 /* If enabled set the integration time in ms.                            */
 /* ! Climb rate integration time must not be more than glide ratio one ! */
-{VARIOMETER_DISPLAY_INTEGRATED_CLIMB_RATE=1]
-[VARIOMETER_CLIMB_RATE_INTEGRATION_TIME=2000]
-[VARIOMETER_INTEGRATED_CLIMB_RATE_DISPLAY_FREQ=2.0]
+[VARIOMETER_DISPLAY_INTEGRATED_CLIMB_RATE=0]
 
-/* Glide ratio display parameters  */
-/* Integration time in ms.         */
-[VARIOMETER_GLIDE_RATIO_INTEGRATION_TIME=15000]
+/*    secondary display         */
+/*    Display Ratio      1      */
+/*    display Climb rate 2      */
+/*    display both       3      */
+[RATIO_CLIMB_RATE=2]
+
+[SETTINGS_CLIMB_PERIOD_COUNT= 10]
+[SETTINGS_GLIDE_RATIO_PERIOD_COUNT=20]
 
 [RATIO_MAX_VALUE=30.0]
 [RATIO_MIN_SPEED=10.0]
@@ -76,11 +80,10 @@
 
 [BATTERY_TONE_FREQHZ=400] /* audio feedback tones */
 [CALIB_TONE_FREQHZ=800] /* audio feedback tones */
+
 [MPU9250_ERROR_TONE_FREQHZ=200] /* audio feedback tones */
 [MS5611_ERROR_TONE_FREQHZ=2500] /* audio feedback tones */
 [SDCARD_ERROR_TONE_FREQHZ=2000]  /* audio feedback tones */
-[BEEP_FREQ=800]
-[SETTINGS_CLIMB_PERIOD_COUNT= 10]
-[SETTINGS_GLIDE_RATIO_PERIOD_COUNT=20]
 
+[BEEP_FREQ=800]
 

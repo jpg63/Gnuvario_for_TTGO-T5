@@ -28,6 +28,8 @@
  *    1.0.1  25/06/19   Correction affichage batterie / affichage vitesse        *
  *    1.0.2  20/07/19   Correction bug d'affiche screedigit                      *
  *    1.0.3  21/07/19   Correction affichage statistique                         *
+ *    1.0.4  23/07/19   Ajout trendDigit                                         *
+ *                      Modification ratioDigit / trendDigit                     *
  *                                                                               *
  *********************************************************************************/
 
@@ -86,6 +88,7 @@
 #define DISPLAY_OBJECT_BTINFO      					19
 #define DISPLAY_OBJECT_SCREENTIME           20
 #define DISPLAY_OBJECT_SCREENELAPSEDTIME    21
+#define DISPLAY_OBJECT_TREND      					22
 
 #include <VarioSettings.h>
 extern VarioSettings GnuSettings;
@@ -498,6 +501,7 @@ class VarioScreen {
 	KMHUnit* kmhunit;
 	ScreenDigit* speedDigit;
 	ScreenDigit* ratioDigit;
+	ScreenDigit* trendDigit;
 
 	INFOLevel* infoLevel;
 	VOLLevel* volLevel;
