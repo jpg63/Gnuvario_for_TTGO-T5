@@ -29,6 +29,8 @@
 /*                            SETTINGS_GLIDE_RATIO_PERIOD_COUNT 								 */
 /*    1.0.3  23/07/19   Ajout VARIOMETER_DISPLAY_INTEGRATED_CLIMB_RATE           */
 /*														RATIO_CLIMB_RATE																	 */
+/*    1.0.4  25/07/19   Ajout default settings                           				 */ 
+/*                      Ajout NO_RECORD                                          */
 /*                                                                               */
 /*********************************************************************************/
 
@@ -325,12 +327,13 @@ boolean VarioSettings::readSDSettings(){
     RATIO_CLIMB_RATE=settingValue.toInt();
    }  
    else if(settingName == "RATIO_MAX_VALUE") {
- // audio feedback tones
     RATIO_MAX_VALUE = toFloat(settingValue);
     }  
    else if(settingName == "RATIO_MIN_SPEED") {
- // audio feedback tones
     RATIO_MIN_SPEED = toFloat(settingValue);
+    }  
+   else if(settingName == "NO_RECORD") {
+    NO_RECORD = toBoolean(settingValue);
     }  
    else {       
    }  

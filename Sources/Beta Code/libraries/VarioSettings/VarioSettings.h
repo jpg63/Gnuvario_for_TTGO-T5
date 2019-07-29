@@ -29,6 +29,8 @@
 /*                            SETTINGS_GLIDE_RATIO_PERIOD_COUNT 								 */
 /*    1.0.3  23/07/19   Ajout VARIOMETER_DISPLAY_INTEGRATED_CLIMB_RATE           */
 /*														RATIO_CLIMB_RATE																	 */
+/*    1.0.4  25/07/19   Ajout default settings                           				 */ 
+/*                      Ajout NO_RECORD                                          */
 /*                                                                               */
 /*********************************************************************************/
 
@@ -41,6 +43,45 @@
 #include "DebugConfig.h"
 #include <HardwareConfig.h>
 
+
+/*----------------------------*/
+/*          DEFAULT           */
+/*      Vario parameters      */
+/*                            */
+/*----------------------------*/
+
+#define DEFAULT_VARIOMETER_PILOT_NAME  										"Magali"
+#define DEFAULT_VARIOMETER_GLIDER_NAME 										"MAC-PARA Muse 3"
+#define DEFAULT_VARIOMETER_TIME_ZONE  										(+2) 
+#define DEFAULT_VARIOMETER_BASE_PAGE_DURATION 						3000
+#define DEFAULT_VARIOMETER_ALTERNATE_PAGE_DURATION 		  	3000
+#define DEFAULT_VARIOMETER_MULTIDISPLAY_DURATION 			  	2000
+#define DEFAULT_VARIOMETER_BEEP_VOLUME 										3
+#define DEFAULT_VARIOMETER_SINKING_THRESHOLD 							-2.0
+#define DEFAULT_VARIOMETER_CLIMBING_THRESHOLD							0.2
+#define DEFAULT_VARIOMETER_NEAR_CLIMBING_SENSITIVITY			0.5
+#define DEFAULT_VARIOMETER_ENABLE_NEAR_CLIMBING_ALARM   	false
+#define DEFAULT_VARIOMETER_ENABLE_NEAR_CLIMBING_BEEP    	false
+#define DEFAULT_FLIGHT_START_MIN_TIMESTAMP 								15000
+#define DEFAULT_FLIGHT_START_VARIO_LOW_THRESHOLD 					(-0.5)
+#define DEFAULT_FLIGHT_START_VARIO_HIGH_THRESHOLD 				0.5
+#define DEFAULT_FLIGHT_START_MIN_SPEED 										8.0
+#define DEFAULT_VARIOMETER_RECORD_WHEN_FLIGHT_START 			true
+#define DEFAULT_ALARM_SDCARD 															true
+#define DEFAULT_ALARM_GPSFIX 															true
+#define DEFAULT_ALARM_FLYBEGIN 														true
+#define DEFAULT_SETTINGS_CLIMB_PERIOD_COUNT  							10
+#define DEFAULT_SETTINGS_GLIDE_RATIO_PERIOD_COUNT 				20
+#define DEFAULT_VARIOMETER_DISPLAY_INTEGRATED_CLIMB_RATE	false
+#define DEFAULT_RATIO_CLIMB_RATE 													1
+#define DEFAULT_NO_RECORD 																false
+#define DEFAULT_BATTERY_TONE_FREQHZ												400
+#define DEFAULT_CALIB_TONE_FREQHZ													800
+#define DEFAULT_MPU9250_ERROR_TONE_FREQHZ									200
+#define DEFAULT_MS5611_ERROR_TONE_FREQHZ									2500
+#define DEFAULT_SDCARD_ERROR_TONE_FREQHZ									2000
+#define DEFAULT_BEEP_FREQ                  								800
+
 /*----------------------------*/
 /*          SOFTWARE          */
 /*      Vario parameters      */
@@ -48,26 +89,7 @@
 /*----------------------------*/
 
 #define VARIOMETER_MODEL "GNUVario"
-
-/* calibration method */
-// by EEPROM
-//#define IMU_CALIBRATION_IN_EEPROM
-// or by static value
-
-/* Parametre par defaut */
-#define IMU_GYRO_CAL_BIAS {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}
-#define IMU_ACCEL_CAL_BIAS {0, 0, 0}
-#define IMU_ACCEL_CAL_SCALE 0
-#define IMU_MAG_CAL_BIAS {0, 0, 0}
-#define IMU_MAG_CAL_PROJ_SCALE -166
-
-//Version 1
-//#define IMU_GYRO_CAL_BIAS {0x00, 0x00, 0x3f, 0xf0, 0xff, 0xff, 0xb8, 0x17, 0xff, 0xff, 0xa8, 0x2c}
-//#define IMU_ACCEL_CAL_BIAS {-1943, 4749, -15216}
-//#define IMU_ACCEL_CAL_SCALE -140
-//#define IMU_MAG_CAL_BIAS {45, 3697, 2482}
-//#define IMU_MAG_CAL_PROJ_SCALE -9714
-
+#define VARIOMETER_MODEL_NAME "GnuVario-E"
 
 /********************/
 /* Measure behavior */
@@ -78,19 +100,9 @@
 /* so size = 5 use the last 10 seconds to average speed.           */
 #define VARIOMETER_SPEED_FILTER_SIZE 5
 
-/* Set the GPS precision needed to use the GPS altitude value  */
-/* to calibrate the barometric altitude.                       */
-/*      !!! the best possible precision is 100 !!!             */ 
-#define VARIOMETER_GPS_ALTI_CALIBRATION_PRECISION_THRESHOLD 200
-
-/* time needed to power on all the devices */
-/* Version 1 et 2                          */
-//#define VARIOMETER_POWER_ON_DELAY 2000
 
 /******************************************************/
 /******************************************************/
-
-#define VARIOMETER_MODEL_NAME "GnuVario-E"
 
 class VarioSettings {
 
@@ -109,27 +121,27 @@ class VarioSettings {
   long exLong = 2123456789;
 #endif //SDCARD_DEBUG
   
-  String VARIOMETER_PILOT_NAME = "Magali";
-  String VARIOMETER_GLIDER_NAME = "MAC-PARA Muse 3";
+  String VARIOMETER_PILOT_NAME 	= DEFAULT_VARIOMETER_PILOT_NAME;
+  String VARIOMETER_GLIDER_NAME = DEFAULT_VARIOMETER_GLIDER_NAME;
   
   /* time zone relative to UTC */
-  int8_t VARIOMETER_TIME_ZONE = (+2); 
+  int8_t VARIOMETER_TIME_ZONE 	= DEFAULT_VARIOMETER_TIME_ZONE; 
 
   /*******************/
 /* Screen behavior */
 /*******************/
 
 /* the duration of the two screen pages in milliseconds */
-  int16_t VARIOMETER_BASE_PAGE_DURATION = 3000;
-  int16_t VARIOMETER_ALTERNATE_PAGE_DURATION = 3000;
-	int16_t VARIOMETER_MULTIDISPLAY_DURATION = 2000;
+  int16_t VARIOMETER_BASE_PAGE_DURATION 				= DEFAULT_VARIOMETER_BASE_PAGE_DURATION;
+  int16_t VARIOMETER_ALTERNATE_PAGE_DURATION 		= DEFAULT_VARIOMETER_ALTERNATE_PAGE_DURATION;
+	int16_t VARIOMETER_MULTIDISPLAY_DURATION 			= DEFAULT_VARIOMETER_MULTIDISPLAY_DURATION;
 
   /*********/
   /* Beeps */
   /*********/
 
   /* The volume of the beeps, max = 10 */
-  uint8_t VARIOMETER_BEEP_VOLUME = 3;
+  uint8_t VARIOMETER_BEEP_VOLUME								= DEFAULT_VARIOMETER_BEEP_VOLUME;
 
   /* The variometer react like this according to vertical speed in m/s :        */
   /* (near climbing beep is not enabled by default)                             */
@@ -137,14 +149,14 @@ class VarioSettings {
   /* <--LOW-BEEP--|------SILENT------|--NEAR-CLIMBING-BEEP--|--CLIMBING-BEEP--> */
   /*              |                  |                      |                   */
   /*           SINKING         CLIMBING-SENSITIVITY      CLIMBING               */
-  float VARIOMETER_SINKING_THRESHOLD =-2.0;
-  float VARIOMETER_CLIMBING_THRESHOLD=0.2;
-  float VARIOMETER_NEAR_CLIMBING_SENSITIVITY=0.5; 
+  float VARIOMETER_SINKING_THRESHOLD 						= DEFAULT_VARIOMETER_SINKING_THRESHOLD;
+  float VARIOMETER_CLIMBING_THRESHOLD						=	DEFAULT_VARIOMETER_CLIMBING_THRESHOLD;
+  float VARIOMETER_NEAR_CLIMBING_SENSITIVITY		= DEFAULT_VARIOMETER_NEAR_CLIMBING_SENSITIVITY; 
   
   /* The near climbing alarm : signal that you enter or exit the near climbing zone */
   /* The near climbing beep : beep when you are in near climbing zone               */
-  boolean VARIOMETER_ENABLE_NEAR_CLIMBING_ALARM = false;
-  boolean VARIOMETER_ENABLE_NEAR_CLIMBING_BEEP  = false;
+  boolean VARIOMETER_ENABLE_NEAR_CLIMBING_ALARM = DEFAULT_VARIOMETER_ENABLE_NEAR_CLIMBING_ALARM;
+  boolean VARIOMETER_ENABLE_NEAR_CLIMBING_BEEP  = DEFAULT_VARIOMETER_ENABLE_NEAR_CLIMBING_BEEP;
 
   /********************/
   /* Measure behavior */
@@ -154,15 +166,15 @@ class VarioSettings {
   /* -> Minimum time after poweron in milliseconds            */
   /* -> Minimum vertical velocity in m/s (low/high threshold) */
   /* -> Minimum ground speed in km/h                          */
-  long FLIGHT_START_MIN_TIMESTAMP = 15000;
-  float FLIGHT_START_VARIO_LOW_THRESHOLD = (-0.5);
-  float FLIGHT_START_VARIO_HIGH_THRESHOLD = 0.5;
-  float FLIGHT_START_MIN_SPEED = 8.0;
+  long FLIGHT_START_MIN_TIMESTAMP 							= DEFAULT_FLIGHT_START_MIN_TIMESTAMP;
+  float FLIGHT_START_VARIO_LOW_THRESHOLD 				= DEFAULT_FLIGHT_START_VARIO_LOW_THRESHOLD;
+  float FLIGHT_START_VARIO_HIGH_THRESHOLD 			= DEFAULT_FLIGHT_START_VARIO_HIGH_THRESHOLD;
+  float FLIGHT_START_MIN_SPEED 									= DEFAULT_FLIGHT_START_MIN_SPEED;
 
   /* GPS track recording on SD card starting condition :  */ 
   /* -> As soon as possible (GPS fix)                     */
   /* -> When flight start is detected                     */
-   boolean VARIOMETER_RECORD_WHEN_FLIGHT_START = true;
+   boolean VARIOMETER_RECORD_WHEN_FLIGHT_START 	= DEFAULT_VARIOMETER_RECORD_WHEN_FLIGHT_START;
 
   /* What type of vario NMEA sentence is sent by bluetooth. */
   /* Possible values are :                                  */
@@ -172,21 +184,24 @@ class VarioSettings {
 
   /* Alarm */
   /* Alarm SDCARD not insert */
-  boolean ALARM_SDCARD = true;
+  boolean ALARM_SDCARD 														= DEFAULT_ALARM_SDCARD;
   /* Alarm GPS Fix */
-  boolean ALARM_GPSFIX = true;
+  boolean ALARM_GPSFIX 														= DEFAULT_ALARM_GPSFIX;
   /* Alarm Fly begin */
-  boolean ALARM_FLYBEGIN = true;
+  boolean ALARM_FLYBEGIN 													= DEFAULT_ALARM_FLYBEGIN;
+
+//*****************************************************************************
+//*****************************************************************************
 
 // Kalman filter configuration
-  float KF_ZMEAS_VARIANCE  =     400.0f;
-  float KF_ZACCEL_VARIANCE =     1000.0f;
-  float KF_ACCELBIAS_VARIANCE   = 1.0f;
+  float KF_ZMEAS_VARIANCE  			=   400.0f;
+  float KF_ZACCEL_VARIANCE 			=   1000.0f;
+  float KF_ACCELBIAS_VARIANCE   = 	1.0f;
 
 // Power-down timeout. Here we power down if the
 // vario does not see any climb or sink rate more than
 // 50cm/sec, for 20 minutes.
-   uint16_t SLEEP_TIMEOUT_SECONDS   = 1200; // 20 minutes
+   uint16_t SLEEP_TIMEOUT_SECONDS = 1200; // 20 minutes
    uint8_t  SLEEP_THRESHOLD_CPS		= 50;
 
 // vario thresholds in cm/sec for generating different
@@ -196,46 +211,50 @@ class VarioSettings {
 /* <--LOW-BEEP--|------SILENT------|--NEAR-CLIMBING-BEEP--|--CLIMBING-BEEP--> */
 /*              |                  |                      |                   */
 /*             SINK              ZERO                   CLIMB                 */
-   uint8_t CLIMB_THRESHOLD   =   50;
-   int8_t ZERO_THRESHOLD	 =    5;
-   int16_t SINK_THRESHOLD    =   -250;
+   uint8_t CLIMB_THRESHOLD   			=   50;
+   int8_t ZERO_THRESHOLD	 				=    5;
+   int16_t SINK_THRESHOLD    			=   -250;
 
 // change these parameters based on the frequency bandwidth of the speaker
 
-    uint16_t VARIO_MAX_FREQHZ   =   4000;
-    uint16_t VARIO_XOVER_FREQHZ =   2000;
-    uint16_t VARIO_MIN_FREQHZ   =   200;
+    uint16_t VARIO_MAX_FREQHZ   	=   4000;
+    uint16_t VARIO_XOVER_FREQHZ 	=   2000;
+    uint16_t VARIO_MIN_FREQHZ   	=   200;
 
-    uint16_t VARIO_SINK_FREQHZ  =   400;
-    uint16_t VARIO_TICK_FREQHZ  =   200;
+    uint16_t VARIO_SINK_FREQHZ  	=   400;
+    uint16_t VARIO_TICK_FREQHZ  	=   200;
 
-		float 	 RATIO_MAX_VALUE 		=		30.0;
-		float		 RATIO_MIN_SPEED 		=		10.0;
+		float 	 RATIO_MAX_VALUE 			=		30.0;
+		float		 RATIO_MIN_SPEED 			=		10.0;
 		
-
-// audio feedback tones
-    uint16_t BATTERY_TONE_FREQHZ	=	400;
-    uint16_t CALIB_TONE_FREQHZ		=	800;
-    uint16_t MPU9250_ERROR_TONE_FREQHZ	= 200;
-    uint16_t MS5611_ERROR_TONE_FREQHZ	= 2500;
-    uint16_t SDCARD_ERROR_TONE_FREQHZ	= 2000;  
-		uint16_t BEEP_FREQ                  = 800;
-	
 //Setting accelerometer
     double ACCELCALX = 0.0;
 		double ACCELCALY = 0.0;
 		double ACCELCALZ = 0.0;
+		
+//********************************************************
+//********************************************************		
+
+// audio feedback tones
+    uint16_t BATTERY_TONE_FREQHZ												=	DEFAULT_BATTERY_TONE_FREQHZ;
+    uint16_t CALIB_TONE_FREQHZ													=	DEFAULT_CALIB_TONE_FREQHZ;
+    uint16_t MPU9250_ERROR_TONE_FREQHZ									= DEFAULT_MPU9250_ERROR_TONE_FREQHZ;
+    uint16_t MS5611_ERROR_TONE_FREQHZ										= DEFAULT_MS5611_ERROR_TONE_FREQHZ;
+    uint16_t SDCARD_ERROR_TONE_FREQHZ										= DEFAULT_SDCARD_ERROR_TONE_FREQHZ;  
+		uint16_t BEEP_FREQ                  								= DEFAULT_BEEP_FREQ ;
   
 //Setting FightHistory	
 //!!!!!!!!!!!!
 // need to be moved to settings 
 // unit is 500ms
-		int8_t SETTINGS_CLIMB_PERIOD_COUNT  = 10;
-		int8_t SETTINGS_GLIDE_RATIO_PERIOD_COUNT = 20;
+		int8_t SETTINGS_CLIMB_PERIOD_COUNT  								= DEFAULT_SETTINGS_CLIMB_PERIOD_COUNT;
+		int8_t SETTINGS_GLIDE_RATIO_PERIOD_COUNT 						= DEFAULT_SETTINGS_GLIDE_RATIO_PERIOD_COUNT;
 
 
-		boolean VARIOMETER_DISPLAY_INTEGRATED_CLIMB_RATE = false;
-		uint8_t RATIO_CLIMB_RATE = 1;
+		boolean VARIOMETER_DISPLAY_INTEGRATED_CLIMB_RATE 		= DEFAULT_VARIOMETER_DISPLAY_INTEGRATED_CLIMB_RATE;
+		uint8_t RATIO_CLIMB_RATE 														= DEFAULT_RATIO_CLIMB_RATE;
+		
+		boolean NO_RECORD 																	= DEFAULT_NO_RECORD;
 	
  protected:
 		File myFile;

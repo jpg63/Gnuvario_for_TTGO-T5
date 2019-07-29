@@ -25,6 +25,7 @@
 /*  version    Date         Description                                          */
 /*    1.0      06/07/19                                                          */
 /*    1.0.1    22/07/19     Modification CreateIgcFile                           */
+/*    1.0.2    25/07/19     Ajout noRecord                                       */
 /*                                                                               */
 /*********************************************************************************/
 
@@ -47,7 +48,7 @@ class GPSSentence {
   uint8_t begin(double baroAlti);
 	void writePosition(kalmanvert kalmanvert);
 	void writeGGA(void);
-	void CreateIgcFile(uint8_t* dateNum);
+	void CreateIgcFile(uint8_t* dateNum, boolean noRecord);
 
  private:
 

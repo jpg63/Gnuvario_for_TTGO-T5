@@ -18,6 +18,14 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+/***************************************************************************************************/
+/*                                TWOWIRESCHEDULER                                                 */
+/*                                                                                                 */
+/*  Ver     Date                                                                                   */
+/*  1.0                                                                                            */
+/*                                                                                                 */
+/***************************************************************************************************/
+
 #ifndef TWO_WIRE_SCHEDULER_H
 #define TWO_WIRE_SCHEDULER_H
 

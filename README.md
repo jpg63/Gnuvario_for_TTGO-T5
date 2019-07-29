@@ -29,13 +29,18 @@
  v 0.4     beta 5    24/07/19       Ajout TrendDigit                   
                                     Modification TrendLevel            
                                     Modification screendigit           
-                                    Correction démarrage du vol                                                                              
+                                    Correction démarrage du vol    
+ v 0.4     beta 6    25/07/19       Ajout NO_RECORD                                                                                          
+                                    Correction TWOWIRESCHEDULER        																		
                                                                        
                    Developpement à venir                               
                                                                                                                                     
  V0.4                                                                      
  Refrech all                                                           
- Bug vario figé lors de l'enregistrement                                  
+ Bug blocage du MPU
+ logo no record
+ porter best-fit-calibration sur l'ESP32
+ porter gps-time-analysis sur l'ESP32 
                                                                        
  V0.5                                                                  
  Recupération vol via USB                                              
@@ -52,6 +57,7 @@
   Version 0.4                                                          
     Statistiques de Vol                                                
     taux de chute et finesse                                           
-    indicateur de monte/descente                                       
+    indicateur de monte/descente 
+    Désactiver l'enregistrement des vols		
                                                                        
  

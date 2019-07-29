@@ -18,6 +18,16 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+/***************************************************************************************************/
+/*                                INTTW                                                            */
+/*                                                                                                 */
+/*  Ver     Date                                                                                   */
+/*  1.0                                                                                            */
+/*                                                                                                 */
+/*  1.0.1   28/07/2019   Ajout reinit i2c                                                          */
+/*                                                                                                 */
+/***************************************************************************************************/
+
 #include <IntTW.h>
 
 #include <Arduino.h>
@@ -154,7 +164,10 @@ void IntTW::start(uint8_t* commands, uint8_t commandLength, uint8_t commandFlags
 #else
   if( (twError == I2C_ERROR_OK) && successCallback ) {
     successCallback();
-  }
+  } else {
+		i2cRelease(i2c);
+		i2c = i2cInit(INTTW_I2C_BUS_NUM, VARIO_TW_SDA_PIN, VARIO_TW_SCL_PIN, VARIO_TW_FREQ);
+	}
 #endif
 }
   

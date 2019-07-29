@@ -116,6 +116,18 @@
 #define VERTACCEL_MAG_PROJ_EEPROM_ADDR 0x1C
 #define VERTACCEL_MAG_PROJ_EEPROM_TAG 0x67fa*/
 
+/* calibration method */
+// by EEPROM
+//#define IMU_CALIBRATION_IN_EEPROM
+// or by static value
+
+/* Parametre par defaut */
+//#define IMU_GYRO_CAL_BIAS {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}
+//#define IMU_ACCEL_CAL_BIAS {0, 0, 0}
+//#define IMU_ACCEL_CAL_SCALE 0
+//#define IMU_MAG_CAL_BIAS {0, 0, 0}
+//#define IMU_MAG_CAL_PROJ_SCALE -166
+
 #define VERTACCEL_STATIC_CALIBRATION
 
 #define VERTACCEL_GYRO_CAL_BIAS {0x00, 0x00, 0x29, 0xdf, 0xff, 0xff, 0x9f, 0x4a, 0xff, 0xff, 0xb5, 0xe9}

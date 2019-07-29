@@ -25,6 +25,7 @@
 /*  version    Date         Description                                          */
 /*    1.0      06/07/19                                                          */
 /*    1.0.1    22/07/19     Modification CreateIgcFile                           */
+/*    1.0.2    25/07/19     Ajout noRecord                                       */
 /*                                                                               */
 /*********************************************************************************/
 
@@ -105,7 +106,7 @@ void GPSSentence::writeGGA(void) {
 	
 }
 
-void GPSSentence::CreateIgcFile(uint8_t* dateNum) {
+void GPSSentence::CreateIgcFile(uint8_t* dateNum, boolean noRecord) {
 
     /* build date : convert from DDMMYY to YYMMDD */
     uint8_t dateChar[8]; //two bytes are used for incrementing number on filename
@@ -171,53 +172,54 @@ void GPSSentence::CreateIgcFile(uint8_t* dateNum) {
       SerialPort.println((char*)fileName);
 #endif //SDCARD_DEBUG
 
-    /* create file */    
-    fileIgc = SDHAL.open((char*)fileName, FILE_WRITE);
-    if (fileIgc) {
-      sdcardState = SDCARD_STATE_READY;
+		if (!noRecord) {
+
+			/* create file */    
+			fileIgc = SDHAL.open((char*)fileName, FILE_WRITE);
+			if (fileIgc) {
+				sdcardState = SDCARD_STATE_READY;
 #ifdef SDCARD_DEBUG
-      SerialPort.println("createSDCardTrackFile : Write Header ");
+				SerialPort.println("createSDCardTrackFile : Write Header ");
 #endif //SDCARD_DEBUG
      
-      /* write the header */
-      int16_t datePos = header.begin();
-      if( datePos >= 0 ) {
-				for (int i=0; i < 3;i++) {
+				/* write the header */
+				int16_t datePos = header.begin();
+				if( datePos >= 0 ) {
+					for (int i=0; i < 3;i++) {
 #ifdef SDCARD_DEBUG
-					SerialPort.print(headerStrings[i]);
+						SerialPort.print(headerStrings[i]);
 #endif //SDCARD_DEBUG
-					fileIgc.print(headerStrings[i]);
-				}
+						fileIgc.print(headerStrings[i]);
+					}
 
 #ifdef SDCARD_DEBUG
 					SerialPort.println("");
 #endif //SDCARD_DEBUG
 
-        /* write date : DDMMYY */
-        uint8_t* dateCharP = &dateChar[4];
-        for(int i=0; i<3; i++) {
-          fileIgc.write(char(dateCharP[0]));
+					/* write date : DDMMYY */
+					uint8_t* dateCharP = &dateChar[4];
+					for(int i=0; i<3; i++) {
+						fileIgc.write(char(dateCharP[0]));
 #ifdef SDCARD_DEBUG
-          SerialPort.print(char(dateCharP[0]));
+						SerialPort.print(char(dateCharP[0]));
 #endif //SDCARD_DEBUG          
 
-          fileIgc.write(char(dateCharP[1]));
+						fileIgc.write(char(dateCharP[1]));
 
 #ifdef SDCARD_DEBUG
-          SerialPort.println(char(dateCharP[1]));
+						SerialPort.println(char(dateCharP[1]));
 #endif //SDCARD_DEBUG          
           
-          dateCharP -= 2;
-        }
+						dateCharP -= 2;
+					}
 
-				for (int i=4; i < HEADER_STRING_COUNT; i++) {
+					for (int i=4; i < HEADER_STRING_COUNT; i++) {
 #ifdef SDCARD_DEBUG
-					SerialPort.print(headerStrings[i]);
+						SerialPort.print(headerStrings[i]);
 #endif //SDCARD_DEBUG
-					fileIgc.print(headerStrings[i]);
+						fileIgc.print(headerStrings[i]);
+					}
 				}
-
-			}
 		 
       /* write the header *
       int16_t datePos = header.begin();
@@ -270,16 +272,17 @@ void GPSSentence::CreateIgcFile(uint8_t* dateNum) {
         }				
       }*/
 			
-			fileIgc.flush();
+				fileIgc.flush();
 			
-    } else {
+			} else {
 #ifdef SDCARD_DEBUG
-      SerialPort.println("createSDCardTrackFile : SDCARD_STATE_ERROR ");
+				SerialPort.println("createSDCardTrackFile : SDCARD_STATE_ERROR ");
 #endif //SDCARD_DEBUG
-      sdcardState = SDCARD_STATE_ERROR; //avoid retry 
+				sdcardState = SDCARD_STATE_ERROR; //avoid retry 
 			
-			for (int i=0; i<3; i++) dateNum[i] = 0;
-    }
+				for (int i=0; i<3; i++) dateNum[i] = 0;
+			}
+		}
 //  return dateNumP;
 }
 

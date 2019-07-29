@@ -36,7 +36,7 @@
 
 #define VERSION      0
 #define SUB_VERSION  4
-#define BETA_CODE    5
+#define BETA_CODE    6
 #define DEVNAME      "JPG63"
 #define AUTHOR "J"    //J=JPG63  P=PUNKDUMP
 
@@ -73,6 +73,8 @@
 *                                    Modification screendigit           *
 *                                    Correction démarrage du vol        *
 *                                    indicateur de monte/descente       *
+* v 0.4     beta 6    25/07/19       Ajout NO_RECORD                    *                                                                      
+*                                    Correction TWOWIRESCHEDULER        *
 *                                                                       *
 *************************************************************************
 *                                                                       *
@@ -80,7 +82,7 @@
 *                                                                       *                                                             
 * V0.4                                                                  *    
 * Refrech all                                                           *
-* Bug vario figé lors de l'enregistrement                               *
+* logo no record                                                        *
 *                                                                       *
 * V0.5                                                                  *
 * Recupération vol via USB                                              *
@@ -100,6 +102,7 @@
  * - Statistiques de Vol                                                *
  * - taux de chute et finesse                                           *
  * - indicateur de monte/descente                                       *
+ * - Possibilité de ne pas enregistrer les vols                         *
  *                                                                      *
  ************************************************************************/
 
@@ -561,9 +564,12 @@ void loop() {
 #ifdef HAVE_ACCELEROMETER
   if( twScheduler.havePressure() && twScheduler.haveAccel() ) {
     
-#ifdef PROG_DEBUG
-//    SerialPort.println("havePressure && haveAccel");
-#endif //PROG_DEBUG
+#ifdef DATA_DEBUG
+    SerialPort.print("Alti : ");
+    SerialPort.println(twScheduler.getAlti());
+    SerialPort.print("Accel : ");
+    SerialPort.println(twScheduler.getAccel(NULL));
+#endif //DATA_DEBUG
 
     kalmanvert.update( twScheduler.getAlti(),
                        twScheduler.getAccel(NULL),
@@ -574,6 +580,11 @@ void loop() {
 #ifdef MS5611_DEBUG
 //    SerialPort.println("havePressure");
 #endif //MS5611_DEBUG
+
+#ifdef DATA_DEBUG
+    SerialPort.print("Alti : ");
+    SerialPort.println(twScheduler.getAlti());
+#endif //DATA_DEBUG
 
     kalmanvert.update( twScheduler.getAlti(),
                        0.0,
@@ -596,6 +607,13 @@ void loop() {
 
 		double currentalti  = kalmanvert.getCalibratedPosition();
 		double currentvario = kalmanvert.getVelocity();
+
+#ifdef DATA_DEBUG
+    SerialPort.print("Kalman Alti : ");
+    SerialPort.println(currentalti);
+    SerialPort.print("Kalman Vario : ");
+    SerialPort.println(currentvario);
+#endif //DATA_DEBUG
 
     /* set screen */
 
@@ -720,8 +738,7 @@ void loop() {
 #endif //HAVE_BLUETOOTH
 #ifdef HAVE_SDCARD      
       /* start to write IGC B frames */
-      igcSD.writePosition(kalmanvert);
-
+      if (!GnuSettings.NO_RECORD) igcSD.writePosition(kalmanvert);
 #endif //HAVE_SDCARD
     }
   
@@ -749,7 +766,7 @@ void loop() {
 /*          while( igc.available() ) {
             fileIgc.write( igc.get() );
           }*/
-          igcSD.writeGGA();          
+          if (!GnuSettings.NO_RECORD) igcSD.writeGGA();          
         }
 #endif //HAVE_SDCARD
       }
@@ -828,6 +845,10 @@ void loop() {
           double gpsAlti = nmeaParser.getAlti();
           kalmanvert.calibratePosition(gpsAlti);
 
+#ifdef DATA_DEBUG
+          SerialPort.print("Gps Alti : ");
+          SerialPort.println(gpsAlti);
+#endif //DATA_DEBUG
 
 #ifdef GPS_DEBUG
           SerialPort.print("GpsAlti : ");
@@ -873,7 +894,7 @@ void loop() {
             &&((nmeaParser.getSpeed() > GnuSettings.FLIGHT_START_MIN_SPEED)|| (!GnuSettings.VARIOMETER_RECORD_WHEN_FLIGHT_START))
 #endif //HAVE_GPS
           ) {
-          variometerState = VARIOMETER_STATE_FLIGHT_STARTED;
+//          variometerState = VARIOMETER_STATE_FLIGHT_STARTED;
           enableflightStartComponents();
         }
       }
@@ -894,7 +915,7 @@ void loop() {
           (((GnuSettings.VARIOMETER_RECORD_WHEN_FLIGHT_START) &&   
            (kalmanvert.getVelocity() < GnuSettings.FLIGHT_START_VARIO_LOW_THRESHOLD || kalmanvert.getVelocity() > GnuSettings.FLIGHT_START_VARIO_HIGH_THRESHOLD)) || 
            (!GnuSettings.VARIOMETER_RECORD_WHEN_FLIGHT_START))) {
-        variometerState = VARIOMETER_STATE_FLIGHT_STARTED;
+//        variometerState = VARIOMETER_STATE_FLIGHT_STARTED;
         enableflightStartComponents();      
     }
   }
@@ -934,7 +955,7 @@ void loop() {
     if (nmeaParser.haveDate()) {
       
       /* set time */
-#ifdef GPS_DEBUG
+#if defined(GPS_DEBUG) || defined(DATA_DEBUG)
       SerialPort.print("Time : ");
       SerialPort.println(nmeaParser.time);
 #endif //GPS_DEBUG
@@ -966,7 +987,7 @@ void loop() {
     double currentSpeed = nmeaParser.getSpeed();
     double ratio = history.getGlideRatio(currentSpeed, serialNmea.getReceiveTimestamp(), GnuSettings.SETTINGS_GLIDE_RATIO_PERIOD_COUNT);
 
-#ifdef GPS_DEBUG
+#if defined(GPS_DEBUG) || defined(DATA_DEBUG)
           SerialPort.print("GpsSpeed : ");
           SerialPort.println(currentSpeed);
 #endif //GPS_DEBUG
@@ -1076,7 +1097,7 @@ void createSDCardTrackFile(void) {
 
     flystat.Begin();
     uint8_t dateN[3];
-    igcSD.CreateIgcFile(dateN);
+    igcSD.CreateIgcFile(dateN,GnuSettings.NO_RECORD);
 
 #ifdef SDCARD_DEBUG
     SerialPort.print("DateNum Gnuvario-E.ino : ");
@@ -1106,25 +1127,30 @@ void enableflightStartComponents(void) {
 /*******************************************/  
 
 #ifdef PROG_DEBUG
-      SerialPort.println("enableflightStartComponents ");
+  SerialPort.println("enableflightStartComponents ");
 #endif //SDCARD_DEBUG
 
-#ifdef HAVE_SPEAKER
-if (GnuSettings.ALARM_FLYBEGIN) {
-  for( int i = 0; i<2; i++) {
-  //   toneAC(BEEP_FREQ);
- //    delay(200);
-  //   toneAC(0);
-     beeper.generateTone(GnuSettings.BEEP_FREQ, 200);
-     delay(200);
-  }
-}
-#endif //HAVE_SPEAKER 
+  variometerState = VARIOMETER_STATE_FLIGHT_STARTED;
 
+  if (!GnuSettings.NO_RECORD) {
+    
+#ifdef HAVE_SPEAKER
+    if (GnuSettings.ALARM_FLYBEGIN) {
+      for( int i = 0; i<2; i++) {
+  //     toneAC(BEEP_FREQ);
+ //     delay(200);
+  //    toneAC(0);
+        beeper.generateTone(GnuSettings.BEEP_FREQ, 200);
+        delay(200);
+      }
+    }
+#endif //HAVE_SPEAKER 
+  }
+  
   /* set base time */
 #if defined(HAVE_SCREEN) && defined(HAVE_GPS)
 #ifdef PROG_DEBUG
-      SerialPort.println("screenElapsedTime");
+  SerialPort.println("screenElapsedTime");
 #endif //SDCARD_DEBUG
 
   screen.screenElapsedTime->setBaseTime( screen.screenTime->getTime() );
@@ -1147,22 +1173,24 @@ if (GnuSettings.VARIOMETER_ENABLE_NEAR_CLIMBING_BEEP) {
 
 #if defined(HAVE_SDCARD) && defined(HAVE_GPS) 
 //&& defined(VARIOMETER_RECORD_WHEN_FLIGHT_START)
-if (GnuSettings.VARIOMETER_RECORD_WHEN_FLIGHT_START) {
+  if (GnuSettings.VARIOMETER_RECORD_WHEN_FLIGHT_START && (!GnuSettings.NO_RECORD)) {
   
 #ifdef SDCARD_DEBUG
-          SerialPort.println("createSDCardTrackFile");        
+    SerialPort.println("createSDCardTrackFile");        
 #endif //SDCARD_DEBUG
 
-  createSDCardTrackFile();
-}
+    createSDCardTrackFile();
+  }
 #endif // defined(HAVE_SDCARD) && defined(VARIOMETER_RECORD_WHEN_FLIGHT_START)
 
+  if (!GnuSettings.NO_RECORD) {
 #ifdef SDCARD_DEBUG
-  SerialPort.println("Record Start");        
+    SerialPort.println("Record Start");        
 #endif //SDCARD_DEBUG
 
-  screen.recordIndicator->setActifRECORD();
-  screen.recordIndicator->stateRECORD();
+    screen.recordIndicator->setActifRECORD();
+    screen.recordIndicator->stateRECORD();
+  }
   flystat.Enable(); 
 }
 
