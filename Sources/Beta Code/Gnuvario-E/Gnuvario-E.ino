@@ -36,7 +36,7 @@
 
 #define VERSION      0
 #define SUB_VERSION  4
-#define BETA_CODE    6
+#define BETA_CODE    7
 #define DEVNAME      "JPG63"
 #define AUTHOR "J"    //J=JPG63  P=PUNKDUMP
 
@@ -75,6 +75,10 @@
 *                                    indicateur de monte/descente       *
 * v 0.4     beta 6    25/07/19       Ajout NO_RECORD                    *                                                                      
 *                                    Correction TWOWIRESCHEDULER        *
+* v 0.4     beta 7    05/08/19       Désactivation enregistrement stat  *
+*                                    pour eviter le bug du plantage     * 
+*                                    Ajout paramettre wifi              *
+*                                    Modification SETTINGS.TXT v1.2     *
 *                                                                       *
 *************************************************************************
 *                                                                       *
@@ -83,9 +87,12 @@
 * V0.4                                                                  *    
 * Refrech all                                                           *
 * logo no record                                                        *
+* debug I2C																															*
 *                                                                       *
 * V0.5                                                                  *
 * Recupération vol via USB                                              *
+* Recuperation vol via Wifi                                             *
+* Calibration MPU																												*
 *                                                                       *
 * VX.X                                                                  *
 * Refaire gestion du son                                                *
@@ -298,6 +305,8 @@ void setup() {
   
 #if defined( HAVE_SPEAKER)
   toneHAL.init();
+  beeper.setVolume(10);
+  beeper.generateTone(2000,300); 
 #endif
 
   /******************/
@@ -1074,7 +1083,7 @@ void loop() {
    screen.updateScreen(); 
 #endif //HAVE_SCREEN
 
-   flystat.Handle(); 
+//   flystat.Handle(); 
  // }
 }
 

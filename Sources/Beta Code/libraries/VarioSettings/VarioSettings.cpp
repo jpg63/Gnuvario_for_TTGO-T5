@@ -31,6 +31,7 @@
 /*														RATIO_CLIMB_RATE																	 */
 /*    1.0.4  25/07/19   Ajout default settings                           				 */ 
 /*                      Ajout NO_RECORD                                          */
+/*    1.0.5  05/08/19   Ajout paramettres Wifi                                   */
 /*                                                                               */
 /*********************************************************************************/
 
@@ -127,7 +128,7 @@ boolean VarioSettings::readSDSettings(){
  
    if (settingName == "VARIOMETER_PILOT_NAME") {
 #ifdef SDCARD_DEBUG
-       SerialPort.println("Model du vario : " + settingValue);
+       SerialPort.println("Pilote : " + settingValue);
 #endif //SDCARD_DEBUG
        VARIOMETER_PILOT_NAME=settingValue;
    }
@@ -145,7 +146,7 @@ boolean VarioSettings::readSDSettings(){
      exLong=toLong(settingValue);
    }
 #endif //SDCARD_DEBUG  
-    else if(settingName == "VARIOMETER_GLIDER_NAME") {
+   else if(settingName == "VARIOMETER_GLIDER_NAME") {
      VARIOMETER_GLIDER_NAME = settingValue;
    }
    else if(settingName == "VARIOMETER_BASE_PAGE_DURATION") {
@@ -335,6 +336,30 @@ boolean VarioSettings::readSDSettings(){
    else if(settingName == "NO_RECORD") {
     NO_RECORD = toBoolean(settingValue);
     }  
+   else if(settingName == "SSID_1") {
+     VARIOMETER_SSID_1 = settingValue;
+   }
+   else if(settingName == "PASSWORD_1") {
+     VARIOMETER_PASSWORD_1 = settingValue;
+   }
+   else if(settingName == "SSID_2") {
+     VARIOMETER_SSID_2 = settingValue;
+   }
+   else if(settingName == "PASSWORD_2") {
+     VARIOMETER_PASSWORD_2 = settingValue;
+   }
+   else if(settingName == "SSID_3") {
+     VARIOMETER_SSID_3 = settingValue;
+   }
+   else if(settingName == "PASSWORD_3") {
+     VARIOMETER_PASSWORD_3 = settingValue;
+   }
+   else if(settingName == "SSID_4") {
+     VARIOMETER_SSID_4 = settingValue;
+   }
+   else if(settingName == "PASSWORD_4") {
+     VARIOMETER_PASSWORD_4 = settingValue;
+   }		
    else {       
    }  
 }

@@ -1,9 +1,4 @@
-[exINT=15] /*DEBUG*/
-[exFloat=1.12345] /*DEBUG*/
-[exBoolean=1] /*DEBUG*/
-[exLong=2123456789] /*DEBUG*/
-
-[VERSION=1.1]
+[VERSION=1.2]
 [VARIOMETER_PILOT_NAME=Magali]
 [VARIOMETER_GLIDER_NAME=MAC-PARA Muse 3]
 [VARIOMETER_TIME_ZONE=2] /* time zone relative to UTC */
@@ -87,4 +82,19 @@
 
 [BEEP_FREQ=800]
 
-[NO_RECORD=1] /* Disable Sdcard Record */
+[NO_RECORD=0] /* Disable Sdcard Record */
+
+/* Wifi Parameters */
+
+[SSID_1=Livebox-23D2]
+[PASSWORD_1=your_PASSWORD_for SSID1]
+
+[SSID_2=your_SSID2]
+[PASSWORD_2=your_PASSWORD_for SSID2]
+
+[SSID_3=your_SSID3]
+[PASSWORD_3=your_PASSWORD_for SSID3]
+
+[SSID_4=your_SSID4]
+[PASSWORD_4=your_PASSWORD_for SSID4]
+

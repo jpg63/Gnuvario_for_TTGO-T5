@@ -52,6 +52,7 @@ class SdCardHAL : public SdFat {
 #endif
 
 extern SdCardHAL SDHAL; 
+//#define _fs SDHAL
 
 #endif
 	

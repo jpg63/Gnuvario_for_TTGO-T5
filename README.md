@@ -1,6 +1,6 @@
 # Gnuvario_for_TTGO-T5
 # GNUVARIO-E     Stable version 0.3
-# GNUVARIO-E     Developement version 0.4 beta 5
+# GNUVARIO-E     Developement version 0.4 beta 7
 # PCB            version 1.10
 # 3D CASE        version 1.05
 
@@ -32,23 +32,38 @@
                                     Correction démarrage du vol    
  v 0.4     beta 6    25/07/19       Ajout NO_RECORD                                                                                          
                                     Correction TWOWIRESCHEDULER        																		
-                                                                       
+ 
+ v 0.4     beta 7    05/08/19       Désactivation enregistrement stat  
+                                    pour eviter le bug du plantage      
+                                    Ajout paramettre wifi              
+                                    Modification SETTINGS.TXT v1.2     
+ 
                    Developpement à venir                               
                                                                                                                                     
- V0.4                                                                      
+ V0.4                                                                                                                                        
  Refrech all                                                           
- Bug blocage du MPU
- logo no record
- porter best-fit-calibration sur l'ESP32
- porter gps-time-analysis sur l'ESP32 
+ logo no record                                                        
+ Bug I2C			  																												
+ Bug variostat                                                         
                                                                        
  V0.5                                                                  
  Recupération vol via USB                                              
-                                                                       
+ Recuperation vol via Wifi                                             
+ Calibration MPU																												
+ porter best-fit-calibration sur l'ESP32                               
+ porter gps-time-analysis sur l'ESP32                                  
+                                                                                                                                              
  VX.X                                                                  
  Refaire gestion du son                                                
 
-                    Fonctionalitées                                    
+                    Fonctionalitées   
+										
+		Vario précis avec capteur de pression et accéleromètres
+		GPS
+		Enregistrement des vols sur carte SD
+		Affichage sur ecran E-Ink
+		Affichage du vario, de l'altitude, de la vitesse sol,
+		de l'heure, du temps de vol, ...
                                                                        
   Version 0.3                                                                                                                               
     Parametre utilisateur dans fichier SETTINGS.TXT                    

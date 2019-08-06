@@ -33,6 +33,7 @@
 /*    1.0    03/06/19                                                            */
 /*    1.0.1  24/06/19   Ajout profil GPS - choix entre 2 versions 							 */
 /*    1.0.2  23/07/19   suppression des parametres CLIMB_RATE                    */
+/*    1.0.3  04/08/19   Ajout config Wifi                                        */
 /*                                                                               */
 /*********************************************************************************/
 
@@ -215,6 +216,18 @@
 #define NMEA_GGA_ALTI_PRECISION 10.0
 
 #endif 
+
+/******************************/
+/*            WIFI            */
+/******************************/
+
+#define servername "GNUVARIO-E"  // Set your server's logical name here e.g. if 'myserver' then address is http://myserver.local/
+//#define IP_FIXE
+#define LOCAL_IP 192,168,1,150 // Set your server's fixed IP address here
+#define GATEWAY  192,168,1,1   // Set your network Gateway usually your Router base address
+#define SUBNET   255,255,255,0 // Set your network sub-network mask here
+#define DNS      192,168,1,1   // Set your network DNS usually your Router base address
+
 
 /*----------------------------*/
 /*          HARDWARE          */

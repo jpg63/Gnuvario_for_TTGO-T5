@@ -31,6 +31,7 @@
 /*														RATIO_CLIMB_RATE																	 */
 /*    1.0.4  25/07/19   Ajout default settings                           				 */ 
 /*                      Ajout NO_RECORD                                          */
+/*    1.0.5  05/08/19   Ajout paramettres Wifi                                   */
 /*                                                                               */
 /*********************************************************************************/
 
@@ -81,6 +82,19 @@
 #define DEFAULT_MS5611_ERROR_TONE_FREQHZ									2500
 #define DEFAULT_SDCARD_ERROR_TONE_FREQHZ									2000
 #define DEFAULT_BEEP_FREQ                  								800
+
+
+#define DEFAULT_VARIOMETER_SSID_1													"your_SSID1"
+#define DEFAULT_VARIOMETER_PASSWORD_1											"your_PASSWORD_for SSID1"
+
+#define DEFAULT_VARIOMETER_SSID_2													"your_SSID2"
+#define DEFAULT_VARIOMETER_PASSWORD_2											"your_PASSWORD_for SSID2"
+
+#define DEFAULT_VARIOMETER_SSID_3													"your_SSID3"
+#define DEFAULT_VARIOMETER_PASSWORD_3											"your_PASSWORD_for SSID3"
+
+#define DEFAULT_VARIOMETER_SSID_4													"your_SSID4"
+#define DEFAULT_VARIOMETER_PASSWORD_4											"your_PASSWORD_for SSID4"
 
 /*----------------------------*/
 /*          SOFTWARE          */
@@ -255,7 +269,19 @@ class VarioSettings {
 		uint8_t RATIO_CLIMB_RATE 														= DEFAULT_RATIO_CLIMB_RATE;
 		
 		boolean NO_RECORD 																	= DEFAULT_NO_RECORD;
-	
+  
+		String VARIOMETER_SSID_1 														= DEFAULT_VARIOMETER_SSID_1;
+		String VARIOMETER_PASSWORD_1 												= DEFAULT_VARIOMETER_PASSWORD_1;
+
+		String VARIOMETER_SSID_2 														= DEFAULT_VARIOMETER_SSID_2;
+		String VARIOMETER_PASSWORD_2 												= DEFAULT_VARIOMETER_PASSWORD_2;
+
+		String VARIOMETER_SSID_3 														= DEFAULT_VARIOMETER_SSID_3;
+		String VARIOMETER_PASSWORD_3 												= DEFAULT_VARIOMETER_PASSWORD_3;
+
+		String VARIOMETER_SSID_4 														= DEFAULT_VARIOMETER_SSID_4;
+		String VARIOMETER_PASSWORD_4 												= DEFAULT_VARIOMETER_PASSWORD_4;
+		
  protected:
 		File myFile;
 //  File myFile2;
