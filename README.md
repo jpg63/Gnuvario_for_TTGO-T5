@@ -57,13 +57,14 @@
  Refaire gestion du son                                                
 
                     Fonctionalitées   
-										
-		Vario précis avec capteur de pression et accéleromètres
-		GPS
-		Enregistrement des vols sur carte SD
-		Affichage sur ecran E-Ink
-		Affichage du vario, de l'altitude, de la vitesse sol,
-		de l'heure, du temps de vol, ...
+		
+  Version 0		
+    Vario précis avec capteur de pression et accéleromètres
+    GPS
+    Enregistrement des vols sur carte SD
+    Affichage sur ecran E-Ink
+    Affichage du vario, de l'altitude, de la vitesse sol,
+    de l'heure, du temps de vol, ...
                                                                        
   Version 0.3                                                                                                                               
     Parametre utilisateur dans fichier SETTINGS.TXT                    
