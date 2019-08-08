@@ -82,7 +82,7 @@
 #define FLY_STAT_HEADER_EEPROM_ADDRESS 0x230
 #endif
  
-#define FLY_STAT_EEPROM_TAG 2068
+#define FLY_STAT_EEPROM_TAG 2025
 
 /*****************************/
 /* Baro parameters           */

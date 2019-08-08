@@ -30,6 +30,8 @@
  *    1.0.3  21/07/19   Correction affichage statistique                         *
  *    1.0.4  23/07/19   Ajout trendDigit                                         *
  *                      Modification ratioDigit / trendDigit                     *
+ *    1.0.5  06/08/19   Ajout icon noRecord                                      *
+ *                      Ajout raffrachissement ALL toutes les 30 secs            *
  *                                                                               *
  *********************************************************************************/
 
@@ -119,7 +121,7 @@ class GxEPD2_BW_U : public GxEPD2_BW<GxEPD2_Type, page_height>
 class VarioScreenObject {
 
  public:
-  bool update(void);  //return true if an update was done
+  bool update(bool force = false);  //return true if an update was done
   void reset(void);   //force redisplay 
   virtual void show(void) = 0;
 //	virtual void setValue(double value) = 0;
@@ -285,9 +287,10 @@ class INFOLevel : public VarioScreenObject {
 
 /* record indicator */
 
-#define STATE_SCAN   0
-#define STATE_RECORD 1
-#define STATE_GPSFIX 2
+#define STATE_SCAN   		0
+#define STATE_RECORD 		1
+#define STATE_GPSFIX 		2
+#define STATE_NORECORD 	3
 
 
 class RECORDIndicator : public VarioScreenObject {
@@ -300,6 +303,7 @@ class RECORDIndicator : public VarioScreenObject {
   void setActifSCAN(void);
   void setActifRECORD(void);
   void setActifGPSFIX(void);
+	void setNoRECORD(void); 
   void show(void);
   
  private:
@@ -432,13 +436,15 @@ class ScreenScheduler {
  private:
   //const 
 //  ScreenSchedulerObject* displayList = NULL;
-  ScreenSchedulerObject* displayList;
-  uint8_t objectCount;
-  uint8_t pos;
-  int8_t currentPage;
-	int8_t currentMultiDisplay = 1;
-  const int8_t endPage;
-	bool   IsDisplayAll = false;
+  ScreenSchedulerObject* 	displayList;
+  uint8_t 								objectCount;
+  uint8_t 								pos;
+  int8_t 									currentPage;
+	int8_t 									currentMultiDisplay = 1;
+  const int8_t 						endPage;
+	bool   									IsDisplayAll = false;
+	bool  									ShowDisplayAll = false;
+	unsigned long						oldtimeAllDisplay = 0;
 };
 
 /*
@@ -530,7 +536,7 @@ class VarioScreen {
   void begin();
 //  void  getTextBounds(char *string, int16_t x, int16_t y, int16_t *x1, int16_t *y1, uint16_t *w, uint16_t *h);
   void updateScreen (void);
-//  void clearScreen(void); 
+  void clearScreen(void); 
 
   void ScreenViewInit(uint8_t Version, uint8_t Sub_Version, String Author, uint8_t Beta_Code);
 	void ScreenViewStat(VarioStat flystat);

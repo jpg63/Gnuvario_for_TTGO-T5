@@ -26,6 +26,7 @@
 /*    1.0      06/07/19                                                          */
 /*    1.1      21/07/19    Correction getdate/setdate                            */
 /*    1.1.1    22/07/19    Modification du taux d'enregistrement des statistiques*/
+/*    1.1.2    08/08/19    Correction readEeprom et writeEeprom                  */
 /*                                                                               */
 /*********************************************************************************/
 
@@ -41,8 +42,19 @@
 #endif
 
 #ifndef FLY_STAT_EEPROM_TAG
-#define FLY_STAT_EEPROM_TAG 2568
+#define FLY_STAT_EEPROM_TAG 2025
 #endif
+
+struct S_Stat {
+   double        MaxAlti;
+   double        MaxSpeed;
+   double        MaxVario;
+   double        MinVario;
+   bool          EnableRecord;
+   int8_t 		   time[3];
+	 int8_t        duree[3];
+	 uint8_t       date[3];
+};
 
 /********************/
 /* The stat class   */
@@ -80,7 +92,9 @@ class VarioStat {
    int8_t 		   time[3];
 	 int8_t        duree[3];
 	 uint8_t       date[3];
+	 int					 numberStat;	
 	 bool          firsttime;
+	 struct S_Stat dataStat;
      
    void ReadEeprom(void);
    void WriteEeprom(void);

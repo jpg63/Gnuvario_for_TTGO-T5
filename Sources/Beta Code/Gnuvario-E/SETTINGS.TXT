@@ -86,7 +86,7 @@
 
 /* Wifi Parameters */
 
-[SSID_1=Livebox-23D2]
+[SSID_1=your_SSID2]
 [PASSWORD_1=your_PASSWORD_for SSID1]
 
 [SSID_2=your_SSID2]

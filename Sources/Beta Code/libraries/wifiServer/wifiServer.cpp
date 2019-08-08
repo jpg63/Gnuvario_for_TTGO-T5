@@ -385,18 +385,6 @@ boolean WifiServer::begin(void) {
 	GnuSettings.VARIOMETER_SSID_4.toCharArray(ssid_4,sizeof(ssid_4));
 	GnuSettings.VARIOMETER_PASSWORD_4.toCharArray(password_4,sizeof(password_4));
 	
-/*  strcpy(ssid_1,"Livebox-23D2");
-	strcpy(password_1,"F76C6CA7A22666D2742F7E1D4F");
-
-	strcpy(ssid_2,"your_SSID2");
-	strcpy(password_2,"your_PASSWORD_for SSID2");
-
-	strcpy(ssid_3,"your_SSID3");
-	strcpy(password_3,"your_PASSWORD_for SSID3");
-
-	strcpy(ssid_4,"your_SSID4");
-	strcpy(password_4,"your_PASSWORD_for SSID4");*/
-	
 	return true;
 };
 

@@ -36,7 +36,7 @@
 
 #define VERSION      0
 #define SUB_VERSION  4
-#define BETA_CODE    7
+#define BETA_CODE    8
 #define DEVNAME      "JPG63"
 #define AUTHOR "J"    //J=JPG63  P=PUNKDUMP
 
@@ -79,20 +79,28 @@
 *                                    pour eviter le bug du plantage     * 
 *                                    Ajout paramettre wifi              *
 *                                    Modification SETTINGS.TXT v1.2     *
+* v 0.4     beta 8    06/08/19       Ajout icone Norecord               *
+*                                    Correction bug statistique         *
+*                                    Raffraichissement de l'ensemle de  *
+*                                    l'écran toutes les 30sec           *
 *                                                                       *
 *************************************************************************
 *                                                                       *
 *                   Developpement a venir                               *
 *                                                                       *                                                             
 * V0.4                                                                  *    
-* Refrech all                                                           *
-* logo no record                                                        *
-* debug I2C																															*
+* Bug I2C			  																												*
+* bug affichage finesse                                                 *                                            *
 *                                                                       *
 * V0.5                                                                  *
 * Recupération vol via USB                                              *
 * Recuperation vol via Wifi                                             *
 * Calibration MPU																												*
+* porter best-fit-calibration sur l'ESP32                               *
+* porter gps-time-analysis sur l'ESP32                                  *
+* Carnet de vol (10 derniers vols                                       *
+*     10 zones d'eeprom - reduit le nombre d'écriture et économise la   *
+*     mémoire flash
 *                                                                       *
 * VX.X                                                                  *
 * Refaire gestion du son                                                *
@@ -240,6 +248,7 @@ Internal TEMPERATURE Sensor
 
 uint8_t temprature_sens_read();
 
+int tmpint = 0;
 
 //****************************
 //****************************
@@ -278,6 +287,10 @@ void setup() {
 #else  
   delay(VARIOMETER_POWER_ON_DELAY);
 #endif  
+
+
+  pinMode(pinLED, OUTPUT);
+  digitalWrite(pinLED, LOW); 
 
 /************************/
 /*    BOOT SEQUENCE     */
@@ -526,6 +539,7 @@ void setup() {
   SerialPort.println("update screen");
 #endif //SCREEN_DEBUG
 
+  screen.clearScreen();
   screen.schedulerScreen->enableShow();
 #endif //HAVE_SCREEN
 
@@ -557,6 +571,8 @@ void loop() {
 
      lastDisplayTimestamp = millis();
      displayLowUpdateState = true;
+ /*    if (tmpint == 0) tmpint = 1000;
+     else             tmpint = 0;*/
    }
 
 
@@ -635,7 +651,7 @@ void loop() {
  //   SerialPort.println((uint16_t)currentalti);
 #endif //PROG_DEBUG
 
-    screen.altiDigit->setValue((uint16_t)currentalti);
+    screen.altiDigit->setValue((uint16_t)currentalti+tmpint);
     if (GnuSettings.VARIOMETER_DISPLAY_INTEGRATED_CLIMB_RATE) {    
       if( history.haveNewClimbRate() ) {
         screen.varioDigit->setValue(history.getClimbRate(GnuSettings.SETTINGS_CLIMB_PERIOD_COUNT));
@@ -1083,7 +1099,7 @@ void loop() {
    screen.updateScreen(); 
 #endif //HAVE_SCREEN
 
-//   flystat.Handle(); 
+   flystat.Handle(); 
  // }
 }
 
@@ -1162,8 +1178,20 @@ void enableflightStartComponents(void) {
   SerialPort.println("screenElapsedTime");
 #endif //SDCARD_DEBUG
 
-  screen.screenElapsedTime->setBaseTime( screen.screenTime->getTime() );
+  if (nmeaParser.haveDate()) {
+      
+      /* set time */
+#if defined(GPS_DEBUG) || defined(DATA_DEBUG)
+    SerialPort.print("Time : ");
+    SerialPort.println(nmeaParser.time);
+#endif //GPS_DEBUG
+
+    screen.screenTime->setTime( nmeaParser.time );
+    screen.screenTime->correctTimeZone( GnuSettings.VARIOMETER_TIME_ZONE );
+
+    screen.screenElapsedTime->setBaseTime( screen.screenTime->getTime() );
 #endif //defined(HAVE_SCREEN) && defined(HAVE_GPS)
+  }
 
   /* enable near climbing */
 #ifdef HAVE_SPEAKER
@@ -1198,6 +1226,10 @@ if (GnuSettings.VARIOMETER_ENABLE_NEAR_CLIMBING_BEEP) {
 #endif //SDCARD_DEBUG
 
     screen.recordIndicator->setActifRECORD();
+    screen.recordIndicator->stateRECORD();
+  }
+  else {
+    screen.recordIndicator->setNoRECORD();
     screen.recordIndicator->stateRECORD();
   }
   flystat.Enable(); 

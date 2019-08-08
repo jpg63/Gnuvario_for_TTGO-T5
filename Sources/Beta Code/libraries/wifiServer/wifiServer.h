@@ -29,18 +29,6 @@ extern char   ServerVersion[20];
 extern String webpage;
 extern bool   SD_present;
 
-/*const char ssid_1[]     = "Livebox-23D2";
-const char password_1[] = "F76C6CA7A22666D2742F7E1D4F";
-
-const char ssid_2[]     = "your_SSID2";
-const char password_2[] = "your_PASSWORD_for SSID2";
-
-const char ssid_3[]     = "your_SSID3";
-const char password_3[] = "your_PASSWORD_for SSID3";
-
-const char ssid_4[]     = "your_SSID4";
-const char password_4[] = "your_PASSWORD_for SSID4";*/
-
 extern char ssid_1[50];
 extern char password_1[50];
 

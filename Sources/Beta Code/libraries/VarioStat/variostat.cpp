@@ -26,6 +26,7 @@
 /*    1.0      06/07/19                                                          */
 /*    1.1      21/07/19    Correction getdate/setdate                            */
 /*    1.1.1    22/07/19    Modification du taux d'enregistrement des statistiques*/
+/*    1.1.2    08/08/19    Correction readEeprom et writeEeprom                  */
 /*                                                                               */
 /*********************************************************************************/
 
@@ -285,9 +286,9 @@ void VarioStat::ReadEeprom() {
    
   // Integer read from EEPROM
 //  eepromAddress = EEPROMAnythingRead(eepromAddress, reinterpret_cast<char*>(&val_int), sizeof(val_int));
-    eepromAddress = EEPROMHAL.readInt(eepromAddress, &val_int);
+		val_int = EEPROMHAL.readIntE(eepromAddress);
+    eepromAddress += sizeof(val_int);
   
-	
 #ifdef EEPROM_DEBUG	
   SerialPort.print("ReadEprom TAG :  ");	
   SerialPort.println(val_int); 
@@ -301,35 +302,97 @@ void VarioStat::ReadEeprom() {
 		SerialPort.println("TAG OK ");	
 #endif //EEPROM_DEBUG
 	
+	  val_int = EEPROMHAL.readIntE(eepromAddress);
+    eepromAddress += sizeof(val_int);
+		numberStat = val_int;
+
     // Float read to EEPROM
     float   val_float = 0;
-    eepromAddress = EEPROMHAL.EEPROMAnythingRead(eepromAddress, reinterpret_cast<char*>(&val_float), sizeof(val_float));
+//    eepromAddress = EEPROMHAL.EEPROMAnythingRead(eepromAddress, reinterpret_cast<char*>(&val_float), sizeof(val_float));
+	  val_float = EEPROMHAL.readFloatE(eepromAddress);
+    eepromAddress += sizeof(val_float);
 	  MaxAlti = val_float;
+		dataStat.MaxAlti = val_float;
 
-    eepromAddress = EEPROMHAL.EEPROMAnythingRead(eepromAddress, reinterpret_cast<char*>(&val_float), sizeof(val_float));
+//    eepromAddress = EEPROMHAL.EEPROMAnythingRead(eepromAddress, reinterpret_cast<char*>(&val_float), sizeof(val_float));
+	  val_float = EEPROMHAL.readFloatE(eepromAddress);
+    eepromAddress += sizeof(val_float);
 	  MaxSpeed = val_float;
+    dataStat.MaxSpeed = val_float;
 
-    eepromAddress = EEPROMHAL.EEPROMAnythingRead(eepromAddress, reinterpret_cast<char*>(&val_float), sizeof(val_float));
+//    eepromAddress = EEPROMHAL.EEPROMAnythingRead(eepromAddress, reinterpret_cast<char*>(&val_float), sizeof(val_float));
+	  val_float = EEPROMHAL.readFloatE(eepromAddress);
+    eepromAddress += sizeof(val_float);
 	  MinVario = val_float;
+    dataStat.MinVario = val_float;
 
-    eepromAddress = EEPROMHAL.EEPROMAnythingRead(eepromAddress, reinterpret_cast<char*>(&val_float), sizeof(val_float));
+//    eepromAddress = EEPROMHAL.EEPROMAnythingRead(eepromAddress, reinterpret_cast<char*>(&val_float), sizeof(val_float));
+	  val_float = EEPROMHAL.readFloatE(eepromAddress);
+    eepromAddress += sizeof(val_float);
 	  MaxVario = val_float;
+	  dataStat.MaxVario = val_float;
 	
 	#ifdef EEPROM_DEBUG	
 		SerialPort.println("Read Date");	
 #endif //EEPROM_DEBUG
 
     // Read array from EEPROM
-    eepromAddress = EEPROMHAL.EEPROMAnythingRead(eepromAddress, reinterpret_cast<char*>(&duree), sizeof(duree));   
+//    eepromAddress = EEPROMHAL.EEPROMAnythingRead(eepromAddress, reinterpret_cast<char*>(&duree), sizeof(duree));   
+
+	  int8_t val_int8 = EEPROMHAL.readChar(eepromAddress);
+    eepromAddress += sizeof(val_int8);
+		duree[0] = val_int8;
+		dataStat.duree[0] = val_int8;
+
+	  val_int8 = EEPROMHAL.readChar(eepromAddress);
+    eepromAddress += sizeof(val_int8);
+		duree[1] = val_int8;
+		dataStat.duree[1] = val_int8;
+
+	  val_int8 = EEPROMHAL.readChar(eepromAddress);
+    eepromAddress += sizeof(val_int8);
+		duree[2] = val_int8;
+		dataStat.duree[2] = val_int8;
+
 
     // Read array from EEPROM
-    eepromAddress = EEPROMHAL.EEPROMAnythingRead(eepromAddress, reinterpret_cast<char*>(&time), sizeof(time));   
+//    eepromAddress = EEPROMHAL.EEPROMAnythingRead(eepromAddress, reinterpret_cast<char*>(&time), sizeof(time));   
+
+	  val_int8 = EEPROMHAL.readChar(eepromAddress);
+    eepromAddress += sizeof(val_int8);
+		time[0] = val_int8;
+		dataStat.time[0] = val_int8;
+
+	  val_int8 = EEPROMHAL.readChar(eepromAddress);
+    eepromAddress += sizeof(val_int8);
+		time[1] = val_int8;
+		dataStat.time[1] = val_int8;
+
+	  val_int8 = EEPROMHAL.readChar(eepromAddress);
+    eepromAddress += sizeof(val_int8);
+		time[2] = val_int8;
+		dataStat.time[2] = val_int8;
 
     // Read array from EEPROM
-    eepromAddress = EEPROMHAL.EEPROMAnythingRead(eepromAddress, reinterpret_cast<char*>(&date), sizeof(date));   
+//    eepromAddress = EEPROMHAL.EEPROMAnythingRead(eepromAddress, reinterpret_cast<char*>(&date), sizeof(date));   
+	  uint8_t val_uint8 = EEPROMHAL.readUChar(eepromAddress);
+    eepromAddress += sizeof(val_uint8);
+		date[0] = val_uint8;
+		dataStat.date[0] = val_uint8;
+
+	  val_uint8 = EEPROMHAL.readUChar(eepromAddress);
+    eepromAddress += sizeof(val_uint8);
+		date[1] = val_uint8;
+		dataStat.date[1] = val_uint8;
+
+	  val_uint8 = EEPROMHAL.readUChar(eepromAddress);
+    eepromAddress += sizeof(val_uint8);
+		date[2] = val_uint8;
+		dataStat.date[2] = val_uint8;
 
   }
   else {
+		numberStat = 0;
     MaxAlti    = 1200;
     MaxSpeed   = 52;
     MaxVario   = 3.2;
@@ -368,11 +431,20 @@ void VarioStat::WriteEeprom() {
 #endif //EEPROM_DEBUG
 	
 //  eepromAddress = EEPROMAnythingWrite(eepromAddress, reinterpret_cast<char*>(&val_int), sizeof(val_int)); 
-  eepromAddress = EEPROMHAL.writeInt(eepromAddress, val_int);
+ 	EEPROMHAL.writeIntE(eepromAddress, val_int);
+  eepromAddress += sizeof(val_int);
+//  EEPROMHAL.commit();
+
+  val_int = 0; //numberStat;
+	EEPROMHAL.writeIntE(eepromAddress, val_int);
+  eepromAddress += sizeof(val_int);
 
   // Float to EEPROM
   float   val_float = MaxAlti;
-  eepromAddress = EEPROMHAL.EEPROMAnythingWrite(eepromAddress, reinterpret_cast<char*>(&val_float), sizeof(val_float)); 
+//  eepromAddress = EEPROMHAL.EEPROMAnythingWrite(eepromAddress, reinterpret_cast<char*>(&val_float), sizeof(val_float)); 
+
+	EEPROMHAL.writeFloatE(eepromAddress, val_float); 
+  eepromAddress += sizeof(val_float);
 
 #ifdef EEPROM_DEBUG	
   SerialPort.print("Max Alti : ");	
@@ -380,31 +452,58 @@ void VarioStat::WriteEeprom() {
 #endif //EEPROM_DEBUG
  
   val_float = MaxSpeed;
-  eepromAddress = EEPROMHAL.EEPROMAnythingWrite(eepromAddress, reinterpret_cast<char*>(&val_float), sizeof(val_float)); 
+//  eepromAddress = EEPROMHAL.EEPROMAnythingWrite(eepromAddress, reinterpret_cast<char*>(&val_float), sizeof(val_float)); 
+	EEPROMHAL.writeFloat(eepromAddress, val_float); 
+  eepromAddress += sizeof(val_float);
 #ifdef EEPROM_DEBUG	
   SerialPort.print("Max Speed : ");	
 	SerialPort.println(val_float);
 #endif //EEPROM_DEBUG
 
   val_float = MinVario;
-  eepromAddress = EEPROMHAL.EEPROMAnythingWrite(eepromAddress, reinterpret_cast<char*>(&val_float), sizeof(val_float)); 
+//  eepromAddress = EEPROMHAL.EEPROMAnythingWrite(eepromAddress, reinterpret_cast<char*>(&val_float), sizeof(val_float)); 
+	EEPROMHAL.writeFloat(eepromAddress, val_float); 
+  eepromAddress += sizeof(val_float);
 #ifdef EEPROM_DEBUG	
   SerialPort.print("Min vario : ");	
 	SerialPort.println(val_float);
 #endif //EEPROM_DEBUG
 
   val_float = MaxVario;
-  eepromAddress = EEPROMHAL.EEPROMAnythingWrite(eepromAddress, reinterpret_cast<char*>(&val_float), sizeof(val_float)); 
+//  eepromAddress = EEPROMHAL.EEPROMAnythingWrite(eepromAddress, reinterpret_cast<char*>(&val_float), sizeof(val_float)); 
+	EEPROMHAL.writeFloat(eepromAddress, val_float); 
+  eepromAddress += sizeof(val_float);
 #ifdef EEPROM_DEBUG	
   SerialPort.print("Max Vario : ");	
 	SerialPort.println(val_float);
 #endif //EEPROM_DEBUG
+//  EEPROMHAL.commit();
 
-  eepromAddress = EEPROMHAL.EEPROMAnythingWrite(eepromAddress, reinterpret_cast<char*>(&duree), sizeof(duree));   
+  int8_t val_int8;
+	for (int i=0; i<3; i++) {
+		val_int8 = duree[i];
+		EEPROMHAL.writeChar(eepromAddress, val_int8); 
+		eepromAddress += sizeof(val_int8);
+	}
+
+	for (int i=0; i<3; i++) {
+		val_int8 = time[i];
+		EEPROMHAL.writeChar(eepromAddress, val_int8); 
+		eepromAddress += sizeof(val_int8);
+	}
+
+  uint8_t val_uint8;
+	for (int i=0; i<3; i++) {
+		val_uint8 = date[i];
+		EEPROMHAL.writeUChar(eepromAddress, val_uint8); 
+		eepromAddress += sizeof(val_uint8);
+	}
+
+/*  eepromAddress = EEPROMHAL.EEPROMAnythingWrite(eepromAddress, reinterpret_cast<char*>(&duree), sizeof(duree));   
 
   eepromAddress = EEPROMHAL.EEPROMAnythingWrite(eepromAddress, reinterpret_cast<char*>(&time), sizeof(time)); 
 
-  eepromAddress = EEPROMHAL.EEPROMAnythingWrite(eepromAddress, reinterpret_cast<char*>(&date), sizeof(date));     
+  eepromAddress = EEPROMHAL.EEPROMAnythingWrite(eepromAddress, reinterpret_cast<char*>(&date), sizeof(date));     */
   
 /*  toneAC(900);
   delay(1000);

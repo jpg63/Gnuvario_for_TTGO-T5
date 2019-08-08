@@ -37,15 +37,17 @@
                                     pour eviter le bug du plantage      
                                     Ajout paramettre wifi              
                                     Modification SETTINGS.TXT v1.2     
- 
+ v 0.4     beta 8    06/08/19       Ajout icone Norecord               
+                                    Correction bug statistique         
+                                    Raffraichissement de l'ensemle de  
+                                    l'écran toutes les 30sec           
+
                    Developpement à venir                               
                                                                                                                                     
  V0.4                                                                                                                                        
- Refrech all                                                           
- logo no record                                                        
  Bug I2C			  																												
- Bug variostat                                                         
-                                                                       
+ bug affichage finesse  
+ 
  V0.5                                                                  
  Recupération vol via USB                                              
  Recuperation vol via Wifi                                             

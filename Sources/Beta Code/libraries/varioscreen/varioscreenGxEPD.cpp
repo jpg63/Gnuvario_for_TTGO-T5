@@ -30,6 +30,16 @@
  *    1.0.3  21/07/19   Correction affichage statistique                         *
  *    1.0.4  23/07/19   Ajout trendDigit                                         *
  *                      Modification ratioDigit / trendDigit                     *
+ *    1.0.5  06/08/19   Ajout icon noRecord                                      *
+ *                      Ajout raffrachissement ALL toutes les 30 secs            *
+ *                                                                               *
+ *********************************************************************************/
+ 
+ /*
+ *********************************************************************************
+ *                    conversion image to cpp code                               *
+ *                                                                               *
+ *      https://javl.github.io/image2cpp/                                        *
  *                                                                               *
  *********************************************************************************/
 
@@ -119,7 +129,7 @@ volatile uint8_t stateMulti = 0;
 #define VARIOSCREEN_ALTI_ANCHOR_X 110
 #define VARIOSCREEN_ALTI_ANCHOR_Y 80
 #define VARIOSCREEN_ALTI_UNIT_ANCHOR_X    120
-#define VARIOSCREEN_VARIO_ANCHOR_X 95
+#define VARIOSCREEN_VARIO_ANCHOR_X 90
 #define VARIOSCREEN_VARIO_ANCHOR_Y 135
 #define VARIOSCREEN_VARIO_UNIT_ANCHOR_X   100
 #define VARIOSCREEN_VARIO_UNIT_ANCHOR_Y   110
@@ -127,7 +137,7 @@ volatile uint8_t stateMulti = 0;
 #define VARIOSCREEN_SPEED_ANCHOR_Y 190
 #define VARIOSCREEN_SPEED_UNIT_ANCHOR_X 52
 #define VARIOSCREEN_SPEED_UNIT_ANCHOR_Y 165
-#define VARIOSCREEN_GR_ANCHOR_X 195
+#define VARIOSCREEN_GR_ANCHOR_X 130
 #define VARIOSCREEN_GR_ANCHOR_Y 135
 #define VARIOSCREEN_INFO_ANCHOR_X 4
 #define VARIOSCREEN_INFO_ANCHOR_Y 0
@@ -347,8 +357,8 @@ void VarioScreen::begin(void)
 	msunit = new MSUnit(VARIOSCREEN_VARIO_UNIT_ANCHOR_X, VARIOSCREEN_VARIO_UNIT_ANCHOR_Y);
 	kmhunit = new KMHUnit(VARIOSCREEN_SPEED_UNIT_ANCHOR_X, VARIOSCREEN_SPEED_UNIT_ANCHOR_Y);
 	speedDigit = new ScreenDigit(VARIOSCREEN_SPEED_ANCHOR_X, VARIOSCREEN_SPEED_ANCHOR_Y, 2, 0, false, false, ALIGNRIGHT);
-	ratioDigit = new ScreenDigit(VARIOSCREEN_GR_ANCHOR_X, VARIOSCREEN_GR_ANCHOR_Y, 2, 0, false, true, ALIGNRIGHT);
-	trendDigit = new ScreenDigit(VARIOSCREEN_GR_ANCHOR_X, VARIOSCREEN_GR_ANCHOR_Y, 3, 1, false, true, ALIGNRIGHT);
+	ratioDigit = new ScreenDigit(VARIOSCREEN_GR_ANCHOR_X, VARIOSCREEN_GR_ANCHOR_Y, 2, 0, false, true, ALIGNLEFT);
+	trendDigit = new ScreenDigit(VARIOSCREEN_GR_ANCHOR_X, VARIOSCREEN_GR_ANCHOR_Y, 3, 1, false, true, ALIGNLEFT);
 
 	infoLevel = new INFOLevel(VARIOSCREEN_INFO_ANCHOR_X, VARIOSCREEN_INFO_ANCHOR_Y);
 	volLevel = new VOLLevel(VARIOSCREEN_VOL_ANCHOR_X, VARIOSCREEN_VOL_ANCHOR_Y);
@@ -547,6 +557,11 @@ void VarioScreen::updateData(int8_t ObjectDisplayTypeID, double data) {
 	}
 }
 
+//****************************************************************************************************************************
+void VarioScreen::clearScreen() {
+//****************************************************************************************************************************
+  display.clearScreen();
+}
 
 //****************************************************************************************************************************
 void VarioScreen::ScreenViewInit(uint8_t Version, uint8_t Sub_Version, String Author, uint8_t Beta_Code)
@@ -836,15 +851,17 @@ void VarioScreen::ScreenViewStat(VarioStat flystat)
 #define setDisplayFlag() state |= (0x01)
 
 //****************************************************************************************************************************
-bool VarioScreenObject::update(void) {
+bool VarioScreenObject::update(bool force) {
 //****************************************************************************************************************************
 
 #ifdef SCREEN_DEBUG
-	SerialPort.println("VarioScreenObject : update");	
+	SerialPort.print("VarioScreenObject : ");	
+	if (force) 	SerialPort.println("Forceupdate");
+	else				SerialPort.println("update");
 #endif //SCREEN_DEBUG
   
 //  show();
-  if( display_needed() ) {
+  if( display_needed() || force ) {
     show();
     display_done();
     return true;
@@ -905,7 +922,7 @@ ScreenDigit::ScreenDigit(uint16_t anchorX, uint16_t anchorY, uint16_t width, uin
 
 	char TmpChar[MAX_CHAR_IN_LINE];
 
-  int i,j,plus=0;
+/*  int i,j,plus=0;
 	
 	if (plusDisplay) {
 		TmpChar[width+1] = '+';
@@ -913,18 +930,20 @@ ScreenDigit::ScreenDigit(uint16_t anchorX, uint16_t anchorY, uint16_t width, uin
 	}
 
 	if (precision > 0) {
-		for (i=0; i < width-precision-1;i++) TmpChar[i+plus] = '5';
+		for (i=0; i < width-precision-1;i++) TmpChar[i+plus] = '0';
 		
 		i= width-precision+plus-1;
 		TmpChar[i++] = '.';
 
-		for (j=0; j < precision;j++) TmpChar[i+j] = '5';
+		for (j=0; j < precision;j++) TmpChar[i+j] = '0';
 		
 	} else {		
-		for (i=0; i < width;i++) TmpChar[i+plus] = '5';
+		for (i=0; i < width;i++) TmpChar[i+plus] = '0';			
 	}
 
-  TmpChar[width+plus+1] = '\0';		
+  TmpChar[width+plus+1] = '\0';		*/
+	dtostrf2(999999.999,width,precision,TmpChar,zero);
+
 	
 #ifdef SCREEN_DEBUG	  
   SerialPort.println(TmpChar);
@@ -955,8 +974,9 @@ void ScreenDigit::setValue(double Value) {
     /* build digit and check changes */
     oldvalue=value;
     value=Value;
-    reset();
+//    reset();
 	}
+  reset();
 }
  
 //****************************************************************************************************************************
@@ -1105,8 +1125,112 @@ void ScreenDigit::show() {
 #endif //SCREEN_DEBUG
 
   //normalise value
+  char digitCharacters[MAX_CHAR_IN_LINE];
+	char tmpChar[MAX_CHAR_IN_LINE];
+   
+  display.setFont(&FreeSansBold12pt7b);
+  display.setTextSize(2);
+
+  int16_t box_x = anchorX;
+  int16_t box_y = anchorY;
+  uint16_t w, h, w1, h1;
+  int16_t box_w, box_w1; 
+  int16_t box_h, box_h1; 
+	int tmpWidth;
+
+	dtostrf2(999999.999,width,precision,tmpChar,zero);
+  dtostrf2(value,width,precision,digitCharacters,zero);
+
+#ifdef SCREEN_DEBUG
+  SerialPort.print("digit value : ");
+  SerialPort.println(value);
+
+  SerialPort.print("digit oldvalue : ");
+  SerialPort.println(oldvalue);
+  
+  if (leftAlign) SerialPort.println("leftAlign");
+  else 			 SerialPort.println("rightAlign");
+	  
+  SerialPort.print(digitCharacters);
+  SerialPort.print("-- X : ");
+  SerialPort.print(box_x);
+  SerialPort.print("-- Y: ");
+  SerialPort.print(box_y);
+  SerialPort.print("-- width : ");
+  SerialPort.print(width);
+  SerialPort.print("-- precision :  ");
+  SerialPort.println(precision);
+	SerialPort.print("Zwidth : ");
+	SerialPort.println(Zwidth);
+	SerialPort.print("Zheight : ");
+	SerialPort.println(Zheight);
+#endif //SCREEN_DEBUG
+  
+  display.getTextBounds(tmpChar, 0, box_y, &box_w, &box_h, &w, &h);
+  display.getTextBounds(digitCharacters, 0, box_y, &box_w1, &box_h1, &w1, &h1);
+    
+#ifdef SCREEN_DEBUG
+  SerialPort.print("W : ");
+  SerialPort.println(w);
+  SerialPort.print("H : ");
+  SerialPort.println(h);
+#endif //SCREEN_DEBUG
+
+	
+  if (leftAlign) {
+	
+#ifdef SCREEN_DEBUG
+			SerialPort.println("left align");
+#endif //SCREEN_DEBUG
+	
+		if ((anchorX+w+2) > display.width()) w = display.width()-anchorX+2;
+
+		display.fillRect(anchorX-2, anchorY-Zheight-3, w+4, Zheight+4, GxEPD_WHITE);
+	  
+    display.setCursor(anchorX, anchorY);
+    display.print(digitCharacters);
+				
+	} else {
+
+#ifdef SCREEN_DEBUG
+			SerialPort.println("right align");
+#endif //SCREEN_DEBUG
+			
+		if ((anchorX-w+2) < 0) w = anchorX - 2;
+
+#ifdef SCREEN_DEBUG
+		SerialPort.print("anchorX : ");
+		SerialPort.println(anchorX);
+		SerialPort.print("W : ");
+		SerialPort.println(w);
+#endif //SCREEN_DEBUG
+					
+		display.fillRect(anchorX-w-2, anchorY-Zheight-3, w+6, Zheight+4, GxEPD_WHITE);
+		
+    display.setCursor(anchorX-w1-2, anchorY-1);
+    display.print(digitCharacters);
+	}
+ 
+
+}
+
+/*
+//****************************************************************************************************************************
+void ScreenDigit::show() {
+//****************************************************************************************************************************
+
+  /***************/
+  /* build digit */
+  /* **************
+
+#ifdef SCREEN_DEBUG
+	SerialPort.println("Show : ScreenDigit");	
+#endif //SCREEN_DEBUG
+
+  //normalise value
 //  char tmpdigitCharacters[MAX_CHAR_IN_LINE];
   char digitCharacters[MAX_CHAR_IN_LINE];
+	char tmpChar[MAX_CHAR_IN_LINE];
    
 //  display.setFont(&FreeSansBold12pt7b);
   display.setFont(&FreeSansBold12pt7b);
@@ -1119,8 +1243,10 @@ void ScreenDigit::show() {
   int16_t box_h, box_h1; 
 	int tmpWidth;
 
+	dtostrf2(999999.999,width,precision,tmpChar,zero);
+
  // dtostrf(value,width,precision,tmpdigitCharacters);
-  dtostrf2(value,width,precision,digitCharacters,zero);
+ dtostrf2(value,width,precision,digitCharacters,zero);
 //  dtostrf2(oldvalue,width,precision,tmpdigitCharacters,zero);
 //  dtostrf2(value,4,1,digitCharacters,false,false);
   /*if (plusDisplay) {
@@ -1142,7 +1268,7 @@ void ScreenDigit::show() {
   tmpdigitCharacters[i] = 0; 
 
   SerialPort.print(" tmpdigit : ");
-  SerialPort.println(tmpdigitCharacters);*/
+  SerialPort.println(tmpdigitCharacters);*
 
 #ifdef SCREEN_DEBUG
   SerialPort.print("digit value : ");
@@ -1170,9 +1296,11 @@ void ScreenDigit::show() {
 #endif //SCREEN_DEBUG
   
 //  display.getTextBounds(digitCharacters, box_x, box_y, &box_w, &box_h, &w, &h);
-  display.getTextBounds(digitCharacters, 0, box_y, &box_w, &box_h, &w, &h);
+//////////  display.getTextBounds(digitCharacters, 0, box_y, &box_w, &box_h, &w, &h);
 /////  display.getTextWidth(digitCharacters, &w, &h);
 //  display.getTextBounds(tmpdigitCharacters, box_x, box_y, &box_w1, &box_h1, &w1, &h1);
+
+  display.getTextBounds(tmpChar, 0, box_y, &box_w, &box_h, &w, &h);
   
 //  if (h1 > h) {h = h1;}
 //  if (w1 > w) {w = w1;}
@@ -1185,7 +1313,7 @@ void ScreenDigit::show() {
   SerialPort.print("X new : ");
   SerialPort.println(box_w);
   SerialPort.print("Y new : ");
-  SerialPort.println(box_h);*/
+  SerialPort.println(box_h);*
   SerialPort.print("W : ");
   SerialPort.println(w);
   SerialPort.print("H : ");
@@ -1220,7 +1348,7 @@ void ScreenDigit::show() {
     display.setCursor(box_x-w-1, box_y);
     display.print(digitCharacters);
 //  display.updateWindow(box_w, box_h, w+box_w, h, true);	  
-  }*/
+  }*
 	
   if (leftAlign) {
 	
@@ -1300,6 +1428,8 @@ void ScreenDigit::show() {
 
 		if ((anchorX+4) > display.width()) tmpWidth = Zwidth + (display.width()-anchorX);
 		else															 tmpWidth = Zwidth+5;
+		
+		if ((anchorX-tmpWidth+6) < 0) tmpWidth = anchorX + 6;
 
 #ifdef SCREEN_DEBUG
 		SerialPort.print("anchorX : ");
@@ -1321,6 +1451,7 @@ void ScreenDigit::show() {
  
 
 }
+*/
 
 //****************************************************************************************************************************
 //****************************************************************************************************************************
@@ -1542,6 +1673,12 @@ void KMHUnit::toDisplay() {
     reset();
 }
 
+//****************************************************************************************************************************
+//****************************************************************************************************************************
+//						BATLEVEL
+//****************************************************************************************************************************
+//****************************************************************************************************************************
+
 /*  // 48 x 48 
 const unsigned char baticons[] = { 
 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 
@@ -1636,12 +1773,6 @@ const unsigned char batchargeicons[] = {
 0xc0, 0x19, 0x80, 0x0f, 0xff, 0xfb, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 
 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff
 };
-
-//****************************************************************************************************************************
-//****************************************************************************************************************************
-//						BATLEVEL
-//****************************************************************************************************************************
-//****************************************************************************************************************************
 
 /* !!! always reset !!! */
 //****************************************************************************************************************************
@@ -1795,6 +1926,12 @@ void drawBar (int nPer){
 }
 */
 
+//****************************************************************************************************************************
+//****************************************************************************************************************************
+//						VOLLEVEL
+//****************************************************************************************************************************
+//****************************************************************************************************************************
+
  // 'basic1-094_volume-32'
 
 const unsigned char volume0icons[] = { 
@@ -1843,12 +1980,6 @@ const unsigned char volume3icons[] = {
 0xff, 0xf8, 0xff, 0x9f, 0xff, 0xfc, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 
 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff
 };
-
-//****************************************************************************************************************************
-//****************************************************************************************************************************
-//						VOLLEVEL
-//****************************************************************************************************************************
-//****************************************************************************************************************************
 
 //****************************************************************************************************************************
 void VOLLevel::setVolume(int Volume) {
@@ -1954,6 +2085,11 @@ void SATLevel::show(void) {
 //	display.drawRect(posX+(satelliteBar*6), posY, 32-(satelliteBar*6), 32, GxEPD_BLACK);
 }
 
+//****************************************************************************************************************************
+//****************************************************************************************************************************
+//			RECORDIndicator
+//****************************************************************************************************************************
+//****************************************************************************************************************************
 
 const unsigned char recicons[] = { 
  // 'Phone_6-32'
@@ -2003,11 +2139,17 @@ const unsigned char fix2icons[] = {
 0x00, 0xff, 0xff, 0x00, 0x00, 0x7f, 0xfe, 0x00, 0x00, 0x3f, 0xfc, 0x00, 0x80, 0x3f, 0xfc, 0x01
 };
 
-//****************************************************************************************************************************
-//****************************************************************************************************************************
-//			RECORDIndicator
-//****************************************************************************************************************************
-//****************************************************************************************************************************
+const unsigned char norecordicons[] = { 
+// 'Error-32', 32x32px
+0xff, 0xf8, 0x1f, 0xff, 0xff, 0xc0, 0x03, 0xff, 0xff, 0x00, 0x00, 0xff, 0xfc, 0x00, 0x00, 0x3f,
+0xf8, 0x0f, 0xf0, 0x1f, 0xf0, 0x3f, 0xfc, 0x0f, 0xe0, 0xff, 0xfe, 0x07, 0xe1, 0xff, 0xfc, 0x07,
+0xc3, 0xff, 0xf8, 0x03, 0xc3, 0xff, 0xf0, 0x43, 0x87, 0xff, 0xe0, 0xe1, 0x87, 0xff, 0xc1, 0xe1,
+0x8f, 0xff, 0x83, 0xf1, 0x0f, 0xff, 0x07, 0xf0, 0x0f, 0xfe, 0x0f, 0xf0, 0x0f, 0xfc, 0x1f, 0xf0,
+0x0f, 0xf8, 0x3f, 0xf0, 0x0f, 0xf0, 0x7f, 0xf0, 0x0f, 0xe0, 0xff, 0xf0, 0x8f, 0xc1, 0xff, 0xf1,
+0x87, 0x83, 0xff, 0xe1, 0x87, 0x07, 0xff, 0xe1, 0xc2, 0x0f, 0xff, 0xc3, 0xc0, 0x1f, 0xff, 0x83,
+0xe0, 0x3f, 0xff, 0x87, 0xe0, 0x7f, 0xfe, 0x07, 0xf0, 0x3f, 0xfc, 0x0f, 0xf8, 0x0f, 0xf0, 0x1f,
+0xfc, 0x00, 0x00, 0x3f, 0xff, 0x00, 0x00, 0xff, 0xff, 0xc0, 0x03, 0xff, 0xff, 0xf8, 0x1f, 0xff
+};
 
 //****************************************************************************************************************************
 void RECORDIndicator::stateRECORD(void) {
@@ -2043,6 +2185,13 @@ void RECORDIndicator::setActifGPSFIX(void) {
 }
   
 //****************************************************************************************************************************
+void RECORDIndicator::setNoRECORD(void) {
+//****************************************************************************************************************************
+
+  recordState = STATE_NORECORD;
+}
+	
+//****************************************************************************************************************************
 void RECORDIndicator::show(void) {
 //****************************************************************************************************************************
 #ifdef SCREEN_DEBUG
@@ -2062,12 +2211,20 @@ void RECORDIndicator::show(void) {
 	    display.fillRect(posX, posY, 32, 32, GxEPD_WHITE);
   } else if  (recordState==STATE_GPSFIX) {
       display.drawInvertedBitmap(posX, posY,pauseicons,  32, 32, GxEPD_BLACK);   //GxEPD_BLACK);
+  } else if  (recordState==STATE_NORECORD) {
+      display.drawInvertedBitmap(posX, posY,norecordicons,  32, 32, GxEPD_BLACK);   //GxEPD_BLACK);
   } else if (displayRecord) {
       display.drawInvertedBitmap(posX, posY,fix1icons,  32, 32, GxEPD_BLACK);   //GxEPD_BLACK);
   } else  {
       display.drawInvertedBitmap(posX, posY,fix2icons,  32, 32, GxEPD_BLACK);   //GxEPD_BLACK);
   }
 }
+
+//****************************************************************************************************************************
+//****************************************************************************************************************************
+//				TRENDLevel
+//****************************************************************************************************************************
+//****************************************************************************************************************************
 
 const unsigned char trendupicons[] = { 
  // 'Arrow-19-24'
@@ -2086,13 +2243,6 @@ const unsigned char trenddownicons[] = {
 0xf8, 0x66, 0x1f, 0xfc, 0x24, 0x3f, 0xfe, 0x00, 0x7f, 0xff, 0x00, 0xff, 0xff, 0x81, 0xff, 0xff, 
 0xc3, 0xff, 0xff, 0xe7, 0xff, 0xff, 0xff, 0xff
 };
-
-//****************************************************************************************************************************
-//****************************************************************************************************************************
-//				TRENDLevel
-//****************************************************************************************************************************
-//****************************************************************************************************************************
-
 
 /* !!! always reset !!! */
 //****************************************************************************************************************************
@@ -2466,7 +2616,7 @@ void IRAM_ATTR onTimerScreenScheduler() {
 
 #ifdef SCREEN_DEBUG
 		led1stat = 1 - led1stat;
-		digitalWrite(pinLED, led1stat);   // turn the LED on or off
+//		digitalWrite(pinLED, led1stat);   // turn the LED on or off
 #endif //SCREEN_DEBUG
 	}
 
@@ -2482,8 +2632,8 @@ ScreenScheduler::ScreenScheduler(ScreenSchedulerObject* displayList, uint8_t obj
 //****************************************************************************************************************************
 	
 #ifdef SCREEN_DEBUG
-	pinMode(pinLED, OUTPUT);
-  digitalWrite(pinLED, LOW); 
+/*	pinMode(pinLED, OUTPUT);
+  digitalWrite(pinLED, LOW); */
 	led1stat    = 0;  
 #endif //SCREEN_DEBUG
 	
@@ -2512,7 +2662,7 @@ void ScreenScheduler::displayStep(void) {
 
 #ifdef SCREEN_DEBUG
 		led1stat = 1 - led1stat;
-		digitalWrite(pinLED, led1stat);   // turn the LED on or off
+//		digitalWrite(pinLED, led1stat);   // turn the LED on or off
 #endif //SCREEN_DEBUG
 	}
 
@@ -2527,6 +2677,17 @@ void ScreenScheduler::displayStep(void) {
 
   display.setFullWindow();
  	
+	if (millis() - oldtimeAllDisplay >= 30000)	{
+		oldtimeAllDisplay  = millis();	
+		ShowDisplayAll = true;
+		display.fillRect(0, 0, display.width(), display.height(), GxEPD_WHITE);
+		
+#ifdef SCREEN_DEBUG
+		SerialPort.println("displaystep - showDisplayAll");
+#endif //SCREEN_DEBUG
+		
+	}
+
 	uint8_t n = 0;
 	while( n <= objectCount ) {
 /*   if( displayList[pos].page == currentPage && displayList[pos].actif == true && displayList[pos].object->update() ) {
@@ -2554,8 +2715,15 @@ void ScreenScheduler::displayStep(void) {
   SerialPort.print("Current Multidisplay : ");
   SerialPort.println(currentMultiDisplay);
 #endif //SCREEN_DEBUG
-	
-	if( displayList[n].page == currentPage && displayList[n].actif == true && (displayList[n].multiDisplayID == 0 || displayList[n].multiDisplayID == currentMultiDisplay))	displayList[n].object->update();
+
+	if (ShowDisplayAll && displayList[n].page == currentPage && displayList[n].actif == true ) {
+		displayList[n].object->reset();
+		displayList[n].object->update(true);
+#ifdef SCREEN_DEBUG
+		SerialPort.println("displaystep - reset");
+#endif //SCREEN_DEBUG
+  }
+	else if ( displayList[n].page == currentPage && displayList[n].actif == true && (displayList[n].multiDisplayID == 0 || displayList[n].multiDisplayID == currentMultiDisplay))	displayList[n].object->update();
 
 /* next */
 		pos++;
@@ -2565,6 +2733,12 @@ void ScreenScheduler::displayStep(void) {
 		n++;
 	}
 
+  if (ShowDisplayAll == true) {
+		ShowDisplayAll = false;
+//		display.fillRect(0, 0, display.width(), display.height(), GxEPD_WHITE);
+		//.clearScreen();
+	}
+	
 #ifdef SCREEN_DEBUG
   SerialPort.println("displayStep : Display");
 #endif //SCREEN_DEBUG
