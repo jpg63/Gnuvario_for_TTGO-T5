@@ -34,6 +34,7 @@
 /*    1.0.1  24/06/19   Ajout profil GPS - choix entre 2 versions 							 */
 /*    1.0.2  23/07/19   suppression des parametres CLIMB_RATE                    */
 /*    1.0.3  04/08/19   Ajout config Wifi                                        */
+/*    1.0.4  16/08/19   Ajout HAVE_WIFI                                          */
 /*                                                                               */
 /*********************************************************************************/
 
@@ -43,7 +44,9 @@
 /* The voltage divisor */
 /***********************/
 
-#define VOLTAGE_DIVISOR_VALUE 1.27
+#ifndef VOLTAGE_DIVISOR_VALUE
+#define VOLTAGE_DIVISOR_VALUE 1.27  //270k et 1M
+#endif
 #define VOLTAGE_DIVISOR_REF_VOLTAGE 3.3
 
 /*****************************/
@@ -247,5 +250,6 @@
 //#define HAVE_AUDIO_AMPLI	
 #define HAVE_POWER_ALIM	
 #define HAVE_BUTTON
+#define HAVE_WIFI
 
 #endif

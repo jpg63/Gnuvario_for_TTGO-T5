@@ -21,9 +21,10 @@
 /***************************************************************************************************/
 /*                                TWOWIRESCHEDULER                                                 */
 /*                                                                                                 */
-/*  Ver     Date         Description                                                               */
+/*  Ver     Date                                                                                   */
 /*  1.0                                                                                            */
 /*  1.1     21/08/19     Ajout getTempAlti(double& temp, double& alti)                             */
+/*  1.2     22/08/19     Modification de la gestion de l'aquisition du MS561											 */
 /*                                                                                                 */
 /***************************************************************************************************/
 
@@ -173,7 +174,6 @@ void TWScheduler::getTempAlti(double& temp, double& alti) {
   /* get corresponding alti */
   alti = bmp280.computeAltitude(pressure);
 	temp = temperature;
-
 }
 
 #else //! HAVE_BMP280
@@ -204,8 +204,9 @@ void TWScheduler::ms5611Interrupt(void) {
   if( ms5611Step == 0 ) {
 
     bunset(TEMP_READ);
-    intTW.setRxBuffer((uint8_t *)ms5611Output);
-    intTW.start((uint8_t*)ms5611Step1, sizeof(ms5611Step1), INTTW_USE_PROGMEM, ms5611TempCallback);
+    //intTW.setRxBuffer((uint8_t *)ms5611Output);
+    //intTW.start((uint8_t*)ms5611Step1, sizeof(ms5611Step1), INTTW_USE_PROGMEM, ms5611TempCallback);
+    ms5611TempCallback();
     ms5611Step = 1;
   }
 
@@ -224,8 +225,9 @@ void TWScheduler::ms5611Interrupt(void) {
     }
 
     /* get the next value */
-    intTW.setRxBuffer((uint8_t*)(&ms5611Output[6]));
-    intTW.start((uint8_t*)ms5611Step2, sizeof(ms5611Step2), INTTW_USE_PROGMEM, ms5611OutputCallback);
+    //intTW.setRxBuffer((uint8_t*)(&ms5611Output[6]));
+    //intTW.start((uint8_t*)ms5611Step2, sizeof(ms5611Step2), INTTW_USE_PROGMEM, ms5611OutputCallback);
+    ms5611OutputCallback();
     xSemaphoreGive(ms5611Mutex);
     ms5611Step = 0;
   }
@@ -261,10 +263,13 @@ double TWScheduler::getAlti(void) {
 
   /* compute pressure and temp */
   double temperature, pressure;
-  ms5611.computeMeasures(&ms5611Values[0], &ms5611Values[3], temperature, pressure);
+  //ms5611.computeMeasures(&ms5611Values[0], &ms5611Values[3], temperature, pressure);
+  temperature = 20.0;
+  pressure = 1500;
 
   /* get corresponding alti */
-  double alti = ms5611.computeAltitude(pressure);
+  //double alti = ms5611.computeAltitude(pressure);
+  double alti = 100.0;
 
   return alti;
 }
@@ -283,12 +288,16 @@ void TWScheduler::getTempAlti(double& temp, double& alti) {
 
   /* compute pressure and temp */
   double temperature, pressure;
-  ms5611.computeMeasures(&ms5611Values[0], &ms5611Values[3], temperature, pressure);
+  //ms5611.computeMeasures(&ms5611Values[0], &ms5611Values[3], temperature, pressure);
+  temperature = 20.0;
+  pressure = 1500;
 
   /* get corresponding alti */
-  alti = ms5611.computeAltitude(pressure);
+  //double alti = ms5611.computeAltitude(pressure);
+  alti = 100.0;
 	temp = temperature;
 }
+
 #endif
 
 #ifdef HAVE_ACCELEROMETER
@@ -579,7 +588,7 @@ void TWScheduler::mainInterrupt(void) {
   }
 #ifdef AK89xx_SECONDARY
   if( magCount == 0 ) {
-//    magInterrupt();
+    magInterrupt();
     magCount = TWO_WIRE_SCHEDULER_MAG_PERIOD;
   }
 #endif //AK89xx_SECONDARY

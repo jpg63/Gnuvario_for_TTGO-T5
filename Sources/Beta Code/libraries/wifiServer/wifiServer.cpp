@@ -4,11 +4,14 @@
 /*                                                                               */
 /*  version    Date     Description                                              */
 /*    1.0    31/07/19                                                            */
+/*    1.1    16/08/19   Ajout Affichage sur écran                                */
+/*    1.1.1  17/08/19   Ajout message de debuggage                               */
+/*    1.2    21.08/19   Ajout Update ESP32                                       */
 /*                                                                               */
 /*********************************************************************************/
 
-#include <wifiServer.h>
 #include <Arduino.h>
+#include <wifiServer.h>
 
 #include <sdcardHAL.h>
 #include <HardwareConfig.h>
@@ -16,6 +19,8 @@
 #include <SPI.h>
 
 #include <VarioSettings.h>
+
+#include <Update.h>
 
 extern VarioSettings GnuSettings;
 
@@ -51,6 +56,15 @@ char password_4[50];
 
 #include "CSS.h"
 
+//************************************************************
+// DISPLAY SCREEN
+//************************************************************
+#define ENABLE_DISPLAY_WEBSERVER
+
+#ifdef ENABLE_DISPLAY_WEBSERVER
+#include <varioscreenGxEPD.h>
+#endif
+
 // All supporting functions from here...
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 void HomePage(){
@@ -60,6 +74,7 @@ void HomePage(){
 //  webpage += F("<a href='/stream'><button>Stream</button></a>");
   webpage += F("<a href='/delete'><button>Delete</button></a>");
   webpage += F("<a href='/dir'><button>Directory</button></a>");
+  webpage += F("<a href='/Update'><button>Update</button></a>");
   append_page_footer();
   SendHTML_Content();
   SendHTML_Stop(); // Stop is needed because no content length was sent
@@ -303,6 +318,85 @@ void SD_file_delete(String filename) { // Delete the file
   } else ReportSDNotPresent();
 } 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+void File_Update(){
+  SerialPort.println("File update stage-1");
+  append_page_header();
+  webpage += F("<h3>Select File to Update</h3>"); 
+  webpage += F("<FORM action='/fupdate' method='post' enctype='multipart/form-data'>");
+  webpage += F("<input class='buttons' style='width:40%' type='file' name='fupdate' id = 'fupdate' value=''><br>");
+  webpage += F("<br><button class='buttons' style='width:10%' type='submit'>Update File</button><br>");
+  webpage += F("<a href='/'>[Back]</a><br><br>");
+  append_page_footer();
+  SerialPort.println("File update stage-2");
+  server.send(200, "text/html",webpage);}
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+File UpdateFile; 
+void handleFileUpdate(){ // upload a new file to the Filing system
+  SerialPort.println("File update stage-3");
+  HTTPUpload& updatefile = server.upload(); // See https://github.com/esp8266/Arduino/tree/master/libraries/ESP8266WebServer/srcv
+                                            // For further information on 'status' structure, there are other reasons such as a failed transfer that could be used
+  if(updatefile.status == UPLOAD_FILE_START)
+  {		
+    SerialPort.println("File update stage-4");
+/*    String filename = updatefile.filename;
+    if(!filename.startsWith("/")) filename = "/"+filename;
+    SerialPort.print("Update File Name: "); SerialPort.println(filename);
+
+    char copy[250];
+    String scopy = filename;
+    scopy.toCharArray(copy, 250);
+
+    SDHAL.remove(copy);                         // Remove a previous version, otherwise data is appended the file again
+    UpdateFile = SDHAL.open(copy, FILE_WRITE);  // Open the file for writing in SPIFFS (create it, if doesn't exist)
+    filename = String();*/
+    if (!Update.begin(UPDATE_SIZE_UNKNOWN)) { //start with max available size
+        Update.printError(SerialPort);
+    }
+  }
+  else if (updatefile.status == UPLOAD_FILE_WRITE)
+  {
+    SerialPort.println("File update stage-5");
+//    if(UpdateFile) UpdateFile.write(updatefile.buf, updatefile.currentSize); // Write the received bytes to the file
+      /* flashing firmware to ESP*/
+      if (Update.write(updatefile.buf, updatefile.currentSize) != updatefile.currentSize) {
+        Update.printError(SerialPort);
+      }
+  } 
+  else if (updatefile.status == UPLOAD_FILE_END)
+  {
+ /*   if(UpdateFile)          // If the file was successfully created
+    {                                    
+      UpdateFile.close();   // Close the file again
+      SerialPort.print("Update Size: "); SerialPort.println(updatefile.totalSize);
+      webpage = "";
+      append_page_header();
+      webpage += F("<h3>File was successfully uploaded</h3>"); 
+      webpage += F("<h2>Uploaded File Name: "); webpage += uploadfile.filename+"</h2>";
+      webpage += F("<h2>File Size: "); webpage += file_size(uploadfile.totalSize) + "</h2><br>"; 
+      append_page_footer();
+      server.send(200,"text/html",webpage);
+    } 
+    else
+    {
+      ReportCouldNotCreateFile("update");
+    }*/
+		
+    if (Update.end(true)) { //true to set the size to the current progress
+      SerialPort.printf("Update Success: %u\nRebooting...\n", updatefile.totalSize);
+      webpage = "";
+      append_page_header();
+      webpage += F("<h3>ESP32 was successfully updated</h3>"); 
+      webpage += F("<h2>Updated File Name: "); webpage += updatefile.filename+"</h2>";
+      webpage += F("<h2>File Size: "); webpage += file_size(updatefile.totalSize) + "</h2><br>"; 
+      append_page_footer();
+      server.send(200,"text/html",webpage);			
+    } else {
+      Update.printError(SerialPort);
+      ReportCouldNotUpdateFile("update");
+    }	
+  }
+}  
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 void SendHTML_Header(){
   server.sendHeader("Cache-Control", "no-cache, no-store, must-revalidate"); 
   server.sendHeader("Pragma", "no-cache"); 
@@ -362,6 +456,14 @@ void ReportCouldNotCreateFile(String target){
   SendHTML_Stop();
 }
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+void ReportCouldNotUpdateFile(String target){
+  SendHTML_Header();
+  webpage += F("<h3>Could Not Update ESP32 (write-protected?)</h3>"); 
+  webpage += F("<a href='/"); webpage += target + "'>[Back]</a><br><br>";
+  append_page_footer();
+  SendHTML_Content();
+  SendHTML_Stop();
+}//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 String file_size(int bytes){
   String fsize = "";
   if (bytes < 1024)                 fsize = String(bytes)+" B";
@@ -371,19 +473,90 @@ String file_size(int bytes){
   return fsize;
 }
 
+/*
+ * Server Index Page
+ */
+ 
+const char* serverIndex = 
+"<script src='https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js'></script>"
+"<form method='POST' action='#' enctype='multipart/form-data' id='upload_form'>"
+   "<input type='file' name='update'>"
+        "<input type='submit' value='Update'>"
+    "</form>"
+ "<div id='prg'>progress: 0%</div>"
+ "<script>"
+  "$('form').submit(function(e){"
+  "e.preventDefault();"
+  "var form = $('#upload_form')[0];"
+  "var data = new FormData(form);"
+  " $.ajax({"
+  "url: '/update',"
+  "type: 'POST',"
+  "data: data,"
+  "contentType: false,"
+  "processData:false,"
+  "xhr: function() {"
+  "var xhr = new window.XMLHttpRequest();"
+  "xhr.upload.addEventListener('progress', function(evt) {"
+  "if (evt.lengthComputable) {"
+  "var per = evt.loaded / evt.total;"
+  "$('#prg').html('progress: ' + Math.round(per*100) + '%');"
+  "}"
+  "}, false);"
+  "return xhr;"
+  "},"
+  "success:function(d, s) {"
+  "console.log('success!')" 
+ "},"
+ "error: function (a, b, c) {"
+ "}"
+ "});"
+ "});"
+ "</script>";
+ 
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 boolean WifiServer::begin(void) {
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	
 	GnuSettings.VARIOMETER_SSID_1.toCharArray(ssid_1,sizeof(ssid_1));
 	GnuSettings.VARIOMETER_PASSWORD_1.toCharArray(password_1,sizeof(password_1));
 
+#ifdef WIFI_DEBUG
+  SerialPort.print("ssid_1 : ");
+  SerialPort.println(ssid_1);
+  SerialPort.print("password_1 : ");
+  SerialPort.println(password_1);
+#endif //WIFI_DEBUG
+
 	GnuSettings.VARIOMETER_SSID_2.toCharArray(ssid_2,sizeof(ssid_2));
 	GnuSettings.VARIOMETER_PASSWORD_2.toCharArray(password_2,sizeof(password_2));
 
+#ifdef WIFI_DEBUG
+  SerialPort.print("ssid_2 : ");
+  SerialPort.println(ssid_2);
+  SerialPort.print("password_2 : ");
+  SerialPort.println(password_2);
+#endif //WIFI_DEBUG
+
 	GnuSettings.VARIOMETER_SSID_3.toCharArray(ssid_3,sizeof(ssid_3));
 	GnuSettings.VARIOMETER_PASSWORD_3.toCharArray(password_3,sizeof(password_3));
+	
+#ifdef WIFI_DEBUG
+  SerialPort.print("ssid_3 : ");
+  SerialPort.println(ssid_3);
+  SerialPort.print("password_3 : ");
+  SerialPort.println(password_3);
+#endif //WIFI_DEBUG
 
 	GnuSettings.VARIOMETER_SSID_4.toCharArray(ssid_4,sizeof(ssid_4));
 	GnuSettings.VARIOMETER_PASSWORD_4.toCharArray(password_4,sizeof(password_4));
+
+#ifdef WIFI_DEBUG
+  SerialPort.print("ssid_4 : ");
+  SerialPort.println(ssid_4);
+  SerialPort.print("password_4 : ");
+  SerialPort.println(password_4);
+#endif //WIFI_DEBUG
 	
 	return true;
 };
@@ -396,6 +569,8 @@ void WifiServer::disableBT(void) {
 }
 		
 void WifiServer::disableAll(void) {
+	disableWifi();
+	disableBT();
 }
 
    
@@ -412,11 +587,24 @@ void WifiServer::connect(void) {
   wifiMulti.addAP(ssid_4, password_4);  // You don't need 4 entries, this is for example!
   
   SerialPort.println("Connecting ...");
+#ifdef ENABLE_DISPLAY_WEBSERVER
+	screen.ScreenViewWifi("", "");
+#endif //ENABLE_DISPLAY_WEBSERVER
+	
+	int counter = 0;
   while (wifiMulti.run() != WL_CONNECTED) { // Wait for the Wi-Fi to connect: scan for Wi-Fi networks, and connect to the strongest of the networks above
     delay(250); SerialPort.print('.');
+		counter++;
+		if (counter > 30) {
+			SerialPort.println(F("Error Wifi not found!")); 
+			ESP.restart(); 
+		}
   }
   SerialPort.println("\nConnected to "+WiFi.SSID()+" Use IP address: "+WiFi.localIP().toString()); // Report which SSID and IP is in use
   // The logical name http://fileserver.local will also access the device if you have 'Bonjour' running or your system supports multicast dns
+#ifdef ENABLE_DISPLAY_WEBSERVER
+	screen.ScreenViewWifi(WiFi.SSID(), WiFi.localIP().toString());
+#endif //ENABLE_DISPLAY_WEBSERVER
   if (!MDNS.begin(servername)) {          // Set your preferred server name, if you use "myserver" the address would be http://myserver.local/
     SerialPort.println(F("Error setting up MDNS responder!")); 
     ESP.restart(); 
@@ -435,7 +623,41 @@ void WifiServer::start(void) {
   server.on("/download", File_Download);
 //  server.on("/stream",   File_Stream);
   server.on("/delete",   File_Delete);
+  server.on("/update",   File_Update);
+  server.on("/fupdate",  HTTP_POST,[](){ server.send(200);}, handleFileUpdate);
   
+/*  server.on("/serverIndex", HTTP_GET, []() {
+    server.sendHeader("Connection", "close");
+    server.send(200, "text/html", serverIndex);
+  });	
+  /*handling uploading firmware file *
+  server.on("/update", HTTP_POST, []() {
+    server.sendHeader("Connection", "close");
+    server.send(200, "text/plain", (Update.hasError()) ? "FAIL" : "OK");
+    ESP.restart();
+  }, []() {
+    HTTPUpload& upload = server.upload();
+    if (upload.status == UPLOAD_FILE_START) {
+      Serial.printf("Update: %s\n", upload.filename.c_str());
+      if (!Update.begin(UPDATE_SIZE_UNKNOWN)) { //start with max available size
+        Update.printError(Serial);
+      }
+    } else if (upload.status == UPLOAD_FILE_WRITE) {
+      /* flashing firmware to ESP*
+      if (Update.write(upload.buf, upload.currentSize) != upload.currentSize) {
+        Update.printError(Serial);
+      }
+    } else if (upload.status == UPLOAD_FILE_END) {
+      if (Update.end(true)) { //true to set the size to the current progress
+        Serial.printf("Update Success: %u\nRebooting...\n", upload.totalSize);
+      } else {
+        Update.printError(Serial);
+      }
+    }
+  });	*/
+	
+	
+	
 /*
    server.on("/",         server_homePage);
    server.on("/dir",      server_listDir);
@@ -449,6 +671,9 @@ void WifiServer::start(void) {
   ///////////////////////////// End of Request commands
   server.begin();
   SerialPort.println("HTTP server started");
+#ifdef ENABLE_DISPLAY_WEBSERVER
+	screen.ScreenViewWifi("START", "");
+#endif //ENABLE_DISPLAY_WEBSERVER
 }
 
 void WifiServer::handleClient(void){

@@ -9,6 +9,7 @@
 /*    1.0      03/03/19                                                      */
 /*    1.1      07/04/19    Reecriture librairie                              */
 /*    1.1.1    10/06/19    Ajout gestion ampli class D externe               */
+/*    1.1.2    20/08/19      Reecriture AUDIO_AMP_ENABLE et AUDIO_AMP_DISABLE*/
 /*                                                                           */
 /*****************************************************************************/
 
@@ -70,8 +71,8 @@ class ToneDacEsp32 {
 		void dac_scale_set(dac_channel_t channel, int scale);
 		void dac_offset_set(dac_channel_t channel, int offset);
 		void dac_invert_set(dac_channel_t channel, int invert);
-			
-
+		void AUDIO_AMP_DISABLE(void);
+		void AUDIO_AMP_ENABLE(void);			
 			
 #ifdef TONEDAC_LENGTH
 		unsigned long _tDAC_time; // Used to track end note with timer when playing note in the background.

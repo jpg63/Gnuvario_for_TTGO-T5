@@ -1,3 +1,33 @@
+/* DebugConfig -- Gestion du debuggage
+ *
+ * Copyright 2019 Jean-philippe GOI
+ * 
+ *
+ * ToneHAL is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * ToneHAL is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+/*********************************************************************************/
+/*                                                                               */
+/*                           DebugConfig                                         */
+/*                                                                               */
+/*  version    Date       Description                                            */
+/*    1.0                                                                        */
+/*    1.0.1    16/08/19   Ajout BT_DEBUG          							              	 */
+/*    1.0.2    17/08/19   Ajout WIFI_DEBUG                                       */
+/*                                                                               */
+/*********************************************************************************/
+
 #ifndef _DEBUGCONFIG_H_
 #define _DEGUGCONFIG_H_
 
@@ -25,11 +55,11 @@
 
 
 //              DEBUGING MODE
-//#define IMU_DEBUG			  //debug IMU
 #define PROG_DEBUG			  //debug principal program
+//#define IMU_DEBUG			  //debug IMU
 //#define I2CDEV_SERIAL_DEBUG   //debug I2Cdev
 //#define DEBUG_SERIAL_NMEA_1
-#define SCREEN_DEBUG
+//#define SCREEN_DEBUG
 //#define GPS_DEBUG
 //#define BUTTON_DEBUG
 //#define TONEDAC_DEBUG
@@ -42,6 +72,8 @@
 //#define SDCARD_DEBUG
 //#define IGC_DEBUG
 #define DATA_DEBUG
+//#define BT_DEBUG
+#define WIFI_DEBUG
 
 #endif //ENABLE_DEBUG
 #endif

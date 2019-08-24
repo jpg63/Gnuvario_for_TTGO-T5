@@ -4,6 +4,9 @@
 /*                                                                               */
 /*  version    Date     Description                                              */
 /*    1.0    31/07/19                                                            */
+/*    1.1    16/08/19   Ajout Affichage sur écran                                */
+/*    1.1.1  17/08/19   Ajout message de debuggage                               */
+/*    1.2    21.08/19   Ajout Update ESP32                                       */
 /*                                                                               */
 /*********************************************************************************/
 #ifndef wifiServer_h
@@ -72,6 +75,8 @@ void SD_dir();
 void printDirectory(const char * dirname, uint8_t levels);
 void File_Stream();
 void SD_file_stream(String filename);
+void File_Update();
+void handleFileUpdate();
 void File_Delete();
 void SD_file_delete(String filename); 
 void SendHTML_Header();
@@ -81,6 +86,7 @@ void SelectInput(String heading1, String command, String arg_calling_name);
 void ReportSDNotPresent();
 void ReportFileNotPresent(String target);
 void ReportCouldNotCreateFile(String target);
+void ReportCouldNotUpdateFile(String target);
 String file_size(int bytes);
 
 extern WifiServer wifiServer; 

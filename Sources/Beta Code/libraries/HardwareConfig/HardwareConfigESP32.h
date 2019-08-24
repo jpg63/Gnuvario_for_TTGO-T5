@@ -25,6 +25,8 @@
 /*  version    Date     Description                                              */
 /*    1.0    03/06/19                                                            */
 /*    1.0.1  24/06/19   Ajout define VARIOMETER_POWER_ON_DELAY 									 */
+/*    1.0.2  19/08/19   Correstions mineures                                     */
+/*    1.0.3  20/04/19   Ajout version PCB                                        */
 /*                                                                               */
 /*********************************************************************************/
 
@@ -36,6 +38,7 @@ MPU 9250 / MS5611
  
 SDA_PIN 	IO21
 SCL_PIN 	IO22
+INT       IO32
 
 *******************
 Ecran EPaper 1.54''
@@ -44,17 +47,11 @@ Ecran EPaper 1.54''
 CS/SS 		IO5
 DC 				IO17
 RST 			IO16
-BUSY 			IO4
+BUSY 			IO04
 
-MOSI			15
-MISO			2
-SCK				14
-
-****
-LED
-**** 
-
-LED_BUILTIN 	22
+MOSI			IO15
+MISO			IO02
+SCK				IO14
 
 *******
 SDCard
@@ -64,10 +61,10 @@ mySD.h
 
 M5Stack.h
 
-CS 			13
-MOSI		15
-MISO		2
-SCK			14
+CS 			IO13
+MOSI		IO15
+MISO		IO02
+SCK			IO14
 
 *********
 Boutons
@@ -75,15 +72,16 @@ Boutons
 
 M4Stack.h
 
-Bouton A	38
-Bouton B	37
-Bouton C	39
+Bouton A	IO38
+Bouton B	IO37
+Bouton C	IO39
 
 ************
 Speaker
 ************
 
 PWM/DAC		IO25
+Enable 		IO19		V2.4
 
  NS4148, http://www.chipsourcetek.com/Uploads/file/20151207193630_0605.pdf amplificateur audio mono 3W - Classe D connecté sur la pin GPIO 25
 
@@ -96,7 +94,7 @@ Enable	IO34	enable optional ampli class D
 GPS
 ******************
 
-RX	IO19
+RX	IO19		//IO33 V2.4
 
 ******************************
 Lecture de la charge batterie
@@ -114,7 +112,7 @@ tension  IO35
              |
             GND
 
-
+V2.4 	100k / 100k interne
 
 EEprom
 
@@ -129,6 +127,15 @@ Fly stat        0xD0		26+2
 #define _HARDWARECONFIGESP32_H_
 
 #if defined(ESP32)
+
+/* Version PCB 															*/
+/* 0 pas de PCB definit											*/
+/* 1 PCB V1 pour TTGO-T5 version 1.2, 1.6		*/
+/* 2 PCB V2 pour TTGO-T5 version 1.2 et 1.6 */
+/* 3 PCB V2 pour TTGO-T5 version 2.4        */
+
+#define PCB_VERSION 1
+
 
 /******************************/
 /*            SCREEN          */
@@ -155,6 +162,7 @@ Fly stat        0xD0		26+2
 /*        LED              */
 /***************************/
 
+#if (PCB_VERSION == 0)
 #define pinLED 22
 
 #define LED_ON() 		   {GPIO.out_w1ts = (1 << (pinLED));}
@@ -163,7 +171,7 @@ Fly stat        0xD0		26+2
 #ifndef LED_BUILTIN
 #define LED_BUILTIN pinLED
 #endif
-
+#endif
 
 /****************************/
 /*           Buttons        */
@@ -193,14 +201,27 @@ Fly stat        0xD0		26+2
 
 #define VOLTAGE_DIVISOR_PIN 35  //ADC1_CH7 (GPIO 35)
 #define VOLTAGE_RESOLUTION  4096.0f
-
+#define VOLTAGE_DIVISOR_VALUE 2  //100k et 1M
 
 /*************************/
 /*        GPS            */
 /*************************/
 
-#define pinGpsTXD  (-1)
+#if (PCB_VERSION >= 2)
+#define pinGpsRXD  (33)
+	
+/* GPS / bluetooth pins */
+#define SERIAL_NMEA_RX_PIN 33
+#define SERIAL_NMEA_TX_PIN 34
+#else
 #define pinGpsRXD  (19)
+	
+/* GPS / bluetooth pins */
+#define SERIAL_NMEA_RX_PIN 19
+#define SERIAL_NMEA_TX_PIN 33
+#endif	
+
+#define pinGpsTXD  (-1)
 #define pinGpsRTS  (-1)
 #define pinGpsCTS  (-1)
 
@@ -212,16 +233,22 @@ Fly stat        0xD0		26+2
 //#define UART_RX_BUFFER_SIZE   512
 #define UART_RX_BUFFER_SIZE   256
 
-/* GPS / bluetooth pins */
-#define SERIAL_NMEA_RX_PIN 19
-#define SERIAL_NMEA_TX_PIN 21
-
 
 /*************************/
 /*         AUDIO         */
 /*************************/
 
+#if (PCB_VERSION == 3)
+
+#define PIN_AUDIO_AMP_ENA     19			//Enabled ampli class D
+#define HAVE_AUDIO_AMPLI	
+
+#else
+
 #define PIN_AUDIO_AMP_ENA     34			//Enabled ampli class D
+	
+#endif
+
 #define SPEAKER_PIN 					25			//or 26
 #define TONE_PIN_CHANNEL 			0				// or 1
 
@@ -252,10 +279,9 @@ Fly stat        0xD0		26+2
 /* time needed to power on all the devices */
 #define VARIOMETER_POWER_ON_DELAY 2000
 
-/*************************/
-/*         EEPROM        */
-/*************************/
-
+/*****************************/
+/*         EEPROM            */
+/*****************************/
 
 /*****************************/
 /*  IGC HEADER EEPROM        */
@@ -274,7 +300,6 @@ Fly stat        0xD0		26+2
 /*  EEPROM STAT              */
 /*****************************/
 #define FLY_STAT_HEADER_EEPROM_ADDRESS 0xD0
-
 
 #endif
 #endif

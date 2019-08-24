@@ -12,6 +12,7 @@
 /*    1.0.0    17/02/19				                                                     */
 /*    1.0.1    19/03/19                                                            */
 /*    1.0.2    10/06/19      Ajout gestion ampli class D externe                   */
+/*    1.0.3    20/08/19      Reecriture AUDIO_AMP_ENABLE et AUDIO_AMP_DISABLE      */
 /*                                                                                 */
 /***********************************************************************************/
 
@@ -62,8 +63,8 @@
 //#define HAVE_AUDIO_AMPLI
 #endif //HAVE_AUDIO_AMPLI
 
-#define AUDIO_AMP_ENABLE()   {GPIO.out1_w1ts.val = ((uint32_t)1 << (PIN_AUDIO_AMP_ENA - 32));}
-#define AUDIO_AMP_DISABLE()  {GPIO.out1_w1tc.val = ((uint32_t)1 << (PIN_AUDIO_AMP_ENA - 32));}
+//#define AUDIO_AMP_ENABLE()   {GPIO.out1_w1ts.val = ((uint32_t)1 << (PIN_AUDIO_AMP_ENA - 32));}
+//#define AUDIO_AMP_DISABLE()  {GPIO.out1_w1tc.val = ((uint32_t)1 << (PIN_AUDIO_AMP_ENA - 32));}
 
 ToneEsp32::ToneEsp32(void) {
 //    _volume = 8;
@@ -93,7 +94,12 @@ void ToneEsp32::init(uint32_t pin)
 	Tone_Pin_Channel = TONE_PIN_CHANNEL;
 
 #ifdef HAVE_AUDIO_AMPLI
-	AUDIO_AMP_DISABLE();
+//init Pin commande ampli
+
+	if (PIN_AUDIO_AMP_ENA != -1) {
+		pinMode(PIN_AUDIO_AMP_ENA,OUTPUT);
+		digitalWrite(PIN_AUDIO_AMP_ENA,LOW);
+	}
 #endif //HAVE_AUDIO_AMPLI
 
 	ledcSetup(Tone_Pin_Channel, 0, 8);
@@ -231,5 +237,16 @@ void ToneEsp32::setBeep(uint16_t frequency, uint16_t duration) {
     _beep_duration = duration;
 }
 
+/***********************************/
+void ToneEsp32::AUDIO_AMP_DISABLE(void) {
+/***********************************/
+	digitalWrite(PIN_AUDIO_AMP_ENA,LOW);
+}
+
+/***********************************/
+void ToneEsp32::AUDIO_AMP_ENABLE(void) {
+/***********************************/
+	digitalWrite(PIN_AUDIO_AMP_ENA,HIGH);
+}
 
 #endif //ESP32

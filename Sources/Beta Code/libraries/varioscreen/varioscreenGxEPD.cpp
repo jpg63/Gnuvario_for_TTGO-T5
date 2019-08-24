@@ -2,7 +2,7 @@
  *
  * Copyright 2019 Jean-philippe GOI
  * 
- * This file is part of toneHAL.
+ * This file is part of GnuVario-E.
  *
  * ToneHAL is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,6 +32,14 @@
  *                      Modification ratioDigit / trendDigit                     *
  *    1.0.5  06/08/19   Ajout icon noRecord                                      *
  *                      Ajout raffrachissement ALL toutes les 30 secs            *
+ *    1.0.6  12/08/19   Ajout gestion écran de config GPS                        *
+ *    1.0.7  15/08/19   Ajout gestion bouton dans screeninit                     *
+ *    1.0.8  15/09/19   Ajout écran connection Wifi - ScreenViewWifi             *
+ *    1.0.9  22/08/19   Ajout ScreenViewReboot																	 *
+ *    1.0.10 22/08/19   Ajout Page1                                              *
+ *    1.0.11 23/08/19   Correction bug previousPage                              *
+ *                      Ajout TUnit                                              *
+ *    1.0.12 24/08/19   Ajout ScreenViewSound(int volume)                        *
  *                                                                               *
  *********************************************************************************/
  
@@ -58,6 +66,8 @@ static const char* TAG = "VarioScreen";
 #include <HardwareConfig.h>
 
 /* http://javl.github.io/image2cpp/ */
+
+#include <VarioButton.h>
 
 #include <GxEPD2_BW.h>
 #include <GxEPD2_3C.h>
@@ -126,6 +136,10 @@ volatile uint8_t stateMulti = 0;
 #define VARIOSCREEN_AUTONOMIE_ANCHOR_X 90
 #define VARIOSCREEN_AUTONOMIE_ANCHOR_Y 235
 
+/*****************************************/
+/* screen objets Page 0                  */
+/*****************************************/
+
 #define VARIOSCREEN_ALTI_ANCHOR_X 110
 #define VARIOSCREEN_ALTI_ANCHOR_Y 80
 #define VARIOSCREEN_ALTI_UNIT_ANCHOR_X    120
@@ -159,6 +173,23 @@ volatile uint8_t stateMulti = 0;
 #define VARIOSCREEN_BT_ANCHOR_Y 40
 #define VARIOSCREEN_TREND_ANCHOR_X 150 //120
 #define VARIOSCREEN_TREND_ANCHOR_Y 55  //111
+
+/*****************************************/
+/* screen objets Page 1                  */
+/*****************************************/
+#define VARIOSCREEN_TEMP_ANCHOR_X 30
+#define VARIOSCREEN_TEMP_ANCHOR_Y 190
+#define VARIOSCREEN_TEMP_UNIT_ANCHOR_X 160
+
+/*****************************************/
+/* screen objets Page 10 - Calibrate GPS */
+/*****************************************/
+#define VARIOSCREEN_GPS_PERIOD_ANCHOR_X 190
+#define VARIOSCREEN_GPS_PERIOD_ANCHOR_Y 80
+#define VARIOSCREEN_GPS_MEAN_PERIOD_ANCHOR_X 190
+#define VARIOSCREEN_GPS_MEAN_PERIOD_ANCHOR_Y 120
+#define VARIOSCREEN_GPS_DURATION_ANCHOR_X 190
+#define VARIOSCREEN_GPS_DURATION_ANCHOR_Y 160
 
 //***********************
 //     GxEPD2_BW_U  
@@ -314,7 +345,7 @@ VarioScreen::~VarioScreen() {
 #define ITEMS_IN_ARRAY(array)   (sizeof(array) / sizeof(*array))
 
 //****************************************************************************************************************************
-void VarioScreen::begin(void)
+void VarioScreen::init(void)
 //****************************************************************************************************************************
 {
 #ifdef SCREEN_DEBUG
@@ -338,9 +369,15 @@ void VarioScreen::begin(void)
 #endif //SCREEN_DEBUG
 	
   display.setTextColor(GxEPD_BLACK);
+}
+	
+//****************************************************************************************************************************
+void VarioScreen::createScreenObjects(void)
+//****************************************************************************************************************************
+{
 	
 #ifdef SCREEN_DEBUG
-	SerialPort.println("update");	
+	SerialPort.println("Create screen objects");	
 #endif //SCREEN_DEBUG
 	
 	/* création des champs d'affichage */
@@ -351,6 +388,25 @@ void VarioScreen::begin(void)
 /*	tensionDigit = new ScreenDigit(VARIOSCREEN_TENSION_ANCHOR_X, VARIOSCREEN_TENSION_ANCHOR_Y, 5, 2, false, false, ALIGNRIGHT);	
 	tempratureDigit = new ScreenDigit(VARIOSCREEN_TENSION_ANCHOR_X, VARIOSCREEN_TENSION_ANCHOR_Y, 5, 2, false, false, ALIGNRIGHT);*/
 	
+	createScreenObjectsPage0();
+	createScreenObjectsPage1();
+	createScreenObjectsPage10();
+	
+//	displayList  = new ScreenSchedulerObject[3];
+	MaxObjectList = 0;
+	
+#ifdef SCREEN_DEBUG
+	SerialPort.println("schedulerScreen : createObjectDisplay");	
+#endif //SCREEN_DEBUG
+	
+	createScreenObjectsDisplayPage0();
+	createScreenObjectsDisplayPage1();
+	createScreenObjectsDisplayPage10();
+}	
+	
+//****************************************************************************************************************************
+void VarioScreen::createScreenObjectsPage0(void) {
+//****************************************************************************************************************************
 	altiDigit = new ScreenDigit(VARIOSCREEN_ALTI_ANCHOR_X, VARIOSCREEN_ALTI_ANCHOR_Y, 4, 0, false, false, ALIGNRIGHT);
 	munit = new MUnit(VARIOSCREEN_ALTI_UNIT_ANCHOR_X, VARIOSCREEN_ALTI_ANCHOR_Y);
 	varioDigit = new ScreenDigit(VARIOSCREEN_VARIO_ANCHOR_X, VARIOSCREEN_VARIO_ANCHOR_Y, 4, 1, true, false,  ALIGNRIGHT);
@@ -377,22 +433,34 @@ void VarioScreen::begin(void)
 
 	fixgpsinfo = new FIXGPSInfo(VARIOSCREEN_SAT_FIX_ANCHOR_X, VARIOSCREEN_SAT_FIX_ANCHOR_Y);
 	btinfo = new BTInfo(VARIOSCREEN_BT_ANCHOR_X, VARIOSCREEN_BT_ANCHOR_Y);
+}
 	
-//	displayList  = new ScreenSchedulerObject[3];
-	MaxObjectList = 0;
+//****************************************************************************************************************************
+void VarioScreen::createScreenObjectsPage10(void) {
+//****************************************************************************************************************************
+	gpsPeriodDigit 			= new ScreenDigit(VARIOSCREEN_GPS_PERIOD_ANCHOR_X, VARIOSCREEN_GPS_PERIOD_ANCHOR_Y, 6, 1, false, false, ALIGNRIGHT);
+	gpsMeanPeriodDigit 	= new ScreenDigit(VARIOSCREEN_GPS_MEAN_PERIOD_ANCHOR_X, VARIOSCREEN_GPS_MEAN_PERIOD_ANCHOR_Y, 6, 1, false, false,  ALIGNRIGHT);
+	gpsDurationDigit	 	= new ScreenDigit(VARIOSCREEN_GPS_DURATION_ANCHOR_X, VARIOSCREEN_GPS_DURATION_ANCHOR_Y, 6, 1, false, false,  ALIGNRIGHT);
+}
+
+//****************************************************************************************************************************
+void VarioScreen::createScreenObjectsPage1(void) {
+//****************************************************************************************************************************	
+	tempDigit 					= new ScreenDigit(VARIOSCREEN_TEMP_ANCHOR_X, VARIOSCREEN_TEMP_ANCHOR_Y, 5, 2, false, false, ALIGNLEFT);
+	tunit 							= new TUnit(VARIOSCREEN_TEMP_UNIT_ANCHOR_X, VARIOSCREEN_TEMP_ANCHOR_Y);
+}
 	
-#ifdef SCREEN_DEBUG
-	SerialPort.println("schedulerScreen : createObjectDisplay");	
-#endif //SCREEN_DEBUG
-	
+//****************************************************************************************************************************
+void VarioScreen::createScreenObjectsDisplayPage0(void) {
+//****************************************************************************************************************************
 //	CreateObjectDisplay(DISPLAY_OBJECT_TENSION, tensionDigit, 0, 0, true); 
 //	CreateObjectDisplay(DISPLAY_OBJECT_TEMPRATURE, tempratureDigit, 0, 2, true); 
-		CreateObjectDisplay(DISPLAY_OBJECT_ALTI, altiDigit, 0, 0, true); 
-		CreateObjectDisplay(DISPLAY_OBJECT_MUNIT, munit, 0, 0, true); 
-		CreateObjectDisplay(DISPLAY_OBJECT_VARIO, varioDigit, 0, 0, true); 
-		CreateObjectDisplay(DISPLAY_OBJECT_MSUNIT, msunit, 0, 0, true); 
-		CreateObjectDisplay(DISPLAY_OBJECT_KMHUNIT, kmhunit, 0, 0, true); 
-		CreateObjectDisplay(DISPLAY_OBJECT_SPEED, speedDigit, 0, 0, true); 
+		CreateObjectDisplay(DISPLAY_OBJECT_ALTI							, altiDigit					, 0, 0, true); 
+		CreateObjectDisplay(DISPLAY_OBJECT_MUNIT						, munit							, 0, 0, true); 
+		CreateObjectDisplay(DISPLAY_OBJECT_VARIO						, varioDigit				, 0, 0, true); 
+		CreateObjectDisplay(DISPLAY_OBJECT_MSUNIT						, msunit						, 0, 0, true); 
+		CreateObjectDisplay(DISPLAY_OBJECT_KMHUNIT					, kmhunit						, 0, 0, true); 
+		CreateObjectDisplay(DISPLAY_OBJECT_SPEED						, speedDigit				, 0, 0, true); 
 	
 #ifdef SCREEN_DEBUG
 		SerialPort.print("RATIO_CLIMB_RATE : ");	
@@ -400,34 +468,64 @@ void VarioScreen::begin(void)
 #endif //SCREEN_DEBUG
 	
     if (GnuSettings.RATIO_CLIMB_RATE == 1) {	
-		  CreateObjectDisplay(DISPLAY_OBJECT_RATIO, ratioDigit, 0, 0, true); 
+		  CreateObjectDisplay(DISPLAY_OBJECT_RATIO					, ratioDigit				, 0, 0, true); 
 		} else if (GnuSettings.RATIO_CLIMB_RATE == 2) {	
-		  CreateObjectDisplay(DISPLAY_OBJECT_TREND, trendDigit, 0, 0, true); 
+		  CreateObjectDisplay(DISPLAY_OBJECT_TREND					, trendDigit				, 0, 0, true); 
 		} else {
-		  CreateObjectDisplay(DISPLAY_OBJECT_RATIO, ratioDigit, 0, 1, true); 
-		  CreateObjectDisplay(DISPLAY_OBJECT_TREND, trendDigit, 0, 2, true); 			
+		  CreateObjectDisplay(DISPLAY_OBJECT_RATIO					, ratioDigit				, 0, 1, true); 
+		  CreateObjectDisplay(DISPLAY_OBJECT_TREND					, trendDigit				, 0, 2, true); 			
     }
-		CreateObjectDisplay(DISPLAY_OBJECT_INFOLEVEL, infoLevel, 0, 0, true); 
-		CreateObjectDisplay(DISPLAY_OBJECT_VOLLEVEL, volLevel, 0, 0, true); 
-		CreateObjectDisplay(DISPLAY_OBJECT_RECORDIND, recordIndicator, 0, 0, true); 
-		CreateObjectDisplay(DISPLAY_OBJECT_TRENDLEVEL, trendLevel, 0, 0, true); 
-		CreateObjectDisplay(DISPLAY_OBJECT_BATLEVEL, batLevel, 0, 0, true); 
-		CreateObjectDisplay(DISPLAY_OBJECT_SATLEVEL, satLevel, 0, 0, true); 
-		CreateObjectDisplay(DISPLAY_OBJECT_SCREENTIME, screenTime, 0, 1, true); 
-		CreateObjectDisplay(DISPLAY_OBJECT_SCREENELAPSEDTIME, screenElapsedTime, 0, 2, true); 		
-		CreateObjectDisplay(DISPLAY_OBJECT_FIXGPSINFO, fixgpsinfo, 0, 0, true); 
-		CreateObjectDisplay(DISPLAY_OBJECT_BTINFO, btinfo, 0, 0, true); 
+		CreateObjectDisplay(DISPLAY_OBJECT_INFOLEVEL				, infoLevel					, 0, 0, true); 
+		CreateObjectDisplay(DISPLAY_OBJECT_VOLLEVEL					, volLevel					, 0, 0, true); 
+		CreateObjectDisplay(DISPLAY_OBJECT_RECORDIND				, recordIndicator		, 0, 0, true); 
+		CreateObjectDisplay(DISPLAY_OBJECT_TRENDLEVEL				, trendLevel				, 0, 0, true); 
+		CreateObjectDisplay(DISPLAY_OBJECT_BATLEVEL					, batLevel					, 0, 0, true); 
+		CreateObjectDisplay(DISPLAY_OBJECT_SATLEVEL					, satLevel					, 0, 0, true); 
+		CreateObjectDisplay(DISPLAY_OBJECT_SCREENTIME				, screenTime				, 0, 1, true); 
+		CreateObjectDisplay(DISPLAY_OBJECT_SCREENELAPSEDTIME, screenElapsedTime	, 0, 2, true); 		
+		CreateObjectDisplay(DISPLAY_OBJECT_FIXGPSINFO				, fixgpsinfo				, 0, 0, true); 
+		CreateObjectDisplay(DISPLAY_OBJECT_BTINFO						, btinfo						, 0, 0, true); 
+}
+	
+//****************************************************************************************************************************
+void VarioScreen::createScreenObjectsDisplayPage10(void) {
+//****************************************************************************************************************************
+		CreateObjectDisplay(DISPLAY_OBJECT_GPS_PERIOD				, gpsPeriodDigit		, 10, 0, true); 
+		CreateObjectDisplay(DISPLAY_OBJECT_GPS_MEAN_PERIOD	, gpsMeanPeriodDigit, 10, 0, true); 
+		CreateObjectDisplay(DISPLAY_OBJECT_GPS_DURATION			, gpsDurationDigit	, 10, 0, true); 
+
+		CreateObjectDisplay(DISPLAY_OBJECT_VOLLEVEL					, volLevel					, 10, 0, true); 
+		CreateObjectDisplay(DISPLAY_OBJECT_BATLEVEL					, batLevel					, 10, 0, true); 
+		CreateObjectDisplay(DISPLAY_OBJECT_SATLEVEL					, satLevel					, 10, 0, true); 
+}	
+
+//****************************************************************************************************************************
+void VarioScreen::createScreenObjectsDisplayPage1(void) {
+//****************************************************************************************************************************
+		CreateObjectDisplay(DISPLAY_OBJECT_TEMPERATURE			, tempDigit		, 1, 0, true); 
+		CreateObjectDisplay(DISPLAY_OBJECT_TUNIT						, tunit				, 1, 0, true); 
+}	
+
+//****************************************************************************************************************************
+void VarioScreen::begin(void)
+//****************************************************************************************************************************
+{
 	
 #ifdef SCREEN_DEBUG
 	SerialPort.println("schedulerScreen : create");	
 		
 	SerialPort.print("begin - objectCount : ");	
 	SerialPort.println(ITEMS_IN_ARRAY(displayList));	
+	SerialPort.print("begin - MaxobjectCount : ");	
+	SerialPort.println(MaxObjectList);	
+
 //	SerialPort.println(sizeof(displayList);	
 #endif //SCREEN_DEBUG
 	
-	schedulerScreen = new ScreenScheduler(displayList, ITEMS_IN_ARRAY(displayList) -1, 0, 0);   //ITEMS_IN_ARRAY(displayList), 0, 0);
+//	schedulerScreen = new ScreenScheduler(displayList, ITEMS_IN_ARRAY(displayList) -1, 0, 0);   //ITEMS_IN_ARRAY(displayList), 0, 0);
+	schedulerScreen = new ScreenScheduler(displayList, MaxObjectList -1, 0, 1);   //ITEMS_IN_ARRAY(displayList), 0, 0);
 
+  schedulerScreen->setPage(0,false);
   stateDisplay = STATE_OK;
 	
 //  display.update();  
@@ -609,6 +707,8 @@ void VarioScreen::ScreenViewInit(uint8_t Version, uint8_t Sub_Version, String Au
 	unsigned long TmplastDisplayTimestamp = millis();
 	int compteur = 0;
 	while (compteur < 3) {
+		ButtonScheduleur.update();
+		
 		if( millis() - TmplastDisplayTimestamp > 1000 ) {
 
 			TmplastDisplayTimestamp = millis();
@@ -833,6 +933,186 @@ void VarioScreen::ScreenViewStat(VarioStat flystat)
   msunit.display();
   munit.update();  
   munit.display();*/
+}
+
+//****************************************************************************************************************************
+void VarioScreen::ScreenViewWifi(String SSID, String IP)
+//****************************************************************************************************************************
+{
+  char tmpbuffer[100];
+	
+	if ((SSID == "") && (IP == "")) {
+		display.setFullWindow();
+		display.firstPage();
+		do
+		{
+
+			display.setFont(&FreeSansBold12pt7b);
+			display.setTextColor(ColorText);
+			display.setTextSize(2);
+
+			display.setCursor(40, 40);
+			display.print("WIFI");
+
+			display.setTextSize(1);
+			display.setCursor(5, 80);
+			display.print("Connection ...");
+		}
+		while (display.nextPage());
+		
+#ifdef SCREEN_DEBUG
+		SerialPort.println("ScreenViewWifi : Connecting");	
+#endif //SCREEN_DEBUG
+
+
+	} else if ((SSID != "") && (IP != "")) {
+		display.setCursor(5, 120);
+		display.print("Connection a ");
+
+		display.setCursor(5, 140);
+		display.print(SSID);
+
+		display.setCursor(5, 160);
+		display.print(IP);
+		
+#ifdef SCREEN_DEBUG
+		SerialPort.println("ScreenViewWifi : Connected");	
+#endif //SCREEN_DEBUG
+
+		updateScreen ();
+	} else {
+		display.setCursor(5, 180);
+		display.print("START");
+		
+#ifdef SCREEN_DEBUG
+		SerialPort.println("ScreenViewWifi : start");	
+#endif //SCREEN_DEBUG
+
+		updateScreen ();
+		
+	}
+}
+
+//****************************************************************************************************************************
+void VarioScreen::ScreenViewReboot(void)
+//****************************************************************************************************************************
+{
+  char tmpbuffer[100];
+	
+  display.setFullWindow();
+  display.firstPage();
+  do
+  {
+// 	  display.fillScreen(ColorScreen);
+//		display.clearScreen(ColorScreen);
+
+		display.drawBitmap(0, 10, logo_gnuvario, 102, 74, ColorText); //94
+
+		display.setFont(&FreeSansBold12pt7b);
+		display.setTextColor(ColorText);
+		display.setTextSize(1);
+
+		display.setCursor(95, 80);
+		display.print("Vario-E");
+
+		display.setFont(&FreeSansBold12pt7b);
+		display.setTextSize(1);
+		display.setCursor(20, 140);
+		display.print("Redemarrage");
+ 		display.setCursor(40, 170);
+		display.print("en cours");
+  }
+  while (display.nextPage());
+}
+
+
+
+const unsigned char volume75_1_icons[] = { 
+ // 'basic1-095_volume_loud-32'
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+0x00, 0x00, 0x03, 0x80, 0x00, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x07, 0xc0, 0x00, 0x0f,
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0f, 0xc0, 0x00, 0x1f, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+0x1f, 0xc0, 0x00, 0x1f, 0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x7f, 0xc0, 0x00, 0x0f, 0xc0, 0x00,
+0x00, 0x00, 0x00, 0x00, 0xff, 0xc0, 0x00, 0x0f, 0xe0, 0x00, 0x00, 0x00, 0x00, 0x01, 0xff, 0xc0,
+0x00, 0x07, 0xe0, 0x00, 0x00, 0x00, 0x00, 0x03, 0xff, 0xc0, 0x03, 0x83, 0xf0, 0x00, 0x00, 0x00,
+0x00, 0x07, 0xff, 0xc0, 0x07, 0xc3, 0xf0, 0x00, 0x00, 0x00, 0x00, 0x0f, 0xff, 0xc0, 0x0f, 0xc1,
+0xf8, 0x00, 0x00, 0x00, 0x00, 0x3f, 0xff, 0xc0, 0x07, 0xe1, 0xf8, 0x00, 0x00, 0x00, 0x00, 0x7f,
+0xff, 0xc0, 0x07, 0xe0, 0xfc, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xc0, 0x03, 0xf0, 0xfc, 0x00,
+0x00, 0x00, 0x01, 0xff, 0xff, 0xc0, 0x01, 0xf0, 0x7c, 0x00, 0x00, 0x00, 0x03, 0xff, 0xff, 0xc1,
+0x81, 0xf8, 0x7e, 0x00, 0x0f, 0xff, 0xff, 0xff, 0xff, 0xc3, 0xc0, 0xf8, 0x3e, 0x00, 0x0f, 0xff,
+0xff, 0xff, 0xff, 0xc7, 0xe0, 0xfc, 0x3e, 0x00, 0x1f, 0xff, 0xff, 0xff, 0xff, 0xc3, 0xf0, 0xfc,
+0x3f, 0x00, 0x1f, 0xff, 0xff, 0xff, 0xff, 0xc3, 0xf0, 0x7c, 0x3f, 0x00, 0x1f, 0xff, 0xff, 0xff,
+0xff, 0xc1, 0xf0, 0x7e, 0x1f, 0x00, 0x1f, 0xff, 0xff, 0xff, 0xff, 0xc1, 0xf8, 0x7e, 0x1f, 0x00,
+0x1f, 0xff, 0xff, 0xff, 0xff, 0xc0, 0xf8, 0x3e, 0x1f, 0x00, 0x1f, 0xff, 0xff, 0xff, 0xff, 0xc0,
+0xf8, 0x3e, 0x1f, 0x00, 0x1f, 0xff, 0xff, 0xff, 0xff, 0xc0, 0xf8, 0x3e, 0x1f, 0x80, 0x1f, 0xff,
+0xff, 0xff, 0xff, 0xc0, 0xfc, 0x3e, 0x1f, 0x80, 0x1f, 0xff, 0xff, 0xff, 0xff, 0xc0, 0xfc, 0x3f,
+0x1f, 0x80, 0x1f, 0xff, 0xff, 0xff, 0xff, 0xc0, 0x7c, 0x3f, 0x1f, 0x80, 0x1f, 0xff, 0xff, 0xff,
+0xff, 0xc0, 0x7c, 0x3f, 0x1f, 0x80, 0x1f, 0xff, 0xff, 0xff, 0xff, 0xc0, 0x7c, 0x3f, 0x1f, 0x80,
+0x1f, 0xff, 0xff, 0xff, 0xff, 0xc0, 0xfc, 0x3f, 0x1f, 0x80, 0x1f, 0xff, 0xff, 0xff, 0xff, 0xc0,
+0xfc, 0x3e, 0x1f, 0x80, 0x1f, 0xff, 0xff, 0xff, 0xff, 0xc0, 0xf8, 0x3e, 0x1f, 0x80, 0x1f, 0xff,
+0xff, 0xff, 0xff, 0xc0, 0xf8, 0x3e, 0x1f, 0x00, 0x1f, 0xff, 0xff, 0xff, 0xff, 0xc1, 0xf8, 0x3e,
+0x1f, 0x00, 0x1f, 0xff, 0xff, 0xff, 0xff, 0xc1, 0xf8, 0x7e, 0x1f, 0x00, 0x1f, 0xff, 0xff, 0xff,
+0xff, 0xc1, 0xf0, 0x7e, 0x1f, 0x00, 0x1f, 0xff, 0xff, 0xff, 0xff, 0xc3, 0xf0, 0x7c, 0x3f, 0x00,
+0x1f, 0xff, 0xff, 0xff, 0xff, 0xc3, 0xe0, 0xfc, 0x3f, 0x00, 0x0f, 0xff, 0xff, 0xff, 0xff, 0xc3,
+0xe0, 0xfc, 0x3e, 0x00, 0x00, 0x00, 0x07, 0xff, 0xff, 0xc3, 0xc0, 0xf8, 0x7e, 0x00, 0x00, 0x00,
+0x03, 0xff, 0xff, 0xc1, 0x81, 0xf8, 0x7e, 0x00, 0x00, 0x00, 0x01, 0xff, 0xff, 0xc0, 0x01, 0xf0,
+0x7c, 0x00, 0x00, 0x00, 0x00, 0x7f, 0xff, 0xc0, 0x03, 0xf0, 0xfc, 0x00, 0x00, 0x00, 0x00, 0x3f,
+0xff, 0xc0, 0x07, 0xe0, 0xfc, 0x00, 0x00, 0x00, 0x00, 0x1f, 0xff, 0xc0, 0x07, 0xe1, 0xf8, 0x00,
+0x00, 0x00, 0x00, 0x0f, 0xff, 0xc0, 0x07, 0xc1, 0xf8, 0x00, 0x00, 0x00, 0x00, 0x07, 0xff, 0xc0,
+0x07, 0x83, 0xf0, 0x00, 0x00, 0x00, 0x00, 0x03, 0xff, 0xc0, 0x03, 0x03, 0xf0, 0x00, 0x00, 0x00,
+0x00, 0x00, 0xff, 0xc0, 0x00, 0x07, 0xe0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x7f, 0xc0, 0x00, 0x0f,
+0xc0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x3f, 0xc0, 0x00, 0x1f, 0xc0, 0x00, 0x00, 0x00, 0x00, 0x00,
+0x1f, 0xc0, 0x00, 0x1f, 0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0f, 0xc0, 0x00, 0x1f, 0x00, 0x00,
+0x00, 0x00, 0x00, 0x00, 0x07, 0x80, 0x00, 0x0f, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+
+
+//****************************************************************************************************************************
+void VarioScreen::ScreenViewSound(int volume)
+//****************************************************************************************************************************
+{
+	
+  display.setFullWindow();
+  display.firstPage();
+  do
+  {
+// 	  display.fillScreen(ColorScreen);
+//		display.clearScreen(ColorScreen);
+
+#ifdef SCREEN_DEBUG
+		SerialPort.println("Show : VolLevel");
+#endif //SCREEN_DEBUG
+
+#ifdef SCREEN_DEBUG
+		SerialPort.print("Volume : ");
+		SerialPort.println(volume);
+#endif //SCREEN_DEBUG
+ 
+/*		if (_mute || (volume == 0))  display.drawInvertedBitmap(posX, posY, volume0icons, 32, 32, GxEPD_BLACK);   //GxEPD_BLACK);
+		else if (volume < 5) display.drawInvertedBitmap(posX, posY, volume1icons, 32, 32, GxEPD_BLACK);   //GxEPD_BLACK);
+		else if (volume < 9) display.drawInvertedBitmap(posX, posY, volume2icons, 32, 32, GxEPD_BLACK);   //GxEPD_BLACK);
+		else  display.drawInvertedBitmap(75, 10, volume75_1_icons, 75, 75, GxEPD_BLACK);   //GxEPD_BLACK);*/
+
+		display.setFont(&FreeSansBold12pt7b);
+		display.setTextColor(ColorText);
+		display.setTextSize(2);
+
+		display.setCursor(95, 160);
+		display.print(volume);
+  }
+  while (display.nextPage());
 }
 
 
@@ -1185,9 +1465,9 @@ void ScreenDigit::show() {
 	
 		if ((anchorX+w+2) > display.width()) w = display.width()-anchorX+2;
 
-		display.fillRect(anchorX-2, anchorY-Zheight-3, w+4, Zheight+4, GxEPD_WHITE);
+		display.fillRect(anchorX, anchorY-Zheight-3, w+6, Zheight+4, GxEPD_WHITE);
 	  
-    display.setCursor(anchorX, anchorY);
+    display.setCursor(anchorX, anchorY-1);
     display.print(digitCharacters);
 				
 	} else {
@@ -1675,6 +1955,32 @@ void KMHUnit::toDisplay() {
 
 //****************************************************************************************************************************
 //****************************************************************************************************************************
+//				TUnit
+//****************************************************************************************************************************
+//****************************************************************************************************************************
+
+
+//****************************************************************************************************************************
+void TUnit::show() {
+//****************************************************************************************************************************
+#ifdef SCREEN_DEBUG
+  SerialPort.println("Show : TUnit");
+#endif //SCREEN_DEBUG
+
+  display.setFont(&FreeSansBold9pt7b);
+  display.setTextSize(2);
+  display.setCursor(posX, posY);
+  display.print('C');
+}
+
+//****************************************************************************************************************************
+void TUnit::toDisplay() {
+//****************************************************************************************************************************
+   reset();
+}
+
+//****************************************************************************************************************************
+//****************************************************************************************************************************
 //						BATLEVEL
 //****************************************************************************************************************************
 //****************************************************************************************************************************
@@ -2018,7 +2324,13 @@ void VOLLevel::show(void) {
   else if (volume < 9) display.drawInvertedBitmap(posX, posY, volume2icons, 32, 32, GxEPD_BLACK);   //GxEPD_BLACK);
   else  display.drawInvertedBitmap(posX, posY, volume3icons, 32, 32, GxEPD_BLACK);   //GxEPD_BLACK);
 }
-    
+   
+//****************************************************************************************************************************
+//****************************************************************************************************************************
+//						SATLEVEL
+//****************************************************************************************************************************
+//****************************************************************************************************************************
+	 
 const unsigned char saticons[] = { 
  // 'signal-32'
 0xff, 0xff, 0xff, 0xff, 
@@ -2044,13 +2356,6 @@ const unsigned char satfixicons[] = {
 0xff, 0xf8, 0xff, 0xff, 0xff, 0xfc, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 
 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff
 };
-
-//****************************************************************************************************************************
-//****************************************************************************************************************************
-//						SATLEVEL
-//****************************************************************************************************************************
-//****************************************************************************************************************************
-
 
 /* !!! always reset !!! */
 //****************************************************************************************************************************
@@ -2534,6 +2839,11 @@ void INFOLevel::show() {
 }
 
 
+//****************************************************************************************************************************
+//****************************************************************************************************************************
+//					BTINFO
+//****************************************************************************************************************************
+//****************************************************************************************************************************
 
   // 24 x 24 
 const unsigned char bticons[] = { 
@@ -2544,12 +2854,6 @@ const unsigned char bticons[] = {
 0xfc, 0x1b, 0x3f, 0xfc, 0x1e, 0x3f, 0xfc, 0x1c, 0x3f, 0xfc, 0x18, 0x3f, 0xfc, 0x00, 0x3f, 0xfe, 
 0x00, 0x7f, 0xff, 0x00, 0xff, 0xff, 0xc3, 0xff
 };
-
-//****************************************************************************************************************************
-//****************************************************************************************************************************
-//					BTINFO
-//****************************************************************************************************************************
-//****************************************************************************************************************************
 
 //****************************************************************************************************************************
 void BTInfo::setBT(void) {
@@ -2773,23 +3077,19 @@ int8_t ScreenScheduler::getMaxPage(void) {
 }
 
 //****************************************************************************************************************************
-void ScreenScheduler::setPage(int8_t page, boolean force)  {
+void ScreenScheduler::setPage(int8_t page, boolean forceUpdate)  {
 //****************************************************************************************************************************
 
   /* check if page change is needed */
-  if (force == false) {
-    if ( page == currentPage ) {
-      return;
-    }
+  if ((forceUpdate == false) && ( page == currentPage )) return;
 
-    /* set the new page */
-    currentPage = page;
-  }
+  /* set the new page */
+  currentPage = page;
 
   /* screen need to by cleared */
 //  display.clearScreen();
  // display.eraseDisplay();
-    display.fillRect(0, 0, display.width(), display.height(), GxEPD_WHITE);
+  display.fillRect(0, 0, display.width(), display.height(), GxEPD_WHITE);
 
   /* all the page object need to be redisplayed */
   /* but no problem to reset all the objects */
@@ -2814,7 +3114,8 @@ void ScreenScheduler::nextPage(void) {
 void ScreenScheduler::previousPage(void) {
 //****************************************************************************************************************************
   
-  uint8_t newPage = currentPage - 1;
+  int8_t newPage = currentPage - 1;
+	
   if( newPage < 0 ) {
     newPage = endPage;
   }

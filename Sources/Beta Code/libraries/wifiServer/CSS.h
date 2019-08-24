@@ -52,6 +52,7 @@ void append_page_footer(){ // Saves repeating many lines of code for HTML page f
 	webpage += F("<li><a href='/upload'>Upload</a></li>"); 
 	webpage += F("<li><a href='/delete'>Delete</a></li>"); 
 	webpage += F("<li><a href='/dir'>Directory</a></li>");
+	webpage += F("<li><a href='/update'>Update</a></li>");
 	webpage += F("</ul>");
 	webpage += F("</body></html>");	
 }

@@ -12,6 +12,7 @@
 /*    1.0.0    17/02/19				                                                     */
 /*    1.0.1    19/03/19                                                            */
 /*    1.0.2    10/06/19      Ajout gestion ampli class D externe                   */
+/*    1.0.3    20/08/19      Reecriture AUDIO_AMP_ENABLE et AUDIO_AMP_DISABLE      */
 /*                                                                                 */
 /***********************************************************************************/
 
@@ -81,12 +82,16 @@ extern "C" {
     void toneMute(bool newMuteState);
 	
   private:
-	bool 		toneACMuted = false;		
-	uint8_t   	Speaker_Pin;
+	
+		void AUDIO_AMP_DISABLE(void);
+		void AUDIO_AMP_ENABLE(void);
+	
+		bool 		toneACMuted = false;		
+		uint8_t   	Speaker_Pin;
     uint8_t   	Tone_Pin_Channel;
 		
 #ifdef TONEAC_LENGTH
-	unsigned long _tAC_time; // Used to track end note with timer when playing note in the background.
+		unsigned long _tAC_time; // Used to track end note with timer when playing note in the background.
 #endif
 
 #ifdef TONEAC_VOLUME

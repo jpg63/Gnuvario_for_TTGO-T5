@@ -23,6 +23,7 @@
 /*                                                                                                 */
 /*  Ver     Date                                                                                   */
 /*  1.0                                                                                            */
+/*  1.1     21/08/19     Ajout getTempAlti(double& temp, double& alti)                             */
 /*                                                                                                 */
 /***************************************************************************************************/
 
@@ -98,7 +99,7 @@
 #define TWO_WIRE_SCHEDULER_BMP280_PERIOD 40
 #define TWO_WIRE_SCHEDULER_BMP280_SHIFT 0
 #define TWO_WIRE_SCHEDULER_IMU_PERIOD 4
-#define TWO_WIRE_SCHEDULER_IMU_SHIFT 1
+#define TWO_WIRE_SCHEDULER_IMU_SHIFT 2 //1
 #define TWO_WIRE_SCHEDULER_MAG_PERIOD 40
 #define TWO_WIRE_SCHEDULER_MAG_SHIFT 3
 
@@ -130,7 +131,8 @@ class TWScheduler {
 
   /* barometer part */
   static bool havePressure(void);
-  static double getAlti(void);
+  static double getAlti(void);	
+  static void getTempAlti(double& temp, double& alti);
 
 #ifdef HAVE_ACCELEROMETER
   /* IMU part */

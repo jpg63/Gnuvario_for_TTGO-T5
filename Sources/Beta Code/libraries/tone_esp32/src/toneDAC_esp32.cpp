@@ -6,6 +6,7 @@
 /*    1.0      03/03/19                                                      */
 /*    1.1      07/04/19    Reecriture librairie                              */
 /*    1.1.1    10/06/19    Ajout gestion ampli class D externe               */
+/*    1.1.2    20/08/19    Reecriture AUDIO_AMP_ENABLE et AUDIO_AMP_DISABLE  */
 /*                                                                           */
 /*****************************************************************************/
 
@@ -48,8 +49,8 @@
 //#define HAVE_AUDIO_AMPLI
 #endif //HAVE_AUDIO_AMPLI
 
-#define AUDIO_AMP_ENABLE()   {GPIO.out1_w1ts.val = ((uint32_t)1 << (PIN_AUDIO_AMP_ENA - 32));}
-#define AUDIO_AMP_DISABLE()  {GPIO.out1_w1tc.val = ((uint32_t)1 << (PIN_AUDIO_AMP_ENA - 32));}
+//#define AUDIO_AMP_ENABLE()   {GPIO.out1_w1ts.val = ((uint32_t)1 << (PIN_AUDIO_AMP_ENA - 32));}
+//#define AUDIO_AMP_DISABLE()  {GPIO.out1_w1tc.val = ((uint32_t)1 << (PIN_AUDIO_AMP_ENA - 32));}
 
 static int clk_8m_div = 7;  // RTC 8M clock divider (division is by clk_8m_div+1, i.e. 0 means 8MHz frequency)
 static int frequency_step = 8;  // Frequency step for CW generator
@@ -181,7 +182,13 @@ void ToneDacEsp32::init(uint32_t pin) {
 	else									 channelDAC = DAC_CHANNEL_2;
 	
 #ifdef HAVE_AUDIO_AMPLI
-	AUDIO_AMP_DISABLE();
+//init Pin commande ampli
+
+	if (PIN_AUDIO_AMP_ENA != -1) {
+		pinMode(PIN_AUDIO_AMP_ENA,OUTPUT);
+		digitalWrite(PIN_AUDIO_AMP_ENA,LOW);
+	}
+//	AUDIO_AMP_DISABLE();
 #endif //HAVE_AUDIO_AMPLI
 
   dac_cosine_enable(channelDAC);
@@ -316,6 +323,18 @@ uint8_t ToneDacEsp32::getVolume()
 /***********************************/
 {
   return _tDAC_volume;
+}
+
+/***********************************/
+void ToneDacEsp32::AUDIO_AMP_DISABLE(void) {
+/***********************************/
+	digitalWrite(PIN_AUDIO_AMP_ENA,LOW);
+}
+
+/***********************************/
+void ToneDacEsp32::AUDIO_AMP_ENABLE(void) {
+/***********************************/
+	digitalWrite(PIN_AUDIO_AMP_ENA,HIGH);
 }
 
 #endif //EPS32

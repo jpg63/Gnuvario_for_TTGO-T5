@@ -2,7 +2,7 @@
  *
  * Copyright 2019 Jean-philippe GOI
  * 
- * This file is part of toneHAL.
+ * This file is part of GnuVario-E.
  *
  * ToneHAL is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,6 +32,14 @@
  *                      Modification ratioDigit / trendDigit                     *
  *    1.0.5  06/08/19   Ajout icon noRecord                                      *
  *                      Ajout raffrachissement ALL toutes les 30 secs            *
+ *    1.0.6  12/08/19   Ajout gestion écran de config GPS                        *
+ *    1.0.7  15/08/19   Ajout gestion bouton dans screeninit                     *
+ *    1.0.8  15/09/19   Ajout écran connection Wifi - ScreenViewWifi             *
+ *    1.0.9  22/08/19   Ajout ScreenViewReboot																	 *
+ *    1.0.10 22/08/19   Ajout Page1                                              *
+ *    1.0.11 23/28/19   Correction bug previousPage                              *
+ *                      Ajout TUnit                                              *
+ *    1.0.12 24/08/19   Ajout ScreenViewSound(int volume)                        *
  *                                                                               *
  *********************************************************************************/
 
@@ -91,6 +99,11 @@
 #define DISPLAY_OBJECT_SCREENTIME           20
 #define DISPLAY_OBJECT_SCREENELAPSEDTIME    21
 #define DISPLAY_OBJECT_TREND      					22
+#define DISPLAY_OBJECT_GPS_PERIOD           23
+#define DISPLAY_OBJECT_GPS_MEAN_PERIOD			24
+#define DISPLAY_OBJECT_GPS_DURATION					25
+#define DISPLAY_OBJECT_TEMPERATURE					26
+#define DISPLAY_OBJECT_TUNIT        				27
 
 #include <VarioSettings.h>
 extern VarioSettings GnuSettings;
@@ -199,6 +212,19 @@ class KMHUnit : public VarioScreenObject {
   void show(void);
 	void toDisplay(void);
 
+ private :
+  const uint8_t posX;
+  const uint8_t posY;
+};
+
+class TUnit : public VarioScreenObject {
+
+ public :
+  TUnit(uint8_t posX, uint8_t posY)
+   : VarioScreenObject(1), posX(posX), posY(posY) { }
+  void show(void);
+	void toDisplay(void);
+  
  private :
   const uint8_t posX;
   const uint8_t posY;
@@ -426,7 +452,7 @@ class ScreenScheduler {
   void displayStep(void);
   int8_t getPage(void);
   int8_t getMaxPage(void);
-  void setPage(int8_t page, boolean force = false);
+  void setPage(int8_t page, boolean forceUpdate = false);
   void nextPage(void);
   void previousPage(void);
 	void enableShow(void);
@@ -526,14 +552,36 @@ class VarioScreen {
 
 	FIXGPSInfo* fixgpsinfo;
 	BTInfo* btinfo;
+	
+//object page 10 - calibrate GPS 	
+	
+	ScreenDigit*  gpsPeriodDigit; 
+	ScreenDigit*  gpsMeanPeriodDigit; 
+	ScreenDigit*  gpsDurationDigit;
+	
+//object page 1  	
+	
+	ScreenDigit*  tempDigit; 	
+	TUnit* tunit;
+	
 //  ScreenSchedulerObject* displayList;
-	ScreenSchedulerObject displayList[17];
+	ScreenSchedulerObject displayList[30];  //17];
 	ScreenScheduler* schedulerScreen; 
 	uint8_t MaxObjectList = 0;
 	
 	virtual ~VarioScreen();
 
-  void begin();
+  void init(void);
+  void createScreenObjects(void);
+	void createScreenObjectsPage0(void);
+	void createScreenObjectsDisplayPage0(void);
+	void createScreenObjectsPage1(void);
+	void createScreenObjectsDisplayPage1(void);
+	void createScreenObjectsPage10(void);
+	void createScreenObjectsDisplayPage10(void);
+
+  void begin(void);
+	
 //  void  getTextBounds(char *string, int16_t x, int16_t y, int16_t *x1, int16_t *y1, uint16_t *w, uint16_t *h);
   void updateScreen (void);
   void clearScreen(void); 
@@ -541,6 +589,9 @@ class VarioScreen {
   void ScreenViewInit(uint8_t Version, uint8_t Sub_Version, String Author, uint8_t Beta_Code);
 	void ScreenViewStat(VarioStat flystat);
 	void ScreenViewPage(int8_t page, boolean clear);
+	void ScreenViewWifi(String SSID, String IP);
+	void ScreenViewReboot(void);
+  void ScreenViewSound(int volume);	
 		
 	void CreateObjectDisplay(int8_t ObjectDisplayTypeID, VarioScreenObject* object, int8_t page, int8_t multiDisplayID, boolean actif); 
 	void updateData(int8_t ObjectDisplayTypeID, double data);
@@ -554,5 +605,6 @@ class VarioScreen {
 };
 
 extern VarioScreen screen;
+extern volatile uint8_t stateDisplay;
 
 #endif

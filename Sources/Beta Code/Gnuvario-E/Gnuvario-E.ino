@@ -1,7 +1,23 @@
 #include <Arduino.h>
 #include <DebugConfig.h>
-#include <VarioSettings.h>
+
+#if defined(ESP32)
+static const char* TAG = "Gnuvario";
+#include "esp_log.h"
+#endif //ESP32
+
 #include <HardwareConfig.h>
+
+#ifdef HAVE_SDCARD
+#include <sdcardHAL.h>
+#endif //HAVE_SDCARD
+#include <VarioSettings.h>
+
+#ifdef HAVE_SPEAKER
+#include <toneHAL.h>
+#include <beeper.h>
+#endif //HAVE_SPEAKER
+
 #include <IntTW.h>
 #include <ms5611.h>
 #include <vertaccel.h>
@@ -10,18 +26,15 @@
 
 #include <kalmanvert.h>
 
-#include <toneHAL.h>
-#include <beeper.h>
-
+#ifdef HAVE_GPS
 #include <SerialNmea.h>
-
-#include <sdcardHAL.h>
-
 #include <NmeaParser.h>
 #include <LxnavSentence.h>
 #include <LK8Sentence.h>
 #include <IGCSentence.h>
 #include <GPSSentence.h>
+#endif //HAVE_GPS
+
 #include <FlightHistory.h>
 #include <variostat.h>
 #include <VarioButton.h>
@@ -30,13 +43,30 @@
 
 #include <driver/adc.h>
 
+#include <Update.h>
+#include <SD_Update.h>
+
+#ifdef HAVE_WIFI
+#include <wifiServer.h>
+#endif //HAVE_WIFI
+
+#ifdef HAVE_BLUETOOTH
+#include "SimpleBLE.h"
+
+#if !defined(CONFIG_BT_ENABLED) || !defined(CONFIG_BLUEDROID_ENABLED)
+#error Bluetooth is not enabled! Please run `make menuconfig` to and enable it
+#endif
+
+SimpleBLE ble;
+#endif //HAVE_BLUETOOTH
+
 /*******************/
 /* Version         */
 /*******************/
 
 #define VERSION      0
-#define SUB_VERSION  4
-#define BETA_CODE    8
+#define SUB_VERSION  5
+#define BETA_CODE    2
 #define DEVNAME      "JPG63"
 #define AUTHOR "J"    //J=JPG63  P=PUNKDUMP
 
@@ -83,6 +113,18 @@
 *                                    Correction bug statistique         *
 *                                    Raffraichissement de l'ensemle de  *
 *                                    l'écran toutes les 30sec           *
+* v 0.5     beta 1    10/08/19       Ajout Gestionnaire d'erreur ESP32  *
+*                                    Mise à jour via SDCARD /update.bin *
+*                                    Ajout Serveur Web update/download  *
+*                                    Ajout HAVE_WIFI                    *
+*                                    Ajout BT                           *
+* v 0.5     beta 2    20/08/19       Ajout dans hardwareConfig32 de la  *
+*                                    version du PCB et de la TTGO       *
+*                                    Ajout lecture de la temperature    *
+*                                    MAJ OTA Web serveur                *
+*                                    Ajout changement de page           *
+*                                    Correction bug MPU                 *
+*                                    Ajout 2ème ecran                   *
 *                                                                       *
 *************************************************************************
 *                                                                       *
@@ -90,20 +132,20 @@
 *                                                                       *                                                             
 * V0.4                                                                  *    
 * Bug I2C			  																												*
-* bug affichage finesse                                                 *                                            *
+* bug affichage finesse                                                 *                                            
 *                                                                       *
 * V0.5                                                                  *
-* Recupération vol via USB                                              *
-* Recuperation vol via Wifi                                             *
 * Calibration MPU																												*
 * porter best-fit-calibration sur l'ESP32                               *
 * porter gps-time-analysis sur l'ESP32                                  *
-* Carnet de vol (10 derniers vols                                       *
-*     10 zones d'eeprom - reduit le nombre d'écriture et économise la   *
-*     mémoire flash
+* Mise à jour ESP32 via USB                                             *
+* Ajout reglage du son                                                  *
 *                                                                       *
 * VX.X                                                                  *
 * Refaire gestion du son                                                *
+* Carnet de vol (10 derniers vols)                                      *
+*     10 zones d'eeprom - reduit le nombre d'écriture et économise la   *
+*     mémoire flash
 *************************************************************************/
 
 /************************************************************************
@@ -118,8 +160,56 @@
  * - taux de chute et finesse                                           *
  * - indicateur de monte/descente                                       *
  * - Possibilité de ne pas enregistrer les vols                         *
+ * Version 0.5                                                          *   
+ *   Taille du code :                                                   *
+ *          29% Sans BT et Wifi                                         *
+ *          69% avec Wifi                                               *
+ *          85% avec BT                                                 *
+ * - Mise à jour via la carte SD - /update.bin                          *
+ * - Récupération des vol via Wifi                                      *
+ * - Mise à jour via Wifi                                               *
+ * - Upload des fichiers de configuration via Wifi                      *
+ * - Ajout Bluetooth                                                    *
+ * - Multi-écran (ajout 2ème page / gestion des bouton droit et gauche) *
+ * - Affichage de la température                                        *
  *                                                                      *
+ ************************************************************************
+ 
+/************************************************************************
+*                          Recommandation                               *    
+ *                                                                      *
+ * Dans DebugConfig.h commanter #define ENABLE_DEBUG pour eviter les    *                                                                      
+ *                    ralentissement et dans le cas ou le BlueTooth est *
+ *                    activé                                            *
+ * Wous ne pouvez pas activer en même temps le Wifi et le BlueTooth, si *
+ *                    vous activez le BT vous ne pourrez plus utiliser  *
+ *                    les services Web du Gnuvario                      *                                                             
+ * A chaque nouvelle mise à jour, verifiez la version du fichier        *
+ *                   SETTINGS.TXT il peut avoir évolué                  *
  ************************************************************************/
+
+/************************************************************************
+*                        Compilation                                    *
+*                                                                       *
+* Le code du Gnuvario-E est prévu pour fonctionner sur une board TTGO-T5*
+* à base d'ESP32                                                        *
+*                                                                       *
+* https://dl.espressif.com/dl/package_esp32_index.json                  *
+*                                                                       *
+* Type de carte : ESP32 dev Module                                      *
+* CPU frequency : 80Mhz (Wifi                                           *
+*************************************************************************/
+
+/************************************************************************
+*               Fichiers de configuration                               *
+*                                                                       *
+* SETTINGS.TXT             parametres utilisateur                       *
+* HardwareConfig.h         parametres matériels communs                 *
+* HardwareConfigESP32.h    parametre spécifique à l'ESP32               *
+* DebugConfig.h            parametre de debuggage                       *
+* VarioSettings.h          parametres par defaut (utilisé si il n'y a   *
+*                          pas de SDcard ou de fichier SETTINGS.TXT     *
+*************************************************************************/
 
 /*******************/
 /* General objects */
@@ -166,12 +256,6 @@ Vertaccel TWScheduler::vertaccel;
 #endif //HAVE_ACCELEROMETER 
 
 kalmanvert kalmanvert;
-
-#ifdef HAVE_SPEAKER
-
-#include <beeper.h>
-
-#endif //HAVE_SPEAKER
 
 /**********************/
 /* SDCARD objects     */
@@ -226,6 +310,21 @@ unsigned long lastDisplayTimestamp;
 boolean displayLowUpdateState=true;
 
 VarioStat flystat;
+
+/*************************************************
+ Serveur Web
+ *************************************************/
+#ifdef HAVE_WIFI 
+String webpage = "";
+
+#ifdef ESP8266
+  ESP8266WiFiMulti wifiMulti; 
+  ESP8266WebServer server(80);
+#else
+  WiFiMulti wifiMulti;
+  ESP32WebServer server(80);
+#endif
+#endif //HAVE_WIFI
 
 /*************************************************
 Internal TEMPERATURE Sensor
@@ -288,9 +387,12 @@ void setup() {
   delay(VARIOMETER_POWER_ON_DELAY);
 #endif  
 
+ /******************************/
+ /* Eteint la led de la ttgo   */
+ /******************************/
 
-  pinMode(pinLED, OUTPUT);
-  digitalWrite(pinLED, LOW); 
+/*  pinMode(pinLED, OUTPUT);
+  digitalWrite(pinLED, HIGH); */
 
 /************************/
 /*    BOOT SEQUENCE     */
@@ -310,6 +412,15 @@ void setup() {
   }
   SerialPort.flush();
 #endif //PRO_DEBBUG
+
+#if defined(ESP32)
+  if (BETA_CODE > 0) {
+    ESP_LOGI(TAG, "GnuVario-E version %d.%d Beta %d.", VERSION,SUB_VERSION,BETA_CODE);
+  } else {
+    ESP_LOGI(TAG, "GnuVario-E version %d.%d.", VERSION,SUB_VERSION);
+//  ESP_LOGE(TAG, "Failed to initialize the card (%d). Make sure SD card lines have pull-up resistors in place.", ret);
+  }
+#endif //ESP32
 
   
   /******************/
@@ -334,6 +445,13 @@ void setup() {
     SerialPort.flush();
 #endif //PROG_DEBUG
 
+#if defined(ESP32)
+    ESP_LOGI("SDCARD", "initialization done.");
+#endif //EPS32
+
+#ifdef HAVE_WIFI
+    SD_present = true; 
+#endif //HAVE_WIFI
     sdcardState = SDCARD_STATE_INITIALIZED;
     GnuSettings.readSDSettings();
     
@@ -382,13 +500,22 @@ void setup() {
     header.saveParams(VARIOMETER_MODEL_NAME, __dataPilotName, __dataGliderName);
   }
   else
-  {
-#ifdef HAVE_SPEAKER
-    if (GnuSettings.ALARM_SDCARD) {
+  {    
+#ifdef HAVE_WIFI
+    SD_present = false; 
+#endif //HAVE_WIFI
+
 #ifdef SDCARD_DEBUG
       SerialPort.println("initialization failed!");
 #endif //SDCARD_DEBUG
 
+#if defined(ESP32)
+      ESP_LOGE("SDCARD", "initialization failed!");
+#endif //EPS32
+    
+  
+#ifdef HAVE_SPEAKER
+    if (GnuSettings.ALARM_SDCARD) {
       indicateFaultSDCARD();
     }
 #endif //HAVE_SPEAKER 
@@ -403,6 +530,8 @@ void setup() {
 
   flystat.SetDate(tmp);
   flystat.ForceWrite();*/
+
+  updateFromSDCARD();
   
   /***************/
   /* init screen */
@@ -413,6 +542,12 @@ void setup() {
   SerialPort.flush();
 #endif //SCREEN_DEBUG
 
+#if defined(ESP32)
+      ESP_LOGI("SCREEN", "initialization screen");
+#endif //EPS32
+
+  screen.init();
+  screen.createScreenObjects();
   screen.begin();
 #endif
 
@@ -426,7 +561,12 @@ void setup() {
   SerialPort.flush();
 #endif //BUTTON_DEBUG
 
+#if defined(ESP32)
+      ESP_LOGI("BUTTON", "initialization button");
+#endif //EPS32
+
   VarioButton.begin();
+  ButtonScheduleur.Set_StatePage(STATE_PAGE_INIT);
 #endif 
 
 #ifdef HAVE_SCREEN
@@ -440,7 +580,10 @@ void setup() {
   SerialPort.println("Display boot");
 #endif //SCREEN_DEBUG
 
-  ButtonScheduleur.Set_StatePage(STATE_PAGE_INIT);
+#if defined(ESP32)
+      ESP_LOGI(TAG, "Display Boot");
+#endif //EPS32
+
   screen.ScreenViewInit(VERSION,SUB_VERSION, AUTHOR,BETA_CODE);
 
   
@@ -543,6 +686,16 @@ void setup() {
   screen.schedulerScreen->enableShow();
 #endif //HAVE_SCREEN
 
+#ifdef HAVE_BLUETOOTH
+#ifdef BT_DEBUG
+  SerialPort.setDebugOutput(true);
+//    pinMode(0, INPUT_PULLUP);
+  SerialPort.print("ESP32 SDK: ");
+  SerialPort.println(ESP.getSdkVersion());
+#endif //BT_DEBUG
+  ble.begin("GnuVario-E");
+#endif //HAVE_BLUETOOTH
+
   ButtonScheduleur.Set_StatePage(STATE_PAGE_VARIO);
   /* init time */
   lastDisplayTimestamp = millis(); 
@@ -588,16 +741,21 @@ void loop() {
 
 #ifdef HAVE_ACCELEROMETER
   if( twScheduler.havePressure() && twScheduler.haveAccel() ) {
-    
+
+    double tmpAlti, tmpTemp, tmpAccel;
+    twScheduler.getTempAlti(tmpTemp, tmpAlti);
+    tmpAccel = twScheduler.getAccel(NULL);
 #ifdef DATA_DEBUG
     SerialPort.print("Alti : ");
-    SerialPort.println(twScheduler.getAlti());
+    SerialPort.println(tmpAlti);
+    SerialPort.print("Temperature : ");
+    SerialPort.println(tmpTemp);
     SerialPort.print("Accel : ");
-    SerialPort.println(twScheduler.getAccel(NULL));
+    SerialPort.println(tmpAccel);
 #endif //DATA_DEBUG
 
-    kalmanvert.update( twScheduler.getAlti(),
-                       twScheduler.getAccel(NULL),
+    kalmanvert.update( tmpAlti,
+                       tmpAccel,
                        millis() );
 #else
   if( twScheduler.havePressure() ) {
@@ -606,16 +764,25 @@ void loop() {
 //    SerialPort.println("havePressure");
 #endif //MS5611_DEBUG
 
+    double tmpAlti, tmpTemp;
+    twScheduler.getTempAlti(tmpTemp, tmpAlti);
+
 #ifdef DATA_DEBUG
     SerialPort.print("Alti : ");
-    SerialPort.println(twScheduler.getAlti());
+    SerialPort.println(tmpAlti);
+    SerialPort.print("Temperature : ");
+    SerialPort.println(tmpTemp);
 #endif //DATA_DEBUG
 
-    kalmanvert.update( twScheduler.getAlti(),
+    kalmanvert.update( tmpAlti,
                        0.0,
                        millis() );
 #endif //HAVE_ACCELEROMETER
   
+    if (displayLowUpdateState) {
+      screen.tempDigit->setValue(tmpTemp);
+      screen.tunit->toDisplay();
+    }
 
 //*****************
 //* update beeper *

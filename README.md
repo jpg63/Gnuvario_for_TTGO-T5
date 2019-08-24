@@ -41,20 +41,32 @@
                                     Correction bug statistique         
                                     Raffraichissement de l'ensemle de  
                                     l'écran toutes les 30sec           
+ v 0.5     beta 1    10/08/19       Ajout Gestionnaire d'erreur ESP32  
+                                    Mise à jour via SDCARD /update.bin 
+                                    Ajout Serveur Web update/download  
+                                    Ajout HAVE_WIFI                    
+                                    Ajout BT                           
+ v 0.5     beta 2    20/08/19       Ajout dans hardwareConfig32 de la  
+                                    version du PCB et de la TTGO       
+                                    Ajout lecture de la temperature    
+                                    MAJ OTA Web serveur                
+                                    Ajout changement de page           
+                                    Correction bug MPU                 
+                                    Ajout 2ème ecran                   
 
                    Developpement à venir                               
                                                                                                                                     
- V0.4                                                                                                                                        
- Bug I2C			  																												
+ V0.4                                                                                                                                          																												
  bug affichage finesse  
  
  V0.5                                                                  
- Recupération vol via USB                                              
- Recuperation vol via Wifi                                             
+ Recupération vol via USB                                                                                         
  Calibration MPU																												
  porter best-fit-calibration sur l'ESP32                               
  porter gps-time-analysis sur l'ESP32                                  
-                                                                                                                                              
+ Mise à jour ESP32 via USB                                             
+ Ajout reglage du son                                                  
+                                                                                                                                             
  VX.X                                                                  
  Refaire gestion du son                                                
 
@@ -78,4 +90,11 @@
     indicateur de monte/descente 
     Désactiver l'enregistrement des vols		
                                                                        
- 
+  Version 0.5                                                            
+    Mise à jour via la carte SD (update.bin)                          
+    Récupération des vol via Wifi                                      
+    Mise à jour via Wifi                                               
+    Upload des fichiers de configuration via Wifi                      
+    Ajout Bluetooth                                                    
+    Multi-écran (ajout 2ème page / gestion des bouton droit et gauche) 
+    Affichage de la température                                        
