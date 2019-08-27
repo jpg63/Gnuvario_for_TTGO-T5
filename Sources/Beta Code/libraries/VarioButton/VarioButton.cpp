@@ -32,6 +32,9 @@
  *                      Correction de la fonction update                         *
  *    1.0.4  22/08/19   Ajout affichage reboot																	 *
  *    1.0.5  22/08/19   Ajout gestion changement de page                         *
+ *    1.0.6  26/08/19   Ajout gestion page config sound                          *
+ *                      Augmentation debounce time                               *
+ *                      Ajout _state button																			 *
  *                                                                               *
  *********************************************************************************/
  
@@ -87,14 +90,18 @@ void VARIOButtonScheduleur::update() {
 #ifdef BUTTON_DEBUG
     SerialPort.printf("isPressed A \r\n");
 #endif //BUTTON_DEBUG
-		treatmentBtnA(false);
-  }
+		if (_stateBA == false) {
+			treatmentBtnA(false);
+			_stateBA = true;
+		}
+ }
 
   if(VarioButton.BtnA.wasReleased()) {
 #ifdef BUTTON_DEBUG
     SerialPort.printf("wasReleased A \r\n");
 #endif //BUTTON_DEBUG
-  }
+		_stateBA = false;
+ }
 
   if(VarioButton.BtnA.pressedFor(2000)) {
 #ifdef BUTTON_DEBUG
@@ -106,13 +113,17 @@ void VARIOButtonScheduleur::update() {
 #ifdef BUTTON_DEBUG
     SerialPort.printf("isPressed B \r\n");
 #endif //BUTTON_DEBUG
-		treatmentBtnB(false);
+		if (_stateBB == false) {
+			treatmentBtnB(false);
+			_stateBB = true;
+		}
   }
 
   if(VarioButton.BtnB.wasReleased()) {
 #ifdef BUTTON_DEBUG
     SerialPort.printf("wasReleased B \r\n");
 #endif //BUTTON_DEBUG
+		_stateBB = false;
   }
 
   if(VarioButton.BtnB.pressedFor(2000)) {
@@ -125,14 +136,18 @@ void VARIOButtonScheduleur::update() {
 #ifdef BUTTON_DEBUG
     SerialPort.printf("isPressed C \r\n");
 #endif //BUTTON_DEBUG
- 		treatmentBtnC(false);
+		if (_stateBC == false) {
+			treatmentBtnC(false);
+			_stateBC = true;
+		}
  }
 
   if(VarioButton.BtnC.wasReleased()) {
 #ifdef BUTTON_DEBUG
     SerialPort.printf("wasReleased C \r\n");
 #endif //BUTTON_DEBUG
-  }
+		_stateBC = false;
+ }
 
   if(VarioButton.BtnC.pressedFor(2000)) {
 #ifdef BUTTON_DEBUG
@@ -143,6 +158,10 @@ void VARIOButtonScheduleur::update() {
 
 void VARIOButtonScheduleur::Set_StatePage(uint8_t state) {
 	StatePage = state;
+}
+
+uint8_t VARIOButtonScheduleur::Get_StatePage(void) {
+	return StatePage;
 }
 
 File root;
@@ -166,21 +185,42 @@ void VARIOButtonScheduleur::treatmentBtnA(bool Debounce) {
 		screen.ScreenViewReboot();
 		ESP.restart();
 	}
-#endif //HAVE_WIFI
+	else 
+#endif //HAVE_WIFI		
+	if (StatePage == STATE_PAGE_CONFIG_SOUND) {
+		uint8_t tmpvol;
+		tmpvol = toneHAL.getVolume();
+		if (tmpvol > 0) {
+			tmpvol--;
+			toneHAL.setVolume(tmpvol);
+			screen.ScreenViewSound(toneHAL.getVolume());
+		}
+	}
 }
 
 void VARIOButtonScheduleur::treatmentBtnB(bool Debounce) {
 		
   if (StatePage == STATE_PAGE_VARIO) {
 		
+		if (screen.schedulerScreen->getPage() == screen.schedulerScreen->getMaxPage()+1) {
+			StatePage = STATE_PAGE_CONFIG_SOUND;
+			screen.ScreenViewSound(toneHAL.getVolume());
+		} else {
+		
 #ifdef BUTTON_DEBUG
-    SerialPort.println("Mute");
+			SerialPort.println("Mute");
 #endif //BUTTON_DEBUG
 		
-		toneHAL.mute(!toneHAL.isMute());
+			toneHAL.mute(!toneHAL.isMute());
+			screen.volLevel->mute(toneHAL.isMute());
+		}
+	} else if (StatePage == STATE_PAGE_CONFIG_SOUND) {		
+		StatePage = STATE_PAGE_VARIO;	
+		screen.ScreenViewSound(toneHAL.getVolume());
+		GnuSettings.soundSettingWrite(toneHAL.getVolume());
+		screen.volLevel->setVolume(toneHAL.getVolume());
 		screen.volLevel->mute(toneHAL.isMute());
-	}		
-	
+	}
 }
 
 void VARIOButtonScheduleur::treatmentBtnC(bool Debounce) {
@@ -203,6 +243,15 @@ void VARIOButtonScheduleur::treatmentBtnC(bool Debounce) {
 	if (StatePage == STATE_PAGE_VARIO) {
 		screen.schedulerScreen->nextPage();
   }
+	else if (StatePage == STATE_PAGE_CONFIG_SOUND) {
+		uint8_t tmpvol;
+		tmpvol = toneHAL.getVolume();
+		if (tmpvol < 10) {
+			tmpvol++;
+			toneHAL.setVolume(tmpvol);
+			screen.ScreenViewSound(toneHAL.getVolume());
+		}
+	}
 		
 }
 

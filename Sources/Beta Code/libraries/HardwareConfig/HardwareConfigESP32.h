@@ -238,10 +238,13 @@ Fly stat        0xD0		26+2
 /*         AUDIO         */
 /*************************/
 
+//#define AUDIO_AMP_MODE_LOW
+
 #if (PCB_VERSION == 3)
 
 #define PIN_AUDIO_AMP_ENA     19			//Enabled ampli class D
 #define HAVE_AUDIO_AMPLI	
+//#define AUDIO_AMP_MODE_LOW
 
 #else
 

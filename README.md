@@ -1,6 +1,6 @@
 # Gnuvario_for_TTGO-T5
 # GNUVARIO-E     Stable version 0.3
-# GNUVARIO-E     Developement version 0.4 beta 7
+# GNUVARIO-E     Developement version 0.5 beta 3
 # PCB            version 1.10
 # 3D CASE        version 1.05
 
@@ -51,13 +51,17 @@
                                     Ajout lecture de la temperature    
                                     MAJ OTA Web serveur                
                                     Ajout changement de page           
-                                    Correction bug MPU                 
                                     Ajout 2ème ecran                   
+
+ v 0.5     beta 3  25/08/19         Ajout LOW/HIGH level cmd ampli     
+                                    Ajout ecran reglage volume du son  
+                                    Correction Bug bouton              
 
                    Developpement à venir                               
                                                                                                                                     
  V0.4                                                                                                                                          																												
  bug affichage finesse  
+ bug MS5611 - MPU
  
  V0.5                                                                  
  Recupération vol via USB                                                                                         
@@ -65,7 +69,6 @@
  porter best-fit-calibration sur l'ESP32                               
  porter gps-time-analysis sur l'ESP32                                  
  Mise à jour ESP32 via USB                                             
- Ajout reglage du son                                                  
                                                                                                                                              
  VX.X                                                                  
  Refaire gestion du son                                                

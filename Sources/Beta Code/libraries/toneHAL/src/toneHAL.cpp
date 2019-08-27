@@ -54,8 +54,9 @@ void ToneHal::setVolume(uint8_t newVolume) {
 /***********************************/
 uint8_t ToneHal::getVolume() {
 /***********************************/
-  if (_toneMuted) return 0;
-	else            return _volume;
+/*  if (_toneMuted) return 0;
+	else            return _volume;*/
+  return _volume;	
 }
 
 /***********************************/

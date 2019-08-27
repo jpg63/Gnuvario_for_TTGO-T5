@@ -13,6 +13,7 @@
 /*    1.0.1    19/03/19                                                            */
 /*    1.0.2    10/06/19      Ajout gestion ampli class D externe                   */
 /*    1.0.3    20/08/19      Reecriture AUDIO_AMP_ENABLE et AUDIO_AMP_DISABLE      */
+/*    1.0.4    25/08/19      Ajout AUDIO_AMP_MODE_LOW                              */
 /*                                                                                 */
 /***********************************************************************************/
 

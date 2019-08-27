@@ -87,7 +87,7 @@
 #ifdef HAVE_BMP280
 #define TWO_WIRE_SCHEDULER_INTERRUPT_COMPARE 1088
 #else
-#define TWO_WIRE_SCHEDULER_INTERRUPT_COMPARE 1168
+#define TWO_WIRE_SCHEDULER_INTERRUPT_COMPARE 1200 //1168
 #endif
 
 /* The scheduler                                          */

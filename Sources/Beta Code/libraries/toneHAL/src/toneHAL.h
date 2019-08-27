@@ -122,7 +122,7 @@
 #define WAVEFORM_SINUS			1
 #define WAVEFORM_TRIANGLE		2
 #define WAVEFORM_SQUARE			3
-#define WAVEFORM_WAV 			4
+#define WAVEFORM_WAV 				4
 
 #define TONEHAL_EXTENDED_VOLUME
 

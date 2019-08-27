@@ -66,7 +66,7 @@ SimpleBLE ble;
 
 #define VERSION      0
 #define SUB_VERSION  5
-#define BETA_CODE    2
+#define BETA_CODE    3
 #define DEVNAME      "JPG63"
 #define AUTHOR "J"    //J=JPG63  P=PUNKDUMP
 
@@ -123,23 +123,24 @@ SimpleBLE ble;
 *                                    Ajout lecture de la temperature    *
 *                                    MAJ OTA Web serveur                *
 *                                    Ajout changement de page           *
-*                                    Correction bug MPU                 *
 *                                    Ajout 2ème ecran                   *
+* v 0.5     beta 3  25/08/19         Ajout LOW/HIGH level cmd ampli     *
+*                                    Ajout ecran reglage volume du son  *
+*                                    Correction Bug bouton              *
 *                                                                       *
 *************************************************************************
 *                                                                       *
 *                   Developpement a venir                               *
 *                                                                       *                                                             
 * V0.4                                                                  *    
-* Bug I2C			  																												*
 * bug affichage finesse                                                 *                                            
+* bug MPU/MS5611                                                        *
 *                                                                       *
 * V0.5                                                                  *
 * Calibration MPU																												*
 * porter best-fit-calibration sur l'ESP32                               *
 * porter gps-time-analysis sur l'ESP32                                  *
 * Mise à jour ESP32 via USB                                             *
-* Ajout reglage du son                                                  *
 *                                                                       *
 * VX.X                                                                  *
 * Refaire gestion du son                                                *
@@ -531,7 +532,14 @@ void setup() {
   flystat.SetDate(tmp);
   flystat.ForceWrite();*/
 
+#ifdef HAVE_SPEAKER
+  beeper.setVolume(GnuSettings.VARIOMETER_BEEP_VOLUME);
+  toneHAL.setVolume(GnuSettings.VARIOMETER_BEEP_VOLUME);
+#endif //HAVE_SPEAKER
+
+#ifdef HAVE_SDCARD
   updateFromSDCARD();
+#endif //HAVE_SDCARD
   
   /***************/
   /* init screen */

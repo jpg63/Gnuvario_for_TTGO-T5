@@ -40,6 +40,7 @@
  *    1.0.11 23/28/19   Correction bug previousPage                              *
  *                      Ajout TUnit                                              *
  *    1.0.12 24/08/19   Ajout ScreenViewSound(int volume)                        *
+ *		1.0.13 25/08/19		Gestion de l'écran de config du son											 *	
  *                                                                               *
  *********************************************************************************/
 

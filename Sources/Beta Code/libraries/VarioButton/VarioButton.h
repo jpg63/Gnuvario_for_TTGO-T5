@@ -32,6 +32,9 @@
  *                      Correction de la fonction update                         *
  *    1.0.4  22/08/19   Ajout affichage reboot																	 *
  *    1.0.5  22/08/19   Ajout gestion changement de page                         *
+ *    1.0.6  26/08/19   Ajout gestion page config sound                          *
+ *                      Augmentation debounce time                               *
+ *                      Ajout _state button																			 *
  *                                                                               *
  *********************************************************************************/
  
@@ -45,7 +48,7 @@
 #include "Button.h"
 #include <sdcardHAL.h>
 
-//#include DEBOUNCE_MS 5
+#define DEBOUNCE_MS 30
 
 class VARIOButton {
 
@@ -56,7 +59,6 @@ class VARIOButton {
     void setWakeupButton(uint8_t button);
 
     // Button API
-    #define DEBOUNCE_MS 5
     Button BtnA = Button(BUTTON_A_PIN, true, DEBOUNCE_MS);
     Button BtnB = Button(BUTTON_B_PIN, true, DEBOUNCE_MS);
     Button BtnC = Button(BUTTON_C_PIN, true, DEBOUNCE_MS);
@@ -67,21 +69,25 @@ class VARIOButton {
     uint8_t _wakeupPin;
 };
 
-#define STATE_PAGE_INIT    0
-#define STATE_PAGE_VARIO   1
-#define STATE_PAGE_CONFIG  2
-#define STATE_PAGE_STAT    3
-#define STATE_PAGE_GPSCAL  4
-#define STATE_PAGE_WEBSERV 5
+#define STATE_PAGE_INIT    				0
+#define STATE_PAGE_VARIO   				1
+#define STATE_PAGE_CONFIG  				2
+#define STATE_PAGE_STAT    				3
+#define STATE_PAGE_GPSCAL  				4
+#define STATE_PAGE_WEBSERV 				5
+#define STATE_PAGE_CONFIG_SOUND		6
 
 class VARIOButtonScheduleur {
 	public:
     void update();
 		void Set_StatePage(uint8_t state);
+		uint8_t Get_StatePage(void);
 		
 	private:
 		uint8_t StatePage = STATE_PAGE_INIT;
-
+		bool    _stateBA = false;
+		bool    _stateBB = false;
+		bool    _stateBC = false;
 		void treatmentBtnA(bool Debounce);
 		void treatmentBtnB(bool Debounce);
 		void treatmentBtnC(bool Debounce);
