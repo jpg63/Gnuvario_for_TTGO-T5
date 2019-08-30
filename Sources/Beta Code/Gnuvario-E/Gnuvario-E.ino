@@ -127,6 +127,7 @@ SimpleBLE ble;
 * v 0.5     beta 3  25/08/19         Ajout LOW/HIGH level cmd ampli     *
 *                                    Ajout ecran reglage volume du son  *
 *                                    Correction Bug bouton              *
+* v 0.5     beta 4  28/08/19         Ajout écran stat                   *                                   
 *                                                                       *
 *************************************************************************
 *                                                                       *
@@ -141,6 +142,7 @@ SimpleBLE ble;
 * porter best-fit-calibration sur l'ESP32                               *
 * porter gps-time-analysis sur l'ESP32                                  *
 * Mise à jour ESP32 via USB                                             *
+* Verifier beeper 																											*
 *                                                                       *
 * VX.X                                                                  *
 * Refaire gestion du son                                                *
@@ -173,6 +175,8 @@ SimpleBLE ble;
  * - Ajout Bluetooth                                                    *
  * - Multi-écran (ajout 2ème page / gestion des bouton droit et gauche) *
  * - Affichage de la température                                        *
+ * - Page de configuration du volume sonore                             *
+ * - Page de statistique accéssible via les boutons                     *
  *                                                                      *
  ************************************************************************
  
@@ -356,17 +360,17 @@ void setup() {
 //****************************
 //****************************  
 
-/************************/
-/*  Init Pin Voltage    */
-/************************/
+/*****************************/
+/*  Init Alimentation        */
+/*****************************/
 #if defined(HAVE_POWER_ALIM) 
     pinMode(POWER_PIN, OUTPUT);
     digitalWrite(POWER_PIN, POWER_PIN_STATE);   // turn on POWER (POWER_PIN_STATE is the voltage level HIGH/LOW)
 #endif  
 
-/************************/
-/*  Init Pin Voltage    */
-/************************/
+/***********************************/
+/*  Init mesure tension batterie   */
+/***********************************/
 #if defined(HAVE_VOLTAGE_DIVISOR) 
     pinMode(VOLTAGE_DIVISOR_PIN, INPUT);
     analogReadResolution(12);
@@ -611,7 +615,7 @@ void setup() {
 #ifdef HAVE_SCREEN
 // Affichage Statistique
   flystat.Display();
-  screen.ScreenViewStat(flystat);
+  screen.ScreenViewStat();
 #endif //HAVE_SCREEN
 
 #ifdef HAVE_ACCELEROMETER

@@ -28,6 +28,7 @@
 #include <HardwareConfig.h>
 
 #include <toneHAL.h>
+#include <beeper.h>
 
 #define volumeDefault 10
 
@@ -36,8 +37,10 @@ void setup() {
   SerialPort.begin(115200);
 //  while (!SerialPort) { ;}
   
+#if defined(LED_BUILTIN)
   pinMode(LED_BUILTIN, OUTPUT);
   digitalWrite(LED_BUILTIN, LOW);
+#endif //LED_BUILTIN
 
 /*#if defined(ARDUINO_ARCH_SAMD)
 
@@ -76,6 +79,21 @@ void setup() {
 /*  delay(2000);
   toneHAL.noTone();
   delay(1000);*/
+  beeper.setVolume(10);
+  beeper.generateTone(2000,300); 
+
+  double velocity = -10;
+  for(int i=0; i<=100; i++) {
+    velocity += 0.2;
+    beeper.setVelocity( velocity  );
+    beeper.update();
+#if defined(PROG_DEBUG)
+    SerialPort.print("velocity : ");
+    SerialPort.println(velocity);
+#endif
+
+    delay(200);
+  }
 
 #if defined(PROG_DEBUG)
   SerialPort.println("loop");
@@ -85,8 +103,15 @@ void setup() {
 
 void loop() {
   // put your main code here, to run repeatedly:
+  toneHAL.tone(2000,10);
+#if defined(LED_BUILTIN)
   digitalWrite(pinLED, HIGH);
+#endif //LED_BUILTIN
   delay(200);
+  
+  toneHAL.noTone();
+#if defined(LED_BUILTIN)
   digitalWrite(pinLED, LOW);
+#endif //LED_BUILTIN
   delay(200);
 }

@@ -57,6 +57,10 @@
                                     Ajout ecran reglage volume du son  
                                     Correction Bug bouton              
 
+ v 0.5     beta 4  30/08/19         Ajout écran stat 
+                                    Modification librairie ToneHAL 
+																		Correction bug d'affichage mineurs
+ 
                    Developpement à venir                               
                                                                                                                                     
  V0.4                                                                                                                                          																												
@@ -68,7 +72,8 @@
  Calibration MPU																												
  porter best-fit-calibration sur l'ESP32                               
  porter gps-time-analysis sur l'ESP32                                  
- Mise à jour ESP32 via USB                                             
+ Mise à jour ESP32 via USB   
+ Verifier beeper 
                                                                                                                                              
  VX.X                                                                  
  Refaire gestion du son                                                
@@ -100,4 +105,6 @@
     Upload des fichiers de configuration via Wifi                      
     Ajout Bluetooth                                                    
     Multi-écran (ajout 2ème page / gestion des bouton droit et gauche) 
-    Affichage de la température                                        
+    Affichage de la température     
+		Page de configuration du volume sonore
+    Page de statistique accessible via les boutons		
