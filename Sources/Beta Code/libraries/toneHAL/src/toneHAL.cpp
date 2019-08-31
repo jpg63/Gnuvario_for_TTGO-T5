@@ -153,8 +153,6 @@ void ToneHal::AUDIO_AMP_INIT(void) {
   }
 }
 
-<<<<<<< Updated upstream
-=======
 /***********************************/
 void ToneHal::enableAmpli(void) {
 /***********************************/
@@ -167,7 +165,6 @@ void ToneHal::disableAmpli(void) {
 	AUDIO_AMP_DISABLE();
 }
 
->>>>>>> Stashed changes
 #endif //HAVE_AUDIO_AMPLI
 
 ToneHAL toneHAL;

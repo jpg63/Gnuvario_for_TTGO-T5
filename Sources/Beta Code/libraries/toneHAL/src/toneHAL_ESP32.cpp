@@ -219,13 +219,10 @@ void ToneHalDAC_Esp32::tone(unsigned long frequency , uint8_t volume, unsigned l
 /***********************************/
 void ToneHalDAC_Esp32::noTone() {
 /***********************************/
-<<<<<<< Updated upstream
-=======
 #ifdef SOUND_DEBUG
 					SerialPortln.print("notone");
 #endif //SOUND_DEBUG
 
->>>>>>> Stashed changes
 #if defined(HAVE_AUDIO_AMPLI) && defined(AUDIO_AMPLI_LOWPOWER)	
 		if (PIN_AUDIO_AMP_ENA != -1) AUDIO_AMP_DISABLE();
 #endif //HAVE_AUDIO_AMPLI
@@ -481,13 +478,10 @@ void ToneHal_Esp32::tone(unsigned long frequency , uint8_t volume, unsigned long
 void ToneHal_Esp32::noTone(void)
 /***********************************/           
 {
-<<<<<<< Updated upstream
-=======
 #ifdef SOUND_DEBUG
 					SerialPort.println("notone");
 #endif //SOUND_DEBUG
 
->>>>>>> Stashed changes
 #if defined(HAVE_AUDIO_AMPLI) && defined(AUDIO_AMPLI_LOWPOWER)	
 	if (PIN_AUDIO_AMP_ENA != -1) AUDIO_AMP_DISABLE();
 #endif //HAVE_AUDIO_AMPLI

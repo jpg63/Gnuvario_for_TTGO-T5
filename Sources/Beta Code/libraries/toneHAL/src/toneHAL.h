@@ -194,10 +194,6 @@ class ToneHal  {
 #endif //TONEHAL_EXTENDED_VOLUME		
 
 #ifdef HAVE_AUDIO_AMPLI
-<<<<<<< Updated upstream
-
-=======
->>>>>>> Stashed changes
 		void AUDIO_AMP_DISABLE(void);
 		void AUDIO_AMP_ENABLE(void);
 		void AUDIO_AMP_INIT(void);
