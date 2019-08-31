@@ -1,6 +1,6 @@
 # Gnuvario_for_TTGO-T5
 # GNUVARIO-E     Stable version 0.3
-# GNUVARIO-E     Developement version 0.5 beta 3
+# GNUVARIO-E     Developement version 0.5 beta 5
 # PCB            version 1.10
 # 3D CASE        version 1.05
 
@@ -60,6 +60,10 @@
  v 0.5     beta 4  30/08/19         Ajout écran stat 
                                     Modification librairie ToneHAL 
 																		Correction bug d'affichage mineurs
+
+ v 0.5     beta 5  31/08/19         Correction bg reglage volume       
+                                    Ajout commande ampli dans loop     
+                                    pour test                          
  
                    Developpement à venir                               
                                                                                                                                     
@@ -73,7 +77,10 @@
  porter best-fit-calibration sur l'ESP32                               
  porter gps-time-analysis sur l'ESP32                                  
  Mise à jour ESP32 via USB   
- Verifier beeper 
+ verifier mesure temperature                                           
+ revoir volume du son ToneESP32                                        
+ verifier effacement du m (altitude)                                   
+ bug d'affichage des fleches                                           
                                                                                                                                              
  VX.X                                                                  
  Refaire gestion du son                                                

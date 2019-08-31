@@ -35,6 +35,7 @@
  *    1.0.6  26/08/19   Ajout gestion page config sound                          *
  *                      Augmentation debounce time                               *
  *                      Ajout _state button																			 *
+ *    1.0.7  31/08/19		Correction bug reglage son															 *
  *                                                                               *
  *********************************************************************************/
  

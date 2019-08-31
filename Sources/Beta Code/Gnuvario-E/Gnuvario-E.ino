@@ -66,7 +66,7 @@ SimpleBLE ble;
 
 #define VERSION      0
 #define SUB_VERSION  5
-#define BETA_CODE    3
+#define BETA_CODE    5
 #define DEVNAME      "JPG63"
 #define AUTHOR "J"    //J=JPG63  P=PUNKDUMP
 
@@ -128,6 +128,11 @@ SimpleBLE ble;
 *                                    Ajout ecran reglage volume du son  *
 *                                    Correction Bug bouton              *
 * v 0.5     beta 4  28/08/19         Ajout écran stat                   *                                   
+*                                    Modification librairie ToneHAL     *
+*                                    Correction bug d'affichage mineurs *
+* v 0.5     beta 5  31/08/19         Correction bg reglage volume       *
+*                                    Ajout commande ampli dans loop     *
+*                                    pour test                          *
 *                                                                       *
 *************************************************************************
 *                                                                       *
@@ -142,7 +147,10 @@ SimpleBLE ble;
 * porter best-fit-calibration sur l'ESP32                               *
 * porter gps-time-analysis sur l'ESP32                                  *
 * Mise à jour ESP32 via USB                                             *
-* Verifier beeper 																											*
+* verifier mesure temperature                                           *
+* revoir volume du son ToneESP32                                        *
+* verifier effacement du m (altitude)                                   *
+* bug d'affichage des fleches                                           *
 *                                                                       *
 * VX.X                                                                  *
 * Refaire gestion du son                                                *
@@ -730,6 +738,16 @@ void loop() {
  /* if( vertaccel.readRawAccel(accel, quat) ){
     count++;
   }*/
+
+/*******************************/
+/*      TEST TEST TEST         */
+
+#ifdef HAVE_AUDIO_AMPLI
+   toneHAL.enableAmpli();
+#endif
+  
+/*******************************/
+/*******************************/
 
 /*  LOW UPDATE DISPLAY */
    if( millis() - lastDisplayTimestamp > 500 ) {

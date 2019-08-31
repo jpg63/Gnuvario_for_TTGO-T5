@@ -89,6 +89,11 @@ void ToneHalDAC_Esp32::init(uint32_t pin1, uint32_t pin2) {
 void ToneHalDAC_Esp32::tone(unsigned long frequency)
 /***********************************/           
 {
+#ifdef SOUND_DEBUG
+					SerialPort.print("tone - frequence : ");
+					SerialPort.println(frequency);
+#endif //SOUND_DEBUG
+	
 #if defined (TONEHAL_EXTENDED_VOLUME)
 	if (_toneMuted) {
 		
@@ -117,6 +122,13 @@ void ToneHalDAC_Esp32::tone(unsigned long frequency)
 void ToneHalDAC_Esp32::tone(unsigned long frequency , uint8_t volume)
 /***********************************/           
 {
+#ifdef SOUND_DEBUG
+					SerialPort.print("tone - frequence : ");
+					SerialPort.println(frequency);
+					SerialPort.print("tone - volume : ");
+					SerialPort.println(volume);
+#endif //SOUND_DEBUG
+	
 #if defined (TONEHAL_EXTENDED_VOLUME)
 	if (_toneMuted) {
 		
@@ -149,6 +161,15 @@ void ToneHalDAC_Esp32::tone(unsigned long frequency , uint8_t volume)
 void ToneHalDAC_Esp32::tone(unsigned long frequency , uint8_t volume, unsigned long length)
 /***********************************/           
 {
+#ifdef SOUND_DEBUG
+					SerialPort.print("tone - frequence : ");
+					SerialPort.println(frequency);
+					SerialPort.print("tone - volume : ");
+					SerialPort.println(volume);
+					SerialPort.print("tone - length : ");
+					SerialPort.println(length);
+#endif //SOUND_DEBUG
+	
 #if defined (TONEHAL_EXTENDED_VOLUME)
 	if (_toneMuted) {
 #if defined(HAVE_AUDIO_AMPLI) && defined(AUDIO_AMPLI_LOWPOWER)	
@@ -171,6 +192,15 @@ void ToneHalDAC_Esp32::tone(unsigned long frequency , uint8_t volume, unsigned l
 void ToneHalDAC_Esp32::tone(unsigned long frequency , uint8_t volume, unsigned long length, uint8_t background)
 /***********************************/
 {
+#ifdef SOUND_DEBUG
+					SerialPort.print("tone - frequence : ");
+					SerialPort.println(frequency);
+					SerialPort.print("tone - volume : ");
+					SerialPort.println(volume);
+					SerialPort.print("tone - length : ");
+					SerialPort.println(length);
+#endif //SOUND_DEBUG
+	
 #if defined (TONEHAL_EXTENDED_VOLUME)
 	if (_toneMuted) {
 #if defined(HAVE_AUDIO_AMPLI) && defined(AUDIO_AMPLI_LOWPOWER)	
@@ -189,6 +219,13 @@ void ToneHalDAC_Esp32::tone(unsigned long frequency , uint8_t volume, unsigned l
 /***********************************/
 void ToneHalDAC_Esp32::noTone() {
 /***********************************/
+<<<<<<< Updated upstream
+=======
+#ifdef SOUND_DEBUG
+					SerialPortln.print("notone");
+#endif //SOUND_DEBUG
+
+>>>>>>> Stashed changes
 #if defined(HAVE_AUDIO_AMPLI) && defined(AUDIO_AMPLI_LOWPOWER)	
 		if (PIN_AUDIO_AMP_ENA != -1) AUDIO_AMP_DISABLE();
 #endif //HAVE_AUDIO_AMPLI
@@ -293,6 +330,11 @@ void ToneHal_Esp32::init(uint32_t pin1, uint32_t pin2) {
 void ToneHal_Esp32::tone(unsigned long frequency)
 /***********************************/           
 {
+#ifdef SOUND_DEBUG
+					SerialPort.print("tone - frequence : ");
+					SerialPort.println(frequency);
+#endif //SOUND_DEBUG
+	
 #if defined (TONEHAL_EXTENDED_VOLUME)
 	if (_toneMuted) {
 #if defined(HAVE_AUDIO_AMPLI) && defined(AUDIO_AMPLI_LOWPOWER)	
@@ -320,6 +362,13 @@ void ToneHal_Esp32::tone(unsigned long frequency)
 void ToneHal_Esp32::tone(unsigned long frequency , uint8_t volume)
 /***********************************/           
 {
+#ifdef SOUND_DEBUG
+					SerialPort.print("tone - frequence : ");
+					SerialPort.println(frequency);
+					SerialPort.print("tone - volume : ");
+					SerialPort.println(volume);
+#endif //SOUND_DEBUG
+
 #if defined (TONEHAL_EXTENDED_VOLUME)	
 	if (_toneMuted) {
 #if defined(HAVE_AUDIO_AMPLI) && defined(AUDIO_AMPLI_LOWPOWER)	
@@ -351,6 +400,15 @@ void ToneHal_Esp32::tone(unsigned long frequency , uint8_t volume)
 void ToneHal_Esp32::tone(unsigned long frequency , uint8_t volume, unsigned long length)
 /***********************************/           
 {
+#ifdef SOUND_DEBUG
+					SerialPort.print("tone - frequence : ");
+					SerialPort.println(frequency);
+					SerialPort.print("tone - volume : ");
+					SerialPort.println(volume);
+					SerialPort.print("tone - length : ");
+					SerialPort.println(length);
+#endif //SOUND_DEBUG
+
 #if defined (TONEHAL_EXTENDED_VOLUME)	
 	if (_toneMuted) {
 #if defined(HAVE_AUDIO_AMPLI) && defined(AUDIO_AMPLI_LOWPOWER)	
@@ -383,6 +441,15 @@ void ToneHal_Esp32::tone(unsigned long frequency , uint8_t volume, unsigned long
 void ToneHal_Esp32::tone(unsigned long frequency , uint8_t volume, unsigned long length, uint8_t background)
 /***********************************/           
 {
+#ifdef SOUND_DEBUG
+					SerialPort.print("tone - frequence : ");
+					SerialPort.println(frequency);
+					SerialPort.print("tone - volume : ");
+					SerialPort.println(volume);
+					SerialPort.print("tone - length : ");
+					SerialPort.println(length);
+#endif //SOUND_DEBUG
+
 #if defined (TONEHAL_EXTENDED_VOLUME)	
 	if (_toneMuted) {
 #if defined(HAVE_AUDIO_AMPLI) && defined(AUDIO_AMPLI_LOWPOWER)	
@@ -414,6 +481,13 @@ void ToneHal_Esp32::tone(unsigned long frequency , uint8_t volume, unsigned long
 void ToneHal_Esp32::noTone(void)
 /***********************************/           
 {
+<<<<<<< Updated upstream
+=======
+#ifdef SOUND_DEBUG
+					SerialPort.println("notone");
+#endif //SOUND_DEBUG
+
+>>>>>>> Stashed changes
 #if defined(HAVE_AUDIO_AMPLI) && defined(AUDIO_AMPLI_LOWPOWER)	
 	if (PIN_AUDIO_AMP_ENA != -1) AUDIO_AMP_DISABLE();
 #endif //HAVE_AUDIO_AMPLI

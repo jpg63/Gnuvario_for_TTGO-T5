@@ -1,10 +1,51 @@
+/* Beeper -- 
+ *
+ * Copyright 2016-2019 Baptiste PELLEGRIN
+ * 
+ * This file is part of GNUVario.
+ *
+ * GNUVario is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * GNUVario is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+/***************************************************************************************************/
+/*                                BEEPER                                                           */
+/*                                                                                                 */
+/*  Ver     Date                                                                                   */
+/*  1.0                                                                                            */
+/*  1.1     30/08/19     Ajout message de debug                                                    */
+/*                                                                                                 */
+/***************************************************************************************************/
+
 #include <Arduino.h>
 #include <VarioSettings.h>
 #include <beeper.h>
 
+#include <DebugConfig.h>
+#include <HardwareConfig.h>
+
 Beeper beeper(volumeDefault);
  
+/***************************************************************************************************/
 Beeper::Beeper(uint8_t baseVolume) {
+/***************************************************************************************************/
+
+#ifdef SOUND_DEBUG
+    SerialPort.print("Beeper - volume : ");
+		SerialPort.println(baseVolume);
+#endif //BUTTON_DEBUG
+
+
   /* save volume */
   volume = baseVolume;
   
@@ -19,7 +60,16 @@ Beeper::Beeper(uint8_t baseVolume) {
 //	toneHAL.init();
 }
 
+/***************************************************************************************************/
 Beeper::Beeper(uint32_t pin, uint8_t baseVolume) {
+/***************************************************************************************************/
+#ifdef SOUND_DEBUG
+    SerialPort.print("Beeper - pin : ");
+		SerialPort.println(pin);
+    SerialPort.print("Beeper - volume : ");
+		SerialPort.println(baseVolume);
+#endif //BUTTON_DEBUG
+
   /* save volume */
   volume = baseVolume;
   
@@ -34,7 +84,13 @@ Beeper::Beeper(uint32_t pin, uint8_t baseVolume) {
 //	toneHAL.init(pin);
 }
 
+/***************************************************************************************************/
 void Beeper::init(double sinkingThreshold, double climbingThreshold, double nearClimbingSensitivity, uint8_t baseVolume) {
+/***************************************************************************************************/
+#ifdef SOUND_DEBUG
+    SerialPort.println("Beeper : init");
+#endif //BUTTON_DEBUG
+
   /* save volume */
   volume = baseVolume;
   
@@ -47,27 +103,37 @@ void Beeper::init(double sinkingThreshold, double climbingThreshold, double near
   beepType = BEEP_TYPE_SILENT;
 }
 
-
-
+/***************************************************************************************************/
 void Beeper::setThresholds(double sinkingThreshold, double climbingThreshold, double nearClimbingSensitivity) {
+/***************************************************************************************************/
 
   beepSinkingThreshold = sinkingThreshold;
   beepGlidingThreshold = climbingThreshold - nearClimbingSensitivity;
   beepClimbingThreshold = climbingThreshold;
 }
 
+/***************************************************************************************************/
 void Beeper::setVolume(uint8_t newVolume) {
+/***************************************************************************************************/
+#ifdef SOUND_DEBUG
+    SerialPort.print("Beeper - setvolume : ");
+		SerialPort.println(newVolume);
+#endif //BUTTON_DEBUG
 
   volume = newVolume;
   toneHAL.setVolume(newVolume);
 }
 
+/***************************************************************************************************/
 uint8_t  Beeper::getVolume() {
+/***************************************************************************************************/
   volume = toneHAL.getVolume();
   return volume;
 }
 
+/***************************************************************************************************/
 void Beeper::setGlidingBeepState(boolean status) {
+/***************************************************************************************************/
   if( status ) {
     bst_set(GLIDING_BEEP_ENABLED);
     if( beepType == BEEP_TYPE_GLIDING ) {
@@ -80,7 +146,9 @@ void Beeper::setGlidingBeepState(boolean status) {
   }
 }
 	    
+/***************************************************************************************************/
 void Beeper::setGlidingAlarmState(boolean status) {
+/***************************************************************************************************/
   if( status ) {
     bst_set(GLIDING_ALARM_ENABLED);
   } else {
@@ -89,7 +157,9 @@ void Beeper::setGlidingAlarmState(boolean status) {
 }
 
 
+/***************************************************************************************************/
 void Beeper::setBeepParameters(double velocity) {
+/***************************************************************************************************/
 
   /* save velocity */
   beepVelocity = velocity;
@@ -116,27 +186,51 @@ void Beeper::setBeepParameters(double velocity) {
 }
 
 
+/***************************************************************************************************/
 void Beeper::setVelocity(double velocity) {
+/***************************************************************************************************/
   
+#ifdef SOUND_DEBUG
+    SerialPort.print("Beeper - setvelocity : ");
+		SerialPort.println(velocity);
+#endif //BUTTON_DEBUG
+	
   /* check if we need to change the beep type */
   boolean beepTypeChange = false;
   switch( beepType ) {
   case BEEP_TYPE_SINKING :
+	
+#ifdef SOUND_DEBUG
+    SerialPort.println("Beeper - BEEP_TYPE_SINKING");
+#endif //BUTTON_DEBUG
+		
     if( velocity >  beepSinkingThreshold + BEEP_VELOCITY_SENSITIVITY )
       beepTypeChange = true;
     break;
 
   case BEEP_TYPE_SILENT :
+#ifdef SOUND_DEBUG
+    SerialPort.println("Beeper - BEEP_TYPE_SILENT");
+#endif //SOUND_DEBUGG
+
     if( velocity < beepSinkingThreshold || velocity > beepGlidingThreshold )
       beepTypeChange = true;
     break;
 
   case BEEP_TYPE_GLIDING :
+#ifdef SOUND_DEBUG
+    SerialPort.println("Beeper - BEEP_TYPE_GLIDING");
+#endif //SOUND_DEBUGG
+
     if( velocity < beepGlidingThreshold - BEEP_VELOCITY_SENSITIVITY || velocity > beepClimbingThreshold )
       beepTypeChange = true;
     break;
 
   case BEEP_TYPE_CLIMBING :
+#ifdef SOUND_DEBUG
+    SerialPort.println("Beeper - BEEP_TYPE_CLIMBING");
+#endif //SOUND_DEBUGG
+
     if( velocity < beepClimbingThreshold - BEEP_VELOCITY_SENSITIVITY )
        beepTypeChange = true;
     break;
@@ -206,7 +300,9 @@ void Beeper::setVelocity(double velocity) {
   }
 }
 
+/***************************************************************************************************/
 void Beeper::setBeepPaternPosition(double velocity) {
+/***************************************************************************************************/
 
   /* check alarm */
   boolean haveAlarm = false;
@@ -291,7 +387,9 @@ void Beeper::setBeepPaternPosition(double velocity) {
 }
 
 
+/***************************************************************************************************/
 void Beeper::setTone() {
+/***************************************************************************************************/
   
   /* alarme case */
   if(  bst_isset(CLIMBING_ALARM) || bst_isset(SINKING_ALARM) ) { 
@@ -300,6 +398,9 @@ void Beeper::setTone() {
     /* climbing alarm */
     /******************/
     if( bst_isset(CLIMBING_ALARM) ) {
+#ifdef SOUND_DEBUG
+			SerialPort.println("Beeper - setTone : CLIMBING_ALARM");
+#endif //SOUND_DEBUGG
 
       /* get half position */
       double halfPaternPosition = beepPaternPosition;
@@ -310,7 +411,7 @@ void Beeper::setTone() {
       /* set tone */
       if( halfPaternPosition < CLIMBING_ALARM_HIGH_LENGTH ) {
 				if( !bst_isset(BEEP_HIGH) ) {
-					toneHAL.tone(CLIMBING_ALARM_FREQ, volume);
+					toneHAL.tone(CLIMBING_ALARM_FREQ, volume);					
 					bst_set(BEEP_HIGH);
 				} else if( bst_isset(BEEP_NEW_FREQ) ) {
 					toneHAL.tone(CLIMBING_ALARM_FREQ, volume);
@@ -325,6 +426,10 @@ void Beeper::setTone() {
     /* sinking alarm */
     /*****************/
     else {
+#ifdef SOUND_DEBUG
+			SerialPort.println("Beeper - setTone : SINKING_ALARM");
+#endif //SOUND_DEBUGG
+			
       if( !bst_isset(BEEP_HIGH) || bst_isset(BEEP_NEW_FREQ) ) {
 				toneHAL.tone(SINKING_ALARM_FREQ, volume);
 				bst_set(BEEP_HIGH);
@@ -336,7 +441,11 @@ void Beeper::setTone() {
     /* sinking beep */
     /****************/
     if( beepType == BEEP_TYPE_SINKING ) {
-      if( !bst_isset(BEEP_HIGH) || bst_isset(BEEP_NEW_FREQ) ) {
+#ifdef SOUND_DEBUG
+			SerialPort.println("Beeper - setTone : BEEP_TYPE_SINKING");
+#endif //SOUND_DEBUGG
+ 
+			if( !bst_isset(BEEP_HIGH) || bst_isset(BEEP_NEW_FREQ) ) {
 				toneHAL.tone(beepFreq, volume);
 				bst_set(BEEP_HIGH);
       }
@@ -346,7 +455,10 @@ void Beeper::setTone() {
     /* silent */
     /**********/
     else if( beepType == BEEP_TYPE_SILENT ) {
-      toneHAL.tone(0.0);
+#ifdef SOUND_DEBUG
+		 SerialPort.println("Beeper - setTone : BEEP_TYPE_SILENT");
+#endif //SOUND_DEBUGG
+     toneHAL.tone(0.0);
       bst_unset(BEEP_HIGH);
     }
 
@@ -354,7 +466,10 @@ void Beeper::setTone() {
     /* gliding */
     /***********/
     else if(  beepType == BEEP_TYPE_GLIDING ) {
-      if( bst_isset(GLIDING_BEEP_ENABLED) ) {
+#ifdef SOUND_DEBUG
+		 SerialPort.println("Beeper - setTone : BEEP_TYPE_GLIDING");
+#endif //SOUND_DEBUGG
+     if( bst_isset(GLIDING_BEEP_ENABLED) ) {
 				if( beepPaternPosition < GLIDING_BEEP_HIGH_LENGTH ) {
 					if( !bst_isset(BEEP_HIGH) ) {
 						toneHAL.tone(beepFreq, volume);
@@ -376,15 +491,34 @@ void Beeper::setTone() {
     /* climbing */
     /************/
     else {
-      if( beepPaternPosition < CLIMBING_BEEP_HIGH_LENGTH ) {
+#ifdef SOUND_DEBUG
+		 SerialPort.println("Beeper - setTone : BEEP_TYPE_CLIMBING");
+#endif //SOUND_DEBUGG
+       if( beepPaternPosition < CLIMBING_BEEP_HIGH_LENGTH ) {
 				if( !bst_isset(BEEP_HIGH) ) {
+#ifdef SOUND_DEBUG
+					SerialPort.println("Beeper - setTone : BEEP_TYPE_CLIMBING / BEEP_HIGH");
+#endif //SOUND_DEBUGG
+ 					
 					toneHAL.tone(beepFreq, volume);
 					bst_set(BEEP_HIGH);
 				} else if( bst_isset(BEEP_NEW_FREQ) ) {
-					toneHAL.tone(beepFreq, volume);
-				}
+#ifdef SOUND_DEBUG
+					SerialPort.println("Beeper - setTone : BEEP_TYPE_CLIMBING / BEEP_NEW_FREQ");
+#endif //SOUND_DEBUGG
+ 					toneHAL.tone(beepFreq, volume);
+					bst_set(BEEP_HIGH);
+			 } else {
+#ifdef SOUND_DEBUG
+					SerialPort.println("Beeper - setTone : BEEP_TYPE_CLIMBING / CLIMBING_BEEP_HIGH_LENGTH");
+#endif //SOUND_DEBUGG				 
+//					toneHAL.tone(beepFreq, volume);
+			 }
       } else {
-				toneHAL.tone(0.0);
+#ifdef SOUND_DEBUG
+					SerialPort.println("Beeper - setTone : BEEP_TYPE_CLIMBING / BEEP_LOW");
+#endif //SOUND_DEBUGG
+ 				toneHAL.tone(0.0);
 				bst_unset(BEEP_HIGH);
       }
     }
@@ -397,14 +531,18 @@ void Beeper::setTone() {
 }	
 
 
+/***************************************************************************************************/
 void Beeper::update() {
+/***************************************************************************************************/
   setBeepPaternPosition(beepVelocity);
   setTone();
   
 }
 
 
+/***************************************************************************************************/
 void Beeper::setFrequency(uint32_t fHz) {
+/***************************************************************************************************/
 	if (fHz ) {
     toneHAL.tone(fHz, volume);   //volume);
 	}
@@ -414,16 +552,22 @@ void Beeper::setFrequency(uint32_t fHz) {
 }
 
 
+/***************************************************************************************************/
 void Beeper::generateTone(uint32_t fHz, int ms) {
+/***************************************************************************************************/
     setFrequency(fHz);
     delay(ms);
     setFrequency(0);
 }
 
+/***************************************************************************************************/
 void Beeper::tone(uint32_t fHz) {
+/***************************************************************************************************/
 	setFrequency(fHz);
 }
 
+/***************************************************************************************************/
 void Beeper::noTone(void) {
+/***************************************************************************************************/
 	toneHAL.noTone();
 }

@@ -182,6 +182,10 @@ class ToneHal  {
 		    /* mute/unmute setting */
     void mute(bool newMuteState);
 		bool isMute(void); 
+#ifdef HAVE_AUDIO_AMPLI
+		void enableAmpli(void);
+		void disableAmpli(void);
+#endif //HAVE_AUDIO_AMPLI
 
 	protected:
 		uint8_t _volume = 10;	
@@ -190,7 +194,10 @@ class ToneHal  {
 #endif //TONEHAL_EXTENDED_VOLUME		
 
 #ifdef HAVE_AUDIO_AMPLI
+<<<<<<< Updated upstream
 
+=======
+>>>>>>> Stashed changes
 		void AUDIO_AMP_DISABLE(void);
 		void AUDIO_AMP_ENABLE(void);
 		void AUDIO_AMP_INIT(void);

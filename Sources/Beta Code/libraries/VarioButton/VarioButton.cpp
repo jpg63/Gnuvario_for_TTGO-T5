@@ -35,6 +35,7 @@
  *    1.0.6  26/08/19   Ajout gestion page config sound                          *
  *                      Augmentation debounce time                               *
  *                      Ajout _state button																			 *
+ *    1.0.7  31/08/19		Correction bug reglage son															 *
  *                                                                               *
  *********************************************************************************/
  
@@ -45,6 +46,7 @@
 #include <HardwareConfig.h>
 #include <sdcardHAL.h>
 #include <toneHAL.h>
+#include <beeper.h>
 #include <varioscreenGxEPD.h>
 #ifdef HAVE_WIFI
 #include <wifiServer.h>
@@ -193,6 +195,7 @@ void VARIOButtonScheduleur::treatmentBtnA(bool Debounce) {
 		if (tmpvol > 0) {
 			tmpvol--;
 			toneHAL.setVolume(tmpvol);
+			beeper.setVolume(tmpvol);
 			screen.ScreenViewSound(toneHAL.getVolume());
 		}
 	}
@@ -249,6 +252,7 @@ void VARIOButtonScheduleur::treatmentBtnC(bool Debounce) {
 		if (tmpvol < 10) {
 			tmpvol++;
 			toneHAL.setVolume(tmpvol);
+			beeper.setVolume(tmpvol);
 			screen.ScreenViewSound(toneHAL.getVolume());
 		}
 	}
