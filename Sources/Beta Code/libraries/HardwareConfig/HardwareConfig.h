@@ -35,6 +35,7 @@
 /*    1.0.2  23/07/19   suppression des parametres CLIMB_RATE                    */
 /*    1.0.3  04/08/19   Ajout config Wifi                                        */
 /*    1.0.4  16/08/19   Ajout HAVE_WIFI                                          */
+/*		1.0.5	 05/09/19		Ajout MPU_COMP_TEMP																			 */
 /*                                                                               */
 /*********************************************************************************/
 
@@ -113,6 +114,9 @@
 /*   MPU6050, MPU6500, MPU9150, MPU9250              */
 #define MPU9250
 #define MPU_STATIC_ADDRESS 0x68
+
+/* Compensation temperature                          */
+#define MPU_COMP_TEMP -6
 
 /*#define VERTACCEL_GYRO_CAL_EEPROM_ADDR 0x00
 #define VERTACCEL_GYRO_CAL_EEPROM_TAG 0xf4e2

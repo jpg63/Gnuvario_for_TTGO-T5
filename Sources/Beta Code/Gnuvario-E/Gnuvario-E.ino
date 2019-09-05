@@ -18,11 +18,20 @@ static const char* TAG = "Gnuvario";
 #include <beeper.h>
 #endif //HAVE_SPEAKER
 
+//#define TWOWIRESCHEDULER
+
+#ifdef TWOWIRESCHEDULER
 #include <IntTW.h>
-#include <ms5611.h>
+#include <ms5611TW.h>
 #include <vertaccel.h>
 #include <LightInvensense.h>
 #include <TwoWireScheduler.h>
+#else
+#include <MS5611.h>
+#include <Wire.h>
+#include <vertaccel2.h>
+#include <SparkFunMPU9250-DMP.h>
+#endif
 
 #include <kalmanvert.h>
 
@@ -66,98 +75,96 @@ SimpleBLE ble;
 
 #define VERSION      0
 #define SUB_VERSION  5
-#define BETA_CODE    5
+#define BETA_CODE    6
 #define DEVNAME      "JPG63"
 #define AUTHOR "J"    //J=JPG63  P=PUNKDUMP
 
-/************************************************************************/
-/*                          VERSION                                     */
-/*                           ESP32                                      */
-/*                  Optimisé pour TTGO-T5                               */
-/*                                                                      */
-/*                        Historique                                    */
-/************************************************************************/
-/* v 0.1                             beta 1 version                     *
-*  v 0.2     beta 1      23/06/19    debug VarioScreen                  *      
-*  v 0.3     beta 1      25/06/19    correction mesure tension          *
-*                                    correction mesure de vitesse       *
-*  v 0.3     beta 2      26/06/19    correction save IGC                *                                 
-*  v 0.4     beta 1      03/07/19    ajout la coupure du son            *
-*  v 0.4     beta 2      06/07/19    ajout statistique                  *
-*  v 0.4     beta 3      18/07/19    Correction gestion Eeprom          *
-*                                    Correction tache affichage         * 
-*                                    Ajout delete task display          *
-*                                    Correction affichage statistique   *
-* v 0.4      beta 4      22/07/19    Correction effacement screendigit  *                             
-*                                    Correction affichage duree du vol  *
-*                                    Correction affichage statistique   *
-*                                    Modification FlightHistory         *
-*                                    Ajout parametre flighthistory dans *
-*                                    SETTINGS.TXT                       *
-*                                    Enregistrement des statistique     *
-*                                    toutes les 60sec - reduction des   *
-*                                    cycle d'ecriture dans la mémoire   *
-*                                    flash de l'ESP32                   *
-* v 0.4     beta 5    24/07/19       Ajout TrendDigit                   *
-*                                    Modification TrendLevel            *
-*                                    Modification screendigit           *
-*                                    Correction démarrage du vol        *
-*                                    indicateur de monte/descente       *
-* v 0.4     beta 6    25/07/19       Ajout NO_RECORD                    *                                                                      
-*                                    Correction TWOWIRESCHEDULER        *
-* v 0.4     beta 7    05/08/19       Désactivation enregistrement stat  *
-*                                    pour eviter le bug du plantage     * 
-*                                    Ajout paramettre wifi              *
-*                                    Modification SETTINGS.TXT v1.2     *
-* v 0.4     beta 8    06/08/19       Ajout icone Norecord               *
-*                                    Correction bug statistique         *
-*                                    Raffraichissement de l'ensemle de  *
-*                                    l'écran toutes les 30sec           *
-* v 0.5     beta 1    10/08/19       Ajout Gestionnaire d'erreur ESP32  *
-*                                    Mise à jour via SDCARD /update.bin *
-*                                    Ajout Serveur Web update/download  *
-*                                    Ajout HAVE_WIFI                    *
-*                                    Ajout BT                           *
-* v 0.5     beta 2    20/08/19       Ajout dans hardwareConfig32 de la  *
-*                                    version du PCB et de la TTGO       *
-*                                    Ajout lecture de la temperature    *
-*                                    MAJ OTA Web serveur                *
-*                                    Ajout changement de page           *
-*                                    Ajout 2ème ecran                   *
-* v 0.5     beta 3  25/08/19         Ajout LOW/HIGH level cmd ampli     *
-*                                    Ajout ecran reglage volume du son  *
-*                                    Correction Bug bouton              *
-* v 0.5     beta 4  28/08/19         Ajout écran stat                   *                                   
-*                                    Modification librairie ToneHAL     *
-*                                    Correction bug d'affichage mineurs *
-* v 0.5     beta 5  31/08/19         Correction bg reglage volume       *
-*                                    Ajout commande ampli dans loop     *
-*                                    pour test                          *
-*                                                                       *
-*************************************************************************
-*                                                                       *
-*                   Developpement a venir                               *
-*                                                                       *                                                             
-* V0.4                                                                  *    
-* bug affichage finesse                                                 *                                            
-* bug MPU/MS5611                                                        *
-*                                                                       *
-* V0.5                                                                  *
-* Calibration MPU																												*
-* porter best-fit-calibration sur l'ESP32                               *
-* porter gps-time-analysis sur l'ESP32                                  *
-* Mise à jour ESP32 via USB                                             *
-* verifier mesure temperature                                           *
-* revoir volume du son ToneESP32                                        *
-* verifier effacement du m (altitude)                                   *
-* bug d'affichage des fleches                                           *
-*                                                                       *
-* VX.X                                                                  *
-* Refaire gestion du son                                                *
-* Carnet de vol (10 derniers vols)                                      *
-*     10 zones d'eeprom - reduit le nombre d'écriture et économise la   *
-*     mémoire flash
-*************************************************************************/
+/******************************************************************************************************/
+/*                                              VERSION                                               */
+/*                                               ESP32                                                */
+/*                                       Optimisé pour TTGO-T5                                        */
+/*                                                                                                    */
+/*                                              Historique                                            */
+/******************************************************************************************************/
+/* v 0.1                             beta 1 version                                                   *
+*  v 0.2     beta 1      23/06/19    debug VarioScreen                                                *      
+*  v 0.3     beta 1      25/06/19    correction mesure tension                                        *
+*                                    correction mesure de vitesse                                     *
+*  v 0.3     beta 2      26/06/19    correction save IGC                                              *                                 
+*  v 0.4     beta 1      03/07/19    ajout la coupure du son                                          *
+*  v 0.4     beta 2      06/07/19    ajout statistique                                                *
+*  v 0.4     beta 3      18/07/19    Correction gestion Eeprom                                        *
+*                                    Correction tache affichage                                       * 
+*                                    Ajout delete task display                                        *
+*                                    Correction affichage statistique                                 *
+* v 0.4      beta 4      22/07/19    Correction effacement screendigit                                *                             
+*                                    Correction affichage duree du vol                                *
+*                                    Correction affichage statistique                                 *
+*                                    Modification FlightHistory                                       *
+*                                    Ajout parametre flighthistory dans SETTINGS.TXT                  *
+*                                    Enregistrement des statistique toutes les 60sec - reduction des  *
+*                                    cycle d'ecriture dans la mémoire flash de l'ESP32                *
+* v 0.4     beta 5    24/07/19       Ajout TrendDigit                                                 *
+*                                    Modification TrendLevel                                          *
+*                                    Modification screendigit                                         *
+*                                    Correction démarrage du vol                                      *
+*                                    indicateur de monte/descente                                     *
+* v 0.4     beta 6    25/07/19       Ajout NO_RECORD                                                  *                                                                      
+*                                    Correction TWOWIRESCHEDULER                                      *
+* v 0.4     beta 7    05/08/19       Désactivation enregistrement stat pour eviter le bug du plantage * 
+*                                    Ajout paramettre wifi                                            *
+*                                    Modification SETTINGS.TXT v1.2                                   *
+* v 0.4     beta 8    06/08/19       Ajout icone Norecord                                             *
+*                                    Correction bug statistique                                       *
+*                                    Raffraichissement de l'ensemle de l'écran toutes les 30sec       *
+* v 0.5     beta 1    10/08/19       Ajout Gestionnaire d'erreur ESP32                                *
+*                                    Mise à jour via SDCARD /update.bin                               *
+*                                    Ajout Serveur Web update/download                                *
+*                                    Ajout HAVE_WIFI                                                  *
+*                                    Ajout BT                                                         *
+* v 0.5     beta 2    20/08/19       Ajout dans hardwareConfig32 de la  version du PCB et de la TTGO  *
+*                                    Ajout lecture de la temperature                                  *
+*                                    MAJ OTA Web serveur                                              *
+*                                    Ajout changement de page                                         *
+*                                    Ajout 2ème ecran                                                 *
+* v 0.5     beta 3  25/08/19         Ajout LOW/HIGH level cmd ampli                                   *
+*                                    Ajout ecran reglage volume du son                                *
+*                                    Correction Bug bouton                                            *
+* v 0.5     beta 4  28/08/19         Ajout écran stat                                                 *                                   
+*                                    Modification librairie ToneHAL                                   *
+*                                    Correction bug d'affichage mineurs                               *
+* v 0.5     beta 5  31/08/19         Correction bg reglage volume                                     *
+*                                    Ajout commande ampli dans loop pour test                         *
+* v 0.5     beta 6  04/09/19         Changement librairies MS5611 et MPU9250                          *                                   
+*                                    Modifié la calibration de l'altitude par le GPS                  *
+*                                    Ajout d'un coeficiant de compensation de temperature             *
+*                                    Modification la séquence de démarrage de l'enregistrement        *
+*                                                                                                     *
+*******************************************************************************************************
+*                                                                                                     *
+*                                   Developpement a venir                                             *
+*                                                                                                     *                                                             
+* V0.4                                                                                                *    
+* bug affichage finesse                                                                               *                                            
+*                                                                                                     *
+* V0.5                                                                                                *
+* Recupération vol via USB                                                                            *                                                                                        
+* Calibration MPU                                                                                     *                                 
+* Mise à jour ESP32 via USB                                                                           * 
+* revoir volume du son ToneESP32                                                                      *
+* verifier effacement du m (altitude)                                                                 *
+* bug d'affichage des fleches                                                                         *
+* voir réactivité des données GPS                                                                     *
+*                                                                                                     *
+* VX.X                                                                                                *
+* Refaire gestion du son                                                                              *
+* Paramètrage des écrans                                                                              *
+* Gérer le son via le DAC                                                                             *
+* Afficher la boussole                                                                                *
+* Sens et vitesse du vent                                                                             *
+* Carnet de vol (10 derniers vols)                                                                    *
+*     10 zones d'eeprom - reduit le nombre d'écriture et économise la mémoire flash                   *
+*******************************************************************************************************/
 
 /************************************************************************
  *                   Fonctionalitées                                    *
@@ -224,6 +231,13 @@ SimpleBLE ble;
 *                          pas de SDcard ou de fichier SETTINGS.TXT     *
 *************************************************************************/
 
+/**************************************************************************************************************
+ *              Liens utiles                                                                                  *
+ *                                                                                                            *
+ * https://learn.sparkfun.com/tutorials/9dof-razor-imu-m0-hookup-guide/all#libraries-and-example-firmware     *        
+ *                                                                                                            *
+ **************************************************************************************************************/
+
 /*******************/
 /* General objects */
 /*******************/
@@ -247,6 +261,7 @@ uint8_t variometerState = VARIOMETER_STATE_CALIBRATED;
 /***************/
 /* IMU objects */
 /***************/
+#ifdef TWOWIRESCHEDULER
 #ifdef HAVE_BMP280
 Bmp280 TWScheduler::bmp280;
 #else
@@ -255,6 +270,15 @@ Ms5611 TWScheduler::ms5611;
 #ifdef HAVE_ACCELEROMETER
 Vertaccel TWScheduler::vertaccel;
 #endif //HAVE_ACCELEROMETER
+#else
+
+MS5611 ms5611;
+double referencePressure;
+
+MPU9250_DMP imu;
+Vertaccel vertaccel;
+
+#endif
 
 //Vertaccel vertaccel;
 
@@ -361,6 +385,7 @@ Internal TEMPERATURE Sensor
 uint8_t temprature_sens_read();
 
 int tmpint = 0;
+int compteurGpsFix = 0;
 
 //****************************
 //****************************
@@ -608,7 +633,8 @@ void setup() {
 
   
 #endif //HAVE_SCREEN
-
+  
+#ifdef TWOWIRESCHEDULER
   /**************************/
   /* init Two Wires devices */
   /**************************/
@@ -619,6 +645,66 @@ void setup() {
 //  vertaccel.init();
 
 #endif //HAVE_ACCELEROMETER
+#else //TWOWIRESCHEDULER
+#ifdef MS5611_DEBUG
+  SerialPort.println("Initialize MS5611 Sensor");
+#endif //MS5611_DEBUG
+
+  while(!ms5611.begin())
+  {
+    SerialPort.println("Could not find a valid MS5611 sensor, check wiring!");
+#if defined(ESP32)
+    ESP_LOGE(TAG, "Erreur capteur MS5611 introuvable");
+#endif //EPS32
+    delay(500);
+  }
+
+  // Get reference pressure for relative altitude
+  referencePressure = ms5611.readPressure();
+
+  SerialPort.print("Oversampling: ");
+  SerialPort.println(ms5611.getOversampling());
+
+  vertaccel.init();
+
+#ifdef HAVE_ACCELEROMETER
+#ifdef ACCEL_DEBUG
+  SerialPort.println("configuring device.");
+#endif //ACCEL_DEBUG
+
+#ifdef ACCEL_DEBUG
+    SerialPort.println("configured 9Axis I2C MPU9250");
+#endif //ACCEL_DEBUG
+
+  // Call imu.begin() to verify communication and initialize
+  if (imu.begin() != INV_SUCCESS)
+  {
+    while (1)
+    {
+      SerialPort.println("Unable to communicate with MPU-9250");
+      SerialPort.println("device error");
+      ESP_LOGE(TAG, "Erreur capteur MPU9250 introuvable");
+      while(1);
+    }
+  }
+  
+/*  imu.dmpBegin(DMP_FEATURE_6X_LP_QUAT | // Enable 6-axis quat
+               DMP_FEATURE_GYRO_CAL, // Use gyro calibration
+              10); // Set DMP FIFO rate to 10 Hz
+  // DMP_FEATURE_LP_QUAT can also be used. It uses the 
+  // accelerometer in low-power mode to estimate quat's.
+  // DMP_FEATURE_LP_QUAT and 6X_LP_QUAT are mutually exclusive*/
+
+    imu.dmpBegin(DMP_FEATURE_SEND_RAW_ACCEL | // Send accelerometer data
+                 DMP_FEATURE_GYRO_CAL       | // Calibrate the gyro data
+                 DMP_FEATURE_SEND_CAL_GYRO  | // Send calibrated gyro data
+                 DMP_FEATURE_6X_LP_QUAT     , // Calculate quat's with accel/gyro
+                 10);                         // Set update rate to 10Hz.
+  
+#endif //HAVE_ACCELEROMETER
+
+#endif //TWOWIRESCHEDULER
+
 
 #ifdef HAVE_SCREEN
 // Affichage Statistique
@@ -635,33 +721,28 @@ void setup() {
     SerialPort.println("Attente premiere mesure alti");
 #endif //MS5611_DEBUG
 
+#ifdef TWOWIRESCHEDULER
   /* wait for first alti and acceleration */
   while( ! twScheduler.havePressure() ) { }
+#else //TWOWIRESCHEDULER
+#endif //TWOWIRESCHEDULER
 
 #ifdef MS5611_DEBUG
     SerialPort.println("première mesure");
 #endif //MS5611_DEBUG
 
+#ifdef TWOWIRESCHEDULER
   /* init kalman filter with 0.0 accel*/
   double firstAlti = twScheduler.getAlti();
+#else //TWOWIRESCHEDULER
+  double firstAlti = ms5611.readPressure();
+#endif //TWOWIRESCHEDULER
 
   if (isnan(firstAlti)) {
-#ifdef MS5611_DEBUG
     SerialPort.println("Fail firstAlti : ");
     SerialPort.println("reinit");
-#endif //MS5611_DEBUG
-
-#ifdef HAVE_ACCELEROMETER
-    intTW.begin();
-    twScheduler.init();
-//  vertaccel.init();
-
-    while( ! twScheduler.havePressure() ) { }
-
-  /* init kalman filter with 0.0 accel*/
-    firstAlti = twScheduler.getAlti();
-#endif //HAVE_ACCELEROMETER
-     
+    ESP_LOGE(TAG, "Erreur Première mesure d'altitude");
+    ESP.restart();         
   }
   
 #ifdef MS5611_DEBUG
@@ -679,6 +760,8 @@ void setup() {
   SerialPort.println("kalman init");
 #endif //KALMAN_DEBUG
 #endif //HAVE_ACCELEROMETER
+
+  compteurGpsFix = 0;
 
 #if defined(HAVE_GPS) 
   if (GnuSettings.VARIOMETER_DISPLAY_INTEGRATED_CLIMB_RATE) history.init(firstAlti, millis());
@@ -729,6 +812,8 @@ void createSDCardTrackFile(void);
 #endif //defined(HAVE_SDCARD) && defined(HAVE_GPS)
 void enableflightStartComponents(void);
 
+void compute(int16_t *imuAccel, int32_t *imuQuat, double* vertVector, double& vertAccel);
+
 //*****************************
 //*****************************
 void loop() {
@@ -738,16 +823,6 @@ void loop() {
  /* if( vertaccel.readRawAccel(accel, quat) ){
     count++;
   }*/
-
-/*******************************/
-/*      TEST TEST TEST         */
-
-#ifdef HAVE_AUDIO_AMPLI
-   toneHAL.enableAmpli();
-#endif
-  
-/*******************************/
-/*******************************/
 
 /*  LOW UPDATE DISPLAY */
    if( millis() - lastDisplayTimestamp > 500 ) {
@@ -770,11 +845,49 @@ void loop() {
   /*****************************/
 
 #ifdef HAVE_ACCELEROMETER
+#ifdef TWOWIRESCHEDULER
   if( twScheduler.havePressure() && twScheduler.haveAccel() ) {
 
     double tmpAlti, tmpTemp, tmpAccel;
     twScheduler.getTempAlti(tmpTemp, tmpAlti);
     tmpAccel = twScheduler.getAccel(NULL);
+#else //TWOWIRESCHEDULER
+
+  if ( imu.fifoAvailable() ) {
+
+    double tmpAlti, tmpTemp, tmpAccel;
+    int16_t rawAccel[3];
+    int32_t quat[4];
+
+    long realPressure = ms5611.readPressure();
+    tmpAlti = ms5611.getAltitude(realPressure);
+    tmpTemp = ms5611.readTemperature();
+    tmpTemp += MPU_COMP_TEMP;
+
+    // Use dmpUpdateFifo to update the ax, gx, mx, etc. values
+    if ( imu.dmpUpdateFifo() == INV_SUCCESS)
+    {
+      // computeEulerAngles can be used -- after updating the
+      // quaternion values -- to estimate roll, pitch, and yaw
+//      imu.computeEulerAngles();
+
+      quat[0] = imu.qw;
+      quat[1] = imu.qx;
+      quat[2] = imu.qy;
+      quat[3] = imu.qz;
+   
+      rawAccel[0] = imu.ax;
+      rawAccel[1] = imu.ay;
+      rawAccel[2] = imu.az;
+
+      double tmpVertVector[3];
+      vertaccel.compute(rawAccel, quat, tmpVertVector, tmpAccel);
+
+//      tmpAccel = 0;
+    }
+
+#endif //TWOWIRESCHEDULER
+    
 #ifdef DATA_DEBUG
     SerialPort.print("Alti : ");
     SerialPort.println(tmpAlti);
@@ -788,6 +901,7 @@ void loop() {
                        tmpAccel,
                        millis() );
 #else
+#ifdef TWOWIRESCHEDULER
   if( twScheduler.havePressure() ) {
     
 #ifdef MS5611_DEBUG
@@ -796,6 +910,15 @@ void loop() {
 
     double tmpAlti, tmpTemp;
     twScheduler.getTempAlti(tmpTemp, tmpAlti);
+#else //TWOWIRESCHEDULER
+    double tmpAlti, tmpTemp, tmpAccel;
+
+    long realPressure = ms5611.readPressure();
+    tmpAlti = ms5611.getAltitude(realPressure);
+    tmpTemp = ms5611.readTemperature();
+    tmpTemp += MPU_COMP_TEMP;
+
+#endif //TWOWIRESCHEDULER
 
 #ifdef DATA_DEBUG
     SerialPort.print("Alti : ");
@@ -1045,59 +1168,78 @@ void loop() {
         /* we need a good quality value */
         if( nmeaParser.haveNewAltiValue() && nmeaParser.precision < VARIOMETER_GPS_ALTI_CALIBRATION_PRECISION_THRESHOLD ) {
 
+          compteurGpsFix++;
+          double gpsAlti = nmeaParser.getAlti();
+
 #ifdef GPS_DEBUG
-          SerialPort.println("GPS FIX");
+          SerialPort.print("CompteurGpsFix : ");
+          SerialPort.println(compteurGpsFix);
 #endif //GPS_DEBUG
           
-          /* calibrate */
- #ifdef HAVE_SPEAKER 
-          if (GnuSettings.ALARM_GPSFIX) {
- //         toneAC(BEEP_FREQ);
-            beeper.generateTone(GnuSettings.BEEP_FREQ, 200);
-//          delay(200);
-//          toneAC(0);
-          }
- #endif //defined(HAVE_SPEAKER) 
-
 #ifdef HAVE_SCREEN
-          screen.fixgpsinfo->setFixGps();
           screen.recordIndicator->setActifGPSFIX();
         //  recordIndicator->stateRECORD();
 #endif //HAVE_SCREEN
-          double gpsAlti = nmeaParser.getAlti();
-          kalmanvert.calibratePosition(gpsAlti);
 
-#ifdef DATA_DEBUG
+#if defined(DATA_DEBUG) || defined(GPS_DEBUG)
           SerialPort.print("Gps Alti : ");
           SerialPort.println(gpsAlti);
 #endif //DATA_DEBUG
 
+          if (compteurGpsFix > 10) {
 #ifdef GPS_DEBUG
-          SerialPort.print("GpsAlti : ");
-          SerialPort.println(nmeaParser.getAlti());
-          SerialPort.println("Kalman CalibratePosition");        
+            SerialPort.println("GPS FIX");
+#endif //GPS_DEBUG
+          
+          /* calibrate */
+ #ifdef HAVE_SPEAKER 
+            if (GnuSettings.ALARM_GPSFIX) {
+ //           toneAC(BEEP_FREQ);
+              beeper.generateTone(GnuSettings.BEEP_FREQ, 200);
+//            delay(200);
+//            toneAC(0);
+            }
+ #endif //defined(HAVE_SPEAKER) 
+
+#ifdef HAVE_SCREEN
+            screen.fixgpsinfo->setFixGps();
+            screen.recordIndicator->setActifGPSFIX();
+        //  recordIndicator->stateRECORD();
+#endif //HAVE_SCREEN
+            kalmanvert.calibratePosition(gpsAlti);
+
+#ifdef DATA_DEBUG
+            SerialPort.print("Gps Alti : ");
+            SerialPort.println(gpsAlti);
+#endif //DATA_DEBUG
+
+#ifdef GPS_DEBUG
+            SerialPort.print("GpsAlti : ");
+            SerialPort.println(gpsAlti);
+            SerialPort.println("Kalman CalibratePosition");        
 #endif //GPS_DEBUG
           
 #if defined(HAVE_GPS) 
-          if (GnuSettings.VARIOMETER_DISPLAY_INTEGRATED_CLIMB_RATE)  history.init(gpsAlti, millis());
+            if (GnuSettings.VARIOMETER_DISPLAY_INTEGRATED_CLIMB_RATE)  history.init(gpsAlti, millis());
 #endif //defined(HAVE_GPS) 
 
-          variometerState = VARIOMETER_STATE_CALIBRATED;
+            variometerState = VARIOMETER_STATE_CALIBRATED;
 
 #ifdef GPS_DEBUG
-          SerialPort.println("GPS Calibrated");        
+            SerialPort.println("GPS Calibrated");        
 #endif //GPS_DEBUG
-
+          
 #ifdef HAVE_SDCARD 
-          if (!GnuSettings.VARIOMETER_RECORD_WHEN_FLIGHT_START) {
+            if (!GnuSettings.VARIOMETER_RECORD_WHEN_FLIGHT_START) {
 
 #ifdef SDCARD_DEBUG
-          SerialPort.println("createSDCardTrackFile");        
+              SerialPort.println("createSDCardTrackFile");        
 #endif //SDCARD_DEBUG
 
              createSDCardTrackFile();
-          }
+            }
 #endif //HAVE_SDCARD
+          }
         }
       }
       
@@ -1107,14 +1249,15 @@ void loop() {
         /* check flight start condition */
         if( (millis() > GnuSettings.FLIGHT_START_MIN_TIMESTAMP) &&
             ((GnuSettings.VARIOMETER_RECORD_WHEN_FLIGHT_START) &&   
-             (kalmanvert.getVelocity() < GnuSettings.FLIGHT_START_VARIO_LOW_THRESHOLD || kalmanvert.getVelocity() > GnuSettings.FLIGHT_START_VARIO_HIGH_THRESHOLD)) ||
-             (!GnuSettings.VARIOMETER_RECORD_WHEN_FLIGHT_START)
-     
-  //        && (kalmanvert.getVelocity() < FLIGHT_START_VARIO_LOW_THRESHOLD || kalmanvert.getVelocity() > FLIGHT_START_VARIO_HIGH_THRESHOLD) &&
+             ((kalmanvert.getVelocity() < GnuSettings.FLIGHT_START_VARIO_LOW_THRESHOLD) || (kalmanvert.getVelocity() > GnuSettings.FLIGHT_START_VARIO_HIGH_THRESHOLD)) 
 #ifdef HAVE_GPS
 
-            &&((nmeaParser.getSpeed() > GnuSettings.FLIGHT_START_MIN_SPEED)|| (!GnuSettings.VARIOMETER_RECORD_WHEN_FLIGHT_START))
+             && (nmeaParser.getSpeed() > GnuSettings.FLIGHT_START_MIN_SPEED)
 #endif //HAVE_GPS
+
+            ) || (!GnuSettings.VARIOMETER_RECORD_WHEN_FLIGHT_START)
+     
+  //        && (kalmanvert.getVelocity() < FLIGHT_START_VARIO_LOW_THRESHOLD || kalmanvert.getVelocity() > FLIGHT_START_VARIO_HIGH_THRESHOLD) &&
           ) {
 //          variometerState = VARIOMETER_STATE_FLIGHT_STARTED;
           enableflightStartComponents();
@@ -1298,6 +1441,15 @@ void loop() {
 
    flystat.Handle(); 
  // }
+/*******************************/
+/*      TEST TEST TEST         */
+
+#ifdef HAVE_AUDIO_AMPLI
+   toneHAL.enableAmpli();
+#endif
+  
+/*******************************/
+/*******************************/ 
 }
 
 

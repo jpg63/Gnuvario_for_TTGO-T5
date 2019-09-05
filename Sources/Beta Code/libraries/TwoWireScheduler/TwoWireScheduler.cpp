@@ -24,6 +24,7 @@
 /*  Ver     Date         Description                                                               */
 /*  1.0                                                                                            */
 /*  1.1     21/08/19     Ajout getTempAlti(double& temp, double& alti)                             */
+/*  1.2     04/09/19		 Modification nom bibliothèque MS5611                                      */
 /*                                                                                                 */
 /***************************************************************************************************/
 
@@ -39,7 +40,7 @@
 #ifdef HAVE_BMP280
 #include <bmp280.h>
 #else
-#include <ms5611.h>
+#include <ms5611TW.h>
 #endif
 
 #include <VarioSettings.h>

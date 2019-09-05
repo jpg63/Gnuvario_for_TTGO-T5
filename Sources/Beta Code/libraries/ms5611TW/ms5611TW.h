@@ -18,8 +18,18 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef MS5611_H
-#define MS5611_H
+/*********************************************************************************/
+/*                                                                               */
+/*                           MS5611TW                                            */
+/*                                                                               */
+/*  version    Date       Description                                            */
+/*    1.0                                                                        */
+/*    1.0.1    04/09/19   Modification du nom de la bibliothèque              	 */
+/*                                                                               */
+/*********************************************************************************/
+
+#ifndef MS5611TW_H
+#define MS5611TW_H
 
 #include <Arduino.h>
 #include <VarioSettings.h>

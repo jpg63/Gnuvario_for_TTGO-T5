@@ -18,7 +18,17 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <ms5611.h>
+/*********************************************************************************/
+/*                                                                               */
+/*                           MS5611TW                                            */
+/*                                                                               */
+/*  version    Date       Description                                            */
+/*    1.0                                                                        */
+/*    1.0.1    04/09/19   Modification du nom de la bibliothèque              	 */
+/*                                                                               */
+/*********************************************************************************/
+
+#include <ms5611TW.h>
 
 #include <Arduino.h>
 #include <IntTW.h>

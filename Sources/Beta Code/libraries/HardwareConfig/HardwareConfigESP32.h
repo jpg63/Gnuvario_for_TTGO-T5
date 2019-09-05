@@ -202,7 +202,7 @@ Fly stat        0xD0		26+2
 
 #define VOLTAGE_DIVISOR_PIN 35  //ADC1_CH7 (GPIO 35)
 #define VOLTAGE_RESOLUTION  4096.0f
-#if (PCB_VERSION < 3)
+#if (PCB_VERSION < 2)
 #define VOLTAGE_DIVISOR_VALUE 1.27  //270k et 1M
 #else
 #define VOLTAGE_DIVISOR_VALUE 2  //100k et 100k

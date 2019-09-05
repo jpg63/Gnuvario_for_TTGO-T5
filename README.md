@@ -1,7 +1,7 @@
 # Gnuvario_for_TTGO-T5
 # GNUVARIO-E     Stable version 0.3
-# GNUVARIO-E     Developement version 0.5 beta 5
-# PCB            version 1.10
+# GNUVARIO-E     Developement version 0.5 beta 6
+# PCB            version 1.12
 # 3D CASE        version 1.05
 
 
@@ -65,11 +65,15 @@
                                     Ajout commande ampli dans loop     
                                     pour test                          
  
+ v 0.5     beta 6  04/09/19         Changement librairies MS5611 et MPU9250                                                             
+                                    Modifié la calibration de l'altitude par le GPS                  
+                                    Ajout d'un coeficiant de compensation de temperature             
+                                    Modification la séquence de démarrage de l'enregistrement   
+																		
                    Developpement à venir                               
                                                                                                                                     
  V0.4                                                                                                                                          																												
  bug affichage finesse  
- bug MS5611 - MPU
  
  V0.5                                                                  
  Recupération vol via USB                                                                                         
@@ -83,7 +87,13 @@
  bug d'affichage des fleches                                           
                                                                                                                                              
  VX.X                                                                  
- Refaire gestion du son                                                
+ Refaire gestion du son                                                                              
+ Paramètrage des écrans                                                                              
+ Gérer le son via le DAC                                                                             
+ Afficher la boussole                                                                                
+ Sens et vitesse du vent                                                                             
+ Carnet de vol (10 derniers vols)                                                                    
+     10 zones d'eeprom - reduit le nombre d'écriture et économise la mémoire flash                   
 
                     Fonctionalitées   
 		

@@ -123,14 +123,26 @@ void ToneHal::AUDIO_AMP_DISABLE(void) {
 /***********************************/
 void ToneHal::AUDIO_AMP_ENABLE(void) {
 /***********************************/
+	pinMode(PIN_AUDIO_AMP_ENA,OUTPUT);
 #ifdef SOUND_DEBUG
-    SerialPort.println("AUDIO_AMP_ENABLE");
+    SerialPort.print("AUDIO_AMP_ENABLE / pin : ");
+		SerialPort.println(PIN_AUDIO_AMP_ENA);
 #endif //BUTTON_DEBUG
 
 #ifdef AUDIO_AMP_MODE_LOW
+
+#ifdef SOUND_DEBUG
+    SerialPort.println("AUDIO_AMP_ENABLE LOW");
+#endif //BUTTON_DEBUG
+
 	digitalWrite(PIN_AUDIO_AMP_ENA,LOW);
 #else
+#ifdef SOUND_DEBUG
+    SerialPort.println("AUDIO_AMP_ENABLE HIGH");
+#endif //BUTTON_DEBUG
+
 	digitalWrite(PIN_AUDIO_AMP_ENA,HIGH);
+
 #endif
 }
 
@@ -145,6 +157,12 @@ void ToneHal::AUDIO_AMP_INIT(void) {
 
 	if (PIN_AUDIO_AMP_ENA != -1) {
 		pinMode(PIN_AUDIO_AMP_ENA,OUTPUT);
+		
+#ifdef SOUND_DEBUG
+    SerialPort.print("pin : ");
+		SerialPort.println(PIN_AUDIO_AMP_ENA);
+#endif //BUTTON_DEBUG
+		
 #ifdef AUDIO_AMP_MODE_LOW
 	  digitalWrite(PIN_AUDIO_AMP_ENA,HIGH);
 #else
