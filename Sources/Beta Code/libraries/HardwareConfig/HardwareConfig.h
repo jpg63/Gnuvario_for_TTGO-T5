@@ -36,6 +36,7 @@
 /*    1.0.3  04/08/19   Ajout config Wifi                                        */
 /*    1.0.4  16/08/19   Ajout HAVE_WIFI                                          */
 /*		1.0.5	 05/09/19		Ajout MPU_COMP_TEMP																			 */
+/*    1.0.6  19/09/19   Ajout NB_ACQUISITION_FIX_GPS														 */
 /*                                                                               */
 /*********************************************************************************/
 
@@ -54,11 +55,12 @@
 #endif
 
 /*****************************/
-/*   EEPROM                  */
+/*         EEPROM            */
 /*****************************/
 //  IGC Header			0x00		195		0xC8
-//  Sound volume		0xC8    1     0xCA
-//  Fly Stat        0xCA     
+//  Sound volume		0xC8    1     0xD0
+//  Fly Stat        0xD0    48X10 0x2B0     
+//  Calibration     0x2C0   56 		0x2FA				(762)
 
 /*****************************/
 /*  IGC HEADER EEPROM        */
@@ -77,7 +79,7 @@
 
 /* eeprom sound setting adresses */
 #ifndef SOUND_EEPROM_ADDR
-#define SOUND_EEPROM_ADDR 0x210
+#define SOUND_EEPROM_ADDR 0x201
 #endif
 
 #define SOUND_EEPROM_TAG 9806
@@ -86,10 +88,19 @@
 /*  EEPROM STAT              */
 /*****************************/
 #ifndef FLY_STAT_HEADER_EEPROM_ADDRESS
-#define FLY_STAT_HEADER_EEPROM_ADDRESS 0x230
+#define FLY_STAT_HEADER_EEPROM_ADDRESS 0x210
 #endif
  
 #define FLY_STAT_EEPROM_TAG 2025
+
+/*****************************/
+/*  EEPROM CALIBRATION       */
+/*****************************/
+#ifndef CAL_MPU_HEADER_EEPROM_ADDRESS
+#define CAL_MPU_HEADER_EEPROM_ADDRESS 0x3F0
+#endif
+ 
+#define CAL_MPU_EEPROM_TAG 3030
 
 /*****************************/
 /* Baro parameters           */
@@ -194,6 +205,8 @@
 /* Check the SD card ouput or bluetooth output of gps-time-analysis */
 #define NMEA_TAG_SIZE 5
 
+/* Nombre de mesure GPS avant la mise à jour de l'altitude baro      */
+#define NB_ACQUISITION_FIX_GPS 20
 
 // GPS MODEL
 #define ATGM336H

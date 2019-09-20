@@ -23,6 +23,13 @@
 #include <Arduino.h>
 //#include <LightInvensense.h>
 
+#include <DebugConfig.h>
+#include <HardwareConfig.h>
+
+extern "C" {
+#include "util/inv_mpu.h"
+}
+
 #ifdef VERTACCEL_ENABLE_EEPROM
 #include <eepromHAL.h>
 #endif
@@ -136,10 +143,10 @@ void Vertaccel::init(void) {
   settings = readEEPROMSettings();
 
   /* set gyro calibration in the DMP */
-//  fastMPUSetGyroBias(settings.gyroCal);
+//  fastMPUSetGyroBias8(settings.gyroCal);
 #else
   /* set gyro calibration in the DMP */
-//  fastMPUSetGyroBias(gyroCalArray);
+//  fastMPUSetGyroBias8(gyroCalArray);
 #endif
 
   

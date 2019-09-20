@@ -66,9 +66,21 @@
                                     pour test                          
  
  v 0.5     beta 6  04/09/19         Changement librairies MS5611 et MPU9250                                                             
-                                    Modifié la calibration de l'altitude par le GPS                  
+                                    Modification de la calibration de l'altitude par le GPS                  
                                     Ajout d'un coeficiant de compensation de temperature             
-                                    Modification la séquence de démarrage de l'enregistrement   
+                                    Modification de la séquence de démarrage de l'enregistrement   
+																		
+ v 0.5     beta 7  10/09/19         Ajout choix des pin SDA, SCL                                                                                                       
+                                    Modification des librairies du MPU9250 / ajout fonctions de                                                                                   
+                                    Calibration                                                      
+                                    Ajout Son de monté variable                                      
+                                    Modification de la sequence de démarrage -                       
+                                    allongement du temps de l'écran de stat à 6 sec                  
+                                    init MS5611 avant ecran stat, ajout acquisition durant ecran     
+                                    stat et init kalman après                                        
+                                    Ajout d'un paramettre de nombre d'acquisition du GPS avant        
+                                    la mise à jour de Altitude Barometrique                          
+                                    Modification librairie EEPROM                                    
 																		
                    Developpement à venir                               
                                                                                                                                     
@@ -77,14 +89,13 @@
  
  V0.5                                                                  
  Recupération vol via USB                                                                                         
- Calibration MPU																												
- porter best-fit-calibration sur l'ESP32                               
- porter gps-time-analysis sur l'ESP32                                  
- Mise à jour ESP32 via USB   
- verifier mesure temperature                                           
+ Mise à jour ESP32 via USB sans IDE  
+ Calibration du MPU																												
  revoir volume du son ToneESP32                                        
  verifier effacement du m (altitude)                                   
- bug d'affichage des fleches                                           
+ bug d'affichage des fleches  
+ Ajout d'un ecran d'arrêt suivi de l'écran de stat si appuie 3 sec sur bouton au centre                  
+ Ajout page web de reglage des paramettres
                                                                                                                                              
  VX.X                                                                  
  Refaire gestion du son                                                                              
@@ -93,7 +104,6 @@
  Afficher la boussole                                                                                
  Sens et vitesse du vent                                                                             
  Carnet de vol (10 derniers vols)                                                                    
-     10 zones d'eeprom - reduit le nombre d'écriture et économise la mémoire flash                   
 
                     Fonctionalitées   
 		
@@ -124,4 +134,5 @@
     Multi-écran (ajout 2ème page / gestion des bouton droit et gauche) 
     Affichage de la température     
 		Page de configuration du volume sonore
-    Page de statistique accessible via les boutons		
+    Page de statistique accessible via les boutons	
+		Son de monté variable

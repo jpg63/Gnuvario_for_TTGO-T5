@@ -27,10 +27,11 @@ static const char* TAG = "Gnuvario";
 #include <LightInvensense.h>
 #include <TwoWireScheduler.h>
 #else
-#include <MS5611.h>
+#include <MS5611-Ext.h>
 #include <Wire.h>
 #include <vertaccel2.h>
-#include <SparkFunMPU9250-DMP.h>
+//#include <SparkFunMPU9250-DMP.h>
+#include <MPU9250-DMP_SF_EXT.h>
 #endif
 
 #include <kalmanvert.h>
@@ -75,7 +76,7 @@ SimpleBLE ble;
 
 #define VERSION      0
 #define SUB_VERSION  5
-#define BETA_CODE    6
+#define BETA_CODE    7
 #define DEVNAME      "JPG63"
 #define AUTHOR "J"    //J=JPG63  P=PUNKDUMP
 
@@ -139,7 +140,20 @@ SimpleBLE ble;
 *                                    Modifié la calibration de l'altitude par le GPS                  *
 *                                    Ajout d'un coeficiant de compensation de temperature             *
 *                                    Modification la séquence de démarrage de l'enregistrement        *
-*                                                                                                     *
+* v 0.5     beta 7  10/09/19         Ajout de SDA_Pin et SCL_Pin                                      *                                                                 
+*                                    Modification des librairies du MPU9250 / ajout fonctions de      *                                                                             
+*                                    Calibration                                                      *
+*                                    Ajout Son de monté variable                                      *
+*                                    Modification de la sequence de démarrage -                       *
+*                                    allongement du temps de l'écran de stat à 6 sec                  *
+*                                    init MS5611 avant ecran stat, ajout acquisition durant ecran     *
+*                                    stat et init kalman après                                        *
+*                                    Ajout d'un paramettre de nombre d'acquisition du GPS avant       * 
+*                                    la mise à jour de Altitude Barametrique                          *
+*                                    Modification librairie EEPROM                                    *
+*                                    Ajout de la lecture de l'alti baro durant l'attente de l'écran   *
+*                                    de stat                                                          *
+*                                                                                                     * 
 *******************************************************************************************************
 *                                                                                                     *
 *                                   Developpement a venir                                             *
@@ -155,6 +169,8 @@ SimpleBLE ble;
 * verifier effacement du m (altitude)                                                                 *
 * bug d'affichage des fleches                                                                         *
 * voir réactivité des données GPS                                                                     *
+* Ajouter ecran d'arrêt puis de l'écran de stat si appuie 3 sec sur bouton au centre                  *
+* Ajout page web de configuration du vario                                                            *
 *                                                                                                     *
 * VX.X                                                                                                *
 * Refaire gestion du son                                                                              *
@@ -164,6 +180,7 @@ SimpleBLE ble;
 * Sens et vitesse du vent                                                                             *
 * Carnet de vol (10 derniers vols)                                                                    *
 *     10 zones d'eeprom - reduit le nombre d'écriture et économise la mémoire flash                   *
+* BT verifier fonctionnement                                                                          *
 *******************************************************************************************************/
 
 /************************************************************************
@@ -650,7 +667,11 @@ void setup() {
   SerialPort.println("Initialize MS5611 Sensor");
 #endif //MS5611_DEBUG
 
+#if defined(VARIO_SDA_PIN) && defined(VARIO_SCL_PIN)
+  while(!ms5611.begin(VARIO_SDA_PIN, VARIO_SCL_PIN))
+#else
   while(!ms5611.begin())
+#endif
   {
     SerialPort.println("Could not find a valid MS5611 sensor, check wiring!");
 #if defined(ESP32)
@@ -677,7 +698,12 @@ void setup() {
 #endif //ACCEL_DEBUG
 
   // Call imu.begin() to verify communication and initialize
+#if defined(VARIO_SDA_PIN) && defined(VARIO_SCL_PIN)
+  if (imu.begin(VARIO_SDA_PIN, VARIO_SCL_PIN) != INV_SUCCESS)
+#else
   if (imu.begin() != INV_SUCCESS)
+#endif
+
   {
     while (1)
     {
@@ -687,6 +713,37 @@ void setup() {
       while(1);
     }
   }
+
+  // Use setSensors to turn on or off MPU-9250 sensors.
+  // Any of the following defines can be combined:
+  // INV_XYZ_GYRO, INV_XYZ_ACCEL, INV_XYZ_COMPASS,
+  // INV_X_GYRO, INV_Y_GYRO, or INV_Z_GYRO
+  // Enable all sensors:
+  imu.setSensors(INV_XYZ_GYRO | INV_XYZ_ACCEL | INV_XYZ_COMPASS);
+
+/*  // Use setGyroFSR() and setAccelFSR() to configure the
+  // gyroscope and accelerometer full scale ranges.
+  // Gyro options are +/- 250, 500, 1000, or 2000 dps
+  imu.setGyroFSR(2000); // Set gyro to 2000 dps
+  // Accel options are +/- 2, 4, 8, or 16 g
+  imu.setAccelFSR(8); // Set accel to +/-2g
+  // Note: the MPU-9250's magnetometer FSR is set at 
+  // +/- 4912 uT (micro-tesla's)
+
+  // setLPF() can be used to set the digital low-pass filter
+  // of the accelerometer and gyroscope.
+  // Can be any of the following: 188, 98, 42, 20, 10, 5
+  // (values are in Hz).
+  imu.setLPF(5); // Set LPF corner frequency to 5Hz*/
+
+  // The sample rate of the accel/gyro can be set using
+  // setSampleRate. Acceptable values range from 4Hz to 1kHz
+  imu.setSampleRate(100); // Set sample rate to 10Hz
+
+  // Likewise, the compass (magnetometer) sample rate can be
+  // set using the setCompassSampleRate() function.
+  // This value can range between: 1-100Hz
+  imu.setCompassSampleRate(100); // Set mag rate to 10Hz
   
 /*  imu.dmpBegin(DMP_FEATURE_6X_LP_QUAT | // Enable 6-axis quat
                DMP_FEATURE_GYRO_CAL, // Use gyro calibration
@@ -696,21 +753,15 @@ void setup() {
   // DMP_FEATURE_LP_QUAT and 6X_LP_QUAT are mutually exclusive*/
 
     imu.dmpBegin(DMP_FEATURE_SEND_RAW_ACCEL | // Send accelerometer data
+//                 DMP_FEATURE_SEND_RAW_GYRO  | // Send raw gyroscope values to FIFO
                  DMP_FEATURE_GYRO_CAL       | // Calibrate the gyro data
                  DMP_FEATURE_SEND_CAL_GYRO  | // Send calibrated gyro data
                  DMP_FEATURE_6X_LP_QUAT     , // Calculate quat's with accel/gyro
-                 10);                         // Set update rate to 10Hz.
+                 100);                         // Set update rate to 10Hz.
   
 #endif //HAVE_ACCELEROMETER
 
 #endif //TWOWIRESCHEDULER
-
-
-#ifdef HAVE_SCREEN
-// Affichage Statistique
-  flystat.Display();
-  screen.ScreenViewStat();
-#endif //HAVE_SCREEN
 
 #ifdef HAVE_ACCELEROMETER
   /******************/
@@ -750,6 +801,31 @@ void setup() {
     SerialPort.println(firstAlti);
 #endif //MS5611_DEBUG
 
+#ifdef HAVE_SCREEN
+// Affichage Statistique
+  flystat.Display();
+  screen.ScreenViewStat();
+
+
+  unsigned long TmplastDisplayTimestamp = millis();
+  int compteur = 0;
+  while (compteur < 6) {
+          
+    if( millis() - TmplastDisplayTimestamp > 1000 ) {
+
+      TmplastDisplayTimestamp = millis();
+      compteur++;
+
+//    Messure d'altitude
+#if not defined (TWOWIRESCHEDULER)
+      firstAlti = ms5611.readPressure();
+#endif //TWOWIRESCHEDULER
+    
+    }
+  }
+  
+#endif //HAVE_SCREEN
+
   kalmanvert.init(firstAlti,
                   0.0,
                   POSITION_MEASURE_STANDARD_DEVIATION,
@@ -760,6 +836,7 @@ void setup() {
   SerialPort.println("kalman init");
 #endif //KALMAN_DEBUG
 #endif //HAVE_ACCELEROMETER
+
 
   compteurGpsFix = 0;
 
@@ -1186,7 +1263,7 @@ void loop() {
           SerialPort.println(gpsAlti);
 #endif //DATA_DEBUG
 
-          if (compteurGpsFix > 10) {
+          if (compteurGpsFix > NB_ACQUISITION_FIX_GPS) {
 #ifdef GPS_DEBUG
             SerialPort.println("GPS FIX");
 #endif //GPS_DEBUG

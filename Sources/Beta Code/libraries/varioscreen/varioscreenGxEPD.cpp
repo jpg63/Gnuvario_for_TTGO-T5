@@ -81,7 +81,7 @@ static const char* TAG = "VarioScreen";
 #include <gnuvario.h>
 
 #include <VarioSettings.h>
-#include <ToneHAL.h>
+#include <toneHAL.h>
 
 #ifdef __AVR__
   #include <avr/pgmspace.h>
@@ -841,7 +841,7 @@ void VarioScreen::ScreenViewStat(void)
 	
 //	display.powerOff();
 	
-	unsigned long TmplastDisplayTimestamp = millis();
+/*	unsigned long TmplastDisplayTimestamp = millis();
 	int compteur = 0;
 	while (compteur < 3) {
 		if( millis() - TmplastDisplayTimestamp > 1000 ) {
