@@ -47,9 +47,11 @@
 #define SerialPort Serial
 #endif
 
-//#define ENABLE_DEBUG
+#define ENABLE_DEBUG
 
 #if defined(ENABLE_DEBUG)
+
+
 // 							OUTPUT SERIALNMEA
 //#define SERIAL_NMEA_SERIAL_OUTPUT
 //#define SERIAL_NMEA_BLUETOOTH_OUTPUT

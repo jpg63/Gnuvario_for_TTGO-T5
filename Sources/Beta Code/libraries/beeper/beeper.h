@@ -24,7 +24,6 @@
 /*  Ver     Date                                                                                   */
 /*  1.0                                                                                            */
 /*  1.1     30/08/19     Ajout message de debug                                                    */
-/*  1.1.1   15/09/19     Ajout son de monté variable                                               */
 /*                                                                                                 */
 /***************************************************************************************************/
 
@@ -72,7 +71,6 @@
 /********************/
 #define SINKING_BEEP_BASE_FREQ 386.0
 #define SINKING_BEEP_FREQ_COEFF 33.0
-#define CLIMBING_BEEP_FREQ_UPDATE 1  // update climbing beep frequency(pitch) after X milliseconds. 0 = monotonous beep, do not update frequency while beep is playing. 1 = pitch changes smoothly every 1ms. more than 1 = pitch changed in steps every X milliseconds.
 
 /********************/
 /* THE GLIDING BEEP */
@@ -165,7 +163,6 @@ class Beeper {
   double 				beepClimbingThreshold;
   uint8_t 			volume;
   unsigned long beepStartTime;
-  unsigned long beepFreqUpdatePosition;
   double 				beepVelocity;
   double 				beepFreq;
   double 				beepPaternBasePosition;

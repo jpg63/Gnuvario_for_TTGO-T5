@@ -134,7 +134,7 @@ Fly stat        0xD0		26+2
 /* 1 PCB V1 pour TTGO-T5 version 1.6	    	*/
 /* 2 PCB V2 pour TTGO-T5 version 1.6 et 2.4 */
 
-#define PCB_VERSION 2
+#define PCB_VERSION 1
 
 
 /******************************/
@@ -191,6 +191,8 @@ Fly stat        0xD0		26+2
 #define BUTTON_A_PIN 38
 #define BUTTON_B_PIN 37
 #define BUTTON_C_PIN 39
+
+#define BUTTON_DEEP_SLEEP GPIO_NUM_37
 
 
 /****************/

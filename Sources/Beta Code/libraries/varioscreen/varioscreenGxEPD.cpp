@@ -2256,6 +2256,8 @@ const unsigned char batchargeicons[] = {
 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff
 };
 
+#define SIMPLE_VOLTAGE_VIEW
+
 /* !!! always reset !!! */
 //****************************************************************************************************************************
 void BATLevel::setVoltage(int voltage) {
@@ -2283,11 +2285,36 @@ Tableau
 
 */
 	
+/*
+Tension	ADC
+4,2	2320
+4,1	2260
+4	2200
+3,9	2160
+3,8	2100
+3,7	2040
+3,6	1980
+3,5	1920
+3,4	1850
+3,3	1790
+3,2	1710
+3,1	1660
+3	1590
+2,9	1560
+
+Avec l'equation y=ax+b 
+a=0.0016438
+b=0.386384
+*/
+	
 #if defined(VOLTAGE_DIVISOR_DEBUG)
   SerialPort.print("Voltage : ");
   SerialPort.println(voltage);
 #endif //SCREEN_DEBUG
 
+  Voltage = voltage;
+	
+#if not defined(SIMPLE_VOLTAGE_VIEW)
   uVoltage = (VOLTAGE_DIVISOR_VALUE * VOLTAGE_DIVISOR_REF_VOLTAGE * float(voltage))  / VOLTAGE_RESOLUTION;
 	
 #if defined(VOLTAGE_DIVISOR_DEBUG)
@@ -2303,7 +2330,7 @@ Tableau
   SerialPort.print("pVoltage : ");
   SerialPort.println(pVoltage);
 #endif //SCREEN_DEBUG
-
+#endif //SIMPLE_VOLTAGE_VIEW
   
   reset();
 }
@@ -2311,6 +2338,22 @@ Tableau
 //****************************************************************************************************************************
 void BATLevel::show(void) {
 //****************************************************************************************************************************
+/*
+
+AnalogRead=X
+
+
+if    2160<X<2320 = affichage de 4 barres
+
+if    2320<X<2100 = 3 barres
+
+if    2100<X<2000 =2 barre
+
+if    2000<X<1750 = 1 barre (qui clignote)
+
+if    X< 1700 = deep sleep (comme ça si la sécu batterie ne fonctionne pas ou si le vario ne plante pas avant, on préserve la batterie.
+*/	
+
 
   /* battery base */
 
@@ -2321,6 +2364,38 @@ void BATLevel::show(void) {
   SerialPort.println("Show : BatLevel");
 #endif //SCREEN_DEBUG
 
+#if defined (SIMPLE_VOLTAGE_VIEW)
+
+  if (Voltage >= 2160)
+    display.drawInvertedBitmap(posX, posY, bat4icons, 32, 32, GxEPD_BLACK);   //GxEPD_BLACK);
+  else if ((Voltage < 2160) && (Voltage >= 2100))
+    display.drawInvertedBitmap(posX, posY, bat3icons, 32, 32, GxEPD_BLACK);   //GxEPD_BLACK);
+  else if ((Voltage < 2100) && (Voltage >= 2000))
+    display.drawInvertedBitmap(posX, posY, bat2icons, 32, 32, GxEPD_BLACK);   //GxEPD_BLACK);
+  else if ((Voltage < 2000) && (Voltage >= 1750))
+    display.drawInvertedBitmap(posX, posY, bat1icons, 32, 32, GxEPD_BLACK);   //GxEPD_BLACK);
+  else {
+    display.drawInvertedBitmap(posX, posY, bat0icons, 32, 32, GxEPD_BLACK);   //GxEPD_BLACK);
+		//Deep Sleep
+		
+		esp_sleep_enable_ext0_wakeup(BUTTON_DEEP_SLEEP,0); //1 = High, 0 = Low
+
+  //If you were to use ext1, you would use it like
+  //esp_sleep_enable_ext1_wakeup(BUTTON_PIN_BITMASK,ESP_EXT1_WAKEUP_ANY_HIGH);
+
+  //Go to sleep now
+		SerialPort.println("Going to sleep now");
+
+#if defined(HAVE_POWER_ALIM) 
+    pinMode(POWER_PIN, OUTPUT);
+    digitalWrite(POWER_PIN, !POWER_PIN_STATE);   // turn off POWER (POWER_PIN_STATE is the voltage level HIGH/LOW)
+#endif  
+  
+		esp_deep_sleep_start();
+		SerialPort.println("This will never be printed");		
+	}
+
+#else //SIMPLE_VOLTAGE_VIEW
 #ifdef SCREEN_DEBUG
   SerialPort.print("uVoltage : ");
   SerialPort.println(uVoltage);
@@ -2352,6 +2427,8 @@ void BATLevel::show(void) {
   }*/
 
   /* battery end */
+#endif //SIMPLE_VOLTAGE_VIEW
+
 }
 
 /*-----------------------------------------*/

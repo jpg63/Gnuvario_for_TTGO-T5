@@ -76,7 +76,7 @@ SimpleBLE ble;
 
 #define VERSION      0
 #define SUB_VERSION  5
-#define BETA_CODE    7
+#define BETA_CODE    8
 #define DEVNAME      "JPG63"
 #define AUTHOR "J"    //J=JPG63  P=PUNKDUMP
 
@@ -143,7 +143,6 @@ SimpleBLE ble;
 * v 0.5     beta 7  10/09/19         Ajout de SDA_Pin et SCL_Pin                                      *                                                                 
 *                                    Modification des librairies du MPU9250 / ajout fonctions de      *                                                                             
 *                                    Calibration                                                      *
-*                                    Ajout Son de monté variable                                      *
 *                                    Modification de la sequence de démarrage -                       *
 *                                    allongement du temps de l'écran de stat à 6 sec                  *
 *                                    init MS5611 avant ecran stat, ajout acquisition durant ecran     *
@@ -153,6 +152,8 @@ SimpleBLE ble;
 *                                    Modification librairie EEPROM                                    *
 *                                    Ajout de la lecture de l'alti baro durant l'attente de l'écran   *
 *                                    de stat                                                          *
+* v 0.5   beta 8  22/09/19           Modification de l'affichage de Vbat                              *
+*                                    Ajout d'un filtrage de la mesure de Vbat                         *
 *                                                                                                     * 
 *******************************************************************************************************
 *                                                                                                     *
@@ -171,6 +172,8 @@ SimpleBLE ble;
 * voir réactivité des données GPS                                                                     *
 * Ajouter ecran d'arrêt puis de l'écran de stat si appuie 3 sec sur bouton au centre                  *
 * Ajout page web de configuration du vario                                                            *
+* Revoir l'affichage de la batterie                                                                   *
+* Ajout deep sleep                                                                                    *
 *                                                                                                     *
 * VX.X                                                                                                *
 * Refaire gestion du son                                                                              *
@@ -403,6 +406,8 @@ uint8_t temprature_sens_read();
 
 int tmpint = 0;
 int compteurGpsFix = 0;
+
+int MaxVoltage   = 0;
 
 //****************************
 //****************************
@@ -879,7 +884,8 @@ void setup() {
   ButtonScheduleur.Set_StatePage(STATE_PAGE_VARIO);
   /* init time */
   lastDisplayTimestamp = millis(); 
-  displayLowUpdateState = true;  
+  displayLowUpdateState = true; 
+  MaxVoltage   = 0; 
 }
 
 double temprature=0;
@@ -1374,8 +1380,15 @@ void loop() {
     SerialPort.print("Tension : ");
     SerialPort.println(val);
 #endif //VOLTAGE_DIVISOR_DEBUG
+
+  int TmpVoltage = analogRead(VOLTAGE_DIVISOR_PIN);  
+  if (TmpVoltage > MaxVoltage) MaxVoltage = TmpVoltage;
+  
+  if (displayLowUpdateState) {
     
-  if (displayLowUpdateState) screen.batLevel->setVoltage( analogRead(VOLTAGE_DIVISOR_PIN) );
+    screen.batLevel->setVoltage(MaxVoltage);
+    MaxVoltage   = 0;
+  }
 //  batLevel.setVoltage( maxVoltage );
 //  maxVoltage = 0;
 

@@ -24,7 +24,6 @@
 /*  Ver     Date                                                                                   */
 /*  1.0                                                                                            */
 /*  1.1     30/08/19     Ajout message de debug                                                    */
-/*  1.1.1   15/09/19     Ajout son de monté variable                                               */
 /*                                                                                                 */
 /***************************************************************************************************/
 
@@ -271,7 +270,6 @@ void Beeper::setVelocity(double velocity) {
   if( (beepTypeChange && !bst_isset(CLIMBING_ALARM) && !bst_isset(SINKING_ALARM) ) ||
       (startAlarm) ) {
     beepStartTime = millis();
-		beepFreqUpdatePosition = beepStartTime;
     beepPaternBasePosition = 0.0;
     beepPaternPosition = 0.0;
     bst_set(BEEP_NEW_FREQ); //force changing freq
@@ -334,10 +332,6 @@ void Beeper::setBeepPaternPosition(double velocity) {
     if( currentLength + beepPaternBasePosition > beepPaternPosition ) {
       beepPaternPosition = currentLength + beepPaternBasePosition;
     }
-    if (currentTime > beepFreqUpdatePosition + CLIMBING_BEEP_FREQ_UPDATE && CLIMBING_BEEP_FREQ_UPDATE > 0) {
-      bst_set(BEEP_NEW_FREQ);
-      beepFreqUpdatePosition = currentTime;	
-		}					
   } else {
     beepPaternPosition = currentLength;
   }

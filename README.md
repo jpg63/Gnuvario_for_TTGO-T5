@@ -81,6 +81,8 @@
                                     Ajout d'un paramettre de nombre d'acquisition du GPS avant        
                                     la mise à jour de Altitude Barometrique                          
                                     Modification librairie EEPROM                                    
+ v 0.5   beta 8  22/09/19           Modification de l'affichage de Vbat                              
+                                    Ajout d'un filtrage de la mesure de Vbat                         
 																		
                    Developpement à venir                               
                                                                                                                                     
@@ -96,14 +98,16 @@
  bug d'affichage des fleches  
  Ajout d'un ecran d'arrêt suivi de l'écran de stat si appuie 3 sec sur bouton au centre                  
  Ajout page web de reglage des paramettres
-                                                                                                                                             
+ Ajout deep sleep                                                                                    
+                                                                                                                                            
  VX.X                                                                  
  Refaire gestion du son                                                                              
  Paramètrage des écrans                                                                              
  Gérer le son via le DAC                                                                             
  Afficher la boussole                                                                                
  Sens et vitesse du vent                                                                             
- Carnet de vol (10 derniers vols)                                                                    
+ Carnet de vol (10 derniers vols) 
+ Verifier fonctionnement BT 
 
                     Fonctionalitées   
 		
