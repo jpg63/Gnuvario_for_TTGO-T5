@@ -36,6 +36,7 @@
  *                      Augmentation debounce time                               *
  *                      Ajout _state button																			 *
  *    1.0.7  31/08/19		Correction bug reglage son															 *
+ *    1.0.8  25/09/19   Ajout appuie 3 sec bouton central                        * 
  *                                                                               *
  *********************************************************************************/
  
@@ -92,6 +93,9 @@ class VARIOButtonScheduleur {
 		void treatmentBtnA(bool Debounce);
 		void treatmentBtnB(bool Debounce);
 		void treatmentBtnC(bool Debounce);
+		
+		void treatmentBtnB3S(bool Debounce);
+		
 #ifdef HAVE_WIFI
 		void WifiServeur(void);
 #endif //HAVE_WIFI

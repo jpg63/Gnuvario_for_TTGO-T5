@@ -436,6 +436,17 @@ public:
 	//         Bit pos 1: accel
 	//         Bit pos 2: mag
 	int selfTest(unsigned char debug = 0);
+	
+	
+	/* read gyro/accel/quat measures */
+	inv_error_t fastMPUReadFIFO(int16_t *gyro, int16_t *accel, int32_t *quat);
+	inv_error_t fastMPUReadRawMag(int16_t* mag);
+	uint8_t* fastMPUGetMagSensAdj(void);
+	void fastMPUAdjMag(int16_t* mag);
+	inv_error_t fastMPUReadMag(int16_t* mag);
+	
+	
+	
   void ReadEeprom(void);
   void WriteEeprom(void);
 	

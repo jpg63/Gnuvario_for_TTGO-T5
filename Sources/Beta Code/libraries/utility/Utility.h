@@ -47,6 +47,7 @@ void indicateFaultMPU9250();
 void indicateFaultSDCARD();
 void signalBeep(double freq, unsigned long duration, int count);
 int8_t percentBat(double targetVoltage);
+void deep_sleep(void);
 
 extern VarioSettings GnuSettings;
 //extern Beeper beeper;

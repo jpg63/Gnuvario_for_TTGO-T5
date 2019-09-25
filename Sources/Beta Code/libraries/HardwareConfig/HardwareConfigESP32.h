@@ -148,6 +148,9 @@ Fly stat        0xD0		26+2
 #define VARIOSCREEN_RST_PIN 16
 #define VARIOSCREEN_BUSY_PIN 4
 
+#define VARIOSCREEN_SIZE 	154			//Ecran 1.54''
+//#define VARIOSCREEN_SIZE	29			//Ecran 2.9''
+
 
 /****************************/
 /*           SDCARD         */
@@ -193,7 +196,8 @@ Fly stat        0xD0		26+2
 #define BUTTON_C_PIN 39
 
 #define BUTTON_DEEP_SLEEP GPIO_NUM_37
-
+#define GPIO_BUTTON_A GPIO_NUM_38
+#define GPIO_BUTTON_C GPIO_NUM_39
 
 /****************/
 /*     TENSION  */

@@ -1,8 +1,8 @@
-/* varioscreenGxEPD -- 
+/* varioscreenObjects -- 
  *
  * Copyright 2019 Jean-philippe GOI
  * 
- * This file is part of toneHAL.
+ * This file is part of GnuVario-E.
  *
  * ToneHAL is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,24 +18,61 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-/*********************************************************************************/
-/*                                                                               */
-/*                           VarioScreenGxEPD                                    */
-/*                                                                               */
-/*  version    Date     Description                                              */
-/*    1.0    03/06/19                                                            */
-/*                                                                               */
-/*********************************************************************************/
+/* 
+ *********************************************************************************
+ *                                                                               *
+ *                           VarioScreenObjects                                  *
+ *                                                                               *
+ *  version    Date     Description                                              *
+ *    1.0    20/06/19                                                            *
+ *    1.0.1  25/06/19   Correction affichage batterie / affichage vitesse        *
+ *    1.0.2  20/07/19   Correction bug d'affiche screedigit                      *
+ *    1.0.3  21/07/19   Correction affichage statistique                         *
+ *    1.0.4  23/07/19   Ajout trendDigit                                         *
+ *                      Modification ratioDigit / trendDigit                     *
+ *    1.0.5  06/08/19   Ajout icon noRecord                                      *
+ *                      Ajout raffrachissement ALL toutes les 30 secs            *
+ *    1.0.6  12/08/19   Ajout gestion écran de config GPS                        *
+ *    1.0.7  15/08/19   Ajout gestion bouton dans screeninit                     *
+ *    1.0.8  15/09/19   Ajout écran connection Wifi - ScreenViewWifi             *
+ *    1.0.9  22/08/19   Ajout ScreenViewReboot																	 *
+ *    1.0.10 22/08/19   Ajout Page1                                              *
+ *    1.0.11 23/08/19   Correction bug previousPage                              *
+ *                      Ajout TUnit                                              *
+ *    1.0.12 24/08/19   Ajout ScreenViewSound(int volume)                        *
+ *		1.0.13 25/08/19		Gestion de l'écran de config du son											 *	
+ *    1.0.14 23/09/19   Modification page stat                                   *
+ *                      Modification de l'affichage de la charge de la betterie  *
+ *                      Ajout d'un deep-sleep en cas de batterie trop faible     *
+ *    1.1.0  25/09/19   Ajout multi screen                                       *
+ *                                                                               *
+ *********************************************************************************/
+ 
+ /*
+ *********************************************************************************
+ *                    conversion image to cpp code                               *
+ *                                                                               *
+ *      https://javl.github.io/image2cpp/                                        *
+ *                                                                               *
+ *********************************************************************************/
 
-#include <varioscreenGxEPD.h>
 #include <Arduino.h>
-//#include <avr\dtostrf.h>
-#include <stdlib.h>
+#include <HardwareConfig.h>
 #include <DebugConfig.h>
 
-#include <HardwareConfig.h>
+#include <varioscreenObjects.h>
+
+#if defined(ESP32)
+static const char* TAG = "VarioScreen";
+#include "esp_log.h"
+#endif //ESP32
+
+//#include <avr\dtostrf.h>
+#include <stdlib.h>
 
 /* http://javl.github.io/image2cpp/ */
+
+#include <VarioButton.h>
 
 #include <GxEPD2_BW.h>
 #include <GxEPD2_3C.h>
@@ -48,6 +85,9 @@
 #include <gnuvario.h>
 
 #include <VarioSettings.h>
+#include <toneHAL.h>
+
+#include <Utility.h>
 
 #ifdef __AVR__
   #include <avr/pgmspace.h>
@@ -86,56 +126,11 @@
 #define _swap_int16_t(a, b) { int16_t t = a; a = b; b = t; }
 #endif
 
-volatile unsigned long oldtime;
-volatile uint8_t stateDisplay;
-volatile uint8_t led1stat = 0; 
-
-
 #define VARIOSCREEN_DOT_WIDTH 6
 #define VARIOSCREEN_DIGIT_WIDTH 11
 
 #define ColorScreen    GxEPD_WHITE
 #define ColorText      GxEPD_BLACK
-
-#define VARIOSCREEN_TENSION_ANCHOR_X 140
-#define VARIOSCREEN_TENSION_ANCHOR_Y 170
-
-#define VARIOSCREEN_AUTONOMIE_ANCHOR_X 90
-#define VARIOSCREEN_AUTONOMIE_ANCHOR_Y 235
-
-#define VARIOSCREEN_ALTI_ANCHOR_X 110
-#define VARIOSCREEN_ALTI_ANCHOR_Y 80
-#define VARIOSCREEN_ALTI_UNIT_ANCHOR_X    120
-#define VARIOSCREEN_VARIO_ANCHOR_X 2
-#define VARIOSCREEN_VARIO_ANCHOR_Y 135
-#define VARIOSCREEN_VARIO_UNIT_ANCHOR_X   100
-#define VARIOSCREEN_VARIO_UNIT_ANCHOR_Y   110
-#define VARIOSCREEN_SPEED_ANCHOR_X 50
-#define VARIOSCREEN_SPEED_ANCHOR_Y 190
-#define VARIOSCREEN_SPEED_UNIT_ANCHOR_X 55
-#define VARIOSCREEN_SPEED_UNIT_ANCHOR_Y 165
-#define VARIOSCREEN_GR_ANCHOR_X 144
-#define VARIOSCREEN_GR_ANCHOR_Y 135
-#define VARIOSCREEN_INFO_ANCHOR_X 4
-#define VARIOSCREEN_INFO_ANCHOR_Y 0
-#define VARIOSCREEN_VOL_ANCHOR_X 44
-#define VARIOSCREEN_VOL_ANCHOR_Y 0
-#define VARIOSCREEN_RECCORD_ANCHOR_X 84
-#define VARIOSCREEN_RECCORD_ANCHOR_Y 0
-#define VARIOSCREEN_BAT_ANCHOR_X 124
-#define VARIOSCREEN_BAT_ANCHOR_Y 0
-#define VARIOSCREEN_SAT_ANCHOR_X 164
-#define VARIOSCREEN_SAT_ANCHOR_Y 0
-#define VARIOSCREEN_SAT_FIX_ANCHOR_X 176
-#define VARIOSCREEN_SAT_FIX_ANCHOR_Y 40
-#define VARIOSCREEN_TIME_ANCHOR_X 195
-#define VARIOSCREEN_TIME_ANCHOR_Y 190
-#define VARIOSCREEN_ELAPSED_TIME_ANCHOR_X 197
-#define VARIOSCREEN_ELAPSED_TIME_ANCHOR_Y 190
-#define VARIOSCREEN_BT_ANCHOR_X 152
-#define VARIOSCREEN_BT_ANCHOR_Y 40
-#define VARIOSCREEN_TREND_ANCHOR_X 120
-#define VARIOSCREEN_TREND_ANCHOR_Y 111
 
 //***********************
 //     GxEPD2_BW_U  
@@ -233,8 +228,6 @@ volatile uint8_t led1stat = 0;
   _PowerOff();
 } */
 
-VarioScreen screen;
-
 //****************************************************************************************************************************
 template<typename GxEPD2_Type, const uint16_t page_height> unsigned int GxEPD2_BW_U<GxEPD2_Type, page_height>::GetState(void){
 //****************************************************************************************************************************
@@ -274,384 +267,7 @@ template<typename GxEPD2_Type, const uint16_t page_height> unsigned int GxEPD2_B
 /* screen */
 /**********/
 
-//****************************************************************************************************************************
-//****************************************************************************************************************************
-//								VARIOSCREEN
-//****************************************************************************************************************************
-//****************************************************************************************************************************
 
-
-//****************************************************************************************************************************
-VarioScreen::~VarioScreen() {
-//****************************************************************************************************************************
-	free(tensionDigit);
-	free(displayList);
-	free(schedulerScreen);
-}
-
-#define ITEMS_IN_ARRAY(array)   (sizeof(array) / sizeof(*array))
-
-//****************************************************************************************************************************
-void VarioScreen::begin(void)
-//****************************************************************************************************************************
-{
-#ifdef SCREEN_DEBUG
-	SerialPort.println("init");	
-#endif //SCREEN_DEBUG
-
-  display.init(115200);
-	
-//  setRotation(2);
-
-#ifdef SCREEN_DEBUG
-	SerialPort.println("fillScreen");	
-#endif //SCREEN_DEBUG
-
-  display.fillScreen(GxEPD_WHITE);
-	
-#ifdef SCREEN_DEBUG
-	SerialPort.println("setTextColor");	
-#endif //SCREEN_DEBUG
-	
-  display.setTextColor(GxEPD_BLACK);
-	
-#ifdef SCREEN_DEBUG
-	SerialPort.println("update");	
-#endif //SCREEN_DEBUG
-	
-	/* création des champs d'affichage */
-	
-	
-//	ScreenDigit tensionDigit(TENSION_DISPLAY_POSX /*VARIOSCREEN_TENSION_ANCHOR_X*/, VARIOSCREEN_TENSION_ANCHOR_Y, 5, 2, false, false, ALIGNRIGHT);
-
-/*	tensionDigit = new ScreenDigit(VARIOSCREEN_TENSION_ANCHOR_X, VARIOSCREEN_TENSION_ANCHOR_Y, 5, 2, false, false, ALIGNRIGHT);	
-	tempratureDigit = new ScreenDigit(VARIOSCREEN_TENSION_ANCHOR_X, VARIOSCREEN_TENSION_ANCHOR_Y, 5, 2, false, false, ALIGNRIGHT);*/
-	
-	altiDigit = new ScreenDigit(VARIOSCREEN_ALTI_ANCHOR_X, VARIOSCREEN_ALTI_ANCHOR_Y, 4, 0, false, false, ALIGNRIGHT);
-	munit = new MUnit(VARIOSCREEN_ALTI_UNIT_ANCHOR_X, VARIOSCREEN_ALTI_ANCHOR_Y);
-	varioDigit = new ScreenDigit(VARIOSCREEN_VARIO_ANCHOR_X, VARIOSCREEN_VARIO_ANCHOR_Y, 4, 1, true, false,  ALIGNLEFT);
-	msunit = new MSUnit(VARIOSCREEN_VARIO_UNIT_ANCHOR_X, VARIOSCREEN_VARIO_UNIT_ANCHOR_Y);
-	kmhunit = new KMHUnit(VARIOSCREEN_SPEED_UNIT_ANCHOR_X, VARIOSCREEN_SPEED_UNIT_ANCHOR_Y);
-	speedDigit = new ScreenDigit(VARIOSCREEN_SPEED_ANCHOR_X, VARIOSCREEN_SPEED_ANCHOR_Y, 2, 0, false, false, ALIGNRIGHT);
-	ratioDigit = new ScreenDigit(VARIOSCREEN_GR_ANCHOR_X, VARIOSCREEN_GR_ANCHOR_Y, 2, 0, false, true, ALIGNLEFT);
-
-	infoLevel = new INFOLevel(VARIOSCREEN_INFO_ANCHOR_X, VARIOSCREEN_INFO_ANCHOR_Y);
-	volLevel = new VOLLevel(VARIOSCREEN_VOL_ANCHOR_X, VARIOSCREEN_VOL_ANCHOR_Y);
-	recordIndicator = new RECORDIndicator(VARIOSCREEN_RECCORD_ANCHOR_X, VARIOSCREEN_RECCORD_ANCHOR_Y);
-	trendLevel = new TRENDLevel(VARIOSCREEN_TREND_ANCHOR_X, VARIOSCREEN_TREND_ANCHOR_Y);
-
-	batLevel = new BATLevel(VARIOSCREEN_BAT_ANCHOR_X, VARIOSCREEN_BAT_ANCHOR_Y, VOLTAGE_DIVISOR_VALUE, VOLTAGE_DIVISOR_REF_VOLTAGE);
-
-	satLevel = new SATLevel(VARIOSCREEN_SAT_ANCHOR_X, VARIOSCREEN_SAT_ANCHOR_Y);
-
-/*	screenTime = new ScreenTime(VARIOSCREEN_TIME_ANCHOR_X, VARIOSCREEN_TIME_ANCHOR_Y, true);
-	
-	screenTime->minute = new ScreenDigit (VARIOSCREEN_TIME_ANCHOR_X, VARIOSCREEN_TIME_ANCHOR_Y, 2, 0, false, true, ALIGNLEFT);
-	screenTime->hour   = new ScreenDigit (VARIOSCREEN_TIME_ANCHOR_X-68, VARIOSCREEN_TIME_ANCHOR_Y, 2, 0, false, true, ALIGNLEFT);*/
-
-	/*screenElapsedTime = new ScreenElapsedTime(VARIOSCREEN_ELAPSED_TIME_ANCHOR_X, VARIOSCREEN_ELAPSED_TIME_ANCHOR_Y, timeHDigit, timeMDigit);*/
-
-	fixgpsinfo = new FIXGPSInfo(VARIOSCREEN_SAT_FIX_ANCHOR_X, VARIOSCREEN_SAT_FIX_ANCHOR_Y);
-	btinfo = new BTInfo(VARIOSCREEN_BT_ANCHOR_X, VARIOSCREEN_BT_ANCHOR_Y);
-	
-//	displayList  = new ScreenSchedulerObject[3];
-	MaxObjectList = 0;
-	
-#ifdef SCREEN_DEBUG
-	SerialPort.println("schedulerScreen : createObjectDisplay");	
-#endif //SCREEN_DEBUG
-	
-//	CreateObjectDisplay(DISPLAY_OBJECT_TENSION, tensionDigit, 0, 0, true); 
-//	CreateObjectDisplay(DISPLAY_OBJECT_TEMPRATURE, tempratureDigit, 0, 2, true); 
-		CreateObjectDisplay(DISPLAY_OBJECT_ALTI, altiDigit, 0, 0, true); 
-		CreateObjectDisplay(DISPLAY_OBJECT_MUNIT, munit, 0, 0, true); 
-		CreateObjectDisplay(DISPLAY_OBJECT_VARIO, varioDigit, 0, 0, true); 
-		CreateObjectDisplay(DISPLAY_OBJECT_MSUNIT, msunit, 0, 0, true); 
-		CreateObjectDisplay(DISPLAY_OBJECT_KMHUNIT, kmhunit, 0, 0, true); 
-		CreateObjectDisplay(DISPLAY_OBJECT_SPEED, speedDigit, 0, 0, true); 
-		CreateObjectDisplay(DISPLAY_OBJECT_RATIO, ratioDigit, 0, 0, true); 
-		CreateObjectDisplay(DISPLAY_OBJECT_INFOLEVEL, infoLevel, 0, 0, true); 
-		CreateObjectDisplay(DISPLAY_OBJECT_VOLLEVEL, volLevel, 0, 0, true); 
-		CreateObjectDisplay(DISPLAY_OBJECT_RECORDIND, recordIndicator, 0, 0, true); 
-		CreateObjectDisplay(DISPLAY_OBJECT_TRENDLEVEL, trendLevel, 0, 0, true); 
-		CreateObjectDisplay(DISPLAY_OBJECT_BATLEVEL, batLevel, 0, 0, true); 
-		CreateObjectDisplay(DISPLAY_OBJECT_SATLEVEL, satLevel, 0, 0, true); 
-		CreateObjectDisplay(DISPLAY_OBJECT_FIXGPSINFO, fixgpsinfo, 0, 0, true); 
-		CreateObjectDisplay(DISPLAY_OBJECT_BTINFO, btinfo, 0, 0, true); 
-	
-#ifdef SCREEN_DEBUG
-	SerialPort.println("schedulerScreen : create");	
-		
-	SerialPort.print("begin - objectCount : ");	
-	SerialPort.println(ITEMS_IN_ARRAY(displayList));	
-//	SerialPort.println(sizeof(displayList);	
-#endif //SCREEN_DEBUG
-	
-	schedulerScreen = new ScreenScheduler(displayList, ITEMS_IN_ARRAY(displayList) -1, 0, 0);   //ITEMS_IN_ARRAY(displayList), 0, 0);
-
-  stateDisplay = STATE_OK;
-	
-//  display.update();  
-
-/*  updateWindow(0, 0, display.width(), display.height(), false);  
-  while (GetState() != STATE_OK) {
-    updateWindow(0, 0, display.width(), display.height(), false);
-  }*/
-}
-
-//****************************************************************************************************************************
-void VarioScreen::CreateObjectDisplay(int8_t ObjectDisplayTypeID, VarioScreenObject* object, int8_t page, int8_t multiDisplayID, boolean actif) { 
-//****************************************************************************************************************************
-
-  MaxObjectList++;
-	
-#ifdef SCREEN_DEBUG
-	SerialPort.print("MaxObjectList : ");	
-	SerialPort.println(MaxObjectList);	
-#endif //SCREEN_DEBUG
-	
-//  displayList = (ScreenSchedulerObject*) realloc (displayList, MaxObjectList * sizeof(ScreenSchedulerObject ) );
-	
-	displayList[MaxObjectList-1].object				 				= object;
-	displayList[MaxObjectList-1].page   							= page;
-	displayList[MaxObjectList-1].multiDisplayID 			= multiDisplayID;
-	displayList[MaxObjectList-1].ObjectDisplayTypeID	= ObjectDisplayTypeID;
-	displayList[MaxObjectList-1].actif  							= actif;
-	
-	
-}
-
-//****************************************************************************************************************************
-void genericTask( void * parameter ){
-//****************************************************************************************************************************
-  stateDisplay = STATE_BUSY;
-#ifdef SCREEN_DEBUG
-    SerialPort.print("Created task: Executing on core ");
-    SerialPort.println(xPortGetCoreID());
-#endif //SCREEN_DEBUG
-
-	display.display(true); // partial update
-  stateDisplay = STATE_OK;
-  vTaskDelete(NULL);
-}
-
-TaskHandle_t taskDisplay;
-
-//****************************************************************************************************************************
-void VarioScreen::updateScreen (void)
-//****************************************************************************************************************************
-{
-#ifdef SCREEN_DEBUG
-	SerialPort.println("screen update");	
-#endif //SCREEN_DEBUG
-	
-  if (stateDisplay != STATE_OK) return;
-	
-	display.setFullWindow();
-#ifdef SCREEN_DEBUG
-	SerialPort.println("screen update : setFullWindows");	
-#endif //SCREEN_DEBUG
-	
-/*	xTaskCreate(
-							genericTask,       // Task function. 
-							"genericTask",     // String with name of task. 
-							10000,             // Stack size in words. 
-							NULL,              // Parameter passed as input of the task 
-							2,                 // Priority of the task. 
-							NULL);             // Task handle. */	
-	
-	xTaskCreatePinnedToCore(
-							genericTask,       // Task function. 
-							"TaskDisplay",     // String with name of task. 
-							10000,             // Stack size in words. 
-							NULL,              // Parameter passed as input of the task 
-							2,                 // Priority of the task.
-							&taskDisplay,			 // Task handle
-							1);             	 // pin task to core 1*/	
-							
-//	display.display(true); // partial update
-#ifdef SCREEN_DEBUG
-	SerialPort.println("screen update : create task");	
-#endif //SCREEN_DEBUG
-
-//	display.updateWindow(0, 0, display.width(), display.height(), false);
-}
-
-//****************************************************************************************************************************
-void VarioScreen::updateData(int8_t ObjectDisplayTypeID, double data) {
-//****************************************************************************************************************************
-	
-	#ifdef SCREEN_DEBUG
-	SerialPort.println("updateData");	
-#endif //SCREEN_DEBUG
-
-	for(int i=0;i<=sizeof(displayList)/sizeof(ScreenSchedulerObject);i++) {
-		
-#ifdef SCREEN_DEBUG
-		SerialPort.print("i = ");	
-		SerialPort.println(i);	
-		SerialPort.print("ObjectDisplayTypeID = ");	
-		SerialPort.println(displayList[i].ObjectDisplayTypeID);			
-#endif //SCREEN_DEBUG
-		
-		if (displayList[i].ObjectDisplayTypeID	== ObjectDisplayTypeID) {
-	//		displayList[i].object->setValue(data);
-			
-#ifdef SCREEN_DEBUG
-		  SerialPort.print("i = ");	
-		  SerialPort.println(i);	
-		  SerialPort.print("data = ");	
-		  SerialPort.println(data);	
-#endif //SCREEN_DEBUG
-		
-			
-		}
-	}
-}
-
-
-//****************************************************************************************************************************
-void VarioScreen::ScreenViewInit(uint8_t Version, uint8_t Sub_Version, String Author)
-//****************************************************************************************************************************
-{
-  char tmpbuffer[100];
-	
-  display.setFullWindow();
-  display.firstPage();
-  do
-  {
- 	  display.fillScreen(ColorScreen);
-
-		display.drawBitmap(0, 10, logo_gnuvario, 102, 74, ColorText); //94
-
-		display.setFont(&FreeSansBold12pt7b);
-		display.setTextColor(ColorText);
-		display.setTextSize(1);
-
-		display.setCursor(100, 30);
-		display.println("Version");
-		display.setCursor(105, 50);
-		display.print(" Beta 1");
-		sprintf(tmpbuffer,"%02d.%02d-", Version, Sub_Version);
-		display.setCursor(105, 70);
-		display.print(tmpbuffer);
-		display.print(Author);
-		sprintf(tmpbuffer,"%s", __DATE__);
-		display.setCursor(25, 110);
-		display.print(tmpbuffer);
-
-		display.setFont(&FreeSansBold12pt7b);
-		display.setTextSize(1);
-		display.setCursor(20, VARIOSCREEN_TENSION_ANCHOR_Y);
-		display.print("GNUVARIO-E");
-  }
-  while (display.nextPage());
-	
-	unsigned long TmplastDisplayTimestamp = millis();
-	int compteur = 0;
-	while (compteur < 6) {
-		if( millis() - TmplastDisplayTimestamp > 1000 ) {
-
-			TmplastDisplayTimestamp = millis();
-			compteur++;
-		
-		  display.fillRect(19, 170, 180, -30, GxEPD_WHITE);
-
-		  if ((compteur % 2) == 0) {
-				display.setCursor(20, VARIOSCREEN_TENSION_ANCHOR_Y);
-				display.print("GNUVARIO-E");
-#ifdef SCREEN_DEBUG
-				SerialPort.println("Gnuvario-E");	
-#endif //SCREEN_DEBUG
-
-			} else {
-#ifdef SCREEN_DEBUG
-				SerialPort.println("Startup");	
-#endif //SCREEN_DEBUG
-
-			}
-			updateScreen ();
-		}
-	}
-	
-// 	display.fillScreen(ColorScreen);
-	
-	ScreenViewPage(0,true);
-	updateScreen ();
-
-//  display..update();
-/*		display..updateWindow(0, 0, display.width(), display.height(), false);
-  while (display..GetState() != STATE_OK) {
-    display..updateWindow(0, 0, display.width(), display.height(), false);
-  }*/	
-}
-
-//****************************************************************************************************************************
-void VarioScreen::ScreenViewPage(int8_t page, boolean clear)
-//****************************************************************************************************************************
-{
-	
-#ifdef SCREEN_DEBUG
-	SerialPort.println("fillScreen");	
-#endif //SCREEN_DEBUG
-
-//setPage(int8_t page, boolean force = false);
-
-  if (clear) display.fillScreen(ColorScreen);
-	
-#ifdef SCREEN_DEBUG
-	SerialPort.println("setTextColor");	
-#endif //SCREEN_DEBUG
-	
-  display.setTextColor(GxEPD_BLACK);
-	
-#ifdef SCREEN_DEBUG
-	SerialPort.println("update");	
-#endif //SCREEN_DEBUG	
-
-  altiDigit->setValue(0);
-  varioDigit->setValue(0);
-	speedDigit->setValue(0);
-	ratioDigit->setValue(0);
-	infoLevel->set(INFO_USB);
-	volLevel->setVolume(10);
-	
-	recordIndicator->setActifSCAN();
-	trendLevel->stateTREND(1);
-	batLevel->setVoltage(4.2);
-	satLevel->setSatelliteCount(30);
-	timeMDigit->setValue(0);
-	timeHDigit->setValue(0);
-
-/*	screenTime = new ScreenTime(VARIOSCREEN_TIME_ANCHOR_X, VARIOSCREEN_TIME_ANCHOR_Y, timeHDigit, timeMDigit,true);
-	screenElapsedTime = new ScreenElapsedTime(VARIOSCREEN_ELAPSED_TIME_ANCHOR_X, VARIOSCREEN_ELAPSED_TIME_ANCHOR_Y, timeHDigit, timeMDigit);*/
-
-	fixgpsinfo->setFixGps();
-	btinfo->setBT();
-}	
-
-/*void VarioScreen::clearScreen(void) 
-{
-  eraseDisplay();	
-}*/
-
-/*void VarioScreen::beginClear(void) {
-  clearingStep = 0;
-}
-
-bool VarioScreen::clearStep(void) {
-
-  /* check if clear is needed *
-  if( clearingStep == LCDHEIGHT ) {
-    return false;
-  }
-
-  /* clear one line *
-
-  /* next *
-  clearingStep++;
-  return true;
-}*/
 
 //****************************************************************************************************************************
 //****************************************************************************************************************************
@@ -668,21 +284,23 @@ bool VarioScreen::clearStep(void) {
 #define setDisplayFlag() state |= (0x01)
 
 //****************************************************************************************************************************
-bool VarioScreenObject::update(void) {
+bool VarioScreenObject::update(bool force) {
 //****************************************************************************************************************************
 
 #ifdef SCREEN_DEBUG
-	SerialPort.println("VarioScreenObject : update");	
+	SerialPort.print("VarioScreenObject : ");	
+	if (force) 	SerialPort.println("Forceupdate");
+	else				SerialPort.println("update");
 #endif //SCREEN_DEBUG
   
-  show();
- /* if( display_needed() ) {
+//  show();
+  if( display_needed() || force ) {
     show();
     display_done();
     return true;
   }
 
-  return false;*/
+  return false;
 }
 
 //****************************************************************************************************************************
@@ -699,7 +317,81 @@ void VarioScreenObject::reset(void) {
 //****************************************************************************************************************************
 
 /* digit */
-#define MAX_CHAR_IN_LINE 7
+#define MAX_CHAR_IN_LINE 20
+
+
+//****************************************************************************************************************************
+ScreenDigit::ScreenDigit(uint16_t anchorX, uint16_t anchorY, uint16_t width, uint16_t precision, boolean plusDisplay, boolean zero, boolean leftAlign) 
+   : VarioScreenObject(0), anchorX(anchorX), anchorY(anchorY), width(width), precision(precision), plusDisplay(plusDisplay), zero(zero), leftAlign(leftAlign) { 
+//****************************************************************************************************************************
+  lastDisplayWidth = 0; 
+
+  display.setFont(&FreeSansBold12pt7b);
+  display.setTextSize(2);
+
+  int16_t box_x = anchorX;
+  int16_t box_y = anchorY;
+  uint16_t w, h;
+  int16_t box_w, box_h; 
+
+#if defined(ESP32)
+	ESP_LOGI(TAG, "ScreenDigit constructeur");
+//  ESP_LOGE(TAG, "Failed to initialize the card (%d). Make sure SD card lines have pull-up resistors in place.", ret);
+#endif //ESP32
+
+
+#ifdef SCREEN_DEBUG	  
+  SerialPort.print("Constructeur ScreenDigit : ");
+  SerialPort.print("-- X : ");
+  SerialPort.print(box_x);
+  SerialPort.print("-- Y: ");
+  SerialPort.print(box_y);
+  SerialPort.print("-- width : ");
+  SerialPort.print(width);
+  SerialPort.print("-- precision :  ");
+  SerialPort.println(precision);
+#endif //SCREEN_DEBUG
+  
+
+	char TmpChar[MAX_CHAR_IN_LINE];
+
+/*  int i,j,plus=0;
+	
+	if (plusDisplay) {
+		TmpChar[width+1] = '+';
+		plus = 1;
+	}
+
+	if (precision > 0) {
+		for (i=0; i < width-precision-1;i++) TmpChar[i+plus] = '0';
+		
+		i= width-precision+plus-1;
+		TmpChar[i++] = '.';
+
+		for (j=0; j < precision;j++) TmpChar[i+j] = '0';
+		
+	} else {		
+		for (i=0; i < width;i++) TmpChar[i+plus] = '0';			
+	}
+
+  TmpChar[width+plus+1] = '\0';		*/
+	dtostrf2(999999.999,width,precision,TmpChar,zero);
+
+	
+#ifdef SCREEN_DEBUG	  
+  SerialPort.println(TmpChar);
+#endif //SCREEN_DEBUG
+	
+	display.getTextBounds(TmpChar, box_x, box_y, &box_w, &box_h, &w, &h);
+
+  if (w < box_x) 	{
+		display.getTextBounds(TmpChar, 0, box_y, &box_w, &box_h, &w, &h);
+		Zwidth   = w+2;
+	} else {
+	  Zwidth   = w-box_x+2;
+	}
+	Zheight  = 24+6;
+}
 
 //****************************************************************************************************************************
 void ScreenDigit::setValue(double Value) {
@@ -711,9 +403,12 @@ void ScreenDigit::setValue(double Value) {
 	SerialPort.println(Value);	
 #endif //SCREEN_DEBUG
 
-  /* build digit and check changes */
-  oldvalue=value;
-  value=Value;
+  if (Value != oldvalue) {
+    /* build digit and check changes */
+    oldvalue=value;
+    value=Value;
+//    reset();
+	}
   reset();
 }
  
@@ -739,6 +434,7 @@ int ScreenDigit::digitsBe4Decimal(double number) {
 
 //****************************************************************************************************************************
 char * ScreenDigit::dtostrf2(double number, signed char width, unsigned char prec, char *s, boolean zero) {
+//****************************************************************************************************************************	
   char *out;
 	unsigned long long integer;
 	double fraction, rounding;
@@ -766,6 +462,19 @@ char * ScreenDigit::dtostrf2(double number, signed char width, unsigned char pre
 
 	out = s;
 	before = digitsBe4Decimal(number);
+	
+	// troncate before
+	int tmpwidth = before;
+	if (prec > 0) tmpwidth++;
+	if (plusDisplay) tmpwidth++;
+	if (tmpwidth > abs(width)) {
+		if (width>0) {
+		  before = width;
+		  if (prec > 0) before--;
+		  if (plusDisplay) before--;
+		}
+	}
+	
 
 	// check if padding is required
 	if (width < 0) {
@@ -845,12 +554,116 @@ void ScreenDigit::show() {
   /***************/
 
 #ifdef SCREEN_DEBUG
-	SerialPort.println("ScreenDigit : show");	
+	SerialPort.println("Show : ScreenDigit");	
+#endif //SCREEN_DEBUG
+
+  //normalise value
+  char digitCharacters[MAX_CHAR_IN_LINE];
+	char tmpChar[MAX_CHAR_IN_LINE];
+   
+  display.setFont(&FreeSansBold12pt7b);
+  display.setTextSize(2);
+
+  int16_t box_x = anchorX;
+  int16_t box_y = anchorY;
+  uint16_t w, h, w1, h1;
+  int16_t box_w, box_w1; 
+  int16_t box_h, box_h1; 
+	int tmpWidth;
+
+	dtostrf2(999999.999,width,precision,tmpChar,zero);
+  dtostrf2(value,width,precision,digitCharacters,zero);
+
+#ifdef SCREEN_DEBUG
+  SerialPort.print("digit value : ");
+  SerialPort.println(value);
+
+  SerialPort.print("digit oldvalue : ");
+  SerialPort.println(oldvalue);
+  
+  if (leftAlign) SerialPort.println("leftAlign");
+  else 			 SerialPort.println("rightAlign");
+	  
+  SerialPort.print(digitCharacters);
+  SerialPort.print("-- X : ");
+  SerialPort.print(box_x);
+  SerialPort.print("-- Y: ");
+  SerialPort.print(box_y);
+  SerialPort.print("-- width : ");
+  SerialPort.print(width);
+  SerialPort.print("-- precision :  ");
+  SerialPort.println(precision);
+	SerialPort.print("Zwidth : ");
+	SerialPort.println(Zwidth);
+	SerialPort.print("Zheight : ");
+	SerialPort.println(Zheight);
+#endif //SCREEN_DEBUG
+  
+  display.getTextBounds(tmpChar, 0, box_y, &box_w, &box_h, &w, &h);
+  display.getTextBounds(digitCharacters, 0, box_y, &box_w1, &box_h1, &w1, &h1);
+    
+#ifdef SCREEN_DEBUG
+  SerialPort.print("W : ");
+  SerialPort.println(w);
+  SerialPort.print("H : ");
+  SerialPort.println(h);
+#endif //SCREEN_DEBUG
+
+	
+  if (leftAlign) {
+	
+#ifdef SCREEN_DEBUG
+			SerialPort.println("left align");
+#endif //SCREEN_DEBUG
+	
+		if ((anchorX+w+2) > display.width()) w = display.width()-anchorX+2;
+
+		display.fillRect(anchorX, anchorY-Zheight-3, w+6, Zheight+4, GxEPD_WHITE);
+	  
+    display.setCursor(anchorX, anchorY-1);
+    display.print(digitCharacters);
+				
+	} else {
+
+#ifdef SCREEN_DEBUG
+			SerialPort.println("right align");
+#endif //SCREEN_DEBUG
+			
+		if ((anchorX-w+2) < 0) w = anchorX - 2;
+
+#ifdef SCREEN_DEBUG
+		SerialPort.print("anchorX : ");
+		SerialPort.println(anchorX);
+		SerialPort.print("W : ");
+		SerialPort.println(w);
+#endif //SCREEN_DEBUG
+					
+		display.fillRect(anchorX-w-2, anchorY-Zheight-3, w+6, Zheight+4, GxEPD_WHITE);
+		
+    display.setCursor(anchorX-w1-2, anchorY-1);
+    display.print(digitCharacters);
+	}
+ 
+
+}
+
+/*
+//****************************************************************************************************************************
+void ScreenDigit::show() {
+//****************************************************************************************************************************
+
+  /***************/
+  /* build digit */
+  /* **************
+
+#ifdef SCREEN_DEBUG
+	SerialPort.println("Show : ScreenDigit");	
 #endif //SCREEN_DEBUG
 
   //normalise value
 //  char tmpdigitCharacters[MAX_CHAR_IN_LINE];
   char digitCharacters[MAX_CHAR_IN_LINE];
+	char tmpChar[MAX_CHAR_IN_LINE];
    
 //  display.setFont(&FreeSansBold12pt7b);
   display.setFont(&FreeSansBold12pt7b);
@@ -861,9 +674,12 @@ void ScreenDigit::show() {
   uint16_t w, h, w1, h1;
   int16_t box_w, box_w1; 
   int16_t box_h, box_h1; 
+	int tmpWidth;
+
+	dtostrf2(999999.999,width,precision,tmpChar,zero);
 
  // dtostrf(value,width,precision,tmpdigitCharacters);
-  dtostrf2(value,width,precision,digitCharacters,zero);
+ dtostrf2(value,width,precision,digitCharacters,zero);
 //  dtostrf2(oldvalue,width,precision,tmpdigitCharacters,zero);
 //  dtostrf2(value,4,1,digitCharacters,false,false);
   /*if (plusDisplay) {
@@ -885,7 +701,7 @@ void ScreenDigit::show() {
   tmpdigitCharacters[i] = 0; 
 
   SerialPort.print(" tmpdigit : ");
-  SerialPort.println(tmpdigitCharacters);*/
+  SerialPort.println(tmpdigitCharacters);*
 
 #ifdef SCREEN_DEBUG
   SerialPort.print("digit value : ");
@@ -906,12 +722,18 @@ void ScreenDigit::show() {
   SerialPort.print(width);
   SerialPort.print("-- precision :  ");
   SerialPort.println(precision);
+	SerialPort.print("Zwidth : ");
+	SerialPort.println(Zwidth);
+	SerialPort.print("Zheight : ");
+	SerialPort.println(Zheight);
 #endif //SCREEN_DEBUG
   
 //  display.getTextBounds(digitCharacters, box_x, box_y, &box_w, &box_h, &w, &h);
-  display.getTextBounds(digitCharacters, 0, box_y, &box_w, &box_h, &w, &h);
+//////////  display.getTextBounds(digitCharacters, 0, box_y, &box_w, &box_h, &w, &h);
 /////  display.getTextWidth(digitCharacters, &w, &h);
 //  display.getTextBounds(tmpdigitCharacters, box_x, box_y, &box_w1, &box_h1, &w1, &h1);
+
+  display.getTextBounds(tmpChar, 0, box_y, &box_w, &box_h, &w, &h);
   
 //  if (h1 > h) {h = h1;}
 //  if (w1 > w) {w = w1;}
@@ -924,11 +746,15 @@ void ScreenDigit::show() {
   SerialPort.print("X new : ");
   SerialPort.println(box_w);
   SerialPort.print("Y new : ");
-  SerialPort.println(box_h);*/
+  SerialPort.println(box_h);*
   SerialPort.print("W : ");
   SerialPort.println(w);
   SerialPort.print("H : ");
   SerialPort.println(h);
+	SerialPort.print("Zwidth : ");
+	SerialPort.println(Zwidth);
+	SerialPort.print("Zheight : ");
+	SerialPort.println(Zheight);
 #endif //SCREEN_DEBUG
   
 /*  if (leftAlign) {
@@ -955,7 +781,7 @@ void ScreenDigit::show() {
     display.setCursor(box_x-w-1, box_y);
     display.print(digitCharacters);
 //  display.updateWindow(box_w, box_h, w+box_w, h, true);	  
-  }*/
+  }*
 	
   if (leftAlign) {
 	
@@ -972,21 +798,37 @@ void ScreenDigit::show() {
 		SerialPort.println(oldw);
 		SerialPort.print("oldH : ");
 		SerialPort.println(oldh);
+		SerialPort.print("Zwidth : ");
+		SerialPort.println(Zwidth);
+		SerialPort.print("Zheight : ");
+		SerialPort.println(Zheight);
 #endif //SCREEN_DEBUG
 	
 		if ((oldw != 0) && (oldh != 0)) {
-			display.fillRect(oldx, oldy, oldw+2, oldh, GxEPD_WHITE);
+////			display.fillRect(oldx, oldy, oldw+2, oldh, GxEPD_WHITE);
+//			display.fillRect(anchorX-2, anchorY-Zwidth-2, Zwidth+2, Zheight+2, GxEPD_WHITE);
+//    	display.drawRect(oldx, oldy, oldw+2, oldh, GxEPD_BLACK);
 		}	
 	
-    //display.drawRect(box_x, box_y-h-2, w+6, h+6, GxEPD_BLACK);
+ //   display.drawRect(box_x, box_y-h-2, w+6, h+6, GxEPD_BLACK);
+
+		if ((anchorX+Zwidth+2) > display.width()) tmpWidth = display.width()-anchorX+2;
+		else																			tmpWidth = Zwidth+4;
+
+#ifdef SCREEN_DEBUG
+		SerialPort.print("tmpWidth : ");
+		SerialPort.println(tmpWidth);
+#endif //SCREEN_DEBUG
+
+		display.fillRect(anchorX-2, anchorY-Zheight-3, tmpWidth, Zheight+4, GxEPD_WHITE);
 	  
-    display.setCursor(box_x+1, box_y-1);
+    display.setCursor(box_x, box_y-1);
     display.print(digitCharacters);
 		
-		oldx = box_x;
-		oldy = box_y-h-2;
-		oldw = w+6;
-		oldh = h+6;	
+		oldx = box_x-1;
+		oldy = box_y-h-1;
+		oldw = w+2;
+		oldh = h+2;	
 		
 	} else {
 
@@ -1003,25 +845,46 @@ void ScreenDigit::show() {
 		SerialPort.println(oldw);
 		SerialPort.print("oldH : ");
 		SerialPort.println(oldh);
+		SerialPort.print("Zwidth : ");
+		SerialPort.println(Zwidth);
+		SerialPort.print("Zheight : ");
+		SerialPort.println(Zheight);
 #endif //SCREEN_DEBUG
 	
 		if ((oldw != 0) && (oldh != 0)) {
-			display.fillRect(oldx, oldy, oldw+2, oldh, GxEPD_WHITE);
+////			display.fillRect(oldx, oldy, oldw+4, oldh, GxEPD_WHITE);
+//				display.fillRect(anchorX-Zwidth-2, anchorY-Zheight-2, Zwidth+2, Zheight+2, GxEPD_WHITE);
+//			display.drawRect(oldx, oldy, oldw+4, oldh, GxEPD_BLACK);
 		}	
 			
 		//display.drawRect(box_x-w-6, box_y-h-2, w+6, h+6, GxEPD_BLACK);
+
+		if ((anchorX+4) > display.width()) tmpWidth = Zwidth + (display.width()-anchorX);
+		else															 tmpWidth = Zwidth+5;
 		
-    display.setCursor(box_x-w-4, box_y-1);
+		if ((anchorX-tmpWidth+6) < 0) tmpWidth = anchorX + 6;
+
+#ifdef SCREEN_DEBUG
+		SerialPort.print("anchorX : ");
+		SerialPort.println(anchorX);
+		SerialPort.print("tmpWidth : ");
+		SerialPort.println(tmpWidth);
+#endif //SCREEN_DEBUG
+					
+		display.fillRect(anchorX-tmpWidth+6, anchorY-Zheight-3, tmpWidth-1, Zheight+4, GxEPD_WHITE);
+		
+    display.setCursor(box_x-w-1, box_y-1);
     display.print(digitCharacters);
 		
-		oldx = box_x-w-6;
-		oldy = box_y-h-2;
-		oldw = w+6;
-		oldh = h+6;	
+		oldx = box_x-w-2;
+		oldy = box_y-h-1;
+		oldw = w+2;
+		oldh = h+2;	
 	}
  
 
 }
+*/
 
 //****************************************************************************************************************************
 //****************************************************************************************************************************
@@ -1033,12 +896,27 @@ void ScreenDigit::show() {
 //****************************************************************************************************************************
 void MUnit::show() {
 //****************************************************************************************************************************
+#ifdef SCREEN_DEBUG
+  SerialPort.println("Show : MUnit");
+#endif //SCREEN_DEBUG
+
   display.setFont(&FreeSansBold9pt7b);
   display.setTextSize(2);
   display.setCursor(posX, posY);
   display.print('m');
 }
 
+//****************************************************************************************************************************
+void MUnit::toDisplay() {
+//****************************************************************************************************************************
+   reset();
+}
+
+//****************************************************************************************************************************
+//****************************************************************************************************************************
+//							MSUnit
+//****************************************************************************************************************************
+//****************************************************************************************************************************
 
 /*{B000000111100001111000000,
 B000001111110011111100000,
@@ -1064,12 +942,6 @@ B000000000000000110000000,
 B000000001111111110000000,
 B000000001111111000000000,
 B000000000000000000000000}*/
-
-//****************************************************************************************************************************
-//****************************************************************************************************************************
-//							MSUnit
-//****************************************************************************************************************************
-//****************************************************************************************************************************
 
   // 24 x 24 
 const unsigned char msicons[] = { 
@@ -1151,12 +1023,29 @@ B000000001111110000000000}*/
 //****************************************************************************************************************************
 void MSUnit::show() {
 //****************************************************************************************************************************
+#ifdef SCREEN_DEBUG
+  SerialPort.println("Show : MSUnit");
+#endif //SCREEN_DEBUG
+
 // display.drawBitmap(msicons, posX, posY, 48, 48, GxEPD_WHITE,false);   //GxEPD_BLACK);
-	display.fillRect(posX, posY-24, 24, 24, GxEPD_WHITE);
+	display.fillRect(posX, posY, 24, 24, GxEPD_WHITE);
+//	display.drawRect(posX, posY, 24, 24, GxEPD_BLACK);
   display.drawBitmap(posX, posY, msicons, 24, 24, GxEPD_BLACK);   //GxEPD_BLACK);
 //display.drawInvertedBitmap	
 //  display.drawBitmap(100, 10, gridicons_sync, 24, 24, GxEPD_BLACK);
 }
+
+//****************************************************************************************************************************
+void MSUnit::toDisplay() {
+//****************************************************************************************************************************
+    reset();
+}
+
+//****************************************************************************************************************************
+//****************************************************************************************************************************
+//				KMHUnit
+//****************************************************************************************************************************
+//****************************************************************************************************************************
 
 /*{B000000000000000000000000,
 B001100001001111111111000,
@@ -1197,18 +1086,57 @@ const unsigned char kmhicons[] = {
 };
 
 //****************************************************************************************************************************
-//****************************************************************************************************************************
-//				KMHUnit
-//****************************************************************************************************************************
-//****************************************************************************************************************************
-
-//****************************************************************************************************************************
 void KMHUnit::show() {
 //****************************************************************************************************************************
+#ifdef SCREEN_DEBUG
+  SerialPort.println("Show : KmHUnit");
+#endif //SCREEN_DEBUG
+
+ display.fillRect(posX, posY, 24, 24, GxEPD_WHITE);
+ //display.drawRect(posX, posY, 24, 24, GxEPD_BLACK);
+
 // display.drawBitmap(msicons, posX, posY, 48, 48, GxEPD_WHITE,false);   //GxEPD_BLACK);
  display.drawBitmap(posX, posY, kmhicons, 24, 24, GxEPD_BLACK);   //GxEPD_BLACK);
 //  display.drawBitmap(100, 10, gridicons_sync, 24, 24, GxEPD_BLACK);
 }
+
+//****************************************************************************************************************************
+void KMHUnit::toDisplay() {
+//****************************************************************************************************************************
+    reset();
+}
+
+//****************************************************************************************************************************
+//****************************************************************************************************************************
+//				TUnit
+//****************************************************************************************************************************
+//****************************************************************************************************************************
+
+
+//****************************************************************************************************************************
+void TUnit::show() {
+//****************************************************************************************************************************
+#ifdef SCREEN_DEBUG
+  SerialPort.println("Show : TUnit");
+#endif //SCREEN_DEBUG
+
+  display.setFont(&FreeSansBold9pt7b);
+  display.setTextSize(2);
+  display.setCursor(posX, posY);
+  display.print('C');
+}
+
+//****************************************************************************************************************************
+void TUnit::toDisplay() {
+//****************************************************************************************************************************
+   reset();
+}
+
+//****************************************************************************************************************************
+//****************************************************************************************************************************
+//						BATLEVEL
+//****************************************************************************************************************************
+//****************************************************************************************************************************
 
 /*  // 48 x 48 
 const unsigned char baticons[] = { 
@@ -1305,32 +1233,81 @@ const unsigned char batchargeicons[] = {
 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff
 };
 
-//****************************************************************************************************************************
-//****************************************************************************************************************************
-//						BATLEVEL
-//****************************************************************************************************************************
-//****************************************************************************************************************************
+#define SIMPLE_VOLTAGE_VIEW
 
 /* !!! always reset !!! */
 //****************************************************************************************************************************
 void BATLevel::setVoltage(int voltage) {
 //****************************************************************************************************************************
+  
+/*#define VARIOSCREEN_BAT_A_COEFF 0.0059
+#define VARIOSCREEN_BAT_B_COEFF 3.5534
 
-#ifdef SCREEN_DEBUG
+2S %=(T-7,1068)/0,0118        
+
+Tableau
+
+0%    3v
+5%    3.3v
+10%   3.6v
+20%   3.7v
+30%   3.75v
+40%   3.79v
+50%   3.83v
+60%   3.87v
+70%   3.92v
+80%   3.97v
+90%   4.10v
+100%  4.20v
+
+*/
+	
+/*
+Tension	ADC
+4,2	2320
+4,1	2260
+4	2200
+3,9	2160
+3,8	2100
+3,7	2040
+3,6	1980
+3,5	1920
+3,4	1850
+3,3	1790
+3,2	1710
+3,1	1660
+3	1590
+2,9	1560
+
+Avec l'equation y=ax+b 
+a=0.0016438
+b=0.386384
+*/
+	
+#if defined(VOLTAGE_DIVISOR_DEBUG)
   SerialPort.print("Voltage : ");
   SerialPort.println(voltage);
 #endif //SCREEN_DEBUG
-  
-  /* shift voltage to 16 bit */
-  double tmp;
-  tmp = (double)voltage / 43;
-#ifdef SCREEN_DEBUG
-  SerialPort.print("Voltage : ");
-  SerialPort.println(tmp);
+
+  Voltage = voltage;
+	
+#if not defined(SIMPLE_VOLTAGE_VIEW)
+  uVoltage = (VOLTAGE_DIVISOR_VALUE * VOLTAGE_DIVISOR_REF_VOLTAGE * float(voltage))  / VOLTAGE_RESOLUTION;
+	
+#if defined(VOLTAGE_DIVISOR_DEBUG)
+  SerialPort.print("uVoltage : ");
+  SerialPort.println(uVoltage);
 #endif //SCREEN_DEBUG
   
-  uVoltage = (uint16_t)(tmp*100);
+	float tmp = (uVoltage - VARIOSCREEN_BAT_B_COEFF) / VARIOSCREEN_BAT_A_COEFF;
+  pVoltage = (uint8_t)(tmp);
 //  uVoltage <<= VARIOSCREEN_BAT_MULTIPLIER;
+
+#if defined(VOLTAGE_DIVISOR_DEBUG)
+  SerialPort.print("pVoltage : ");
+  SerialPort.println(pVoltage);
+#endif //SCREEN_DEBUG
+#endif //SIMPLE_VOLTAGE_VIEW
   
   reset();
 }
@@ -1338,25 +1315,65 @@ void BATLevel::setVoltage(int voltage) {
 //****************************************************************************************************************************
 void BATLevel::show(void) {
 //****************************************************************************************************************************
+/*
+
+AnalogRead=X
+
+
+if    2160<X<2320 = affichage de 4 barres
+
+if    2320<X<2100 = 3 barres
+
+if    2100<X<2000 =2 barre
+
+if    2000<X<1750 = 1 barre (qui clignote)
+
+if    X< 1700 = deep sleep (comme ça si la sécu batterie ne fonctionne pas ou si le vario ne plante pas avant, on préserve la batterie.
+*/	
+
 
   /* battery base */
 
   /* battery level */
  /* uint16_t baseVoltage = base + inc;
   uint8_t pixelCount = 0;*/
+#ifdef SCREEN_DEBUG
+  SerialPort.println("Show : BatLevel");
+#endif //SCREEN_DEBUG
 
+#if defined (SIMPLE_VOLTAGE_VIEW)
+
+  if (Voltage >= 2160)
+    display.drawInvertedBitmap(posX, posY, bat4icons, 32, 32, GxEPD_BLACK);   //GxEPD_BLACK);
+  else if ((Voltage < 2160) && (Voltage >= 2100))
+    display.drawInvertedBitmap(posX, posY, bat3icons, 32, 32, GxEPD_BLACK);   //GxEPD_BLACK);
+  else if ((Voltage < 2100) && (Voltage >= 2000))
+    display.drawInvertedBitmap(posX, posY, bat2icons, 32, 32, GxEPD_BLACK);   //GxEPD_BLACK);
+  else if ((Voltage < 2000) && (Voltage >= 1750))
+    display.drawInvertedBitmap(posX, posY, bat1icons, 32, 32, GxEPD_BLACK);   //GxEPD_BLACK);
+  else {
+    display.drawInvertedBitmap(posX, posY, bat0icons, 32, 32, GxEPD_BLACK);   //GxEPD_BLACK);
+		//Deep Sleep
+		
+		deep_sleep();
+	}
+
+#else //SIMPLE_VOLTAGE_VIEW
 #ifdef SCREEN_DEBUG
   SerialPort.print("uVoltage : ");
   SerialPort.println(uVoltage);
 #endif //SCREEN_DEBUG
+
+//  display.fillRect(posX, posY, 32, 32, GxEPD_WHITE);
+//	display.drawRect(posX, posY, 32, 32, GxEPD_BLACK);
   
-  if (uVoltage >= 75)
+  if (pVoltage >= 75)
     display.drawInvertedBitmap(posX, posY, bat4icons, 32, 32, GxEPD_BLACK);   //GxEPD_BLACK);
-  else if (uVoltage >= 50)
+  else if (pVoltage >= 50)
     display.drawInvertedBitmap(posX, posY, bat3icons, 32, 32, GxEPD_BLACK);   //GxEPD_BLACK);
-  else if (uVoltage >= 25)
+  else if (pVoltage >= 25)
     display.drawInvertedBitmap(posX, posY, bat2icons, 32, 32, GxEPD_BLACK);   //GxEPD_BLACK);
-  else if (uVoltage >= 10)
+  else if (pVoltage >= 10)
     display.drawInvertedBitmap(posX, posY, bat1icons, 32, 32, GxEPD_BLACK);   //GxEPD_BLACK);
   else
     display.drawInvertedBitmap(posX, posY, bat0icons, 32, 32, GxEPD_BLACK);   //GxEPD_BLACK);
@@ -1373,6 +1390,8 @@ void BATLevel::show(void) {
   }*/
 
   /* battery end */
+#endif //SIMPLE_VOLTAGE_VIEW
+
 }
 
 /*-----------------------------------------*/
@@ -1429,6 +1448,12 @@ void drawBar (int nPer){
 }
 */
 
+//****************************************************************************************************************************
+//****************************************************************************************************************************
+//						VOLLEVEL
+//****************************************************************************************************************************
+//****************************************************************************************************************************
+
  // 'basic1-094_volume-32'
 
 const unsigned char volume0icons[] = { 
@@ -1479,12 +1504,6 @@ const unsigned char volume3icons[] = {
 };
 
 //****************************************************************************************************************************
-//****************************************************************************************************************************
-//						VOLLEVEL
-//****************************************************************************************************************************
-//****************************************************************************************************************************
-
-//****************************************************************************************************************************
 void VOLLevel::setVolume(int Volume) {
 //****************************************************************************************************************************
 
@@ -1494,20 +1513,40 @@ void VOLLevel::setVolume(int Volume) {
 }
 
 //****************************************************************************************************************************
+void VOLLevel::mute(bool newMuteState) {
+//****************************************************************************************************************************
+  _mute = newMuteState;
+	
+	reset();
+}
+
+//****************************************************************************************************************************
 void VOLLevel::show(void) {
 //****************************************************************************************************************************
+
+#ifdef SCREEN_DEBUG
+  SerialPort.println("Show : VolLevel");
+#endif //SCREEN_DEBUG
 
 #ifdef SCREEN_DEBUG
   SerialPort.print("Volume : ");
   SerialPort.println(volume);
 #endif //SCREEN_DEBUG
  
-  if (volume == 0)  display.drawInvertedBitmap(posX, posY, volume0icons, 32, 32, GxEPD_BLACK);   //GxEPD_BLACK);
+  display.fillRect(posX, posY, 32, 32, GxEPD_WHITE);
+//	display.drawRect(posX, posY, 32, 32, GxEPD_BLACK);
+  if (_mute || (volume == 0))  display.drawInvertedBitmap(posX, posY, volume0icons, 32, 32, GxEPD_BLACK);   //GxEPD_BLACK);
   else if (volume < 5) display.drawInvertedBitmap(posX, posY, volume1icons, 32, 32, GxEPD_BLACK);   //GxEPD_BLACK);
   else if (volume < 9) display.drawInvertedBitmap(posX, posY, volume2icons, 32, 32, GxEPD_BLACK);   //GxEPD_BLACK);
   else  display.drawInvertedBitmap(posX, posY, volume3icons, 32, 32, GxEPD_BLACK);   //GxEPD_BLACK);
 }
-    
+   
+//****************************************************************************************************************************
+//****************************************************************************************************************************
+//						SATLEVEL
+//****************************************************************************************************************************
+//****************************************************************************************************************************
+	 
 const unsigned char saticons[] = { 
  // 'signal-32'
 0xff, 0xff, 0xff, 0xff, 
@@ -1534,13 +1573,6 @@ const unsigned char satfixicons[] = {
 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff
 };
 
-//****************************************************************************************************************************
-//****************************************************************************************************************************
-//						SATLEVEL
-//****************************************************************************************************************************
-//****************************************************************************************************************************
-
-
 /* !!! always reset !!! */
 //****************************************************************************************************************************
 void SATLevel::setSatelliteCount(uint8_t count) {
@@ -1556,13 +1588,29 @@ void SATLevel::show(void) {
 
   display.drawInvertedBitmap(posX, posY, saticons, 32, 32, GxEPD_BLACK);   //GxEPD_BLACK);
 
+#ifdef SCREEN_DEBUG
+  SerialPort.print("Nb satelite : ");
+  SerialPort.println(satelliteCount);
+#endif //SCREEN_DEBUG
+
   uint8_t satelliteBar = satelliteCount;
-  if (satelliteBar > 15) satelliteBar = 15;
+  if (satelliteBar > 16) satelliteBar = 16;
   satelliteBar /= 3;
   
+#ifdef SCREEN_DEBUG
+  SerialPort.print("satelite bar : ");
+  SerialPort.println(satelliteBar);
+#endif //SCREEN_DEBUG
+	
   display.fillRect(posX+(satelliteBar*6), posY, 32-(satelliteBar*6), 32, GxEPD_WHITE);
+//	display.drawRect(posX+(satelliteBar*6), posY, 32-(satelliteBar*6), 32, GxEPD_BLACK);
 }
 
+//****************************************************************************************************************************
+//****************************************************************************************************************************
+//			RECORDIndicator
+//****************************************************************************************************************************
+//****************************************************************************************************************************
 
 const unsigned char recicons[] = { 
  // 'Phone_6-32'
@@ -1612,11 +1660,17 @@ const unsigned char fix2icons[] = {
 0x00, 0xff, 0xff, 0x00, 0x00, 0x7f, 0xfe, 0x00, 0x00, 0x3f, 0xfc, 0x00, 0x80, 0x3f, 0xfc, 0x01
 };
 
-//****************************************************************************************************************************
-//****************************************************************************************************************************
-//			RECORDIndicator
-//****************************************************************************************************************************
-//****************************************************************************************************************************
+const unsigned char norecordicons[] = { 
+// 'Error-32', 32x32px
+0xff, 0xf8, 0x1f, 0xff, 0xff, 0xc0, 0x03, 0xff, 0xff, 0x00, 0x00, 0xff, 0xfc, 0x00, 0x00, 0x3f,
+0xf8, 0x0f, 0xf0, 0x1f, 0xf0, 0x3f, 0xfc, 0x0f, 0xe0, 0xff, 0xfe, 0x07, 0xe1, 0xff, 0xfc, 0x07,
+0xc3, 0xff, 0xf8, 0x03, 0xc3, 0xff, 0xf0, 0x43, 0x87, 0xff, 0xe0, 0xe1, 0x87, 0xff, 0xc1, 0xe1,
+0x8f, 0xff, 0x83, 0xf1, 0x0f, 0xff, 0x07, 0xf0, 0x0f, 0xfe, 0x0f, 0xf0, 0x0f, 0xfc, 0x1f, 0xf0,
+0x0f, 0xf8, 0x3f, 0xf0, 0x0f, 0xf0, 0x7f, 0xf0, 0x0f, 0xe0, 0xff, 0xf0, 0x8f, 0xc1, 0xff, 0xf1,
+0x87, 0x83, 0xff, 0xe1, 0x87, 0x07, 0xff, 0xe1, 0xc2, 0x0f, 0xff, 0xc3, 0xc0, 0x1f, 0xff, 0x83,
+0xe0, 0x3f, 0xff, 0x87, 0xe0, 0x7f, 0xfe, 0x07, 0xf0, 0x3f, 0xfc, 0x0f, 0xf8, 0x0f, 0xf0, 0x1f,
+0xfc, 0x00, 0x00, 0x3f, 0xff, 0x00, 0x00, 0xff, 0xff, 0xc0, 0x03, 0xff, 0xff, 0xf8, 0x1f, 0xff
+};
 
 //****************************************************************************************************************************
 void RECORDIndicator::stateRECORD(void) {
@@ -1624,9 +1678,9 @@ void RECORDIndicator::stateRECORD(void) {
 
   unsigned long FreqDuration = millis() - lastFreqUpdate;
   if( FreqDuration > 1000 ) {
-      lastFreqUpdate = millis();
+    lastFreqUpdate = millis();
 	  displayRecord ^= 1;
-      reset();
+    reset();
   }
 }
 
@@ -1652,22 +1706,46 @@ void RECORDIndicator::setActifGPSFIX(void) {
 }
   
 //****************************************************************************************************************************
-void RECORDIndicator::show(void) {
+void RECORDIndicator::setNoRECORD(void) {
 //****************************************************************************************************************************
 
+  recordState = STATE_NORECORD;
+}
+	
+//****************************************************************************************************************************
+void RECORDIndicator::show(void) {
+//****************************************************************************************************************************
+#ifdef SCREEN_DEBUG
+  SerialPort.println("Show : RecordIndicator");
+#endif //SCREEN_DEBUG
+
+  display.fillRect(posX, posY, 32, 32, GxEPD_WHITE);
+
   if( recordState==STATE_RECORD) {
+#ifdef SCREEN_DEBUG
+		SerialPort.println("Show : STATE_RECORD");
+#endif //SCREEN_DEBUG
+		
 	  if( displayRecord)
         display.drawInvertedBitmap(posX, posY,recicons,  32, 32, GxEPD_BLACK);   //GxEPD_BLACK);
 	  else
 	    display.fillRect(posX, posY, 32, 32, GxEPD_WHITE);
   } else if  (recordState==STATE_GPSFIX) {
       display.drawInvertedBitmap(posX, posY,pauseicons,  32, 32, GxEPD_BLACK);   //GxEPD_BLACK);
+  } else if  (recordState==STATE_NORECORD) {
+      display.drawInvertedBitmap(posX, posY,norecordicons,  32, 32, GxEPD_BLACK);   //GxEPD_BLACK);
   } else if (displayRecord) {
       display.drawInvertedBitmap(posX, posY,fix1icons,  32, 32, GxEPD_BLACK);   //GxEPD_BLACK);
   } else  {
       display.drawInvertedBitmap(posX, posY,fix2icons,  32, 32, GxEPD_BLACK);   //GxEPD_BLACK);
   }
 }
+
+//****************************************************************************************************************************
+//****************************************************************************************************************************
+//				TRENDLevel
+//****************************************************************************************************************************
+//****************************************************************************************************************************
 
 const unsigned char trendupicons[] = { 
  // 'Arrow-19-24'
@@ -1687,13 +1765,6 @@ const unsigned char trenddownicons[] = {
 0xc3, 0xff, 0xff, 0xe7, 0xff, 0xff, 0xff, 0xff
 };
 
-//****************************************************************************************************************************
-//****************************************************************************************************************************
-//				TRENDLevel
-//****************************************************************************************************************************
-//****************************************************************************************************************************
-
-
 /* !!! always reset !!! */
 //****************************************************************************************************************************
 void TRENDLevel::stateTREND(int8_t state) {
@@ -1706,16 +1777,21 @@ void TRENDLevel::stateTREND(int8_t state) {
 //****************************************************************************************************************************
 void TRENDLevel::show(void) {
 //****************************************************************************************************************************
+#ifdef SCREEN_DEBUG
+  SerialPort.println("Show : TrendLevel");
+#endif //SCREEN_DEBUG
 
+  display.fillRect(posX, posY, 24, 24, GxEPD_WHITE);
+// 	display.drawRect(posX, posY, 24, 24, GxEPD_BLACK);
 
-   /* check level and display arrow or blank */
-    if( trendState == 1 )  {
+ /* check level and display arrow or blank */
+	if( trendState == 1 )  {
 	  display.drawInvertedBitmap(posX, posY,trendupicons,  24, 24, GxEPD_BLACK);   //GxEPD_BLACK);
-    } else if( trendState == -1 ) {  
+	} else if( trendState == -1 ) {  
 	  display.drawInvertedBitmap(posX, posY,trenddownicons,  24, 24, GxEPD_BLACK);   //GxEPD_BLACK);
-    } else {
-	  display.fillRect(posX, posY, 24, 24, GxEPD_WHITE);
-    }
+	} else {
+	  display.fillRect(posX-10, posY, 24+20, 24+20, GxEPD_WHITE);
+	}
 }
 
   // 8 x 24 
@@ -1749,10 +1825,33 @@ const unsigned char hicons[] = {
 void ScreenTime::setTime(uint32_t newTime) {
 //****************************************************************************************************************************
 
+//  newTime = newTime / 10;
   for( uint8_t i = 0; i<3; i++) {
     time[i] = (int8_t)(newTime % 100);
     newTime /= 100;
   }
+	
+#ifdef SCREEN_DEBUG
+  SerialPort.print("Time : ");
+  SerialPort.print(time[2]);
+  SerialPort.print(":");
+  SerialPort.print(time[1]);
+  SerialPort.print(":");
+  SerialPort.println(time[0]);
+#endif //SCREEN_DEBUG
+
+	
+/*    uint32_t date = nmeaParser.date;
+    for(uint8_t i=0; i<3; i++) {
+      uint8_t num = ((uint8_t)(date%100));
+      dateCharP[0] = (num/10) + '0';
+      dateCharP[1] = (num%10) + '0';
+      dateCharP += 2;
+      date /= 100;
+    }	
+*/	
+	
+  reset();	
 }
 
 //****************************************************************************************************************************
@@ -1762,6 +1861,7 @@ void ScreenTime::setTime(int8_t* newTime) {
   for(uint8_t i = 0; i<3; i++) {
     time[i] = newTime[i];
   }
+  reset();	
 }
 
 //****************************************************************************************************************************
@@ -1789,13 +1889,35 @@ int8_t* ScreenTime::getTime(void) {
 void ScreenTime::show(void) {
 //****************************************************************************************************************************
 
-  display.fillRect(posX-63, posY-32, 65, 34, GxEPD_WHITE);
+#ifdef SCREEN_DEBUG
+  SerialPort.println("Show : ScreenTime");
+#endif //SCREEN_DEBUG
+
+  display.fillRect(posX-70, posY-32, 65, 34, GxEPD_WHITE);
+// 	display.drawRect(posX-70, posY-32, 65, 34, GxEPD_BLACK);
 
 
-  if (dot_or_h == false)
-    display.drawBitmap(posX-65, posY-24,hicons,  16, 24, GxEPD_BLACK);   //GxEPD_BLACK);
-  else	  
-    display.drawBitmap(posX-67, posY-26, doticons, 16, 24, GxEPD_BLACK);   //GxEPD_BLACK);
+  if (dot_or_h == false) {
+#ifdef SCREEN_DEBUG
+		SerialPort.println("dot_or_h  : H");
+#endif //SCREEN_DEBUG
+
+    display.drawBitmap(posX-70, posY-24,hicons,  16, 24, GxEPD_BLACK);   //GxEPD_BLACK);
+	}
+  else {	
+#ifdef SCREEN_DEBUG
+		SerialPort.println("dot_or_h  : DOT");
+#endif //SCREEN_DEBUG
+  
+    display.drawBitmap(posX-70, posY-26, doticons, 16, 24, GxEPD_BLACK);   //GxEPD_BLACK);
+	}
+
+#ifdef SCREEN_DEBUG
+  SerialPort.print("time : ");
+  SerialPort.print(time[2]);
+  SerialPort.print(" : ");
+  SerialPort.println(time[1]);
+#endif //SCREEN_DEBUG
 
   hour.setValue(time[2]);
   hour.show();
@@ -1818,6 +1940,7 @@ void ScreenElapsedTime::setBaseTime(int8_t* time) {
   for(uint8_t i = 0; i<3; i++) {
     baseTime[i] = time[i];
   }
+  reset();	
 }
 
 //****************************************************************************************************************************
@@ -1837,6 +1960,7 @@ void ScreenElapsedTime::setCurrentTime(int8_t* currentTime) {
     }
     time[i] = v;
   }
+  reset();	
 }
 
   // 24 x 24 
@@ -1859,12 +1983,14 @@ const unsigned char fixgpsicons[] = {
 void FIXGPSInfo::setFixGps(void) {
 //****************************************************************************************************************************
   FixGPS = 	true;
+	reset();
 }
   
 //****************************************************************************************************************************
 void FIXGPSInfo::unsetFixGps(void) {
 //****************************************************************************************************************************
   FixGPS = false;
+	reset();
 }
 
 //****************************************************************************************************************************
@@ -1877,8 +2003,11 @@ boolean FIXGPSInfo::getFixGps(void) {
 void FIXGPSInfo::show() {
 //****************************************************************************************************************************
 // display.drawBitmap(msicons, posX, posY, 48, 48, GxEPD_WHITE,false);   //GxEPD_BLACK);
+ display.fillRect(posX, posY, 24, 24, GxEPD_WHITE);
+// display.drawRect(posX, posY, 24, 24, GxEPD_BLACK);
+
  if (FixGPS == true) display.drawInvertedBitmap(posX, posY, fixgpsicons, 24, 24, GxEPD_BLACK);   //GxEPD_BLACK);
- else                display.fillRect(posX, posY, 24, 24, GxEPD_WHITE);
+// else                display.fillRect(posX, posY, 24, 24, GxEPD_WHITE);
   
 //  display.drawBitmap(100, 10, gridicons_sync, 24, 24, GxEPD_BLACK);
 }
@@ -1907,17 +2036,30 @@ const unsigned char usbicons[] = {
 void INFOLevel::set(uint8_t value) {
 //****************************************************************************************************************************
   InfoValue = 	value;
+	reset();
 }
 
 //****************************************************************************************************************************
 void INFOLevel::show() {
 //****************************************************************************************************************************
+#ifdef SCREEN_DEBUG
+  SerialPort.println("Show : InfoLevel");
+#endif //SCREEN_DEBUG
+
+ display.fillRect(posX, posY, 32, 32, GxEPD_WHITE);
+// display.drawRect(posX, posY, 32, 32, GxEPD_BLACK);
+
 // display.drawBitmap(msicons, posX, posY, 48, 48, GxEPD_WHITE,false);   //GxEPD_BLACK);
  if (InfoValue == INFO_USB) display.drawInvertedBitmap(posX, posY, usbicons, 32, 32, GxEPD_BLACK);   //GxEPD_BLACK);
- else                display.fillRect(posX, posY, 32, 32, GxEPD_WHITE);
+// else                       display.fillRect(posX, posY, 32, 32, GxEPD_WHITE);
 }
 
 
+//****************************************************************************************************************************
+//****************************************************************************************************************************
+//					BTINFO
+//****************************************************************************************************************************
+//****************************************************************************************************************************
 
   // 24 x 24 
 const unsigned char bticons[] = { 
@@ -1930,21 +2072,17 @@ const unsigned char bticons[] = {
 };
 
 //****************************************************************************************************************************
-//****************************************************************************************************************************
-//					BTINFO
-//****************************************************************************************************************************
-//****************************************************************************************************************************
-
-//****************************************************************************************************************************
 void BTInfo::setBT(void) {
 //****************************************************************************************************************************
   bt = 	true;
+	reset();
 }
   
 //****************************************************************************************************************************
 void BTInfo::unsetBT(void) {
 //****************************************************************************************************************************
   bt = false;
+  reset();	
 }
 
 //****************************************************************************************************************************
@@ -1956,269 +2094,18 @@ boolean BTInfo::getBT(void) {
 //****************************************************************************************************************************
 void BTInfo::show() {
 //****************************************************************************************************************************
+#ifdef SCREEN_DEBUG
+  SerialPort.println("Show : BTLevel");
+#endif //SCREEN_DEBUG
+
+ display.fillRect(posX, posY, 24, 24, GxEPD_WHITE);
+// display.drawRect(posX, posY, 24, 24, GxEPD_BLACK);
+
 // display.drawBitmap(msicons, posX, posY, 48, 48, GxEPD_WHITE,false);   //GxEPD_BLACK);
  if (bt == true) display.drawInvertedBitmap(posX, posY, bticons, 24, 24, GxEPD_BLACK);   //GxEPD_BLACK);
- else                display.fillRect(posX, posY, 24, 24, GxEPD_WHITE);
+// else                display.fillRect(posX, posY, 24, 24, GxEPD_WHITE);
  //  display.drawBitmap(100, 10, gridicons_sync, 24, 24, GxEPD_BLACK);
 }
-
-/************************/
-/* The screen scheduler */
-/************************/
-
-//****************************************************************************************************************************
-//****************************************************************************************************************************
-//									SCREENSCHEDULER
-//****************************************************************************************************************************
-//****************************************************************************************************************************
-
-//#define TIMER_DISPLAY
-
-#ifdef TIMER_DISPLAY
-
-hw_timer_t * timerScreenScheduler = NULL;
-portMUX_TYPE timerMuxScreenScheduler = portMUX_INITIALIZER_UNLOCKED;
-
-//****************************************************************************************************************************
-void IRAM_ATTR onTimerScreenScheduler() {
-//****************************************************************************************************************************
-  portENTER_CRITICAL_ISR(&timerMuxScreenScheduler);
-	
-	if (millis() - oldtime >= GnuSettings.VARIOMETER_MULTIDISPLAY_DURATION)
-	{
-		oldtime  = millis();
-		led1stat = 1 - led1stat;
-
-#ifdef SCREEN_DEBUG
-		digitalWrite(pinLED, led1stat);   // turn the LED on or off
-#endif //SCREEN_DEBUG
-	}
-
-//  interruptCounter++;
-  portEXIT_CRITICAL_ISR(&timerMuxScreenScheduler);
-}
-
-#endif //TIMER_DISPLAY
-
-//****************************************************************************************************************************
-ScreenScheduler::ScreenScheduler(ScreenSchedulerObject* displayList, uint8_t objectCount, int8_t startPage, int8_t endPage)
-: displayList(displayList), objectCount(objectCount), pos(0), currentPage(startPage), endPage(endPage) {
-//****************************************************************************************************************************
-	
-#ifdef SCREEN_DEBUG
-	pinMode(pinLED, OUTPUT);
-  digitalWrite(pinLED, LOW); 
-#endif //SCREEN_DEBUG
-	
-	led1stat = 0;  
-	oldtime  = 0;
-
-#ifdef TIMER_DISPLAY
-	
-	timerScreenScheduler = timerBegin(1, 80, true);
-	timerAttachInterrupt(timerScreenScheduler, &onTimerScreenScheduler, true);
-	timerAlarmWrite(timerScreenScheduler, 10000, true);  //100Hz
-	timerAlarmEnable(timerScreenScheduler);
-#endif //TIMER_DISPLAY
-}
-		 
-//****************************************************************************************************************************
-void ScreenScheduler::displayStep(void) {
-//****************************************************************************************************************************
-
-#ifndef TIMER_DISPLAY
-
-	if (millis() - oldtime >= GnuSettings.VARIOMETER_MULTIDISPLAY_DURATION)
-	{
-		oldtime  = millis();
-//		led1stat = 1 - led1stat;
-		
-#ifdef SCREEN_DEBUG
-		digitalWrite(pinLED, led1stat);   // turn the LED on or off
-#endif //SCREEN_DEBUG
-	}
-
-#endif //TIMER_DISPLAY
-
-  /* next try to find something to display */
-  /* for the current page                  */
-#ifdef SCREEN_DEBUG
-  SerialPort.print("displaystep - objectCount  : ");
-  SerialPort.println(objectCount);
-#endif //SCREEN_DEBUG
-
-  display.setFullWindow();
- 	
-	uint8_t n = 0;
-	while( n <= objectCount ) {
-/*   if( displayList[pos].page == currentPage && displayList[pos].actif == true && displayList[pos].object->update() ) {
-	return;
-}*/
-#ifdef SCREEN_DEBUG
-  SerialPort.print("displaylist / Page: ");
-//  SerialPort.println(displayList[pos].page);
-  SerialPort.println(displayList[n].page);
-  SerialPort.print("displaylist / Pageactive: ");
-  SerialPort.println(currentPage);
-	
-#endif //SCREEN_DEBUG
-
-/*	if( displayList[pos].page == currentPage && displayList[pos].actif == true) {
-		ScreenDigit* tmppointeur = (ScreenDigit*)displayList[pos].object;
-		tmppointeur->update(); 
-	}*/
-
-  currentMultiDisplay = 1 + led1stat;
-	
-#ifdef SCREEN_DEBUG
-  SerialPort.print("Current Multidisplay : ");
-  SerialPort.println(currentMultiDisplay);
-#endif //SCREEN_DEBUG
-	
-	if( displayList[n].page == currentPage && displayList[n].actif == true && (displayList[n].multiDisplayID == 0 || displayList[n].multiDisplayID == currentMultiDisplay))	displayList[n].object->update();
-
-/* next */
-		pos++;
-		if( pos == objectCount) {
-			pos = 0;
-		}
-		n++;
-	}
-
-#ifdef SCREEN_DEBUG
-  SerialPort.println("displayStep : Display");
-#endif //SCREEN_DEBUG
-
-/*  display.setCursor(10, 150);
-  display.print("HelloWorld");*/
-
-//    display.displayWindow(box_x, box_y, box_w, box_h);
-
-//  display.display(true); // partial update
-	
-}
-
-//****************************************************************************************************************************
-int8_t ScreenScheduler::getPage(void) {
-//****************************************************************************************************************************
-
-  return currentPage;
-}
-
-//****************************************************************************************************************************
-int8_t ScreenScheduler::getMaxPage(void) {
-//****************************************************************************************************************************
-
-  return endPage;
-}
-
-//****************************************************************************************************************************
-void ScreenScheduler::setPage(int8_t page, boolean force)  {
-//****************************************************************************************************************************
-
-  /* check if page change is needed */
-  if (force == false) {
-    if ( page == currentPage ) {
-      return;
-    }
-
-    /* set the new page */
-    currentPage = page;
-  }
-
-  /* screen need to by cleared */
-//  display.clearScreen();
- // display.eraseDisplay();
-    display.fillRect(0, 0, display.width(), display.height(), GxEPD_WHITE);
-
-  /* all the page object need to be redisplayed */
-  /* but no problem to reset all the objects */
-  for(uint8_t i = 0; i<objectCount; i++) {
-    displayList[i].object->reset();
-  }
-}
-
-//****************************************************************************************************************************
-void ScreenScheduler::nextPage(void) {
-//****************************************************************************************************************************
-  
-  uint8_t newPage = currentPage + 1;
-  if( newPage > endPage ) {
-    newPage = 0;
-  }
-
-  setPage(newPage);
-}
- 
-//****************************************************************************************************************************
-void ScreenScheduler::previousPage(void) {
-//****************************************************************************************************************************
-  
-  uint8_t newPage = currentPage - 1;
-  if( newPage < 0 ) {
-    newPage = endPage;
-  }
-
-  setPage(newPage);
-} 
-
-//****************************************************************************************************************************
-void ScreenScheduler::enableShow(void) {
-//****************************************************************************************************************************
-	oldtime = millis();
-#ifdef TIMER_DISPLAY
-  timerAlarmEnable(timerScreenScheduler);
-#endif //TIMER_DISPLAY
-} 
-
-void ScreenScheduler::disableShow(void) {
-#ifdef TIMER_DISPLAY
-  timerAlarmDisable(timerScreenScheduler);
-#endif //TIMERDISPLAY
-} 
-
-//****************************************************************************************************************************
-//****************************************************************************************************************************
-//							MULTIDISPLAY
-//****************************************************************************************************************************
-//****************************************************************************************************************************
-
-//****************************************************************************************************************************
-void MultiDisplay::displayStep(void) {
-//****************************************************************************************************************************
-
-#ifdef SCREEN_DEBUG
-	SerialPort.println("display step - Multidisplay");	
-#endif //SCREEN_DEBUG
-
-  if (lastFreqUpdate == 0) lastFreqUpdate = millis();
-  unsigned long FreqDuration = millis() - lastFreqUpdate;
-  if( FreqDuration > 1000 ) {
-    lastFreqUpdate = millis();
-
-    for(uint8_t i = 0; i<multiObjectCount; i++) {
-      multiDisplayList[i].countTime--;
-      if (multiDisplayList[i].countTime <= 0) {
-         multiDisplayList[i].countTime = multiDisplayList[i].seconde;
-         multiDisplayList[i].oldDisplayActif = multiDisplayList[i].displayActif;
-         multiDisplayList[i].displayActif++;
-         if (multiDisplayList[i].displayActif > multiObjectCount) multiDisplayList[i].displayActif = 0;
-		 
-#ifdef SCREEN_DEBUG
-		 SerialPort.print("old display  : ");
-         SerialPort.println(objectCount);
-#endif //SCREEN_DEBUG
-		 
-         displayList[multiDisplayList[i].objectList[multiDisplayList[i].oldDisplayActif]].actif = false;       
-         displayList[multiDisplayList[i].objectList[multiDisplayList[i].displayActif]].actif = true;  
- /*        displayList[8].actif = false;       
-         displayList[9].actif = true;  */
-		 
-	  }		 
-    }
-  }
-}
-
 
 /**************************************************************************/
 /*!

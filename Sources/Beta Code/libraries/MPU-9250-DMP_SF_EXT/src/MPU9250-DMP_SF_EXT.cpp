@@ -43,6 +43,7 @@ Supported Platforms:
 #include <eepromHAL.h>
 #include <DebugConfig.h>
 #include <HardwareConfig.h>
+#include <InvenSense_defines.h>
 
 extern "C" {
 #include "util/inv_mpu.h"
@@ -430,6 +431,116 @@ inv_error_t MPU9250_DMP::get_biases(long *gyro_bias, long *accel_bias)
 {
 	return mpu_get_biases(gyro_bias, accel_bias, 0);
 }
+
+
+inv_error_t MPU9250_DMP::fastMPUReadFIFO(int16_t *gyro, int16_t *accel, int32_t *quat) {
+  if ( dmpUpdateFifo() == INV_SUCCESS) {	
+
+		if (gyro != NULL) { 
+			gyro[0] = gx;
+			gyro[1] = gy;
+			gyro[2] = gz;
+		}
+
+		if (accel != NULL) { 
+			accel[0] = ax;
+			accel[1] = ay;
+			accel[2] = az;
+		}
+
+		if (quat != NULL) { 
+			quat[0] = qw;
+			quat[1] = qx;
+			quat[2] = qy;
+			quat[3] = qz;
+		}
+			 	
+	  return INV_SUCCESS;
+	}
+	else {
+		return INV_ERROR;		
+	}
+}
+
+
+
+#ifdef AK89xx_SECONDARY
+static uint8_t magSensAdj[3];
+
+/*
+void readMagSensAdj(void) {
+
+  /* get access *
+  disableDMP();
+
+  /************
+  /* read adj *
+  /************
+  uint8_t tmp[3];
+
+  /* bypass *
+  tmp[0] = BIT_BYPASS_EN;
+  intTW.writeBytes(INV_HW_ADDR, INV_REG_INT_PIN_CFG, 1, tmp); 
+
+  /* get fuse access *
+  tmp[0] = AKM_POWER_DOWN;
+  intTW.writeBytes(LIGHT_INVENSENSE_COMPASS_ADDR, AKM_REG_CNTL, 1, tmp);
+  delay(1);
+
+  tmp[0] = AKM_FUSE_ROM_ACCESS;
+  intTW.writeBytes(LIGHT_INVENSENSE_COMPASS_ADDR, AKM_REG_CNTL, 1, tmp);
+  delay(1);
+  
+  /* read values *
+  intTW.readBytes(LIGHT_INVENSENSE_COMPASS_ADDR, AKM_REG_ASAX, 3, magSensAdj);
+  
+  /* stop bypass *
+  tmp[0] = 0;
+  intTW.writeBytes(INV_HW_ADDR, INV_REG_INT_PIN_CFG, 1, tmp);   
+
+  /* enable DMP *
+  enableDMP();
+}*/
+#endif
+
+inv_error_t MPU9250_DMP::fastMPUReadRawMag(int16_t* mag) {
+
+  if ( dmpUpdateFifo() == INV_SUCCESS) {	
+
+		if (mag != NULL) { 
+			mag[0] = mx;
+			mag[1] = my;
+			mag[2] = mz;
+		}
+			 	
+	  return INV_SUCCESS;
+	}
+	else {
+		return INV_ERROR;		
+	}
+}
+
+
+uint8_t* MPU9250_DMP::fastMPUGetMagSensAdj(void) {
+
+  return magSensAdj;
+}
+
+void MPU9250_DMP::fastMPUAdjMag(int16_t* mag) {
+  mag[0] = ( (int32_t)mag[0] * ((int32_t)magSensAdj[1] + 128)  ) >> 8;
+  mag[1] = ( (int32_t)mag[1] * ((int32_t)magSensAdj[0] + 128)  ) >> 8;
+  mag[2] = ( (int32_t)mag[2] * ((int32_t)magSensAdj[2] + 128)  ) >> 8;
+}
+  
+inv_error_t MPU9250_DMP::fastMPUReadMag(int16_t* mag) {
+
+  inv_error_t state = fastMPUReadRawMag(mag);
+  fastMPUAdjMag(mag);
+
+  return state;
+}
+
+
 
 /**************************************************/
 

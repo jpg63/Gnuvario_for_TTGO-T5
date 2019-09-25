@@ -154,6 +154,10 @@ SimpleBLE ble;
 *                                    de stat                                                          *
 * v 0.5   beta 8  22/09/19           Modification de l'affichage de Vbat                              *
 *                                    Ajout d'un filtrage de la mesure de Vbat                         *
+*                                    Ajout deep_sleep en cas de batterie trop faible                  *
+* v 0.5   beta 9  23/09/19           Correction affichage ecran Stat                                  *                                    
+*                                    Ajout possibilité d'avoir plusieurs tailles d'écran              *
+*                                    Deep-sleep sur bouton central (3 sec)
 *                                                                                                     * 
 *******************************************************************************************************
 *                                                                                                     *
@@ -170,10 +174,10 @@ SimpleBLE ble;
 * verifier effacement du m (altitude)                                                                 *
 * bug d'affichage des fleches                                                                         *
 * voir réactivité des données GPS                                                                     *
-* Ajouter ecran d'arrêt puis de l'écran de stat si appuie 3 sec sur bouton au centre                  *
+* Ajouter Deep sleep si appuie 3 sec sur bouton au centre                                             *
 * Ajout page web de configuration du vario                                                            *
-* Revoir l'affichage de la batterie                                                                   *
-* Ajout deep sleep                                                                                    *
+* Menu de calibration / calibration accelerometre, calibration tenperature, calibration tension       *
+* Ajout possibilité d'avoir plusieurs tailles d'ecran                                                 *
 *                                                                                                     *
 * VX.X                                                                                                *
 * Refaire gestion du son                                                                              *
@@ -212,6 +216,7 @@ SimpleBLE ble;
  * - Affichage de la température                                        *
  * - Page de configuration du volume sonore                             *
  * - Page de statistique accéssible via les boutons                     *
+ * - Deep sleep en cas de batterie trop faible                          *
  *                                                                      *
  ************************************************************************
  
@@ -221,7 +226,7 @@ SimpleBLE ble;
  * Dans DebugConfig.h commanter #define ENABLE_DEBUG pour eviter les    *                                                                      
  *                    ralentissement et dans le cas ou le BlueTooth est *
  *                    activé                                            *
- * Wous ne pouvez pas activer en même temps le Wifi et le BlueTooth, si *
+ * Vous ne pouvez pas activer en même temps le Wifi et le BlueTooth, si *
  *                    vous activez le BT vous ne pourrez plus utiliser  *
  *                    les services Web du Gnuvario                      *                                                             
  * A chaque nouvelle mise à jour, verifiez la version du fichier        *
@@ -236,8 +241,9 @@ SimpleBLE ble;
 *                                                                       *
 * https://dl.espressif.com/dl/package_esp32_index.json                  *
 *                                                                       *
-* Type de carte : ESP32 dev Module                                      *
-* CPU frequency : 80Mhz (Wifi                                           *
+* Type de carte    : ESP32 dev Module                                   *
+* CPU frequency    : 240Mhz                                             *
+* Partition scheme : Default 4MB with spiffs                            *
 *************************************************************************/
 
 /************************************************************************
@@ -894,8 +900,6 @@ double temprature=0;
 void createSDCardTrackFile(void);
 #endif //defined(HAVE_SDCARD) && defined(HAVE_GPS)
 void enableflightStartComponents(void);
-
-void compute(int16_t *imuAccel, int32_t *imuQuat, double* vertVector, double& vertAccel);
 
 //*****************************
 //*****************************

@@ -22,8 +22,9 @@
 /*                                                                               */
 /*                           Utility                                             */
 /*                                                                               */
-/*  version    Date     Description                                              */
+/*  version    Date        Description                                           */
 /*    1.0      05/07/19                                                          */
+/*    1.1      24/09/19    Ajout deep_sleep                                      */
 /*                                                                               */
 /*********************************************************************************/
 
@@ -31,9 +32,24 @@
 
 #include <Utility.h>
 #include <DebugConfig.h>
+#include <HardwareConfig.h>
+
+#ifdef HAVE_SDCARD
+#include <sdcardHAL.h>
+#endif //HAVE_SDCARD
+
 #include <VarioSettings.h>
 
+#ifdef HAVE_SPEAKER
+#include <toneHAL.h>
 #include <beeper.h>
+#endif //HAVE_SPEAKER
+
+#ifdef HAVE_SCREEN
+#include <varioscreenGxEPD.h>
+#endif
+
+#include "driver/rtc_io.h"
 
 /**********************/
 /* sensor objects */
@@ -169,4 +185,36 @@ int8_t percentBat(double targetVoltage) {
 #endif  //PROG_DEBUG
   
  return result;
+}
+
+void deep_sleep(void) {
+	esp_sleep_enable_ext0_wakeup(BUTTON_DEEP_SLEEP,0); //1 = High, 0 = Low
+
+	//If you were to use ext1, you would use it like
+	//esp_sleep_enable_ext1_wakeup(BUTTON_PIN_BITMASK,ESP_EXT1_WAKEUP_ANY_HIGH);
+
+	//Go to sleep now
+	SerialPort.println("Going to sleep now");
+
+	#if defined(HAVE_POWER_ALIM) 
+	pinMode(POWER_PIN, OUTPUT);
+	digitalWrite(POWER_PIN, !POWER_PIN_STATE);   // turn off POWER (POWER_PIN_STATE is the voltage level HIGH/LOW)
+	#endif  
+
+	#ifdef HAVE_SDCARD          
+	SDHAL.end(); 
+	#endif
+
+	#ifdef HAVE_AUDIO_AMPLI
+	toneHAL.disableAmpli();
+	#endif
+	//	rtc_gpio_isolate(GPIO_NUM_12);
+	
+	rtc_gpio_isolate(GPIO_BUTTON_A);
+	rtc_gpio_isolate(GPIO_BUTTON_C);
+
+	display.powerOff();
+	
+	esp_deep_sleep_start();
+	SerialPort.println("This will never be printed");		
 }

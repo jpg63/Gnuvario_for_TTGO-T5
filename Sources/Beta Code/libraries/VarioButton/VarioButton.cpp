@@ -36,6 +36,7 @@
  *                      Augmentation debounce time                               *
  *                      Ajout _state button																			 *
  *    1.0.7  31/08/19		Correction bug reglage son															 *
+ *    1.0.8  25/09/19   Ajout appuie 3 sec bouton central                        * 
  *                                                                               *
  *********************************************************************************/
  
@@ -51,6 +52,8 @@
 #ifdef HAVE_WIFI
 #include <wifiServer.h>
 #endif //HAVE_WIFI
+
+#include <Utility.h>
 
 void VARIOButton::begin() {
     
@@ -111,7 +114,16 @@ void VARIOButtonScheduleur::update() {
 #endif //BUTTON_DEBUG
   }
 
-  if(VarioButton.BtnB.isPressed()) { //wasPressed()) {
+  if(VarioButton.BtnB.pressedFor(3000)) {
+#ifdef BUTTON_DEBUG
+    SerialPort.println("*********************************************");
+    SerialPort.printf("pressedFor 3s B \r\n");
+    SerialPort.println("*********************************************");
+		treatmentBtnB3S(false);
+#endif //BUTTON_DEBUG
+  }
+
+  if(VarioButton.BtnB.wasPressed()) {  ///isPressed()) { //wasPressed()) {
 #ifdef BUTTON_DEBUG
     SerialPort.printf("isPressed B \r\n");
 #endif //BUTTON_DEBUG
@@ -126,12 +138,6 @@ void VARIOButtonScheduleur::update() {
     SerialPort.printf("wasReleased B \r\n");
 #endif //BUTTON_DEBUG
 		_stateBB = false;
-  }
-
-  if(VarioButton.BtnB.pressedFor(2000)) {
-#ifdef BUTTON_DEBUG
-    SerialPort.printf("pressedFor 2s B \r\n");
-#endif //BUTTON_DEBUG
   }
 
   if(VarioButton.BtnC.isPressed()) { //wasPressed()) {
@@ -321,5 +327,12 @@ void VARIOButtonScheduleur::printDirectory(File dir, int numTabs) {
    }
 //#endif //BUTTON_DEBUG
 }	 
+
+void VARIOButtonScheduleur::treatmentBtnB3S(bool Debounce) {
+		
+  if (StatePage == STATE_PAGE_VARIO) {
+	  deep_sleep();
+	}
+}
 
 VARIOButtonScheduleur ButtonScheduleur;
