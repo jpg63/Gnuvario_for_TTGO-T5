@@ -1,4 +1,0 @@
-https://github.com/natanaeljr/esp32-MPU-driver/tree/master
-
-https://github.com/stickbreaker/arduino-esp32/tree/master/libraries/Wire
-

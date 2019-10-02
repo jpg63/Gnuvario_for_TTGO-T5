@@ -252,7 +252,7 @@ SimpleBLE ble;
 *                                                                       *
 * Type de carte    : ESP32 dev Module                                   *
 * CPU frequency    : 240Mhz                                             *
-* Partition scheme : Default 4MB with spiffs                            *
+* Partition scheme : Huge APP(3Mb no OTA / 1Mb spiffs)                    *
 *************************************************************************/
 
 /************************************************************************

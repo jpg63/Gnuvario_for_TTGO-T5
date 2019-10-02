@@ -194,6 +194,7 @@ void Vertaccel::readMagCalibration(VertaccelCalibration& magCal) {
 /***************/
 void Vertaccel::init(void) {
 
+
 #if defined(VERTACCEL_ENABLE_SD_SETTINGS)
 	settings.gyroCal[0] = GnuSettings.VARIO_VERTACCEL_GYRO_CAL_BIAS_00;
 	settings.gyroCal[1] = GnuSettings.VARIO_VERTACCEL_GYRO_CAL_BIAS_01;
@@ -235,7 +236,7 @@ void Vertaccel::init(void) {
   accelCalArray[0] = (int32_t)vertaccelSettings.accelCal.bias[0] * ((int32_t)1 << (15 - GnuSettings.VARIO_VERTACCEL_ACCEL_CAL_BIAS_MULTIPLIER));
 	accelCalArray[1] = (int32_t)vertaccelSettings.accelCal.bias[1] * ((int32_t)1 << (15 - GnuSettings.VARIO_VERTACCEL_ACCEL_CAL_BIAS_MULTIPLIER));
 	accelCalArray[1] = (int32_t)vertaccelSettings.accelCal.bias[2] * ((int32_t)1 << (15 - GnuSettings.VARIO_VERTACCEL_ACCEL_CAL_BIAS_MULTIPLIER)); //passed as pointer
-#endif
+#endif //VERTACCEL_ENABLE_SD_SETTINGS
 
   /* init MPU */
 //  fastMPUInit(false);
@@ -256,8 +257,14 @@ void Vertaccel::init(void) {
 #ifndef VERTACCEL_STATIC_CALIBRATION
   /* set accel calibration in the DMP */
   int32_t accelBias[3];
+
+#if defined(VERTACCEL_ENABLE_SD_SETTINGS)
   for(int i = 0; i<3; i++) 
     accelBias[i] = (int32_t)settings.accelCal.bias[i] << (15 - GnuSettings.VARIO_VERTACCEL_ACCEL_CAL_BIAS_MULTIPLIER);
+#else
+  for(int i = 0; i<3; i++) 
+    accelBias[i] = (int32_t)settings.accelCal.bias[i] << (15 - VERTACCEL_ACCEL_CAL_BIAS_MULTIPLIER);
+#endif //VERTACCEL_ENABLE_SD_SETTINGS
 
 //  fastMPUSetAccelBiasQ15(accelBias);
 #else
@@ -328,14 +335,22 @@ void Vertaccel::compute(int16_t *imuAccel, int32_t *imuQuat, double* vertVector,
   
 #ifndef VERTACCEL_STATIC_CALIBRATION
   for(int i = 0; i<3; i++) {
+#if defined(VERTACCEL_ENABLE_SD_SETTINGS)
     int64_t calibratedAccel = (int64_t)imuAccel[i] << GnuSettings.VARIO_VERTACCEL_ACCEL_CAL_BIAS_MULTIPLIER;
     calibratedAccel -= (int64_t)settings.accelCal.bias[i];
     calibratedAccel *= ((int64_t)settings.accelCal.scale + ((int64_t)1 << VERTACCEL_CAL_SCALE_MULTIPLIER));
     accel[i] = ((double)calibratedAccel)/((double)((int64_t)1 << (GnuSettings.VARIO_VERTACCEL_ACCEL_CAL_BIAS_MULTIPLIER + VERTACCEL_CAL_SCALE_MULTIPLIER + LIGHT_INVENSENSE_ACCEL_SCALE_SHIFT)));
+#else
+    int64_t calibratedAccel = (int64_t)imuAccel[i] << VERTACCEL_ACCEL_CAL_BIAS_MULTIPLIER;
+    calibratedAccel -= (int64_t)settings.accelCal.bias[i];
+    calibratedAccel *= ((int64_t)settings.accelCal.scale + ((int64_t)1 << VERTACCEL_CAL_SCALE_MULTIPLIER));
+    accel[i] = ((double)calibratedAccel)/((double)((int64_t)1 << (VERTACCEL_ACCEL_CAL_BIAS_MULTIPLIER + VERTACCEL_CAL_SCALE_MULTIPLIER + LIGHT_INVENSENSE_ACCEL_SCALE_SHIFT)));
+#endif //VERTACCEL_ENABLE_SD_SETTINGS
   }
 #else
   /* inline for optimization */
   int64_t calibratedAccel;
+#if defined(VERTACCEL_ENABLE_SD_SETTINGS)
   calibratedAccel = (int64_t)imuAccel[0] << GnuSettings.VARIO_VERTACCEL_ACCEL_CAL_BIAS_MULTIPLIER;
   calibratedAccel -= (int64_t)settings.accelCal.bias[0];
   calibratedAccel *= ((int64_t)settings.accelCal.scale + ((int64_t)1 << VERTACCEL_CAL_SCALE_MULTIPLIER));
@@ -350,7 +365,23 @@ void Vertaccel::compute(int16_t *imuAccel, int32_t *imuQuat, double* vertVector,
   calibratedAccel -= (int64_t)settings.accelCal.bias[2];
   calibratedAccel *= ((int64_t)settings.accelCal.scale + ((int64_t)1 << VERTACCEL_CAL_SCALE_MULTIPLIER));
   accel[2] = ((double)calibratedAccel)/((double)((int64_t)1 << (GnuSettings.VARIO_VERTACCEL_ACCEL_CAL_BIAS_MULTIPLIER + VERTACCEL_CAL_SCALE_MULTIPLIER + LIGHT_INVENSENSE_ACCEL_SCALE_SHIFT)));
-#endif
+#else		//VERTACCEL_ENABLE_SD_SETTINGS
+  calibratedAccel = (int64_t)imuAccel[0] << VERTACCEL_ACCEL_CAL_BIAS_MULTIPLIER;
+  calibratedAccel -= (int64_t)settings.accelCal.bias[0];
+  calibratedAccel *= ((int64_t)settings.accelCal.scale + ((int64_t)1 << VERTACCEL_CAL_SCALE_MULTIPLIER));
+  accel[0] = ((double)calibratedAccel)/((double)((int64_t)1 << (VERTACCEL_ACCEL_CAL_BIAS_MULTIPLIER + VERTACCEL_CAL_SCALE_MULTIPLIER + LIGHT_INVENSENSE_ACCEL_SCALE_SHIFT)));
+
+  calibratedAccel = (int64_t)imuAccel[1] << VERTACCEL_ACCEL_CAL_BIAS_MULTIPLIER;
+  calibratedAccel -= (int64_t)settings.accelCal.bias[1];
+  calibratedAccel *= ((int64_t)settings.accelCal.scale + ((int64_t)1 << VERTACCEL_CAL_SCALE_MULTIPLIER));
+  accel[1] = ((double)calibratedAccel)/((double)((int64_t)1 << (VERTACCEL_ACCEL_CAL_BIAS_MULTIPLIER + VERTACCEL_CAL_SCALE_MULTIPLIER + LIGHT_INVENSENSE_ACCEL_SCALE_SHIFT)));
+
+  calibratedAccel = (int64_t)imuAccel[2] << VERTACCEL_ACCEL_CAL_BIAS_MULTIPLIER;
+  calibratedAccel -= (int64_t)settings.accelCal.bias[2];
+  calibratedAccel *= ((int64_t)settings.accelCal.scale + ((int64_t)1 << VERTACCEL_CAL_SCALE_MULTIPLIER));
+  accel[2] = ((double)calibratedAccel)/((double)((int64_t)1 << (VERTACCEL_ACCEL_CAL_BIAS_MULTIPLIER + VERTACCEL_CAL_SCALE_MULTIPLIER + LIGHT_INVENSENSE_ACCEL_SCALE_SHIFT)));
+#endif //VERTACCEL_ENABLE_SD_SETTINGS
+#endif //VERTACCEL_STATIC_CALIBRATION
   
   for(int i = 0; i<4; i++)
     quat[i] = ((double)imuQuat[i])/LIGHT_INVENSENSE_QUAT_SCALE;
@@ -386,14 +417,22 @@ void Vertaccel::computeNorthVector(double* vertVector, int16_t* mag, double* nor
 
 #ifndef VERTACCEL_STATIC_CALIBRATION
   for(int i = 0; i<3; i++) {
+#if defined(VERTACCEL_ENABLE_SD_SETTINGS)
     int64_t calibratedMag = ((int64_t)mag[i]) << GnuSettings.VARIO_VERTACCEL_MAG_CAL_BIAS_MULTIPLIER;
     calibratedMag -= (int64_t)settings.magCal.bias[i];
     calibratedMag *= ((int64_t)settings.magCal.scale + ((int64_t)1 << GnuSettings.VARIO_VERTACCEL_CAL_SCALE_MULTIPLIER));
     n[i] = ((double)calibratedMag)/((double)((int64_t)1 << (GnuSettings.VARIO_VERTACCEL_MAG_CAL_BIAS_MULTIPLIER + VERTACCEL_CAL_SCALE_MULTIPLIER + LIGHT_INVENSENSE_MAG_PROJ_SCALE_SHIFT)));
+#else //VERTACCEL_ENABLE_SD_SETTINGS
+    int64_t calibratedMag = ((int64_t)mag[i]) << VERTACCEL_MAG_CAL_BIAS_MULTIPLIER;
+    calibratedMag -= (int64_t)settings.magCal.bias[i];
+    calibratedMag *= ((int64_t)settings.magCal.scale + ((int64_t)1 << VERTACCEL_CAL_SCALE_MULTIPLIER));
+    n[i] = ((double)calibratedMag)/((double)((int64_t)1 << (VERTACCEL_MAG_CAL_BIAS_MULTIPLIER + VERTACCEL_CAL_SCALE_MULTIPLIER + LIGHT_INVENSENSE_MAG_PROJ_SCALE_SHIFT)));
+#endif //VERTACCEL_ENABLE_SD_SETTINGS
   }
 #else
   /* inline for optimization */
   int64_t calibratedMag;
+#if defined(VERTACCEL_ENABLE_SD_SETTINGS)
   calibratedMag = ((int64_t)mag[0]) << GnuSettings.VARIO_VERTACCEL_MAG_CAL_BIAS_MULTIPLIER;
   calibratedMag -= (int64_t)settings.magCal.bias[0];
   calibratedMag *= ((int64_t)settings.magCal.scale + ((int64_t)1 << GnuSettings.VARIO_VERTACCEL_CAL_SCALE_MULTIPLIER));
@@ -408,6 +447,22 @@ void Vertaccel::computeNorthVector(double* vertVector, int16_t* mag, double* nor
   calibratedMag -= (int64_t)settings.magCal.bias[2];
   calibratedMag *= ((int64_t)settings.magCal.scale + ((int64_t)1 << GnuSettings.VARIO_VERTACCEL_CAL_SCALE_MULTIPLIER));
   n[2] = ((double)calibratedMag)/((double)((int64_t)1 << (GnuSettings.VARIO_VERTACCEL_MAG_CAL_BIAS_MULTIPLIER + VERTACCEL_CAL_SCALE_MULTIPLIER + LIGHT_INVENSENSE_MAG_PROJ_SCALE_SHIFT)));
+#else  //VERTACCEL_ENABLE_SD_SETTINGS
+  calibratedMag = ((int64_t)mag[0]) << VERTACCEL_MAG_CAL_BIAS_MULTIPLIER;
+  calibratedMag -= (int64_t)settings.magCal.bias[0];
+  calibratedMag *= ((int64_t)settings.magCal.scale + ((int64_t)1 << VERTACCEL_CAL_SCALE_MULTIPLIER));
+  n[0] = ((double)calibratedMag)/((double)((int64_t)1 << (VERTACCEL_MAG_CAL_BIAS_MULTIPLIER + VERTACCEL_CAL_SCALE_MULTIPLIER + LIGHT_INVENSENSE_MAG_PROJ_SCALE_SHIFT)));
+
+  calibratedMag = ((int64_t)mag[1]) << VERTACCEL_MAG_CAL_BIAS_MULTIPLIER;
+  calibratedMag -= (int64_t)settings.magCal.bias[1];
+  calibratedMag *= ((int64_t)settings.magCal.scale + ((int64_t)1 << VERTACCEL_CAL_SCALE_MULTIPLIER));
+  n[1] = ((double)calibratedMag)/((double)((int64_t)1 << (VERTACCEL_MAG_CAL_BIAS_MULTIPLIER + VERTACCEL_CAL_SCALE_MULTIPLIER + LIGHT_INVENSENSE_MAG_PROJ_SCALE_SHIFT)));
+
+  calibratedMag = ((int64_t)mag[2]) << VERTACCEL_MAG_CAL_BIAS_MULTIPLIER;
+  calibratedMag -= (int64_t)settings.magCal.bias[2];
+  calibratedMag *= ((int64_t)settings.magCal.scale + ((int64_t)1 << VERTACCEL_CAL_SCALE_MULTIPLIER));
+  n[2] = ((double)calibratedMag)/((double)((int64_t)1 << (VERTACCEL_MAG_CAL_BIAS_MULTIPLIER + VERTACCEL_CAL_SCALE_MULTIPLIER + LIGHT_INVENSENSE_MAG_PROJ_SCALE_SHIFT)));
+#endif	//VERTACCEL_ENABLE_SD_SETTINGS
 #endif
         
   /* compute north vector by applying rotation from v to z to vector n */
