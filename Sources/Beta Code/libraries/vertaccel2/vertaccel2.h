@@ -18,6 +18,16 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+/*********************************************************************************/
+/*                                                                               */
+/*                           Vertaccel2                                          */
+/*                                                                               */
+/*  version    Date     Description                                              */
+/*    1.0                                                                        */
+/*    1.0.1  01/10/19   Ajout configuration via varioSettings 									 */
+/*                                                                               */
+/*********************************************************************************/
+
 #ifndef VERTACCEL2_H
 #define VERTACCEL2_H
 
@@ -35,7 +45,8 @@
 #define VERTACCEL_USE_MAG_SENS_ADJ
 
 /* enable EEPROM functionnalities */
-#define VERTACCEL_ENABLE_EEPROM
+//#define VERTACCEL_ENABLE_EEPROM
+#define VERTACCEL_ENABLE_SD_SETTINGS
 
 /*############################################*/
 /* You can compile vertaccel with static      */
@@ -169,7 +180,7 @@ class Vertaccel{
 
 #ifdef VERTACCEL_ENABLE_EEPROM
   /* EEPROM methods */
-  static VertaccelSettings readEEPROMSettings(void);
+  static VertaccelSettings readSettings(void);
   static void saveGyroCalibration(const uint8_t* gyroCal);
   static void readGyroCalibration(uint8_t* gyroCal);
   static void saveAccelCalibration(const VertaccelCalibration& accelCal);
@@ -178,14 +189,27 @@ class Vertaccel{
   static void saveMagCalibration(const VertaccelCalibration& magCal);
   static void readMagCalibration(VertaccelCalibration& magCal);
 #endif //AK89xx_SECONDARY
+#else if defined (VERTACCEL_ENABLE_SD_SETTINGS)
+  /* EEPROM methods */
+  static VertaccelSettings readSettings(void);
+  static void readGyroCalibration(uint8_t* gyroCal);
+  static void readAccelCalibration(VertaccelCalibration& accelCal);
+#ifdef AK89xx_SECONDARY
+  static void readMagCalibration(VertaccelCalibration& magCal);
+#endif //AK89xx_SECONDARY	
 #endif //VERTACCEL_ENABLE_EEPROM
+
+	void readMagSensAdj(void);
  
   
  private:
 #ifdef VERTACCEL_STATIC_CALIBRATION
-  static constexpr VertaccelSettings settings = vertaccelSettings;
-  static constexpr uint8_t gyroCalArray[12] = VERTACCEL_GYRO_CAL_BIAS; //need to be passed as pointer
-  static constexpr int32_t accelCalArray[3] = { (int32_t)vertaccelSettings.accelCal.bias[0] * ((int32_t)1 << (15 - VERTACCEL_ACCEL_CAL_BIAS_MULTIPLIER)),
+//  static constexpr VertaccelSettings settings = vertaccelSettings;
+	VertaccelSettings settings = vertaccelSettings;
+//  static constexpr 
+	uint8_t gyroCalArray[12] = VERTACCEL_GYRO_CAL_BIAS; //need to be passed as pointer
+//  static constexpr 
+	int32_t accelCalArray[3] = { (int32_t)vertaccelSettings.accelCal.bias[0] * ((int32_t)1 << (15 - VERTACCEL_ACCEL_CAL_BIAS_MULTIPLIER)),
 						(int32_t)vertaccelSettings.accelCal.bias[1] * ((int32_t)1 << (15 - VERTACCEL_ACCEL_CAL_BIAS_MULTIPLIER)),
 						(int32_t)vertaccelSettings.accelCal.bias[2] * ((int32_t)1 << (15 - VERTACCEL_ACCEL_CAL_BIAS_MULTIPLIER)) }; //passed as pointer
 #else

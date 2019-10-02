@@ -338,7 +338,7 @@ bool MPU9250_DMP::dataReady()
 	}
 	return false;
 }
-
+	
 inv_error_t MPU9250_DMP::update(unsigned char sensors)
 {
 	inv_error_t aErr = INV_SUCCESS;
@@ -405,33 +405,15 @@ inv_error_t MPU9250_DMP::updateTemperature(void)
 	return mpu_get_temperature(&temperature, &time);
 }
 
-// The MPU-9250 contains a MPU-6500 and AK8963
 
-inv_error_t MPU9250_DMP::readAccelBias(long *accel_bias)
-{
-	return mpu_read_6500_accel_bias(accel_bias);
+
+/****************************************************/
+/*                    FASTMPUxxxxxx                 */
+/****************************************************/
+
+bool MPU9250_DMP::fastMPUMagReady(void) {
+  return dataReady();
 }
-
-inv_error_t MPU9250_DMP::writeAccelBias(long *accel_bias)
-{ 
-	return mpu_set_accel_bias_6500_reg(accel_bias);
-}
-
-inv_error_t MPU9250_DMP::readGyroBias(long *gyro_bias)
-{
-	return mpu_read_6500_gyro_bias(gyro_bias);
-}
-
-inv_error_t MPU9250_DMP::writeGyroBias(long *gyro_bias)
-{
-	return mpu_set_gyro_bias_reg(gyro_bias);
-}
-
-inv_error_t MPU9250_DMP::get_biases(long *gyro_bias, long *accel_bias)
-{
-	return mpu_get_biases(gyro_bias, accel_bias, 0);
-}
-
 
 inv_error_t MPU9250_DMP::fastMPUReadFIFO(int16_t *gyro, int16_t *accel, int32_t *quat) {
   if ( dmpUpdateFifo() == INV_SUCCESS) {	
@@ -505,12 +487,15 @@ void readMagSensAdj(void) {
 
 inv_error_t MPU9250_DMP::fastMPUReadRawMag(int16_t* mag) {
 
-  if ( dmpUpdateFifo() == INV_SUCCESS) {	
+  if ( updateCompass() == INV_SUCCESS) {	 // dmpUpdateFifo()
 
 		if (mag != NULL) { 
 			mag[0] = mx;
 			mag[1] = my;
 			mag[2] = mz;
+		}
+		else {
+			return INV_ERROR;		
 		}
 			 	
 	  return INV_SUCCESS;
@@ -535,7 +520,7 @@ void MPU9250_DMP::fastMPUAdjMag(int16_t* mag) {
 inv_error_t MPU9250_DMP::fastMPUReadMag(int16_t* mag) {
 
   inv_error_t state = fastMPUReadRawMag(mag);
-  fastMPUAdjMag(mag);
+//  fastMPUAdjMag(mag);
 
   return state;
 }
@@ -543,6 +528,35 @@ inv_error_t MPU9250_DMP::fastMPUReadMag(int16_t* mag) {
 
 
 /**************************************************/
+/*                 BIASES                         */
+/**************************************************/
+
+// The MPU-9250 contains a MPU-6500 and AK8963
+
+inv_error_t MPU9250_DMP::readAccelBias(long *accel_bias)
+{
+	return mpu_read_6500_accel_bias(accel_bias);
+}
+
+inv_error_t MPU9250_DMP::writeAccelBias(long *accel_bias)
+{ 
+	return mpu_set_accel_bias_6500_reg(accel_bias);
+}
+
+inv_error_t MPU9250_DMP::readGyroBias(long *gyro_bias)
+{
+	return mpu_read_6500_gyro_bias(gyro_bias);
+}
+
+inv_error_t MPU9250_DMP::writeGyroBias(long *gyro_bias)
+{
+	return mpu_set_gyro_bias_reg(gyro_bias);
+}
+
+inv_error_t MPU9250_DMP::get_biases(long *gyro_bias, long *accel_bias)
+{
+	return mpu_get_biases(gyro_bias, accel_bias, 0);
+}
 
 inv_error_t MPU9250_DMP::set_accel_biases(long *accel_bias)
 {
@@ -575,6 +589,10 @@ inv_error_t MPU9250_DMP::get_accel_biases(long *accel_bias)
 	accel_bias[2] = accelBias[2];
 	return INV_SUCCESS;
 }
+
+/*******************************************************/
+/*                    UPDATECAL                        */
+/*******************************************************/
 
 inv_error_t MPU9250_DMP::updateCal(unsigned char sensors)
 {
@@ -647,6 +665,10 @@ int MPU9250_DMP::selfTest(unsigned char debug)
 	long gyro[3], accel[3];
 	return mpu_run_self_test(gyro, accel);
 }
+
+/**************************************************************/
+/*                      DMP                                   */
+/**************************************************************/
 
 inv_error_t MPU9250_DMP::dmpBegin(unsigned short features, unsigned short fifoRate)
 {

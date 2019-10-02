@@ -37,6 +37,8 @@
  *                      Ajout _state button																			 *
  *    1.0.7  31/08/19		Correction bug reglage son															 *
  *    1.0.8  25/09/19   Ajout appuie 3 sec bouton central                        * 
+ *    1.0.9  29/09/19	  Ajout gestion page de calibration                        *
+ *    1.0.9  29/09/19	  Ajout gestion page de calibration                        *
  *                                                                               *
  *********************************************************************************/
  
@@ -54,6 +56,7 @@
 #endif //HAVE_WIFI
 
 #include <Utility.h>
+#include <VarioCalibration.h>
 
 void VARIOButton::begin() {
     
@@ -119,25 +122,32 @@ void VARIOButtonScheduleur::update() {
     SerialPort.println("*********************************************");
     SerialPort.printf("pressedFor 3s B \r\n");
     SerialPort.println("*********************************************");
+		_stateBB = false;
 		treatmentBtnB3S(false);
 #endif //BUTTON_DEBUG
   }
 
-  if(VarioButton.BtnB.wasPressed()) {  ///isPressed()) { //wasPressed()) {
+  if(VarioButton.BtnB.isPressed()) { //wasPressed()) {
 #ifdef BUTTON_DEBUG
     SerialPort.printf("isPressed B \r\n");
 #endif //BUTTON_DEBUG
-		if (_stateBB == false) {
+/*		if (_stateBB == false) {
 			treatmentBtnB(false);
 			_stateBB = true;
-		}
+		}*/
+	  _stateBB = true;
   }
 
   if(VarioButton.BtnB.wasReleased()) {
 #ifdef BUTTON_DEBUG
     SerialPort.printf("wasReleased B \r\n");
 #endif //BUTTON_DEBUG
-		_stateBB = false;
+//		_stateBB = false;
+		if (_stateBB == true) {
+			treatmentBtnB(false);
+			_stateBB = false;
+		}
+
   }
 
   if(VarioButton.BtnC.isPressed()) { //wasPressed()) {
@@ -204,10 +214,20 @@ void VARIOButtonScheduleur::treatmentBtnA(bool Debounce) {
 			beeper.setVolume(tmpvol);
 			screen.ScreenViewSound(toneHAL.getVolume());
 		}
+	} 
+	else if (StatePage == STATE_PAGE_CALIBRATE) {		
+	  //sortie calibration
+		SerialPort.println("RESTART ESP32");
+		SerialPort.flush();
+		ESP_LOGI("GnuVario-E", "RESTART ESP32");
+		screen.ScreenViewReboot();
+		ESP.restart();		
 	}
 }
 
+/**********************************************************/
 void VARIOButtonScheduleur::treatmentBtnB(bool Debounce) {
+/***********************************************************/
 		
   if (StatePage == STATE_PAGE_VARIO) {
 		
@@ -229,10 +249,16 @@ void VARIOButtonScheduleur::treatmentBtnB(bool Debounce) {
 		GnuSettings.soundSettingWrite(toneHAL.getVolume());
 		screen.volLevel->setVolume(toneHAL.getVolume());
 		screen.volLevel->mute(toneHAL.isMute());
+	} else if (StatePage == STATE_PAGE_CALIBRATION) {		
+	  //lancement de la calibration
+		StatePage = STATE_PAGE_CALIBRATE;
+		Calibration.Begin();
 	}
 }
 
+/************************************************************/
 void VARIOButtonScheduleur::treatmentBtnC(bool Debounce) {
+/************************************************************/	
 	
     /*SerialPort.println("Read test.txt");
 
@@ -261,8 +287,13 @@ void VARIOButtonScheduleur::treatmentBtnC(bool Debounce) {
 			beeper.setVolume(tmpvol);
 			screen.ScreenViewSound(toneHAL.getVolume());
 		}
+	} 
+	else if (StatePage == STATE_PAGE_DEEP_SLEEP) {					  
+		deep_sleep();
 	}
-		
+	else if (StatePage == STATE_PAGE_INIT) {					  
+		StatePage = STATE_PAGE_CALIBRATION;
+	}	
 }
 
 #ifdef HAVE_WIFI
@@ -331,7 +362,11 @@ void VARIOButtonScheduleur::printDirectory(File dir, int numTabs) {
 void VARIOButtonScheduleur::treatmentBtnB3S(bool Debounce) {
 		
   if (StatePage == STATE_PAGE_VARIO) {
-	  deep_sleep();
+		StatePage = STATE_PAGE_DEEP_SLEEP;
+	  screen.ScreenViewMessage("ARRET", 5);
+		StatePage = STATE_PAGE_VARIO;
+		screen.ScreenViewPage(screen.schedulerScreen->getPage(),true);
+		screen.updateScreen ();
 	}
 }
 

@@ -32,6 +32,7 @@
 /*    1.0.4  25/07/19   Ajout default settings                           				 */ 
 /*                      Ajout NO_RECORD                                          */
 /*    1.0.5  05/08/19   Ajout paramettres Wifi                                   */
+/*    1.0.6	 01/10/19		Ajout paramettres calibration                            */
 /*                                                                               */
 /*********************************************************************************/
 
@@ -360,7 +361,73 @@ boolean VarioSettings::readSDSettings(){
    else if(settingName == "PASSWORD_4") {
      VARIOMETER_PASSWORD_4 = settingValue;
    }		
-   else {       
+   else if(settingName == "VERTACCEL_GYRO_CAL_BIAS_00") {
+	   VARIO_VERTACCEL_GYRO_CAL_BIAS_00=settingValue.toInt();
+	 }
+   else if(settingName == "VERTACCEL_GYRO_CAL_BIAS_01") {
+	   VARIO_VERTACCEL_GYRO_CAL_BIAS_01=settingValue.toInt();
+	 }
+   else if(settingName == "VERTACCEL_GYRO_CAL_BIAS_02") {
+	   VARIO_VERTACCEL_GYRO_CAL_BIAS_02=settingValue.toInt();
+	 }
+   else if(settingName == "VERTACCEL_GYRO_CAL_BIAS_03") {
+	   VARIO_VERTACCEL_GYRO_CAL_BIAS_03=settingValue.toInt();
+	 }
+   else if(settingName == "VERTACCEL_GYRO_CAL_BIAS_04") {
+	   VARIO_VERTACCEL_GYRO_CAL_BIAS_04=settingValue.toInt();
+	 }
+   else if(settingName == "VERTACCEL_GYRO_CAL_BIAS_05") {
+	   VARIO_VERTACCEL_GYRO_CAL_BIAS_05=settingValue.toInt();
+	 }
+   else if(settingName == "VERTACCEL_GYRO_CAL_BIAS_06") {
+	   VARIO_VERTACCEL_GYRO_CAL_BIAS_06=settingValue.toInt();
+	 }
+   else if(settingName == "VERTACCEL_GYRO_CAL_BIAS_07") {
+	   VARIO_VERTACCEL_GYRO_CAL_BIAS_07=settingValue.toInt();
+	 }
+   else if(settingName == "VERTACCEL_GYRO_CAL_BIAS_08") {
+	   VARIO_VERTACCEL_GYRO_CAL_BIAS_08=settingValue.toInt();
+	 }
+   else if(settingName == "VERTACCEL_GYRO_CAL_BIAS_09") {
+	   VARIO_VERTACCEL_GYRO_CAL_BIAS_09=settingValue.toInt();
+	 }
+   else if(settingName == "VERTACCEL_GYRO_CAL_BIAS_10") {
+	   VARIO_VERTACCEL_GYRO_CAL_BIAS_10=settingValue.toInt();
+	 }
+   else if(settingName == "VERTACCEL_GYRO_CAL_BIAS_11") {
+	   VARIO_VERTACCEL_GYRO_CAL_BIAS_11=settingValue.toInt();
+	 }
+   else if(settingName == "VERTACCEL_ACCEL_CAL_BIAS_00") {
+	   VARIO_VERTACCEL_ACCEL_CAL_BIAS_00=settingValue.toInt();
+	 }
+   else if(settingName == "VERTACCEL_ACCEL_CAL_BIAS_01") {
+	   VARIO_VERTACCEL_ACCEL_CAL_BIAS_01=settingValue.toInt();
+	 }
+   else if(settingName == "VERTACCEL_ACCEL_CAL_BIAS_02") {
+	   VARIO_VERTACCEL_ACCEL_CAL_BIAS_02=settingValue.toInt();
+	 }
+   else if(settingName == "VERTACCEL_ACCEL_CAL_SCALE") {
+	   VARIO_VERTACCEL_ACCEL_CAL_SCALE=settingValue.toInt();
+	 }
+   else if(settingName == "VERTACCEL_MAG_CAL_BIAS_00") {
+	   VARIO_VERTACCEL_MAG_CAL_BIAS_00=settingValue.toInt();
+	 }
+   else if(settingName == "VERTACCEL_MAG_CAL_BIAS_01") {
+	   VARIO_VERTACCEL_MAG_CAL_BIAS_01=settingValue.toInt();
+	 }
+   else if(settingName == "VERTACCEL_MAG_CAL_BIAS_02") {
+	   VARIO_VERTACCEL_MAG_CAL_BIAS_02=settingValue.toInt();
+	 }
+   else if(settingName == "VERTACCEL_MAG_CAL_PROJ_SCALE") {
+	   VARIO_VERTACCEL_MAG_CAL_PROJ_SCALE=settingValue.toInt();
+	 }
+   else if(settingName == "VERTACCEL_ACCEL_CAL_BIAS_MULTIPLIER") {
+	   VARIO_VERTACCEL_ACCEL_CAL_BIAS_MULTIPLIER=settingValue.toInt();
+	 }
+   else if(settingName == "VERTACCEL_MAG_CAL_BIAS_MULTIPLIER") {
+	   VARIO_VERTACCEL_MAG_CAL_BIAS_MULTIPLIER=settingValue.toInt();
+	 }
+  else {       
    }  
 }
  

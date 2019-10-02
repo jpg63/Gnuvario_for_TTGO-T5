@@ -64,7 +64,7 @@
 //#define DEBUG_SERIAL_NMEA_1
 //#define SCREEN_DEBUG
 //#define GPS_DEBUG
-#define BUTTON_DEBUG
+//#define BUTTON_DEBUG
 //#define TONEDAC_DEBUG
 //#define MS5611_DEBUG
 //#define KALMAN_DEBUG

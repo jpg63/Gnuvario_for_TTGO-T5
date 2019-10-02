@@ -78,6 +78,9 @@ class VARIOButton {
 #define STATE_PAGE_GPSCAL  				4
 #define STATE_PAGE_WEBSERV 				5
 #define STATE_PAGE_CONFIG_SOUND		6
+#define STATE_PAGE_DEEP_SLEEP			7
+#define STATE_PAGE_CALIBRATION    8
+#define STATE_PAGE_CALIBRATE			9
 
 class VARIOButtonScheduleur {
 	public:

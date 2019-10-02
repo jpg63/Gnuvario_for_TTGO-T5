@@ -26,6 +26,7 @@
  *                                                                               *
  *  version    Date     Description                                              *
  *    1.0    24/09/19                                                            *
+ *    1.0.1  28/09/19   Changement de nom des librairies                         *
  *                                                                               *
  *********************************************************************************/
  
@@ -42,8 +43,12 @@
 
 #include <HardwareConfig.h>
 
-#include <varioscreenObjects.h>
+// Ecran 1.54''
+#include <varioscreenObjects_154.h>
 #include <varioscreenGxEPD_154.h>
+
+// Ecran 2.9''
 #include <varioscreenGxEPD_29.h>
+#include <varioscreenObjects_29.h>
 
 #endif

@@ -23,10 +23,11 @@
  *********************************************************************************
  *                                                                               *
  *                           VarioScreenGxEPD_29                                 *
- *                               Ecran 2.9''																		 *
+ *                               Ecran 1.54''                                    *
  *                                                                               *
  *  version    Date     Description                                              *
  *    1.0    24/09/19                                                            *
+ *    1.0.1  28/09/19   Modification des noms des librairies                     *
  *                                                                               *
  *********************************************************************************/
  
@@ -43,7 +44,7 @@
 
 #if (VARIOSCREEN_SIZE == 29)
 
-#include <varioscreenObjects.h>
+#include <varioscreenObjects_29.h>
 
 #include <varioscreenGxEPD_29.h>
 #include <Arduino.h>
@@ -61,7 +62,7 @@ static const char* TAG = "VarioScreen";
 #include <VarioButton.h>
 
 #include <imglib/gridicons_sync.h>
-#include <gnuvario.h>
+#include <varioscreenIcone_29.h>
 
 #include <VarioSettings.h>
 #include <toneHAL.h>
@@ -885,6 +886,97 @@ void VarioScreen::ScreenViewReboot(void)
 		display.print("en cours");
   }
   while (display.nextPage());
+}
+
+//****************************************************************************************************************************
+void VarioScreen::ScreenViewMessage(String message, int delai)
+//****************************************************************************************************************************
+{
+  char tmpbuffer[100];
+	
+  display.setFullWindow();
+  display.firstPage();
+  do
+  {
+// 	  display.fillScreen(ColorScreen);
+//		display.clearScreen(ColorScreen);
+
+		display.drawBitmap(0, 10, logo_gnuvario, 102, 74, ColorText); //94
+
+		display.setFont(&FreeSansBold12pt7b);
+		display.setTextColor(ColorText);
+		display.setTextSize(1);
+
+/*		display.setCursor(100, 30);
+		display.println("Version");
+		if (Beta_Code > 0) {
+			sprintf(tmpbuffer," Beta %01d", Beta_Code);
+  		display.setCursor(105, 50);
+		  display.print(tmpbuffer);
+		}
+		sprintf(tmpbuffer,"%02d.%02d-", Version, Sub_Version);
+		display.setCursor(105, 70);
+		display.print(tmpbuffer);
+		display.print(Author);
+		sprintf(tmpbuffer,"%s", __DATE__);
+		display.setCursor(25, 110);
+		display.print(tmpbuffer);*/
+
+		display.setCursor(20, 110);
+		display.print("GnueVario-E");
+
+		display.setFont(&FreeSansBold12pt7b);
+		display.setTextSize(1);
+		
+		
+		int16_t tbx, tby; uint16_t tbw, tbh; // boundary box window
+		display.getTextBounds(message, 0, 0, &tbx, &tby, &tbw, &tbh); // it works for origin 0, 0, fortunately (negative tby!)
+  // center bounding box by transposition of origin:
+		uint16_t x = ((display.width() - tbw) / 2) - tbx;
+		uint16_t y = ((display.height() - tbh) / 2) - tby;
+    display.setCursor(x, VARIOSCREEN_TENSION_ANCHOR_Y); // set the postition to start printing text
+		display.print(message);
+  }
+  while (display.nextPage());
+	
+//	display.powerOff();
+	
+	delay(500);
+	unsigned long TmplastDisplayTimestamp = millis();
+	int compteur = 0;
+	
+	int16_t tbx, tby; uint16_t tbw, tbh; // boundary box window
+	display.getTextBounds(message, 0, 0, &tbx, &tby, &tbw, &tbh); // it works for origin 0, 0, fortunately (negative tby!)
+// center bounding box by transposition of origin:
+	uint16_t x = ((display.width() - tbw) / 2) - tbx;
+	uint16_t y = ((display.height() - tbh) / 2) - tby;
+	
+	while (compteur < delai) {
+		ButtonScheduleur.update();
+		
+		if( millis() - TmplastDisplayTimestamp > 1000 ) {
+
+			TmplastDisplayTimestamp = millis();
+			compteur++;
+		
+		  display.fillRect(19, 170, 180, -30, GxEPD_WHITE);
+
+		  if ((compteur % 2) == 0) {
+				display.setCursor(x, VARIOSCREEN_TENSION_ANCHOR_Y);
+				display.print(message);
+#ifdef SCREEN_DEBUG
+				SerialPort.println(message);	
+#endif //SCREEN_DEBUG
+
+			} else {
+#ifdef SCREEN_DEBUG
+//				SerialPort.println("");	
+#endif //SCREEN_DEBUG
+
+			}
+			updateScreen ();
+		}
+	}
 }
 
 const unsigned char volume75_1_icons[] = { 

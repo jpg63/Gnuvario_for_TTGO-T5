@@ -75,8 +75,8 @@ SimpleBLE ble;
 /*******************/
 
 #define VERSION      0
-#define SUB_VERSION  5
-#define BETA_CODE    8
+#define SUB_VERSION  6
+#define BETA_CODE    1
 #define DEVNAME      "JPG63"
 #define AUTHOR "J"    //J=JPG63  P=PUNKDUMP
 
@@ -157,7 +157,11 @@ SimpleBLE ble;
 *                                    Ajout deep_sleep en cas de batterie trop faible                  *
 * v 0.5   beta 9  23/09/19           Correction affichage ecran Stat                                  *                                    
 *                                    Ajout possibilité d'avoir plusieurs tailles d'écran              *
-*                                    Deep-sleep sur bouton central (3 sec)
+*                                    Deep-sleep sur bouton central (3 sec)                            *
+* v 0.6   beta 1  26/09/19           Ajout mise en sommeil                                            *                                   
+*                                    Flash via USB en utilisant flash_download_tools                  *
+*                                    Ajout ecran calibration                                          *
+*                                    Modification SETTING.TXT (Version 1.3)                           *
 *                                                                                                     * 
 *******************************************************************************************************
 *                                                                                                     *
@@ -166,28 +170,29 @@ SimpleBLE ble;
 * V0.4                                                                                                *    
 * bug affichage finesse                                                                               *                                            
 *                                                                                                     *
-* V0.5                                                                                                *
-* Recupération vol via USB                                                                            *                                                                                        
-* Calibration MPU                                                                                     *                                 
-* Mise à jour ESP32 via USB                                                                           * 
-* revoir volume du son ToneESP32                                                                      *
+* V0.5                                                                                                *    
 * verifier effacement du m (altitude)                                                                 *
 * bug d'affichage des fleches                                                                         *
 * voir réactivité des données GPS                                                                     *
-* Ajouter Deep sleep si appuie 3 sec sur bouton au centre                                             *
-* Ajout page web de configuration du vario                                                            *
-* Menu de calibration / calibration accelerometre, calibration tenperature, calibration tension       *
-* Ajout possibilité d'avoir plusieurs tailles d'ecran                                                 *
 *                                                                                                     *
+* v0.6                                                                                                *   
+* Calibration MPU                                                                                     *                                 
+* Ajout page web de configuration du vario                                                            *
+* Refaire gestion Eeprom avec preference                                                              *
+* gestion du MPU par Interruption                                                                     *
+*                                                                                                     *                     
 * VX.X                                                                                                *
-* Refaire gestion du son                                                                              *
 * Paramètrage des écrans                                                                              *
 * Gérer le son via le DAC                                                                             *
-* Afficher la boussole                                                                                *
+* revoir volume du son ToneESP32                                                                      *
+* Refaire gestion du son (parametrage via xctracer)                                                   *
+* Ecran position afficher les coordonées GPS, la boussole, et l'altitude                              *                                                                       *
 * Sens et vitesse du vent                                                                             *
 * Carnet de vol (10 derniers vols)                                                                    *
 *     10 zones d'eeprom - reduit le nombre d'écriture et économise la mémoire flash                   *
-* BT verifier fonctionnement                                                                          *
+* reformater ESP32 pour avoir wifi et BT ensemble                                                     *
+* verifier fonctionnement BT                                                                          *
+* Recupération vol via USB                                                                            *                                                                                        
 *******************************************************************************************************/
 
 /************************************************************************
@@ -216,7 +221,11 @@ SimpleBLE ble;
  * - Affichage de la température                                        *
  * - Page de configuration du volume sonore                             *
  * - Page de statistique accéssible via les boutons                     *
- * - Deep sleep en cas de batterie trop faible                          *
+ * - Mise en veille automatique en cas de batterie trop faible          *
+ *                                                                      *
+ * Version 0.6                                                          *
+ * - Page de calibration                                                * 
+ * - Mise en veille prolongée                                           *
  *                                                                      *
  ************************************************************************
  
@@ -263,6 +272,36 @@ SimpleBLE ble;
  * https://learn.sparkfun.com/tutorials/9dof-razor-imu-m0-hookup-guide/all#libraries-and-example-firmware     *        
  *                                                                                                            *
  **************************************************************************************************************/
+
+ /*************************************************************************************************************
+  *                                                                                                           *
+  *                                            UTILISATION DES TOUCHES                                        *                                                                                       
+  *   Ecran         Touche      Fonction                                                                      *
+  *                                                                                                           *
+  *   Init          Gauche      passage en mode Wifi                                                          *                                                                                                              
+  *   Init          Droite      Calibration                                                                   *
+  *                                                                                                           *
+  *   Vario         Centre      Coupe et remet le son (Mute)                                                  *
+  *   Vario         Centre 3s   Mode veille                                                                   *
+  *   Vario         Gauche      écran précédent                                                               *
+  *   Vario         Droite      écran suivant                                                                 *
+  *                                                                                                           *
+  *   Wifi          Gauche      Sort du mode Wifi                                                             *
+  *                                                                                                           *
+  *   Sound         Gauche      baisse le volume                                                              *
+  *   Sound         Droit       Monte le volume                                                               *
+  *   Sound         Centre      Entre dans la configuration / Valide la configuration                         *
+  *                                                                                                           *
+  *   Sleep         Droit       Valide la mise en veille                                                      * 
+  *                                                                                                           *
+  *   Calibration   Centre      Démarre la calibration                                                        *                                                                                                        
+  *   Calibration   Gauche      Sort du mode calibration (reboot)                                             *
+  *                                                                                                           *
+  *************************************************************************************************************
+  *                                                                                                           *
+  * Mise à jour via la carte SD, nom du fichier : update.bin                                                  *                                                                                                           
+  *                                                                                                           *
+  *************************************************************************************************************/
 
 /*******************/
 /* General objects */
@@ -413,7 +452,7 @@ uint8_t temprature_sens_read();
 int tmpint = 0;
 int compteurGpsFix = 0;
 
-int MaxVoltage   = 0;
+long MaxVoltage   = 0;
 
 //****************************
 //****************************
@@ -811,6 +850,9 @@ void setup() {
     SerialPort.print("firstAlti : ");
     SerialPort.println(firstAlti);
 #endif //MS5611_DEBUG
+
+  //Calibration
+  if (ButtonScheduleur.Get_StatePage() == STATE_PAGE_CALIBRATION) screen.ScreenViewMessage("Calibration",5);
 
 #ifdef HAVE_SCREEN
 // Affichage Statistique
@@ -1389,7 +1431,9 @@ void loop() {
   if (TmpVoltage > MaxVoltage) MaxVoltage = TmpVoltage;
   
   if (displayLowUpdateState) {
-    
+
+    if (MaxVoltage < 1750)  deep_sleep();  //protection batterie
+
     screen.batLevel->setVoltage(MaxVoltage);
     MaxVoltage   = 0;
   }

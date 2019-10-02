@@ -22,10 +22,11 @@
  *********************************************************************************
  *                                                                               *
  *                           VarioScreenGxEPD_29                                 *
- *                               Ecran 2.9''																		 *
+ *                               Ecran 1.54''                                    *
  *                                                                               *
  *  version    Date     Description                                              *
  *    1.0    24/09/19                                                            *
+ *    1.0.1  28/09/19   Modification des noms des librairies                     *
  *                                                                               *
  *********************************************************************************/
 
@@ -204,6 +205,7 @@ class VarioScreen {
 	void ScreenViewWifi(String SSID, String IP);
 	void ScreenViewReboot(void);
   void ScreenViewSound(int volume);	
+	void ScreenViewMessage(String message, int delai);
 		
 	void CreateObjectDisplay(int8_t ObjectDisplayTypeID, VarioScreenObject* object, int8_t page, int8_t multiDisplayID, boolean actif); 
 	void updateData(int8_t ObjectDisplayTypeID, double data);
@@ -218,7 +220,7 @@ class VarioScreen {
 
 extern VarioScreen screen;
 extern volatile uint8_t stateDisplay;
-extern GxEPD2_BW<GxEPD2_290, GxEPD2_290::HEIGHT> displayy;
+extern GxEPD2_BW_U<GxEPD2_29, GxEPD2_29::HEIGHT> display;
 
 #endif
 #endif

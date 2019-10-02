@@ -22,10 +22,11 @@
  *********************************************************************************
  *                                                                               *
  *                           VarioScreenGxEPD_154                                *
- *                               Ecran 1.54''
+ *                               Ecran 1.54''                                    *
  *                                                                               *
  *  version    Date     Description                                              *
  *    1.0    24/09/19                                                            *
+ *    1.0.1  28/09/19   Modification des noms des librairies                     *
  *                                                                               *
  *********************************************************************************/
 
@@ -37,7 +38,7 @@
 
 #if (VARIOSCREEN_SIZE == 154)
 
-#include <varioscreenObjects.h>
+#include <varioscreenObjects_154.h>
 
 /************************/
 /* The screen scheduler */
@@ -204,6 +205,7 @@ class VarioScreen {
 	void ScreenViewWifi(String SSID, String IP);
 	void ScreenViewReboot(void);
   void ScreenViewSound(int volume);	
+	void ScreenViewMessage(String message, int delai);
 		
 	void CreateObjectDisplay(int8_t ObjectDisplayTypeID, VarioScreenObject* object, int8_t page, int8_t multiDisplayID, boolean actif); 
 	void updateData(int8_t ObjectDisplayTypeID, double data);

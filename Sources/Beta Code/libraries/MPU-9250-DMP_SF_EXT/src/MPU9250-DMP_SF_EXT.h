@@ -43,11 +43,14 @@ Supported Platforms:
 
 #include <Wire.h>
 #include <Arduino.h>
+#include <HardwareConfig.h>
+#include <InvenSense_defines.h>
 
 // Optimally, these defines would be passed as compiler options, but Arduino
 // doesn't give us a great way to do that.
 #define MPU9250
 #define AK8963_SECONDARY
+#define AK89xx_SECONDARY
 #define COMPASS_ENABLED
 
 // Include the Invensense MPU9250 driver and DMP keys:
@@ -444,8 +447,11 @@ public:
 	uint8_t* fastMPUGetMagSensAdj(void);
 	void fastMPUAdjMag(int16_t* mag);
 	inv_error_t fastMPUReadMag(int16_t* mag);
+	bool fastMPUMagReady(void);
 	
-	
+/*#ifdef AK89xx_SECONDARY
+	inv_error_t fastMPUReadMag(int16_t *mag);
+#endif*/
 	
   void ReadEeprom(void);
   void WriteEeprom(void);
