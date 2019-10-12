@@ -1,0 +1,4 @@
+https://randomnerdtutorials.com/decoding-and-encoding-json-with-arduino-or-esp8266/
+https://arduinojson.org/v5/assistant/
+https://github.com/bblanchon/ArduinoJson
+https://arduinojson.org/
