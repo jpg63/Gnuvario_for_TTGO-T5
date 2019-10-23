@@ -1,0 +1,28 @@
+[
+  {"type":"directory","name":".","contents":[
+    {"type":"directory","name":"config","contents":[
+      {"type":"file","name":"config.json"},
+      {"type":"file","name":"config.xml"}
+    ]},
+    {"type":"directory","name":"css","contents":[
+      {"type":"file","name":"app.0c5c470d.css"}
+    ]},
+    {"type":"file","name":"favicon.ico"},
+    {"type":"directory","name":"img","contents":[
+      {"type":"file","name":"logo-gnuvario.dca54bc4.png"}
+    ]},
+    {"type":"file","name":"index.html"},
+    {"type":"directory","name":"js","contents":[
+      {"type":"file","name":"app.8eeb1870.js"},
+      {"type":"file","name":"app.8eeb1870.js.map"},
+      {"type":"file","name":"chunk-vendors.2349ee8b.js"},
+      {"type":"file","name":"chunk-vendors.2349ee8b.js.map"}
+    ]},
+    {"type":"directory","name":"vols","contents":[
+      {"type":"file","name":"trace1 copy 2.txt"},
+      {"type":"file","name":"trace1 copy 3.txt"},
+      {"type":"file","name":"trace1 copy.txt"},
+      {"type":"file","name":"trace1.txt"}
+    ]}
+  ]}
+]
