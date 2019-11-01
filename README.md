@@ -1,6 +1,6 @@
 # Gnuvario_for_TTGO-T5
 # GNUVARIO-E     Stable version 0.3
-# GNUVARIO-E     Developement version 0.6 beta 3
+# GNUVARIO-E     Developement version 0.6 beta 4
 # PCB            version 2.00
 # 3D CASE        version 2.00
 
@@ -82,7 +82,47 @@
                                     la mise à jour de Altitude Barometrique                          
                                     Modification librairie EEPROM                                    
  v 0.5   beta 8  22/09/19           Modification de l'affichage de Vbat                              
-                                    Ajout d'un filtrage de la mesure de Vbat                         
+                                    Ajout d'un filtrage de la mesure de Vbat      
+
+ v 0.5   beta 9  23/09/19           Correction affichage ecran Stat                                                                      
+                                    Ajout possibilité d'avoir plusieurs tailles d'écran              
+                                    Deep-sleep sur bouton central (3 sec)                            
+ v 0.6   beta 1  26/09/19           Ajout mise en sommeil                                                                               
+                                    Flash via USB en utilisant flash_download_tools                  
+                                    Ajout ecran calibration                                          
+                                    Modification SETTING.TXT (Version 1.3)                           
+                                    Correction HAVE_SDCARD                                           
+                                    Changement de la librairie webserver                             
+ v 0.6   beta 2  06/10/19           Ajout varioscreen pour l'écran 2.9''                             
+                                    Ajout serveur Web sur sdcard                                     
+                                    Correction du bug d'affichage des fleches                        
+                                    Ajout du nom des champs de données sur l'écran                   
+                                    Couper le SSID à 12 caractères                                                        
+                                    Modification du fichier SETTINGS.TXT v1.4                                                                                                                            
+                                    Ajout paramettre d'activation du BT dans le fichier SETTINGS.TXT 
+                                    Modification de varioscreen pour gérer les lignes et les cercles 
+                                    ainsi que les titres des champs de donnée                        
+                                    Modification de l'arborescence de la carte SD                               
+                                    Enregistrement des fichiers .IGC (traces) dans le dossier 'vols' 
+                                    Mise à jour Ecran 2,9''                                          
+                                    Modifier l'affichage des titres pour que la position             
+                                    soit liée au digit                                               
+ v 0.6   beta 3  20/10/19           Correction bug enregistrement sur la SD                          
+                                    recodage de l'affichage des satellites                                  
+                                    Ajout desactivation bip au demarrage                              
+                                    Ajout écran 2.13''                                               
+                                    Ajout compensation de température et correction altitude GPS     
+                                    dans le fichier SETTINGS.TXT                                     
+ v 0.6   beta 4  27/10/19           Correction gestion zone horaire                                 
+                                    Changement de librairie MS5611 et MPU                            
+                                    Ajout compensation alti gps                                      
+                                    Ajout d'un bip lors du reglage du volume                         
+                                    Amélioration gestion des boutons et des écrans au boot           
+                                    Correction gestion du volume                                     
+                                    Correction Calibration enableAmp                                 
+                                    Correction du bug d'affichage de l'écran de stat                 
+                                    Correction du bug de reboot / blocage si #define DEBUG_PRO est         
+                                    commenté                                                         																		
 																		
                    Developpement à venir                               
                                                                                                                                     
@@ -90,24 +130,30 @@
  bug affichage finesse  
  
  V0.5                                                                  
- Recupération vol via USB                                                                                         
- Mise à jour ESP32 via USB sans IDE  
- Calibration du MPU																												
- revoir volume du son ToneESP32                                        
- verifier effacement du m (altitude)                                   
- bug d'affichage des fleches  
- Ajout d'un ecran d'arrêt suivi de l'écran de stat si appuie 3 sec sur bouton au centre                  
- Ajout page web de reglage des paramettres
- Ajout deep sleep                                                                                    
-                                                                                                                                            
- VX.X                                                                  
- Refaire gestion du son                                                                              
+ voir réactivité des données GPS                                                                     
+ Probleme consommasion - SDcard - deep slepp                                                         
+                                                                                                     
+ v0.6                                                                                                   
+ AJOUT - Calibration MPU                                                                                                              
+ AJOUT - page web de configuration du vario / Page Web SDCARD                                        
+ MODIF - Refaire gestion Eeprom avec preference                                                      
+ AJOUT - gestion du MPU par Interruption                                                             
+ BUG   - affichage figé / problème d'init du MPU et d'attente de la première lecture                 
+ BUG   - reboot à l'init du MPU                                                                      
+                                                                                                                                                           
+ VX.X                                                                                                
  Paramètrage des écrans                                                                              
  Gérer le son via le DAC                                                                             
- Afficher la boussole                                                                                
+ revoir volume du son ToneESP32                                                                      
+ Refaire gestion du son (parametrage via xctracer)                                                   
+ Ecran position afficher les coordonées GPS, la boussole, et l'altitude                                                                                                     *
+ Création dynamique des objets screen                                                                
+ Créer une bibliothèque de log (debug)                                                               
  Sens et vitesse du vent                                                                             
- Carnet de vol (10 derniers vols) 
- Verifier fonctionnement BT 
+ Carnet de vol (10 derniers vols)                                                                    
+     10 zones d'eeprom - reduit le nombre d'écriture et économise la mémoire flash                   
+ verifier fonctionnement BT                                                                          
+ Recupération vol via USB                                                                                                                                                                                                                                  
 
                     Fonctionalitées   
 		
@@ -139,4 +185,16 @@
     Affichage de la température     
 		Page de configuration du volume sonore
     Page de statistique accessible via les boutons	
-		Son de monté variable
+    Mise en veille automatique en cas de batterie trop faible          
+                                                                      
+  Version 0.6                                                          
+    Page de calibration                                                 
+    Mise en veille prolongée                                           
+    Ajout gestion des écran 2.9'' et 2.13''                            
+    Ajout du serveur Web sur SDCARD                                    
+    Activation du Bluetooth en parametre dans le fichier SETTINGS.TXT  
+    Ajout de titre au dessus des champs de données                     
+    Ajout de nouveau objects screen - ligne - rose des vents           
+    Modification de l'organisation des fichiers sur la carte SD        
+    Ajout compensation de température dans fichier SETTINGS.TXT        
+    Ajout correction d'altitude GPS dans SETTINGS.TXT                  		
