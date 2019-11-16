@@ -1,0 +1,73 @@
+\hypertarget{class_sd_card_log_handler}{}\section{Sd\+Card\+Log\+Handler Class Reference}
+\label{class_sd_card_log_handler}\index{Sd\+Card\+Log\+Handler@{Sd\+Card\+Log\+Handler}}
+
+
+Class for logging to SD card.  
+
+
+
+
+{\ttfamily \#include $<$Sd\+Card\+Log\+Handler\+R\+K.\+h$>$}
+
+Inheritance diagram for Sd\+Card\+Log\+Handler\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{class_sd_card_log_handler}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{class_sd_card_log_handler_a307fc19ae158016fa223b245210a050c}{Sd\+Card\+Log\+Handler}} (Sd\+Fat \&sd, uint8\+\_\+t cs\+Pin, uint8\+\_\+t divisor, Log\+Level level=L\+O\+G\+\_\+\+L\+E\+V\+E\+L\+\_\+\+I\+N\+FO, Log\+Category\+Filters filters=\{\})
+\begin{DoxyCompactList}\small\item\em Constructor. The object is normally instantiated as a global object. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{class_sd_card_log_handler_aaf48dcdc1f7b0965e66cbc976f4e12e0}\label{class_sd_card_log_handler_aaf48dcdc1f7b0965e66cbc976f4e12e0}} 
+virtual size\+\_\+t \mbox{\hyperlink{class_sd_card_log_handler_aaf48dcdc1f7b0965e66cbc976f4e12e0}{write}} (uint8\+\_\+t)
+\begin{DoxyCompactList}\small\item\em Virtual override for the Stream\+Log\+Handler to write data to the log. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Class for logging to SD card. 
+
+You normally instantiate one of these as a global variable, passing in the Sd\+Fat object and the parameters you\textquotesingle{}d normally pass to Sd\+Fat\+::begin(). You can optionally pass the Log\+Level and Log\+Category\+Filters parameters you\textquotesingle{}d pass to the Log\+Handler constructor.
+
+
+\begin{DoxyCode}
+\textcolor{keyword}{const} \textcolor{keywordtype}{int} SD\_CHIP\_SELECT = A2;
+SdFat sd;
+
+\mbox{\hyperlink{class_sd_card_log_handler}{SdCardLogHandler}} logHandler(sd, SD\_CHIP\_SELECT, SPI\_FULL\_SPEED);
+\end{DoxyCode}
+
+
+You can pass additional options using the fluent-\/style methods beginning with \char`\"{}with\char`\"{} like \mbox{\hyperlink{class_sd_card_print_handler_aac9a7f9d1a22db39acfc17c4a61c9419}{with\+Logs\+Dir\+Name()}}. 
+
+\subsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{class_sd_card_log_handler_a307fc19ae158016fa223b245210a050c}\label{class_sd_card_log_handler_a307fc19ae158016fa223b245210a050c}} 
+\index{Sd\+Card\+Log\+Handler@{Sd\+Card\+Log\+Handler}!Sd\+Card\+Log\+Handler@{Sd\+Card\+Log\+Handler}}
+\index{Sd\+Card\+Log\+Handler@{Sd\+Card\+Log\+Handler}!Sd\+Card\+Log\+Handler@{Sd\+Card\+Log\+Handler}}
+\subsubsection{\texorpdfstring{Sd\+Card\+Log\+Handler()}{SdCardLogHandler()}}
+{\footnotesize\ttfamily Sd\+Card\+Log\+Handler\+::\+Sd\+Card\+Log\+Handler (\begin{DoxyParamCaption}\item[{Sd\+Fat \&}]{sd,  }\item[{uint8\+\_\+t}]{cs\+Pin,  }\item[{uint8\+\_\+t}]{divisor,  }\item[{Log\+Level}]{level = {\ttfamily LOG\+\_\+LEVEL\+\_\+INFO},  }\item[{Log\+Category\+Filters}]{filters = {\ttfamily \{\}} }\end{DoxyParamCaption})}
+
+
+
+Constructor. The object is normally instantiated as a global object. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em sd} & The Sd\+Fat object, normally allocated a global object. \\
+\hline
+{\em cs\+Pin} & The pin used for the S\+PI chip select for the SD card reader \\
+\hline
+{\em divisor} & Usually either S\+P\+I\+\_\+\+F\+U\+L\+L\+\_\+\+S\+P\+E\+ED or S\+P\+I\+\_\+\+H\+A\+L\+F\+\_\+\+S\+P\+E\+ED. \\
+\hline
+{\em level} & (optional, default is L\+O\+G\+\_\+\+L\+E\+V\+E\+L\+\_\+\+I\+N\+FO) \\
+\hline
+{\em filters} & (optional, default is none) \\
+\hline
+\end{DoxyParams}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+src/Sd\+Card\+Log\+Handler\+R\+K.\+h\item 
+src/Sd\+Card\+Log\+Handler\+R\+K.\+cpp\end{DoxyCompactItemize}
