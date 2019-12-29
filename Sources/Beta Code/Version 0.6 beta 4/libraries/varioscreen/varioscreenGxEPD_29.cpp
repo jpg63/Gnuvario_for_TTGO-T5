@@ -31,7 +31,7 @@
  *    1.0.2  06/10/19   Mise à jour ratamuse                                     *
  *    1.0.3  13/10/19   Integration au GnuVario                                  *
  *                      Ajout wind                                               *
- *                                                                               *
+ *    1.0.4  16/11/19   Modif updateScreen										 *                                                                              *
  *********************************************************************************/
  
  /*
@@ -120,8 +120,8 @@ volatile uint8_t stateMulti = 0;
 #define ColorScreen    GxEPD_WHITE
 #define ColorText      GxEPD_BLACK
 
-#define VARIOSCREEN_TENSION_ANCHOR_X 140
-#define VARIOSCREEN_TENSION_ANCHOR_Y 170
+#define VARIOSCREEN_TENSION_ANCHOR_X 200
+#define VARIOSCREEN_TENSION_ANCHOR_Y 80
 
 #define VARIOSCREEN_AUTONOMIE_ANCHOR_X 90
 #define VARIOSCREEN_AUTONOMIE_ANCHOR_Y 235
@@ -232,6 +232,7 @@ void VarioScreen::init(void)
 	
   display.setTextColor(GxEPD_BLACK);
 }
+
 	
 //****************************************************************************************************************************
 void VarioScreen::createScreenObjects(void)
@@ -282,6 +283,7 @@ void VarioScreen::createScreenObjectsPage0(void) {
 	volLevel = new VOLLevel(VARIOSCREEN_VOL_ANCHOR_X, VARIOSCREEN_VOL_ANCHOR_Y);
 	recordIndicator = new RECORDIndicator(VARIOSCREEN_RECCORD_ANCHOR_X, VARIOSCREEN_RECCORD_ANCHOR_Y);
 	trendLevel = new TRENDLevel(VARIOSCREEN_TREND_ANCHOR_X, VARIOSCREEN_TREND_ANCHOR_Y);
+
 	batLevel = new BATLevel(VARIOSCREEN_BAT_ANCHOR_X, VARIOSCREEN_BAT_ANCHOR_Y, VOLTAGE_DIVISOR_VALUE, VOLTAGE_DIVISOR_REF_VOLTAGE);
 
 	satLevel = new SATLevel(VARIOSCREEN_SAT_ANCHOR_X, VARIOSCREEN_SAT_ANCHOR_Y);
@@ -363,15 +365,17 @@ void VarioScreen::createScreenObjectsDisplayPage0(void) {
 		CreateObjectDisplay(DISPLAY_OBJECT_FIXGPSINFO				, fixgpsinfo				, 0, 0, true); 
 		CreateObjectDisplay(DISPLAY_OBJECT_BTINFO					, btinfo			     	  , 0, 0, true); 
 
-		CreateObjectDisplay(DISPLAY_OBJECT_LINE	          	, bgline1           , 0, 0, true);
-		CreateObjectDisplay(DISPLAY_OBJECT_LINE	          	, bgline2           , 0, 0, true);
-		CreateObjectDisplay(DISPLAY_OBJECT_LINE	          	, bgline3           , 0, 0, true);
-		CreateObjectDisplay(DISPLAY_OBJECT_LINE	          	, bgline4           , 0, 0, true);
+		CreateObjectDisplay(DISPLAY_OBJECT_LINE	          	, bgline1           , 0, 0, false);
+		CreateObjectDisplay(DISPLAY_OBJECT_LINE	          	, bgline2           , 0, 0, false);
+		CreateObjectDisplay(DISPLAY_OBJECT_LINE	          	, bgline3           , 0, 0, false);
+		CreateObjectDisplay(DISPLAY_OBJECT_LINE	          	, bgline4           , 0, 0, false);
 
 		CreateObjectDisplay(DISPLAY_OBJECT_WIND         		, wind          		, 0, 0, true);				
 
 //		CreateObjectDisplay(DISPLAY_OBJECT_CIRCLE         	, bgcircle          , 0, 0, true);				
 }
+
+
 	
 //****************************************************************************************************************************
 void VarioScreen::createScreenObjectsDisplayPage10(void) {
@@ -465,15 +469,24 @@ void genericTask( void * parameter ){
 void VarioScreen::updateScreen (void)
 //****************************************************************************************************************************
 {
-#ifdef SCREEN_DEBUG
+#ifdef SCREEN_DEBUG2
 	SerialPort.println("screen update");	
 #endif //SCREEN_DEBUG
 	
   if (stateDisplay != STATE_OK) {
+#ifdef SCREEN_DEBUG2
+		SerialPort.println("Task en cours");	
+#endif //SCREEN_DEBUG
+
 		if (millis() - timerShow > 1500) {
 			stateDisplay = STATE_OK;
 			vTaskDelete(taskDisplay);
-			display.powerOff();
+//			display.powerOff();
+			display.epd2.reset();
+#ifdef SCREEN_DEBUG2
+			SerialPort.println("Task reset");	
+#endif //SCREEN_DEBUG
+
 		}
 	  return;
 	}
@@ -484,13 +497,13 @@ void VarioScreen::updateScreen (void)
 	SerialPort.println("screen update : setFullWindows");	
 #endif //SCREEN_DEBUG
 	
-/*	xTaskCreate(
-							genericTask,       // Task function. 
-							"genericTask",     // String with name of task. 
-							10000,             // Stack size in words. 
-							NULL,              // Parameter passed as input of the task 
-							2,                 // Priority of the task. 
-							NULL);             // Task handle. */	
+//	xTaskCreate(
+//							genericTask,       // Task function. 
+//							"genericTask",     // String with name of task. 
+//							10000,             // Stack size in words. 
+//							NULL,              // Parameter passed as input of the task 
+//							2,                 // Priority of the task. 
+//							NULL);             // Task handle. 
 	
 	xTaskCreatePinnedToCore(
 							genericTask,       // Task function. 
@@ -499,14 +512,28 @@ void VarioScreen::updateScreen (void)
 							NULL,              // Parameter passed as input of the task 
 							2,                 // Priority of the task.
 							&taskDisplay,			 // Task handle
-							1);             	 // pin task to core 1*/	
+							1);             	 // pin task to core 1	
 							
 //	display.display(true); // partial update
 #ifdef SCREEN_DEBUG
 	SerialPort.println("screen update : create task");	
 #endif //SCREEN_DEBUG
 
-//	display.updateWindow(0, 0, display.width(), display.height(), false);
+//	display.updateWindow(0, 0, display.width(), display.height(), false);*/
+	//display.display(true); // partial update
+
+}
+
+//****************************************************************************************************************************
+void VarioScreen::updateScreenNB (void)
+//****************************************************************************************************************************
+{
+#ifdef SCREEN_DEBUG2
+	SerialPort.println("screen updateNB");	
+#endif //SCREEN_DEBUG
+	
+	display.display(true); // partial update
+
 }
 
 //****************************************************************************************************************************
@@ -594,6 +621,7 @@ void VarioScreen::ScreenViewInit(uint8_t Version, uint8_t Sub_Version, String Au
 	int compteur = 0;
 	while (compteur < 3) {
 		ButtonScheduleur.update();
+		if (ButtonScheduleur.Get_StatePage() == STATE_PAGE_CALIBRATION) break;
 		
 		if( millis() - TmplastDisplayTimestamp > 1000 ) {
 
@@ -643,8 +671,7 @@ void VarioScreen::ScreenViewPage(int8_t page, boolean clear)
 	  display.setFullWindow();	
 		display.clearScreen(ColorScreen);
 		display.fillScreen(ColorScreen);
-		
-	}
+			}
 	
 #ifdef SCREEN_DEBUG
 	SerialPort.println("setTextColor");	
@@ -683,14 +710,7 @@ void VarioScreen::ScreenViewPage(int8_t page, boolean clear)
 	munit->toDisplay();
 	msunit->toDisplay();
 	kmhunit->toDisplay();
-
-
-
-
-
 }	
-
-
 
 /*void VarioScreen::clearScreen(void) 
 {
@@ -915,20 +935,20 @@ void VarioScreen::ScreenViewReboot(void)
 // 	  display.fillScreen(ColorScreen);
 //		display.clearScreen(ColorScreen);
 
-		display.drawBitmap(0, 10, logo_gnuvario, 51, 37, ColorText); //94
+		display.drawInvertedBitmap(10, 20, logo_gnuvario, 94, 74, ColorText); //94
 
 		display.setFont(&FreeSansBold9pt7b);
 		display.setTextColor(ColorText);
 		display.setTextSize(1);
 
-		display.setCursor(95, 80);
-		display.print("Vario-E");
+		display.setCursor(130, 45);
+		display.print("GNUVARIO-E");
 
 		display.setFont(&FreeSansBold9pt7b);
 		display.setTextSize(1);
-		display.setCursor(20, 140);
+		display.setCursor(130, 70);
 		display.print("Redemarrage");
- 		display.setCursor(40, 170);
+ 		display.setCursor(150, 95);
 		display.print("en cours");
   }
   while (display.nextPage());
@@ -947,9 +967,9 @@ void VarioScreen::ScreenViewMessage(String message, int delai)
 // 	  display.fillScreen(ColorScreen);
 //		display.clearScreen(ColorScreen);
 
-		display.drawBitmap(0, 10, logo_gnuvario, 102, 74, ColorText); //94
+		display.drawInvertedBitmap(10, 20, logo_gnuvario, 94, 74, ColorText); //94
 
-		display.setFont(&FreeSansBold12pt7b);
+		display.setFont(&FreeSansBold9pt7b);
 		display.setTextColor(ColorText);
 		display.setTextSize(1);
 
@@ -968,10 +988,10 @@ void VarioScreen::ScreenViewMessage(String message, int delai)
 		display.setCursor(25, 110);
 		display.print(tmpbuffer);*/
 
-		display.setCursor(20, 110);
-		display.print("GnueVario-E");
+		display.setCursor(130, 45);
+		display.print("GNUVARIO-E");
 
-		display.setFont(&FreeSansBold12pt7b);
+		display.setFont(&FreeSansBold9pt7b);
 		display.setTextSize(1);
 		
 		
@@ -980,7 +1000,7 @@ void VarioScreen::ScreenViewMessage(String message, int delai)
   // center bounding box by transposition of origin:
 		uint16_t x = ((display.width() - tbw) / 2) - tbx;
 		uint16_t y = ((display.height() - tbh) / 2) - tby;
-    display.setCursor(x, VARIOSCREEN_TENSION_ANCHOR_Y); // set the postition to start printing text
+    display.setCursor(x+40, VARIOSCREEN_TENSION_ANCHOR_Y); // set the postition to start printing text
 		display.print(message);
   }
   while (display.nextPage());
@@ -1005,7 +1025,7 @@ void VarioScreen::ScreenViewMessage(String message, int delai)
 			TmplastDisplayTimestamp = millis();
 			compteur++;
 		
-		  display.fillRect(19, 170, 180, -30, GxEPD_WHITE);
+		  display.fillRect(19, 170, 180, -30, GxEPD_BLACK);
 
 		  if ((compteur % 2) == 0) {
 				display.setCursor(x, VARIOSCREEN_TENSION_ANCHOR_Y);
@@ -1276,7 +1296,6 @@ void VarioScreen::ScreenViewSound(int volume)
 			
 			display.fillTriangle(255,48,275,63,255,78,GxEPD_BLACK); //display.fillTriangle(140,130,160,145,140,160,GxEPD_BLACK);
 			display.fillTriangle(162,48,142,63,162,78,GxEPD_BLACK); //display.fillTriangle(45,130,25,145,45,160,GxEPD_BLACK);
-			
 		}
 		
  /* }
@@ -1470,6 +1489,8 @@ int8_t ScreenScheduler::getMaxPage(void) {
   return endPage;
 }
 
+bool displayStat = true;
+
 //****************************************************************************************************************************
 void ScreenScheduler::setPage(int8_t page, boolean forceUpdate)  {
 //****************************************************************************************************************************
@@ -1486,14 +1507,17 @@ void ScreenScheduler::setPage(int8_t page, boolean forceUpdate)  {
   display.fillRect(0, 0, display.width(), display.height(), GxEPD_WHITE);
 
 	if (currentPage == endPage+1) {
+		displayStat = true;
 		screen.ScreenViewSound(toneHAL.getVolume());
-	} else if (currentPage == endPage+2) {
+	} else if ((currentPage == endPage+2) && (displayStat)) {
+		displayStat = false;
 		screen.ScreenViewStatPage(0);
 		screen.updateScreen ();
 
 	} else {
 		/* all the page object need to be redisplayed */
 		/* but no problem to reset all the objects */
+		displayStat = true;
 		for(uint8_t i = 0; i<objectCount; i++) {
 			displayList[i].object->reset();
 		}

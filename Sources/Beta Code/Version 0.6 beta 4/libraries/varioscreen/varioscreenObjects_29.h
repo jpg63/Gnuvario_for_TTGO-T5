@@ -50,7 +50,9 @@
  *    1.1.4  16/10/19   Ajout taille maximal de l'object												 *
  *    1.1.5  15/10/19   Modification affichage des satellites                    *
  *    1.1.6  20/10/19   Suppression classe GxEPD2_BW_U													 *
- *                                                                               *
+ *    1.1.7  03/11/19   Modification de la position des titres                   *
+ *                      Modification DISPLAY_OBJECT_ALTI                         *
+ *    1.1.8  16/11/19   Ajout classe GxEPD2_BW_U                                                                      *
  *********************************************************************************/
 
 #ifndef VARIOSCREENOBJECTS_29_H
@@ -65,7 +67,7 @@
 #include <digit.h>
 #include <variostat.h>
 
-#include <GxEPD2_BW.h>
+#include <GxEPD2_BWU.h>
 #include <GxEPD2_3C.h>
 
 // FreeFonts from Adafruit_GFX
@@ -126,7 +128,7 @@
 #define MAXW_OBJECT_VARIO 								 	85
 #define MAXW_OBJECT_TIME									 	50
 #define MAXW_OBJECT_SPEED								 		50
-#define MAXW_OBJECT_ALTI									 	100
+#define MAXW_OBJECT_ALTI									 	10
 #define MAXW_OBJECT_DURATION							 	20
 #define MAXW_OBJECT_RATIO       						20
 #define MAXW_OBJECT_TREND      							20
@@ -136,7 +138,7 @@
 extern VarioSettings GnuSettings;
 extern VarioStat flystat;
 
-/*template<typename GxEPD2_Type, const uint16_t page_height>
+template<typename GxEPD2_Type, const uint16_t page_height>
 class GxEPD2_BW_U : public GxEPD2_BW<GxEPD2_Type, page_height>
 {
   public:
@@ -149,12 +151,12 @@ class GxEPD2_BW_U : public GxEPD2_BW<GxEPD2_Type, page_height>
 /*		void charWidth(char c, uint16_t *width, uint16_t *height);
 		void getTextWidth(const char *str, uint16_t *w, uint16_t *h);
 		void getTextWidth(const __FlashStringHelper *s, uint16_t *w, uint16_t *h);
-		void getTextWidth(const String &str, uint16_t *w, uint16_t *h);*
+		void getTextWidth(const String &str, uint16_t *w, uint16_t *h);*/
 		
 	private:
     unsigned int state = STATE_OK;
 
-};*/
+};
 
 
 /* the main abstract class for all the objects */ 

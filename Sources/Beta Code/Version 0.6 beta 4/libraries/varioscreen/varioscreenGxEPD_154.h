@@ -27,6 +27,9 @@
  *  version    Date     Description                                              *
  *    1.0    24/09/19                                                            *
  *    1.0.1  28/09/19   Modification des noms des librairies                     *
+ *    1.0.2  09/10/19   Ajout showtitle                                          *
+ *    1.0.3	 13/10/19		Ajout Wind																							 *	
+ *    1.0.4  07/11/19   Modif updateScreen																			 *
  *                                                                               *
  *********************************************************************************/
 
@@ -204,6 +207,7 @@ class VarioScreen {
 	
 //  void  getTextBounds(char *string, int16_t x, int16_t y, int16_t *x1, int16_t *y1, uint16_t *w, uint16_t *h);
   void updateScreen (void);
+  void updateScreenNB (void);
   void clearScreen(void); 
 
   void ScreenViewInit(uint8_t Version, uint8_t Sub_Version, String Author, uint8_t Beta_Code);
@@ -228,7 +232,7 @@ class VarioScreen {
 
 extern VarioScreen screen;
 extern volatile uint8_t stateDisplay;
-extern GxEPD2_BW_U<GxEPD2_154, GxEPD2_154::HEIGHT> display;
+extern GxEPD2_BW<GxEPD2_154U, GxEPD2_154U::HEIGHT> display;
 
 #endif
 #endif

@@ -23,13 +23,14 @@
  *********************************************************************************
  *                                                                               *
  *                           VarioScreenGxEPD_154                                *
- *                               Ecran 1.54''
+ *                               Ecran 1.54''                                    *
  *                                                                               *
  *  version    Date     Description                                              *
  *    1.0    24/09/19                                                            *
  *    1.0.1  28/09/19   Modification des noms des librairies                     *
  *    1.0.2  09/10/19   Ajout showtitle                                          *
  *    1.0.3	 13/10/19		Ajout Wind																							 *	
+ *    1.0.4  07/11/19   Modif updateScreen																			 *
  *                                                                               *
  *********************************************************************************/
  
@@ -466,15 +467,24 @@ void genericTask( void * parameter ){
 void VarioScreen::updateScreen (void)
 //****************************************************************************************************************************
 {
-#ifdef SCREEN_DEBUG
+#ifdef SCREEN_DEBUG2
 	SerialPort.println("screen update");	
 #endif //SCREEN_DEBUG
 	
   if (stateDisplay != STATE_OK) {
+#ifdef SCREEN_DEBUG2
+		SerialPort.println("Task en cours");	
+#endif //SCREEN_DEBUG
+
 		if (millis() - timerShow > 1500) {
 			stateDisplay = STATE_OK;
 			vTaskDelete(taskDisplay);
-			display.powerOff();
+//			display.powerOff();
+			display.epd2.reset();
+#ifdef SCREEN_DEBUG2
+			SerialPort.println("Task reset");	
+#endif //SCREEN_DEBUG
+
 		}
 	  return;
 	}
@@ -485,13 +495,13 @@ void VarioScreen::updateScreen (void)
 	SerialPort.println("screen update : setFullWindows");	
 #endif //SCREEN_DEBUG
 	
-/*	xTaskCreate(
-							genericTask,       // Task function. 
-							"genericTask",     // String with name of task. 
-							10000,             // Stack size in words. 
-							NULL,              // Parameter passed as input of the task 
-							2,                 // Priority of the task. 
-							NULL);             // Task handle. */	
+//	xTaskCreate(
+//							genericTask,       // Task function. 
+//							"genericTask",     // String with name of task. 
+//							10000,             // Stack size in words. 
+//							NULL,              // Parameter passed as input of the task 
+//							2,                 // Priority of the task. 
+//							NULL);             // Task handle. 
 	
 	xTaskCreatePinnedToCore(
 							genericTask,       // Task function. 
@@ -500,14 +510,28 @@ void VarioScreen::updateScreen (void)
 							NULL,              // Parameter passed as input of the task 
 							2,                 // Priority of the task.
 							&taskDisplay,			 // Task handle
-							1);             	 // pin task to core 1*/	
+							1);             	 // pin task to core 1	
 							
 //	display.display(true); // partial update
 #ifdef SCREEN_DEBUG
 	SerialPort.println("screen update : create task");	
 #endif //SCREEN_DEBUG
 
-//	display.updateWindow(0, 0, display.width(), display.height(), false);
+//	display.updateWindow(0, 0, display.width(), display.height(), false);*/
+	//display.display(true); // partial update
+
+}
+
+//****************************************************************************************************************************
+void VarioScreen::updateScreenNB (void)
+//****************************************************************************************************************************
+{
+#ifdef SCREEN_DEBUG2
+	SerialPort.println("screen updateNB");	
+#endif //SCREEN_DEBUG
+	
+	display.display(true); // partial update
+
 }
 
 //****************************************************************************************************************************
@@ -958,7 +982,7 @@ void VarioScreen::ScreenViewMessage(String message, int delai)
 		display.print(tmpbuffer);*/
 
 		display.setCursor(20, 110);
-		display.print("GnueVario-E");
+		display.print("GnuVario-E");
 
 		display.setFont(&FreeSansBold12pt7b);
 		display.setTextSize(1);

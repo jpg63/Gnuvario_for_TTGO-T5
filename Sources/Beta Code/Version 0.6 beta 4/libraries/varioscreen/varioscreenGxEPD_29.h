@@ -30,6 +30,7 @@
  *    1.0.2  06/10/19   Mise à jour ratamuse                                     *
  *    1.0.3  13/10/19   Integration au GnuVario                                  *
  *                      Ajout Wind                                               *
+ *    1.0.4  16/11/19   Modif updateScreen																			 *
  *                                                                               *
  *********************************************************************************/
 
@@ -208,6 +209,7 @@ class VarioScreen {
 	
 //  void  getTextBounds(char *string, int16_t x, int16_t y, int16_t *x1, int16_t *y1, uint16_t *w, uint16_t *h);
   void updateScreen (void);
+  void updateScreenNB (void);
   void clearScreen(void); 
 
   void ScreenViewInit(uint8_t Version, uint8_t Sub_Version, String Author, uint8_t Beta_Code);
@@ -232,7 +234,7 @@ class VarioScreen {
 
 extern VarioScreen screen;
 extern volatile uint8_t stateDisplay;
-extern GxEPD2_BW<GxEPD2_290, GxEPD2_290::HEIGHT> display;
+extern GxEPD2_BW<GxEPD2_290U, GxEPD2_290U::HEIGHT> display;
 
 #endif
 #endif

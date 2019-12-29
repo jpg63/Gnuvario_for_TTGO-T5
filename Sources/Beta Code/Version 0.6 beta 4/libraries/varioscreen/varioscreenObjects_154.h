@@ -52,6 +52,9 @@
  *                      Ajout affichage ou pas des titres                        *
  *                      Ajout WIND                                               *
  *                      Ajout taille maximal de l'object												 *
+ *    1.1.4  14/10/19   Modification affichage titre champs screendigit          *
+ *    1.1.5  15/10/19   Modification affichage des satellites                    *
+ *    1.1.6  03/11/19		Modification d'TUnit																		 *
  *                                                                               *
  *********************************************************************************/
 
@@ -67,7 +70,7 @@
 #include <digit.h>
 #include <variostat.h>
 
-#include <GxEPD2_BW.h>
+#include <GxEPD2_BWU.h>
 #include <GxEPD2_3C.h>
 
 // FreeFonts from Adafruit_GFX

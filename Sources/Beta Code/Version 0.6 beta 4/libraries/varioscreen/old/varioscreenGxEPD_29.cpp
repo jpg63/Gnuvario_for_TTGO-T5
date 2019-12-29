@@ -535,7 +535,7 @@ void VarioScreen::ScreenViewInit(uint8_t Version, uint8_t Sub_Version, String Au
 // 	  display.fillScreen(ColorScreen);
 //		display.clearScreen(ColorScreen);
 
-		display.drawBitmap(0, 10, logo_gnuvario, 70, 54, ColorText); //94
+		display.drawBitmap(0, 10, logo_gnuvario, 94, 74, ColorText); //94
 
 		display.setFont(&FreeSansBold9pt7b);
 		display.setTextColor(ColorText);
@@ -882,7 +882,7 @@ void VarioScreen::ScreenViewReboot(void)
 // 	  display.fillScreen(ColorScreen);
 //		display.clearScreen(ColorScreen);
 
-		display.drawBitmap(0, 10, logo_gnuvario, 51, 37, ColorText); //94
+		display.drawBitmap(0, 10, logo_gnuvario, 94, 74, ColorText); //94
 
 		display.setFont(&FreeSansBold9pt7b);
 		display.setTextColor(ColorText);
@@ -914,7 +914,7 @@ void VarioScreen::ScreenViewMessage(String message, int delai)
 // 	  display.fillScreen(ColorScreen);
 //		display.clearScreen(ColorScreen);
 
-		display.drawBitmap(0, 10, logo_gnuvario, 102, 74, ColorText); //94
+		display.drawBitmap(0, 10, logo_gnuvario, 94, 74, ColorText); //94
 
 		display.setFont(&FreeSansBold12pt7b);
 		display.setTextColor(ColorText);

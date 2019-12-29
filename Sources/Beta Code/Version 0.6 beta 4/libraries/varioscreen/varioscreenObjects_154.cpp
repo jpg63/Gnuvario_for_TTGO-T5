@@ -86,7 +86,7 @@ static const char* TAG = "VarioScreen";
 
 #include <VarioButton.h>
 
-#include <GxEPD2_BW.h>
+#include <GxEPD2_BWU.h>
 #include <GxEPD2_3C.h>
 
 #include "GxEPD2_boards.h"
@@ -1218,10 +1218,12 @@ void TUnit::show() {
   SerialPort.println("Show : TUnit");
 #endif //SCREEN_DEBUG
 
-  display.setFont(&FreeSansBold9pt7b);
+/*  display.setFont(&FreeSansBold9pt7b);
   display.setTextSize(2);
   display.setCursor(posX, posY);
-  display.print('C');
+  display.print('C');*/
+  display.drawInvertedBitmap(posX, posY-20, temp, 21, 17, GxEPD_BLACK);
+  display.drawInvertedBitmap(posX-120, posY-40, thermo, 48, 48, GxEPD_BLACK);	
 }
 
 //****************************************************************************************************************************

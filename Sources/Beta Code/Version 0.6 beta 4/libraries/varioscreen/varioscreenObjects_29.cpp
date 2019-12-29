@@ -51,8 +51,11 @@
  *    1.1.4  14/10/19   Modification affichage titre champs screendigit          *
  *    1.1.5  15/10/19   Modification affichage des satellites                    *
  *    1.1.6  20/10/19   Suppression classe GxEPD2_BW_U													 *
- *                                                                               *
+ *    1.1.7  16/11/19   Ajout classe GxEPD2_BW_U                                                                              *
  *********************************************************************************/
+ 
+ 
+ 
  
  /*
  *********************************************************************************
@@ -83,7 +86,7 @@ static const char* TAG = "VarioScreen";
 
 #include <VarioButton.h>
 
-#include <GxEPD2_BW.h>
+#include <GxEPD2_BWU.h>
 #include <GxEPD2_3C.h>
 
 #include "GxEPD2_boards.h"
@@ -235,7 +238,7 @@ static const char* TAG = "VarioScreen";
   delay(GxGDEP015OC1_PU_DELAY);
   state = STATE_OK;
   _PowerOff();
-} *
+} */
 
 //****************************************************************************************************************************
 template<typename GxEPD2_Type, const uint16_t page_height> unsigned int GxEPD2_BW_U<GxEPD2_Type, page_height>::GetState(void){
@@ -417,9 +420,16 @@ ScreenDigit::ScreenDigit(uint16_t anchorX, uint16_t anchorY, uint16_t width, uin
 #else
 		  MaxWidth   = Zwidth;
 #endif	
-			MaxHeight  = Zheight;			break;
+			MaxHeight  = Zheight;
+			break;
 			
 		case DISPLAY_OBJECT_ALTI :
+#if defined (MAXW_OBJECT_ALTI)		
+		  MaxWidth   = MAXW_OBJECT_ALTI;
+#else
+		  MaxWidth   = Zwidth;
+#endif	
+			MaxHeight  = Zheight;
 			break;
 			
 		case DISPLAY_OBJECT_VARIO :
@@ -437,7 +447,8 @@ ScreenDigit::ScreenDigit(uint16_t anchorX, uint16_t anchorY, uint16_t width, uin
 #else
 		  MaxWidth   = Zwidth;
 #endif	
-			MaxHeight  = Zheight;			break;
+			MaxHeight  = Zheight;	
+					break;
 			
 		default :
 		  MaxWidth   = Zwidth;
@@ -704,35 +715,28 @@ void ScreenDigit::show() {
  
  /*  Affiche titre */
  
-/*  display.drawBitmap(0, 84, speedtext, 32, 10, GxEPD_BLACK);
-  display.drawBitmap(85, 84, timetext, 24, 7, GxEPD_BLACK);
-  display.drawBitmap(0, 4, altitext, 15, 7, GxEPD_BLACK);
-  display.drawBitmap(0, 43, variotext, 23, 7, GxEPD_BLACK);
-  display.drawBitmap(135, 45, grtext, 14, 7, GxEPD_BLACK); //finesse/glade ratio*/
-
- 
   if (showtitle) {
 		
     switch (displayTypeID) {
 		case DISPLAY_OBJECT_SPEED :
-			display.drawInvertedBitmap(titleX, titleY-14, speedtext, 41, 14, GxEPD_BLACK);
+			display.drawBitmap(titleX+2, titleY-7, speedtext, 32, 10, GxEPD_BLACK);
 //			display.drawInvertedBitmap(0, 141, speedtext, 41, 14, GxEPD_BLACK);
 			break;
 		case DISPLAY_OBJECT_TIME :
-//			display.drawInvertedBitmap(85, 141, timetext, 29, 11, GxEPD_BLACK);
-			display.drawInvertedBitmap(titleX, titleY-11, timetext, 29, 11, GxEPD_BLACK);
+//			display.drawInvertedBitmap(85, 141, timetext, 24, 7, GxEPD_BLACK);
+			display.drawBitmap(titleX+20, titleY-7, timetext, 24, 7, GxEPD_BLACK);
 			break;
 		case DISPLAY_OBJECT_ALTI :
 //			display.drawInvertedBitmap(0, 31, altitext, 18, 11, GxEPD_BLACK);
-			display.drawInvertedBitmap(titleX, titleY-11, altitext, 18, 11, GxEPD_BLACK);
+			display.drawBitmap(titleX-77, titleY-5, altitext, 15, 7, GxEPD_BLACK);
 			break;
 		case DISPLAY_OBJECT_VARIO :
 //			display.drawInvertedBitmap(0, 85, variotext, 31, 11, GxEPD_BLACK);
-			display.drawInvertedBitmap(titleX, titleY-11, variotext, 31, 11, GxEPD_BLACK);
+			display.drawBitmap(titleX+22, titleY-8, variotext, 23, 7, GxEPD_BLACK);
 			break;
 		case DISPLAY_OBJECT_RATIO :
 //			display.drawInvertedBitmap(132, 85, grtext, 21, 11, GxEPD_BLACK); //finesse/glade ratio
-			display.drawInvertedBitmap(titleX, titleY-11, grtext, 21, 11, GxEPD_BLACK); //finesse/glade ratio
+			display.drawBitmap(titleX, titleY-8, grtext, 14, 7, GxEPD_BLACK); //finesse/glade ratio
 			break;
 		default :
 			break;
@@ -1221,6 +1225,7 @@ void TUnit::show() {
   
 }
 
+
 //****************************************************************************************************************************
 void TUnit::toDisplay() {
 //****************************************************************************************************************************
@@ -1297,6 +1302,36 @@ const unsigned char batchargeicons[] = {
 0xc0, 0x19, 0x80, 0x0f, 0xff, 0xfb, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 
 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #define SIMPLE_VOLTAGE_VIEW
 
@@ -1417,10 +1452,8 @@ if    X< 1700 = deep sleep (comme ça si la sécu batterie ne fonctionne pas ou 
   else if ((Voltage < 2000) && (Voltage >= 1750))
     display.drawInvertedBitmap(274, 8, bat1icons, 17, 8, GxEPD_BLACK);   //GxEPD_BLACK);
   else {
-    display.drawInvertedBitmap(posX, posY, bat0icons, 17, 8, GxEPD_BLACK);   //GxEPD_BLACK);
+    display.drawInvertedBitmap(274, 8, bat0icons, 17, 8, GxEPD_BLACK);   //GxEPD_BLACK);
 		//Deep Sleep
-		
-		deep_sleep();
 	}
 
 #else //SIMPLE_VOLTAGE_VIEW
@@ -1552,6 +1585,22 @@ const unsigned char volume3icons[] = {
 0xff, 0x8f, 0xf7, 0xff, 0xcf, 0xff, 0xff, 0xef, 0xff
 };
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 //****************************************************************************************************************************
 void VOLLevel::setVolume(int Volume) {
 //****************************************************************************************************************************
@@ -1583,18 +1632,6 @@ void VOLLevel::show(void) {
 #endif //SCREEN_DEBUG
  
   display.fillRect(posX, posY, 24, 19, GxEPD_WHITE);
-/*  //Separation line on displayPage0		
-  display.drawLine(130, 26, 295, 26, GxEPD_BLACK);
-  display.drawLine(130, 26, 130, 0, GxEPD_BLACK);
-  display.drawLine(295, 26, 295, 0, GxEPD_BLACK);
-  display.drawLine(191, 26, 191, 127, GxEPD_BLACK);
-  //display.drawCircle(245, 80, 40, GxEPD_BLACK);
-  display.drawBitmap(0, 84, speedtext, 32, 10, GxEPD_BLACK);
-  display.drawBitmap(85, 84, timetext, 24, 7, GxEPD_BLACK);
-  display.drawBitmap(0, 4, altitext, 15, 7, GxEPD_BLACK);
-  display.drawBitmap(0, 43, variotext, 23, 7, GxEPD_BLACK);
-  display.drawBitmap(135, 45, grtext, 14, 7, GxEPD_BLACK); //finesse/glade ratio
-  display.drawInvertedBitmap(200, 33, wind, 90, 90, GxEPD_BLACK);*/
   
 //	display.drawRect(posX, posY, 32, 32, GxEPD_BLACK);
   if (_mute || (volume == 0))  display.drawInvertedBitmap(posX, posY, volume0icons, 24, 19, GxEPD_BLACK);   //GxEPD_BLACK);
@@ -1627,6 +1664,13 @@ const unsigned char satfixicons[] = {
 0xff, 0xf8, 0xff, 0xff, 0xff, 0xfc, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 
 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff
 };
+
+
+
+
+
+
+
 
 /* !!! always reset !!! */
 //****************************************************************************************************************************
@@ -1707,6 +1751,26 @@ const unsigned char norecordicons[] = {
 0x8c, 0x7f, 0xf1, 0xc0, 0xff, 0xe3, 0xc1, 0xff, 0xc3, 0xe1, 0xff, 0x87, 0xf0, 0x7e, 0x0f, 0xf8, 
 0x00, 0x1f, 0xfe, 0x00, 0x7f, 0xff, 0x81, 0xff
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1793,7 +1857,7 @@ const unsigned char trendupicons[] = {
 };
 
 const unsigned char trenddownicons[] = { 
- // 'Arrowdown-14-24'
+// 'Arrowdown-14-24'
 0xfc, 0xfc, 0xfc, 0xfc, 0xfc, 0xfc, 0xfc, 0xfc, 0xfc, 0xfc, 0xfc, 0xfc, 0xfc, 0xfc, 0xfc, 0xfc, 
 0xfc, 0xfc, 0xfc, 0xfc, 0xfc, 0xfc, 0xfc, 0xfc, 0xfc, 0xfc, 0xfc, 0xfc, 0xfc, 0xfc, 0x3c, 0xf0, 
 0x1c, 0xe0, 0x0c, 0xc0, 0x84, 0x84, 0xc0, 0x0c, 0xe0, 0x1c, 0xf0, 0x3c, 0xf8, 0x7c, 0xfc, 0xfc
@@ -1853,7 +1917,6 @@ const unsigned char hicons[] = {
 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
 };
-
 
 /* time */
 //****************************************************************************************************************************
@@ -2007,6 +2070,7 @@ const unsigned char fixgpsicons[] = {
 0xff, 0x0f, 0xf0, 0xff, 0x0f, 0xf0, 0xff, 0x9f, 0xf0, 0xff, 0xff, 0xf0
 };
 
+
 //****************************************************************************************************************************
 //****************************************************************************************************************************
 //					FIXGPSINFO
@@ -2058,6 +2122,8 @@ const unsigned char usbicons[] = {
 	0xe7, 0xff, 0xff, 0xe7, 0xff, 0xff, 0xff, 0xff
 };
 
+
+
 //****************************************************************************************************************************
 //****************************************************************************************************************************
 //						INFOLEVEL
@@ -2094,7 +2160,7 @@ void INFOLevel::show() {
 //****************************************************************************************************************************
 
   // 24 x 24 
-const unsigned char bticons [] PROGMEM = {
+const unsigned char bticons []  = {
 	// 'BT icone 24x24, 20x24px
 	0xff, 0xff, 0xf0, 0xff, 0xff, 0xf0, 0xff, 0xff, 0xf0, 0xff, 0xef, 0xf0, 0xff, 0xe7, 0xf0, 0xff, 
 	0xeb, 0xf0, 0xff, 0xed, 0xf0, 0xfe, 0xee, 0xf0, 0xff, 0x6d, 0xf0, 0xff, 0xab, 0xf0, 0xff, 0xc7, 
