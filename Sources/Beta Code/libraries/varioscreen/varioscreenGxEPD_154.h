@@ -188,13 +188,16 @@ class VarioScreen {
 	
 //object page 1  	
 	
-	ScreenDigit*  tempDigit; 	
-	TUnit* tunit;
-	ScreenText*   gpsLatDir;
-	ScreenText*   gpsLongDir;
-	ScreenText*   gpsBearing;
-	ScreenDigit*  gpsLat; 
-	ScreenDigit*  gpsLong; 
+//	ScreenDigit*  tempDigit; 	
+//	TUnit* tunit;
+//	ScreenText*   gpsLatDir;
+//	ScreenText*   gpsLongDir;
+	ScreenText*   gpsBearingText;
+//	ScreenDigit*  gpsLat; 
+//	ScreenDigit*  gpsLong; 
+	ScreenDigit*  gpsBearing;
+	ScreenText*   gpsLat;
+	ScreenText*   gpsLong;
 	
 //  ScreenSchedulerObject* displayList;
 	ScreenSchedulerObject displayList[40];  //17];

@@ -116,9 +116,11 @@ class NmeaParser {
 	double getBearing(void);
 	double getLong(void);
 	char   getLongDir();
+	String getLongDegree(void);
 	String getLongitude(void);
 	double getLat(void);
 	char   getLatDir(void);
+	String getLatDegree(void);
 	String getLatitude(void);
   bool isParsing(void);
   bool isParsingRMC(void);
@@ -130,6 +132,7 @@ class NmeaParser {
   uint8_t commaCount;
   uint32_t value;
 	char valuechar;
+	String DegreesToDegMinSec(float x);
 
 };
 

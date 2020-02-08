@@ -330,6 +330,15 @@ String NmeaParser::getLongitude(void) {
 	return tmp;
 }
 
+String NmeaParser::getLongDegree(void) {
+  parserState_unset(HAVE_LONG);
+	double f_val = ((double)longitude)/NMEA_RMC_LONG_PRECISION;
+	char outstr[15];
+	dtostrf(f_val,7, 3, outstr);
+	String tmp = String(outstr) + " " + String(longDir);
+	return tmp;
+}
+
 double NmeaParser::getLat(void) {
   parserState_unset(HAVE_LAT);
   return ((double)latitude)/NMEA_RMC_LAT_PRECISION;
@@ -348,3 +357,33 @@ String NmeaParser::getLatitude(void) {
 	return tmp;	
 }
 
+String NmeaParser::getLatDegree(void) {
+  parserState_unset(HAVE_LAT);
+	double f_val = ((double)latitude)/NMEA_RMC_LAT_PRECISION;
+	char outstr[15];
+	dtostrf(f_val,7, 3, outstr);
+	String tmp = String(outstr) + " " + String(latDir);
+	return tmp;	
+}
+
+String NmeaParser::DegreesToDegMinSec(float x)
+{
+  int deg=x;
+	String tmpStr;
+  float minutesRemainder = abs(x - deg) * 60;
+  int arcMinutes = minutesRemainder;
+  float arcSeconds = (minutesRemainder - arcMinutes) * 60;
+#ifdef NMEAPARSER_DEBUG
+  SerialPort.print("Coordonnée : ");
+  SerialPort.print(deg);
+	SerialPort.print("*");
+  SerialPort.print(arcMinutes);
+	SerialPort.print("'");
+  SerialPort.print(arcSeconds,4);
+	SerialPort.print('"');
+  SerialPort.println();
+#endif //NMEAPARSER_DEBUG
+
+	tmpStr = String(deg) + "*" + String(arcMinutes) + "'" + String(arcSeconds); + "''";
+	return tmpStr;
+}

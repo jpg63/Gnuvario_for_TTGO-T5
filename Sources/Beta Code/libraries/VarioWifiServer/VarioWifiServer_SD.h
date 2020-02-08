@@ -30,57 +30,13 @@
 
 #include <VarioWifiServer.h>
 
-//#define ESP32WEBSERVEUR 
-//#define ESPASYNCWEBSERVER
-//#define ETHERNETWEBSERVER
 
 #if defined(WEBSERVER_SDCARD)
 
 #include <Arduino.h>
 
-#ifdef ESP8266
-#include <ESP8266WiFi.h>      // Built-in
-#include <ESP8266WiFiMulti.h> // Built-in
-#include <ESP8266WebServer.h> // Built-in
-#include <ESP8266mDNS.h>
-
-#define WEBSERVERTYPE "ESP8266"
-
-#else //ESP32
-
-#ifdef ESP32WEBSERVEUR 
-#include <WiFiMulti.h> // Built-in
-//#include <WiFiClient.h>
-#include <VarioESP32WebServer.h>    // https://github.com/Pedroalbuquerque/ESP32WebServer download and place in your Libraries folder
-#include <WiFi.h>
-#include <ESPmDNS.h>
-
-#define WEBSERVERTYPE "VarioESP32WebServer"
-
-#elif defined(ESPASYNCWEBSERVER)
-
-#include <WiFi.h>
-#include <WiFiMulti.h> // Built-in
-#include <AsyncTCP.h>
-#include <ESPAsyncWebServer.h>
-#include <ESPmDNS.h>
-
-#define WEBSERVERTYPE "ESPAsyncWebServer"
-
-#elif defined(ETHERNETWEBSERVER)
-
-//#include <WiFi.h>
-#include <WiFiMulti.h> // Built-in
-#include <Ethernet.h>
-#include <ESPmDNS.h>
-
-#define WEBSERVERTYPE "Ethernet"
-
-#else //ESP32WEBSERVEUR
-
 #include <WiFi.h>      // Built-in
 #include <WiFiMulti.h> // Built-in
-//  #include <ESP32WebServer.h>    // https://github.com/Pedroalbuquerque/ESP32WebServer download and place in your Libraries folder
 #include <WiFiClient.h>
 #include <VarioWebServer.h>
 #include <ESPmDNS.h>
@@ -88,8 +44,7 @@
 
 #define WEBSERVERTYPE "VarioWebServer"
 
-#endif //ESP32WEBSERVEUR
-#endif //ESP8266
+
 
 /*#ifdef HAVE_SDCARD
 #include <sdcardHAL.h>
@@ -112,21 +67,9 @@ extern char password_3[50];
 extern char ssid_4[50];
 extern char password_4[50];
 
-#ifdef ESP8266
-extern ESP8266WiFiMulti wifiMulti;
-extern ESP8266WebServer server;
-#else
+
 extern WiFiMulti wifiMulti;
-#ifdef ESP32WEBSERVEUR 
-extern VarioESP32WebServer server;
-#elif defined(ESPASYNCWEBSERVER)
-  AsyncWebServer server; 
-#elif defined(ETHERNETWEBSERVER)
-extern EthernetServer server; 
-#else //ESP32WEBSERVEUR
 extern VarioWebServer server;
-#endif //ESP32WEBSERVEUR
-#endif
 
 //////////////////////////////////////
 //          CLASS WIFISERVER        //

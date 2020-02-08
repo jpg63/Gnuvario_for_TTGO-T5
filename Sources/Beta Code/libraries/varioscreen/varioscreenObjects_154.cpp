@@ -476,6 +476,15 @@ ScreenDigit::ScreenDigit(uint16_t anchorX, uint16_t anchorY, uint16_t width, uin
 #endif	
 			MaxHeight  = Zheight;
 			break;
+
+		case DISPLAY_OBJECT_BEARING :
+#if defined (MAXW_OBJECT_LONG)		
+		  MaxWidth   = MAXW_OBJECT_BEARING;
+#else
+		  MaxWidth   = Zwidth;
+#endif	
+			MaxHeight  = Zheight;
+			break;
 			
 		default :
 		  MaxWidth   = Zwidth;
@@ -1091,9 +1100,9 @@ ScreenText::ScreenText(uint16_t anchorX, uint16_t anchorY, uint16_t width, bool 
 	else       Zheight  = 12+3;
 		
     switch (displayTypeID) {
-		case DISPLAY_OBJECT_BEARING :
+		case DISPLAY_OBJECT_BEARING_TEXT :
 #if defined (MAXW_OBJECT_BEARING)		
-		  MaxWidth   = MAXW_OBJECT_BEARING;
+		  MaxWidth   = MAXW_OBJECT_BEARING_TEXT;
 #else
 		  MaxWidth   = Zwidth;
 #endif	
@@ -1112,6 +1121,24 @@ ScreenText::ScreenText(uint16_t anchorX, uint16_t anchorY, uint16_t width, bool 
 		case DISPLAY_OBJECT_LONG_DIR :
 #if defined (MAXW_OBJECT_LONG_DIR)		
 		  MaxWidth   = MAXW_OBJECT_LONG_DIR;
+#else
+		  MaxWidth   = Zwidth;
+#endif	
+			MaxHeight  = Zheight;
+			break;
+			
+		case DISPLAY_OBJECT_LAT :
+#if defined (MAXW_OBJECT_LAT)		
+		  MaxWidth   = MAXW_OBJECT_LAT;
+#else
+		  MaxWidth   = Zwidth;
+#endif	
+			MaxHeight  = Zheight;
+			break;
+
+		case DISPLAY_OBJECT_LONG :
+#if defined (MAXW_OBJECT_LONG)		
+		  MaxWidth   = MAXW_OBJECT_LONG;
 #else
 		  MaxWidth   = Zwidth;
 #endif	

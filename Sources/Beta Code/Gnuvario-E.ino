@@ -298,6 +298,9 @@ SimpleBLE ble;
 * BUG   - update manuelle - doit être lancée 2 fois                                                   *
 * AJOUT - Récupération du cap depuis le capteur baromètrique                                          *
 * AJOUT - Mise à jour site web embarqué via Internet                                                  *
+* BUG   - Seuil de monté et de descente                                                               *  
+* MODIF - refaire écran 2                                                                             *
+* BUG   - Altitude fix GPS                                                                            * 
 *                                                                                                     *
 * VX.X                                                                                                *
 * Paramètrage des écrans                                                                              *
@@ -1460,8 +1463,8 @@ void loop() {
 #endif //HAVE_ACCELEROMETER
   
     if (displayLowUpdateState) {
-      screen.tempDigit->setValue(tmpTemp);
-      screen.tunit->toDisplay();
+//      screen.tempDigit->setValue(tmpTemp);
+//      screen.tunit->toDisplay();
     }
 
 //**********************************************************
@@ -2133,7 +2136,8 @@ void loop() {
       DUMPLOG(LOG_TYPE_DEBUG, MAIN_DEBUG_LOG, bearing);
       DUMPLOG(LOG_TYPE_DEBUG, MAIN_DEBUG_LOG, bearingStr);
 
-      screen.gpsBearing->setValue(bearingStr); 
+     screen.gpsBearing->setValue(bearing); 
+     screen.gpsBearingText->setValue(bearingStr); 
     }
 
     if (nmeaParser.haveLongitude()) {
@@ -2145,8 +2149,9 @@ void loop() {
 #endif //PROG_DEBUG     
       DUMPLOG(LOG_TYPE_DEBUG, MAIN_DEBUG_LOG, longitude);
 
-      screen.gpsLongDir->setValue(String(nmeaParser.getLongDir()));
-      screen.gpsLong->setValue(nmeaParser.getLong());
+//      screen.gpsLongDir->setValue(String(nmeaParser.getLongDir()));
+//      screen.gpsLong->setValue(nmeaParser.getLong());
+      screen.gpsLong->setValue(nmeaParser.getLongDegree());
     }
 
     if (nmeaParser.haveLatitude()) {
@@ -2157,8 +2162,9 @@ void loop() {
       SerialPort.print(latitude);
 #endif //PROG_DEBUG     
       DUMPLOG(LOG_TYPE_DEBUG, MAIN_DEBUG_LOG, latitude);
-      screen.gpsLatDir->setValue(String(nmeaParser.getLatDir()));
-      screen.gpsLat->setValue(nmeaParser.getLat());
+//      screen.gpsLatDir->setValue(String(nmeaParser.getLatDir()));
+//      screen.gpsLat->setValue(nmeaParser.getLat());
+      screen.gpsLat->setValue(nmeaParser.getLatDegree());
     }
    
   }
