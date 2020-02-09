@@ -530,39 +530,39 @@ void ToneHal_Esp32::noTone(void)
 
 /*
 #elif defined(TONE)
-//****************************************
-//*          P W M    - 1 pin           	*
-//****************************************
+// ****************************************
+// *          P W M    - 1 pin            *
+// ****************************************
 
-//***********************************
+// ***********************************
 void ToneHal_Esp32::init(void) {
-//***********************************
+// ***********************************
   _pin = 2;
 }
 
-//***********************************
+// ***********************************
 void ToneHal_Esp32::init(uint32_t pin) {
-//***********************************
+// ***********************************
   _pin = pin;
 }
 
-//***********************************
+// ***********************************
 void ToneHal_Esp32::init(uint32_t pin1, uint32_t pin2) {
-//***********************************
+// ***********************************
   _pin = pin1;
 }
 
-//***********************************
+// ***********************************
 void ToneHal_Esp32::tone(unsigned long frequency)
-//***********************************           
+// ***********************************           
 {
 	if (_toneMuted) return;
   privateToneEsp32.tone(_pin,frequency,512);	
 }
 
-//***********************************
+// ***********************************
 void ToneHal_Esp32::tone(unsigned long frequency , uint8_t volume)
-//***********************************           
+// ***********************************           
 {
 	if (_toneMuted) return;
 	if (volume > 10) volume = 10;
@@ -570,9 +570,9 @@ void ToneHal_Esp32::tone(unsigned long frequency , uint8_t volume)
   privateToneEsp32.tone(_pin,frequency,512);
 }
 
-//***********************************
+// ***********************************
 void ToneHal_Esp32::tone(unsigned long frequency , uint8_t volume, unsigned long length)
-//***********************************           
+// ***********************************           
 {
 	if (_toneMuted) return;
 	if (volume > 10) volume = 10;
@@ -581,16 +581,16 @@ void ToneHal_Esp32::tone(unsigned long frequency , uint8_t volume, unsigned long
   privateToneEsp32.tone(_pin,frequency,length);
 }
 
-//***********************************
+// ***********************************
 void ToneHal_Esp32::tone(unsigned long frequency , uint8_t volume, unsigned long length, uint8_t background)
-//***********************************
+// ***********************************
 {
 	tone(frequency, volume, length);
 }
 
-//***********************************
+// ***********************************
 void ToneHal_Esp32::noTone(void)
-//***********************************           
+// ***********************************           
 {
 	privateToneEsp32.noTone(_pin);
 }

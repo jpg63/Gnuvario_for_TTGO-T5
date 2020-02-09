@@ -717,11 +717,11 @@ void ScreenDigit::show() {
 }
 
 /*
-//****************************************************************************************************************************
+// ****************************************************************************************************************************
 void ScreenDigit::show() {
-//****************************************************************************************************************************
+// ****************************************************************************************************************************
 
-  /***************/
+  // ***************/
   /* build digit */
   /* **************
 
@@ -751,7 +751,7 @@ void ScreenDigit::show() {
  dtostrf2(value,width,precision,digitCharacters,zero);
 //  dtostrf2(oldvalue,width,precision,tmpdigitCharacters,zero);
 //  dtostrf2(value,4,1,digitCharacters,false,false);
-  /*if (plusDisplay) {
+  // *if (plusDisplay) {
 	  if (value >=0) {
 		sprintf(digitCharacters, "+%s", tmpdigitCharacters);  
 	  }
@@ -808,7 +808,7 @@ void ScreenDigit::show() {
 //  if (w1 > w) {w = w1;}
   
 #ifdef SCREEN_DEBUG
-/*  SerialPort.print("X : ");
+// *  SerialPort.print("X : ");
   SerialPort.println(box_x);
   SerialPort.print("Y : ");
   SerialPort.println(box_y);
@@ -826,7 +826,7 @@ void ScreenDigit::show() {
 	SerialPort.println(Zheight);
 #endif //SCREEN_DEBUG
   
-/*  if (leftAlign) {
+// *  if (leftAlign) {
 	if ((box_x+w1+6) > 200)  
       display.fillRect(box_x, box_h-3, 200-box_x, h1+3, GxEPD_WHITE);
     else
@@ -2251,7 +2251,7 @@ const unsigned char separationlineicon[] = {
 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
 };
 
-//****************************************************************************************************************************
+// ****************************************************************************************************************************
 void SeparationLine::show() {
 	#ifdef SCREEN_DEBUG
   SerialPort.println("Show : KmHUnit");
@@ -2259,9 +2259,9 @@ void SeparationLine::show() {
 display.fillRect(posX, posY, 64, 1, GxEPD_WHITE);
 display.drawInvertedBitmap(posX, posY, separationlineicon, 64, 1, GxEPD_BLACK);
 };
-//****************************************************************************************************************************
+// ****************************************************************************************************************************
 void SeparationLine::toDisplay() {
-//****************************************************************************************************************************
+// ****************************************************************************************************************************
    reset();
 }
 */
@@ -2317,7 +2317,7 @@ template<typename GxEPD2_Type, const uint16_t page_height> void GxEPD2_BW_U<GxEP
     }
 }
 
-/**************************************************************************/
+// **************************************************************************/
 /*!
     @brief    Helper to determine size of a string with current font/size. Pass string and a cursor position, returns UL corner and W,H.
     @param    str     The ascii string to measure
@@ -2356,7 +2356,7 @@ template<typename GxEPD2_Type, const uint16_t page_height> void GxEPD2_BW_U<GxEP
   *h  = height;
 }
 
-/**************************************************************************/
+// **************************************************************************/
 /*!
     @brief    Helper to determine size of a string with current font/size. Pass string and a cursor position, returns UL corner and W,H.
     @param    str    The ascii string to measure (as an arduino String() class)
@@ -2373,7 +2373,7 @@ template<typename GxEPD2_Type, const uint16_t page_height> void GxEPD2_BW_U<GxEP
 }
 
 
-/**************************************************************************/
+// **************************************************************************/
 /*!
     @brief    Helper to determine size of a PROGMEM string with current font/size. Pass string and a cursor position, returns UL corner and W,H.
     @param    str     The flash-memory ascii string to measure

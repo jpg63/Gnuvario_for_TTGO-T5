@@ -36,6 +36,7 @@
  *    1.0.6  17/01/20   Desactivation effacement ligne 1427                      *
  *    1.0.7  20/01/20   Modif ScreenViewReboot																	 *
  *    1.0.8  28/01/20   Modification écran 1 - ajout info gps                    *
+ *    1.0.9  09/02/20   Modif écran 1 - font normal / coordonné GPS en degrés    *
  *                                                                               *
  *********************************************************************************/
  
@@ -124,8 +125,13 @@ volatile uint8_t stateMulti = 0;
 #define VARIOSCREEN_DOT_WIDTH 6
 #define VARIOSCREEN_DIGIT_WIDTH 11
 
+#ifndef ColorScreen
 #define ColorScreen    GxEPD_WHITE
+#endif
+
+#ifndef ColorText
 #define ColorText      GxEPD_BLACK
+#endif
 
 #define VARIOSCREEN_TENSION_ANCHOR_X 140
 #define VARIOSCREEN_TENSION_ANCHOR_Y 170
@@ -391,8 +397,6 @@ void VarioScreen::createScreenObjectsDisplayPage0(void) {
 		CreateObjectDisplay(DISPLAY_OBJECT_FIXGPSINFO				, fixgpsinfo				, 0, 0, true); 
 		CreateObjectDisplay(DISPLAY_OBJECT_BTINFO						, btinfo						, 0, 0, true); 
 		
-		CreateObjectDisplay(DISPLAY_OBJECT_BTINFO						, btinfo						, 0, 0, true); 
-
 /*		CreateObjectDisplay(DISPLAY_OBJECT_LINE	          	, bgline1           , 0, 0, true);
 		CreateObjectDisplay(DISPLAY_OBJECT_LINE	          	, bgline2           , 0, 0, true);
 		CreateObjectDisplay(DISPLAY_OBJECT_LINE	          	, bgline3           , 0, 0, true);
@@ -856,7 +860,7 @@ void VarioScreen::ScreenViewStat(void)
 		}
 	}
 
-/*  altiDigit.setValue(flystat.GetAlti());
+// *  altiDigit.setValue(flystat.GetAlti());
   altiDigit.update();
   altiDigit.display();
   varioDigit.setValue(flystat.GetVarioMin());

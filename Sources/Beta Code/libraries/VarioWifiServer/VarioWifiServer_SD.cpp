@@ -223,7 +223,7 @@ boolean VarioWifiServer::begin(void)
   SerialPort.println("printDirectoryRecurse");
 	printDirectoryRecurse("/",0);
   SerialPort.println("");*/
-#endif //WIFI_DEBUG \
+#endif //WIFI_DEBUG 
        //  listDirectoryJson(dataFile, 0);
 
   //	printDirectoryToJson("/");
@@ -1589,13 +1589,13 @@ File UpdateFile;
 // upload d'un fichier dont le chemin + nom se trouve en param dans le nommage du fichier
 /* **********************************
 void handleFileUpdate() {
-/* **********************************
+// ***********************************
 
 #ifdef WIFI_DEBUG
   SerialPort.println("handleFileUpdate");
 #endif
 
-/*  if (server.uri()!= "/upload") {
+// *  if (server.uri()!= "/upload") {
 		return;
 	}*
 
@@ -1942,7 +1942,7 @@ void handleSaveWifi()
 
 /***********************************
 void handleCreate() {
-/***********************************
+// ***********************************
   if (server.args() == 0) {
     return returnFail("BAD ARGS");
   }

@@ -70,7 +70,7 @@
 #include <VarioSettings.h>
 
 #if defined(ESP32)
-static const char* TAG = "GnuvarioE";
+//static const char* TAG = "GnuvarioE";
 #include "esp_log.h"
 #endif //ESP32
 
@@ -545,8 +545,9 @@ int VarioLog::logRotate(void)
 int VarioLog::logRotate(void)
 //********************************************
 {
-  int count = 0, fno, flast = 0;
-  size_t size;
+  //int count = 0, 
+  int fno=0, flast = 0;
+ // size_t size;
   SdFile file;
   
 	SdFile dir;
@@ -659,11 +660,11 @@ void VarioLog::send(const char *msg)
   SdFile f = openLog();
   if (f.isOpen()) {
 #endif
-    size_t len = strlen(msg);
     size_t n = f.println(msg);
     f.close();
 #ifdef SDCARD_DEBUG
 		char tmpstr[100];
+    size_t len = strlen(msg);
 		sprintf(tmpstr, "%s: %s\n", log_name, msg);
     SerialPort.print(tmpstr);
 		sprintf(tmpstr, "%s: %d/%d bytes written\n", log_name, n, len);
@@ -690,11 +691,11 @@ void VarioLog::writeSd(const char *msg)
 #else
   if (logFile.isOpen()) {
 #endif
-    size_t len = strlen(msg);
     size_t n = logFile.println(msg);
 		logFile.flush();
 #ifdef SDCARD_DEBUG
 		char tmpstr[100];
+    size_t len = strlen(msg);
 		sprintf(tmpstr, "%s: %s\n", log_name, msg);
     SerialPort.print(tmpstr);
 		sprintf(tmpstr, "%s: %d/%d bytes written\n", log_name, n, len);

@@ -34,7 +34,7 @@
 #ifndef _DEBUGCONFIG_H_
 //#define SERIAL_NMEA_SERIAL_OUTPUT
 //#define SERIAL_NMEA_BLUETOOTH_OUTPUT
-#endif _//DEBUGCONFIG_H_
+#endif //DEBUGCONFIG_H_
 
 /***********************/
 /* gps uart parameters */

@@ -58,6 +58,7 @@
  *    1.1.7  28/01/20   Correction leftAlign                                     *
  *                      Ajout ALIGNCENTER                                        *
  *                      Ajout Objet ScreenText                                   *
+ *    1.1.8  09/02/20   Modif font screenText                                    *
  *                                                                               *
  *********************************************************************************/
 
@@ -81,6 +82,8 @@
 #include <Fonts/FreeSansBold12pt7b.h>
 #include <Fonts/FreeSansBold18pt7b.h>
 #include <Fonts/FreeSansBold24pt7b.h>
+
+#include <Fonts/FreeSerifBold18pt7b.h>
 
 /* minimum drift to update digit */
 #define VARIOSCREEN_DIGIT_DISPLAY_THRESHOLD 0.65

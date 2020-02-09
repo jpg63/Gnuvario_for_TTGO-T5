@@ -298,7 +298,7 @@ void IRAM_ATTR onTimer()
 		if (sIndex==sampleCount-1)
 			{
 				sIndex = 0;	
-/*     toneDAC.tcDisable();
+// *     toneDAC.tcDisable();
      toneDAC.tcReset();
 	   toneDAC.tcConfigure(toneDAC.sampleRate); //setup the timer counter based off of the user entered sample rate
 //start timer, once timer is done interrupt will occur and DAC value will be updated

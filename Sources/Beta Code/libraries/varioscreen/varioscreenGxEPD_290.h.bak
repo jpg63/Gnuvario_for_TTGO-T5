@@ -196,7 +196,7 @@ class VarioScreen {
 //	TUnit* tunit;
 //	ScreenText*   gpsLatDir;
 //	ScreenText*   gpsLongDir;
-	ScreenText*   gpsBearingText;
+	ScreenText*   gpsBearing;
 //	ScreenDigit*  gpsLat; 
 //	ScreenDigit*  gpsLong; 
 	ScreenDigit*  gpsBearing;

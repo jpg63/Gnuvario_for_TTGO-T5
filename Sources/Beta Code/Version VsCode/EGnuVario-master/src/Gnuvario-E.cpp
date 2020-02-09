@@ -276,10 +276,13 @@ SimpleBLE ble;
 * v0.7  beta 8  31/01/20             Correction mise à jour via internet                              *
 *                                    Passage à la librairie varioWebserver                            *
 *                                    Ajout de la barre de status sur l'écran 2                        *
-*                                    Ajout Affichage de l'altitude, cap, longitude et latitude sur    *
-*                                    l'écran 2                                                        *
+*                                    Ajout Affichage du cap, longitude et latitude sur l'écran 2      *
 *                                    Amélioration de la page de vol (serveur Web)                     *
 *                                    Ajout écran info lors de l'update via internet                   *
+*                                    Nettoyage des librairie et compatibilité avec vscode             *
+*                                    Ajout Update via site Internet                                   *
+*                                    Correction bug, seul de monté/descente sur la SDcard non pris en *
+*                                    compte
 *******************************************************************************************************
 *                                                                                                     *
 *                                   Developpement a venir                                             *
@@ -295,6 +298,8 @@ SimpleBLE ble;
 * BUG   - upload wifi - ne se termine pas  - bug espressif le buffer n'est pas vidé à la fin          *
 * BUG   - update manuelle - doit être lancée 2 fois                                                   *
 * AJOUT - Récupération du cap depuis le capteur baromètrique                                          *
+* AJOUT - Mise à jour site web embarqué via Internet - rename et suppression au démmarage             *
+* MODIF - refaire écran 2                                                                             *
 *                                                                                                     *
 * VX.X                                                                                                *
 * Paramètrage des écrans                                                                              *
@@ -624,9 +629,9 @@ esp32FOTA2 esp32FOTA("Gnuvario" + String(VARIOSCREEN_SIZE), VERSION, SUB_VERSION
 
 
 
-/*************************************************
+/* *************************************************
 Internal TEMPERATURE Sensor
-**************************************************/
+   *************************************************/
 
 /* 
  *  https://circuits4you.com
@@ -1010,7 +1015,15 @@ void setup() {
   
 #endif //HAVE_SCREEN
 
+//***********************************************
+// INIT Sound
+//      init Beeper avec les valeurs personnelles
+//      init Volume
+//***********************************************
+
 #ifdef HAVE_SPEAKER
+  beeper.init(GnuSettings.VARIOMETER_SINKING_THRESHOLD, GnuSettings.VARIOMETER_CLIMBING_THRESHOLD, GnuSettings.VARIOMETER_NEAR_CLIMBING_SENSITIVITY);
+
   GnuSettings.VARIOMETER_BEEP_VOLUME = GnuSettings.soundSettingRead();
   beeper.setVolume(GnuSettings.VARIOMETER_BEEP_VOLUME);
   toneHAL.setVolume(GnuSettings.VARIOMETER_BEEP_VOLUME);
@@ -1460,8 +1473,8 @@ void loop() {
 #endif //HAVE_ACCELEROMETER
   
     if (displayLowUpdateState) {
-      screen.tempDigit->setValue(tmpTemp);
-      screen.tunit->toDisplay();
+//      screen.tempDigit->setValue(tmpTemp);
+//      screen.tunit->toDisplay();
     }
 
 //**********************************************************
@@ -2133,7 +2146,8 @@ void loop() {
       DUMPLOG(LOG_TYPE_DEBUG, MAIN_DEBUG_LOG, bearing);
       DUMPLOG(LOG_TYPE_DEBUG, MAIN_DEBUG_LOG, bearingStr);
 
-      screen.gpsBearing->setValue(bearingStr); 
+     screen.gpsBearing->setValue(bearing); 
+     screen.gpsBearingText->setValue(bearingStr); 
     }
 
     if (nmeaParser.haveLongitude()) {
@@ -2145,8 +2159,9 @@ void loop() {
 #endif //PROG_DEBUG     
       DUMPLOG(LOG_TYPE_DEBUG, MAIN_DEBUG_LOG, longitude);
 
-      screen.gpsLongDir->setValue(String(nmeaParser.getLongDir()));
-      screen.gpsLong->setValue(nmeaParser.getLong());
+//      screen.gpsLongDir->setValue(String(nmeaParser.getLongDir()));
+//      screen.gpsLong->setValue(nmeaParser.getLong());
+      screen.gpsLong->setValue(nmeaParser.getLongDegree());
     }
 
     if (nmeaParser.haveLatitude()) {
@@ -2157,8 +2172,9 @@ void loop() {
       SerialPort.print(latitude);
 #endif //PROG_DEBUG     
       DUMPLOG(LOG_TYPE_DEBUG, MAIN_DEBUG_LOG, latitude);
-      screen.gpsLatDir->setValue(String(nmeaParser.getLatDir()));
-      screen.gpsLat->setValue(nmeaParser.getLat());
+//      screen.gpsLatDir->setValue(String(nmeaParser.getLatDir()));
+//      screen.gpsLat->setValue(nmeaParser.getLat());
+      screen.gpsLat->setValue(nmeaParser.getLatDegree());
     }
    
   }

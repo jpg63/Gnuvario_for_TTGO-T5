@@ -39,19 +39,6 @@ boolean SdCardHAL::begin(void){
 
 SdCardHAL SDHAL; 
 
-#elif defined(MYSD_LIB)
-	//********************
-  // MYSD
-	//********************
-	
-#include <mySD.h>
-
-boolean SdCardHAL::begin(void){
-	return(SDClass::begin(SDCARD_CS_PIN,SDCARD_MOSI_PIN,SDCARD_MISO_PIN,SDCARD_SCK_PIN));	
-};
-
-SdCardHAL SDHAL; 
-
 #else
 	//********************
   // SD

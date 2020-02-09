@@ -53,18 +53,6 @@ class SdCardHAL {
 
 extern SdFatSoftSpi<SOFT_MISO_PIN, SOFT_MOSI_PIN, SOFT_SCK_PIN> SDHAL_SD;
 
-#elif defined(MYSD_LIB)
-#include <mySD.h>
-
-class SdCardHAL : public SDClass {
-
-  public:
-
-	  boolean begin(void);
-};
-
-#define SDHAL_SD SDHAL
-
 #else
 
 #include "FS.h"

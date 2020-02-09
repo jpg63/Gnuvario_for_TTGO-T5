@@ -693,14 +693,14 @@ void VarioScreen::ScreenViewPage(int8_t page, boolean clear)
 
 bool VarioScreen::clearStep(void) {
 
-  /* check if clear is needed *
+  // * check if clear is needed *
   if( clearingStep == LCDHEIGHT ) {
     return false;
   }
 
-  /* clear one line *
+  // * clear one line *
 
-  /* next *
+  // * next *
   clearingStep++;
   return true;
 }*/
@@ -737,7 +737,7 @@ void VarioScreen::ScreenViewStat(void)
 		}
 	}
 
-/*  altiDigit.setValue(flystat.GetAlti());
+// *  altiDigit.setValue(flystat.GetAlti());
   altiDigit.update();
   altiDigit.display();
   varioDigit.setValue(flystat.GetVarioMin());

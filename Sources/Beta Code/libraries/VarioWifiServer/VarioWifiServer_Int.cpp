@@ -687,7 +687,7 @@ void VarioWifiServer::start(void) {
     server.sendHeader("Connection", "close");
     server.send(200, "text/html", serverIndex);
   });	
-  /*handling uploading firmware file *
+  // *handling uploading firmware file *
   server.on("/update", HTTP_POST, []() {
     server.sendHeader("Connection", "close");
     server.send(200, "text/plain", (Update.hasError()) ? "FAIL" : "OK");
@@ -700,7 +700,7 @@ void VarioWifiServer::start(void) {
         Update.printError(Serial);
       }
     } else if (upload.status == UPLOAD_FILE_WRITE) {
-      /* flashing firmware to ESP*
+      // * flashing firmware to ESP*
       if (Update.write(upload.buf, upload.currentSize) != upload.currentSize) {
         Update.printError(Serial);
       }

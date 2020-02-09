@@ -12,7 +12,7 @@
 //#include "myassert.h"
 
 #if defined(ESP32)
-static const char* TAG = "GnuvarioE";
+//static const char* TAG = "GnuvarioE";
 #include "esp_log.h"
 #endif //ESP32
 
@@ -276,12 +276,13 @@ SimpleBLE ble;
 * v0.7  beta 8  31/01/20             Correction mise à jour via internet                              *
 *                                    Passage à la librairie varioWebserver                            *
 *                                    Ajout de la barre de status sur l'écran 2                        *
-*                                    Ajout Affichage de l'altitude, cap, longitude et latitude sur    *
-*                                    l'écran 2                                                        *
+*                                    Ajout Affichage du cap, longitude et latitude sur l'écran 2      *
 *                                    Amélioration de la page de vol (serveur Web)                     *
 *                                    Ajout écran info lors de l'update via internet                   *
 *                                    Nettoyage des librairie et compatibilité avec vscode             *
 *                                    Ajout Update via site Internet                                   *
+*                                    Correction bug, seul de monté/descente sur la SDcard non pris en *
+*                                    compte
 *******************************************************************************************************
 *                                                                                                     *
 *                                   Developpement a venir                                             *
@@ -297,10 +298,8 @@ SimpleBLE ble;
 * BUG   - upload wifi - ne se termine pas  - bug espressif le buffer n'est pas vidé à la fin          *
 * BUG   - update manuelle - doit être lancée 2 fois                                                   *
 * AJOUT - Récupération du cap depuis le capteur baromètrique                                          *
-* AJOUT - Mise à jour site web embarqué via Internet                                                  *
-* BUG   - Seuil de monté et de descente                                                               *  
+* AJOUT - Mise à jour site web embarqué via Internet - rename et suppression au démmarage             *
 * MODIF - refaire écran 2                                                                             *
-* BUG   - Altitude fix GPS                                                                            * 
 *                                                                                                     *
 * VX.X                                                                                                *
 * Paramètrage des écrans                                                                              *
@@ -371,7 +370,7 @@ SimpleBLE ble;
  * - Ajout Update via internet                                          *
  * - Ajout affichage du cap, longitude, latitude                        *
  *                                                                      *
- ************************************************************************
+ ************************************************************************/
  
 /************************************************************************
 *                          Recommandation                               *    
@@ -630,9 +629,9 @@ esp32FOTA2 esp32FOTA("Gnuvario" + String(VARIOSCREEN_SIZE), VERSION, SUB_VERSION
 
 
 
-/*************************************************
+/* *************************************************
 Internal TEMPERATURE Sensor
-/*************************************************
+   *************************************************/
 
 /* 
  *  https://circuits4you.com
@@ -729,9 +728,9 @@ void setup() {
 
 ///  while (!SerialPort) { ;}
   char tmpbuffer[100];
-  sprintf(tmpbuffer,"GNUVARIO compiled on %s\0", __DATE__); // at %s", __DATE__, __TIME__);
+  sprintf(tmpbuffer,"GNUVARIO compiled on %s", __DATE__); // at %s", __DATE__, __TIME__);
   SerialPort.println(tmpbuffer);
-  sprintf(tmpbuffer,"VERSION %i.%i - %s\0", VERSION,SUB_VERSION,DEVNAME); 
+  sprintf(tmpbuffer,"VERSION %i.%i - %s", VERSION,SUB_VERSION,DEVNAME); 
   SerialPort.println(tmpbuffer);
   if (BETA_CODE > 0) {
     SerialPort.print("Beta ");
@@ -791,7 +790,8 @@ void setup() {
     GnuSettings.setVersion(VERSION, SUB_VERSION, BETA_CODE);
 
     SerialPort.println("Chargement des parametres depuis le fichier params.jso");
-    GnuSettings.loadConfigurationVario("params.jso");
+    char tmpchar[20] = "params.jso";
+    GnuSettings.loadConfigurationVario(tmpchar);
     
 #ifdef SDCARD_DEBUG
    //Debuuging Printing
@@ -813,7 +813,8 @@ void setup() {
     SerialPort.print("__dataPilotName = ");
     SerialPort.print(__dataPilotName);
     SerialPort.print(" - ");
-    SerialPort.print(sizeof(__dataPilotName));
+    int tmpint = sizeof(__dataPilotName);
+    SerialPort.print(tmpint);
     SerialPort.print(" / ");
     SerialPort.print(GnuSettings.VARIOMETER_PILOT_NAME);
     SerialPort.print(" - ");
@@ -828,7 +829,8 @@ void setup() {
     SerialPort.print("__dataGliderName = ");
     SerialPort.print(__dataGliderName);
     SerialPort.print(" - ");
-    SerialPort.print(sizeof(__dataGliderName));
+    tmpint = sizeof(__dataGliderName);
+    SerialPort.print(tmpint);
     SerialPort.print(" / ");
     SerialPort.print(GnuSettings.VARIOMETER_GLIDER_NAME);
     SerialPort.print(" - ");
@@ -1013,7 +1015,15 @@ void setup() {
   
 #endif //HAVE_SCREEN
 
+//***********************************************
+// INIT Sound
+//      init Beeper avec les valeurs personnelles
+//      init Volume
+//***********************************************
+
 #ifdef HAVE_SPEAKER
+  beeper.init(GnuSettings.VARIOMETER_SINKING_THRESHOLD, GnuSettings.VARIOMETER_CLIMBING_THRESHOLD, GnuSettings.VARIOMETER_NEAR_CLIMBING_SENSITIVITY);
+
   GnuSettings.VARIOMETER_BEEP_VOLUME = GnuSettings.soundSettingRead();
   beeper.setVolume(GnuSettings.VARIOMETER_BEEP_VOLUME);
   toneHAL.setVolume(GnuSettings.VARIOMETER_BEEP_VOLUME);

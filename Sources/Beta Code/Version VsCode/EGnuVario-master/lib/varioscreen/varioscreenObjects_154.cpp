@@ -58,6 +58,7 @@
  *    1.1.7  28/01/20   Correction leftAlign                                     *
  *                      Ajout ALIGNCENTER                                        *
  *                      Ajout Objet ScreenText                                   *
+ *    1.1.8  09/02/20   Modif font screenText                                    *
  *                                                                               *
  *********************************************************************************/
  
@@ -81,6 +82,15 @@
 //static const char* TAG = "VarioScreen";
 #include "esp_log.h"
 #endif //ESP32
+
+#ifdef SCREEN_DEBUG2
+#define ARDUINOTRACE_ENABLE 1
+#else
+#define ARDUINOTRACE_ENABLE 0
+#endif
+
+#define ARDUINOTRACE_SERIAL SerialPort
+#include <ArduinoTrace.h>
 
 //#include <avr\dtostrf.h>
 #include <stdlib.h>
@@ -476,6 +486,15 @@ ScreenDigit::ScreenDigit(uint16_t anchorX, uint16_t anchorY, uint16_t width, uin
 #endif	
 			MaxHeight  = Zheight;
 			break;
+
+		case DISPLAY_OBJECT_BEARING :
+#if defined (MAXW_OBJECT_LONG)		
+		  MaxWidth   = MAXW_OBJECT_BEARING;
+#else
+		  MaxWidth   = Zwidth;
+#endif	
+			MaxHeight  = Zheight;
+			break;
 			
 		default :
 		  MaxWidth   = Zwidth;
@@ -779,11 +798,11 @@ void ScreenDigit::show() {
 }
 
 /*
-//****************************************************************************************************************************
+// ****************************************************************************************************************************
 void ScreenDigit::show() {
-//****************************************************************************************************************************
+// ****************************************************************************************************************************
 
-  /***************/
+  // * **************/
   /* build digit */
   /* **************
 
@@ -813,7 +832,7 @@ void ScreenDigit::show() {
  dtostrf2(value,width,precision,digitCharacters,zero);
 //  dtostrf2(oldvalue,width,precision,tmpdigitCharacters,zero);
 //  dtostrf2(value,4,1,digitCharacters,false,false);
-  /*if (plusDisplay) {
+  // *if (plusDisplay) {
 	  if (value >=0) {
 		sprintf(digitCharacters, "+%s", tmpdigitCharacters);  
 	  }
@@ -870,7 +889,7 @@ void ScreenDigit::show() {
 //  if (w1 > w) {w = w1;}
   
 #ifdef SCREEN_DEBUG
-/*  SerialPort.print("X : ");
+// *  SerialPort.print("X : ");
   SerialPort.println(box_x);
   SerialPort.print("Y : ");
   SerialPort.println(box_y);
@@ -888,7 +907,7 @@ void ScreenDigit::show() {
 	SerialPort.println(Zheight);
 #endif //SCREEN_DEBUG
   
-/*  if (leftAlign) {
+// *  if (leftAlign) {
 	if ((box_x+w1+6) > 200)  
       display.fillRect(box_x, box_h-3, 200-box_x, h1+3, GxEPD_WHITE);
     else
@@ -1035,7 +1054,8 @@ ScreenText::ScreenText(uint16_t anchorX, uint16_t anchorY, uint16_t width, bool 
 
   display.setFont(&FreeSansBold12pt7b);
 	if (large) display.setTextSize(2);
-
+	else 			 display.setTextSize(1);	
+	
 //  int16_t box_x = anchorX;
 //  int16_t box_y = anchorY;
 //  uint16_t w, h;
@@ -1088,12 +1108,12 @@ ScreenText::ScreenText(uint16_t anchorX, uint16_t anchorY, uint16_t width, bool 
 	}
 	
 	if (large) Zheight  = 24+6;
-	else       Zheight  = 12+3;
+	else       Zheight  = 18+3;
 		
     switch (displayTypeID) {
-		case DISPLAY_OBJECT_BEARING :
+		case DISPLAY_OBJECT_BEARING_TEXT :
 #if defined (MAXW_OBJECT_BEARING)		
-		  MaxWidth   = MAXW_OBJECT_BEARING;
+		  MaxWidth   = MAXW_OBJECT_BEARING_TEXT;
 #else
 		  MaxWidth   = Zwidth;
 #endif	
@@ -1112,6 +1132,24 @@ ScreenText::ScreenText(uint16_t anchorX, uint16_t anchorY, uint16_t width, bool 
 		case DISPLAY_OBJECT_LONG_DIR :
 #if defined (MAXW_OBJECT_LONG_DIR)		
 		  MaxWidth   = MAXW_OBJECT_LONG_DIR;
+#else
+		  MaxWidth   = Zwidth;
+#endif	
+			MaxHeight  = Zheight;
+			break;
+			
+		case DISPLAY_OBJECT_LAT :
+#if defined (MAXW_OBJECT_LAT)		
+		  MaxWidth   = MAXW_OBJECT_LAT;
+#else
+		  MaxWidth   = Zwidth;
+#endif	
+			MaxHeight  = Zheight;
+			break;
+
+		case DISPLAY_OBJECT_LONG :
+#if defined (MAXW_OBJECT_LONG)		
+		  MaxWidth   = MAXW_OBJECT_LONG;
 #else
 		  MaxWidth   = Zwidth;
 #endif	
@@ -1161,8 +1199,16 @@ void ScreenText::show() {
 //  char digitCharacters[MAX_CHAR_IN_LINE];
 //	char tmpChar[MAX_CHAR_IN_LINE];
    
-  display.setFont(&FreeSansBold12pt7b);
-  display.setTextSize(2);
+	if (large) 
+	{
+		display.setFont(&FreeSansBold12pt7b);
+		display.setTextSize(2);
+	}
+	else 			 
+	{
+		display.setFont(&FreeSerifBold18pt7b);
+		display.setTextSize(1);	
+	}
 
 //  int16_t box_x = anchorX;
 //  int16_t box_y = anchorY;
@@ -2660,8 +2706,8 @@ template<typename GxEPD2_Type, const uint16_t page_height> void GxEPD2_BW_U<GxEP
     }
 }
 
-/**************************************************************************/
-/*!
+/ **************************************************************************/
+/*
     @brief    Helper to determine size of a string with current font/size. Pass string and a cursor position, returns UL corner and W,H.
     @param    str     The ascii string to measure
     @param    w      width
@@ -2699,8 +2745,8 @@ template<typename GxEPD2_Type, const uint16_t page_height> void GxEPD2_BW_U<GxEP
   *h  = height;
 }
 
-/**************************************************************************/
-/*!
+// **************************************************************************/
+/*
     @brief    Helper to determine size of a string with current font/size. Pass string and a cursor position, returns UL corner and W,H.
     @param    str    The ascii string to measure (as an arduino String() class)
     @param    x      The current cursor X
@@ -2716,8 +2762,8 @@ template<typename GxEPD2_Type, const uint16_t page_height> void GxEPD2_BW_U<GxEP
 }
 
 
-/**************************************************************************/
-/*!
+// * *************************************************************************/
+/*
     @brief    Helper to determine size of a PROGMEM string with current font/size. Pass string and a cursor position, returns UL corner and W,H.
     @param    str     The flash-memory ascii string to measure
     @param    w      The boundary width, set by function

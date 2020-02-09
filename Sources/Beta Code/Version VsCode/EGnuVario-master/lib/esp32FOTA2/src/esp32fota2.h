@@ -22,7 +22,7 @@
 
 #include "Arduino.h"
 
-#define MAJ_ERROR 				-1
+#define MAJ_ERROR 			-1
 #define MAJ_AVAILABLE 		1
 #define MAJ_NOTAVAILABLE	0
 
@@ -53,7 +53,10 @@ private:
 	int _firwmareBetaVersion;
   String _host;
   String _bin;
+  String _wwwfiles[10];
+  uint8_t NB_WWW_FILES = 0;
   int _port;
+  void downloadWwwFiles();
 };
 
 extern const char* rootCACertificate;

@@ -28,6 +28,7 @@
  *    1.0                                                                        *
  *    1.0.1  04/01/20   Ajout décodage Compas                                    *
  *    1.0.2  27/01/20   Ajout décodage Long / Lat                                *
+ *    1.0.3  09/02/20   Ajout getLongDegree, getLatDegree et DegreesToDegMinSec  *
  *                                                                               *
  *********************************************************************************/
 

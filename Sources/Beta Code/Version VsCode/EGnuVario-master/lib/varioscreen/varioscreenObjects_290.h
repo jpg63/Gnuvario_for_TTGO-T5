@@ -61,6 +61,7 @@
 
 
 
+
 #ifndef VARIOSCREENOBJECTS_290_H
 #define VARIOSCREENOBJECTS_290_H
 
@@ -81,6 +82,8 @@
 #include <Fonts/FreeSansBold12pt7b.h>
 #include <Fonts/FreeSansBold18pt7b.h>
 #include <Fonts/FreeSansBold24pt7b.h>
+
+#include <Fonts/FreeSerifBold18pt7b.h>
 
 /* minimum drift to update digit */
 #define VARIOSCREEN_DIGIT_DISPLAY_THRESHOLD 0.65
@@ -133,8 +136,9 @@
 #define DISPLAY_OBJECT_LAT                  31
 #define DISPLAY_OBJECT_LONG                 32  
 #define DISPLAY_OBJECT_BEARING							33
-#define DISPLAY_OBJECT_LAT_DIR              34
-#define DISPLAY_OBJECT_LONG_DIR             35  
+#define DISPLAY_OBJECT_BEARING_TEXT         34
+#define DISPLAY_OBJECT_LAT_DIR              35
+#define DISPLAY_OBJECT_LONG_DIR             36  
 
 #define MAXW_OBJECT_VARIO 								 	85
 #define MAXW_OBJECT_TIME									 	50
@@ -144,11 +148,14 @@
 #define MAXW_OBJECT_RATIO       						20
 #define MAXW_OBJECT_TREND      							20
 #define MAXW_OBJECT_TEMPERATURE							20
-#define MAXW_OBJECT_LAT 									 	160
-#define MAXW_OBJECT_LONG									 	160
+//#define MAXW_OBJECT_LAT 									 	160
+//#define MAXW_OBJECT_LONG									 	160
 #define MAXW_OBJECT_LAT_DIR                 32
 #define MAXW_OBJECT_LONG_DIR                32
+#define MAXW_OBJECT_BEARING_TEXT            110
 #define MAXW_OBJECT_BEARING                 100
+#define MAXW_OBJECT_LAT 									 	160
+#define MAXW_OBJECT_LONG									 	160
 
 #include <VarioSettings.h>
 extern VarioSettings GnuSettings;
@@ -230,10 +237,11 @@ class ScreenDigit: public VarioScreenObject {
   char * dtostrf2(double number, signed char width, unsigned char prec, char *s, boolean zero);
   double value;
   double oldvalue=-1;
-  const uint16_t anchorX, anchorY, precision, width;
-  boolean plusDisplay, zero, showtitle;
+  const uint16_t anchorX, anchorY, width, precision;
+  boolean plusDisplay, zero;	//, showtitle
 	int8_t Align;
-  uint8_t lastDisplayWidth;
+  boolean showtitle;
+ uint8_t lastDisplayWidth;
 	int16_t oldw=0, oldh=0, oldx=0, oldy=0;
 	uint16_t Zwidth, Zheight;
 	uint16_t MaxWidth, MaxHeight;
@@ -262,8 +270,9 @@ class ScreenText: public VarioScreenObject {
   String value;
   String oldvalue="";
   const uint16_t anchorX, anchorY, width;
-  boolean showtitle, large;
+  boolean large;
 	int8_t Align;
+  boolean showtitle;
   uint8_t lastDisplayWidth;
 	int16_t oldw=0, oldh=0, oldx=0, oldy=0;
 	uint16_t Zwidth, Zheight;
@@ -468,9 +477,9 @@ class ScreenTime : public VarioScreenObject {
  protected:
   const uint8_t posX;
   const uint8_t posY;
+  ScreenDigit& hour, minute;
   int8_t time[3];
   bool dot_or_h = false;
-  ScreenDigit& hour, minute;
 };
 
 
@@ -532,8 +541,8 @@ class BGLine : public VarioScreenObject {
 	void toDisplay(void);
   
  private :
-  const uint8_t posX1, posX2;
-  const uint8_t posY1, posY2;
+  const uint8_t posX1, posY1;
+  const uint8_t posX2, posY2;
 };
 
 class BGCircle : public VarioScreenObject {

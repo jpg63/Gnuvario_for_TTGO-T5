@@ -232,7 +232,7 @@ void ToneDacEsp32::begin(uint32_t srate) {
 	waveForm = WAVEFORM_WAV;
   sIndex = 0;   //Set to zero to start from beginning of waveform
 	
-	/*Modules configuration *
+	// *Modules configuration *
 //  digitalWrite(Speaker_Pin, 0);
 
 	tcConfigure(srate);*/

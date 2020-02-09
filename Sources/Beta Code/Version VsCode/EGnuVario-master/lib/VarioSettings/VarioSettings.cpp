@@ -264,7 +264,7 @@ boolean VarioSettings::readSDSettings(char *FileName, boolean *ModifiedValue){
     VARIOMETER_RECORD_WHEN_FLIGHT_START=toBoolean(settingValue);
    }
  /*  else if(settingName == "VARIOMETER_SENT_LXNAV_SENTENCE") {
-  /* What type of vario NMEA sentence is sent by bluetooth. */
+  / * What type of vario NMEA sentence is sent by bluetooth. */
   /* Possible values are :                                  */
   /*  - VARIOMETER_SENT_LXNAV_SENTENCE                      */
   /*  - VARIOMETER_SENT_LK8000_SENTENCE                     *
