@@ -3557,13 +3557,13 @@ void disableDMP(void) {
   
   uint8_t data;
 
-  /* clear *
+  // * clear *
   data = 0;
   intTW.writeBytes(INV_HW_ADDR, INV_REG_INT_ENABLE, 1, &data);
   intTW.writeBytes(INV_HW_ADDR, INV_REG_FIFO_EN, 1, &data);
   intTW.writeBytes(INV_HW_ADDR, INV_REG_USER_CTRL, 1, &data);
   
-  /* reset DMP FIFO *
+  // * reset DMP FIFO *
   data = BIT_FIFO_RST | BIT_DMP_RST;
   intTW.writeBytes(INV_HW_ADDR, INV_REG_USER_CTRL, 1, &data);
   delay(50);
@@ -3573,7 +3573,7 @@ void enableDMP(void) {
 
   uint8_t data;
 
-  /* enable DMP FIFO *
+  // * enable DMP FIFO *
   data = BIT_DMP_EN |
 #ifdef AK89xx_SECONDARY
     BIT_AUX_IF_EN |
@@ -3581,7 +3581,7 @@ void enableDMP(void) {
     BIT_FIFO_EN;
   intTW.writeBytes(INV_HW_ADDR, INV_REG_USER_CTRL, 1, &data);
   
-  /* reset STD FIFO *
+  // * reset STD FIFO *
   data = 0;
   intTW.writeBytes(INV_HW_ADDR, INV_REG_INT_ENABLE, 1, &data);
   intTW.writeBytes(INV_HW_ADDR, INV_REG_FIFO_EN, 1, &data);
@@ -3600,19 +3600,19 @@ static uint8_t magSensAdj[3];
 
 void readMagSensAdj(void) {
 
-  /* get access *
+  // * get access *
   disableDMP();
 
-  /************
-  /* read adj *
-  /************
+  // ************
+  // * read adj *
+  // ************
   uint8_t tmp[3];
 
-  /* bypass *
+  // * bypass *
   tmp[0] = BIT_BYPASS_EN;
   intTW.writeBytes(INV_HW_ADDR, INV_REG_INT_PIN_CFG, 1, tmp); 
 
-  /* get fuse access *
+  // * get fuse access *
   tmp[0] = AKM_POWER_DOWN;
   intTW.writeBytes(LIGHT_INVENSENSE_COMPASS_ADDR, AKM_REG_CNTL, 1, tmp);
   delay(1);
@@ -3621,14 +3621,14 @@ void readMagSensAdj(void) {
   intTW.writeBytes(LIGHT_INVENSENSE_COMPASS_ADDR, AKM_REG_CNTL, 1, tmp);
   delay(1);
   
-  /* read values *
+  // * read values *
   intTW.readBytes(LIGHT_INVENSENSE_COMPASS_ADDR, AKM_REG_ASAX, 3, magSensAdj);
   
-  /* stop bypass *
+  // * stop bypass *
   tmp[0] = 0;
   intTW.writeBytes(INV_HW_ADDR, INV_REG_INT_PIN_CFG, 1, tmp);   
 
-  /* enable DMP *
+  // * enable DMP *
   enableDMP();
 }
 #endif*/

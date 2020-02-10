@@ -282,7 +282,8 @@ SimpleBLE ble;
 *                                    Nettoyage des librairie et compatibilité avec vscode             *
 *                                    Ajout Update via site Internet                                   *
 *                                    Correction bug, seul de monté/descente sur la SDcard non pris en *
-*                                    compte
+*                                    compte                                                           *
+*               10/02/20             Correction ecran 2                                               *
 *******************************************************************************************************
 *                                                                                                     *
 *                                   Developpement a venir                                             *
@@ -299,7 +300,6 @@ SimpleBLE ble;
 * BUG   - update manuelle - doit être lancée 2 fois                                                   *
 * AJOUT - Récupération du cap depuis le capteur baromètrique                                          *
 * AJOUT - Mise à jour site web embarqué via Internet - rename et suppression au démmarage             *
-* MODIF - refaire écran 2                                                                             *
 *                                                                                                     *
 * VX.X                                                                                                *
 * Paramètrage des écrans                                                                              *
@@ -976,6 +976,14 @@ void setup() {
   updateFromSDCARD();
 #endif //HAVE_SDCARD
 
+
+/*****************************/
+/** Update Site web embarqué */
+/*****************************/
+
+#ifdef HAVE_SDCARD
+  esp32FOTA.UpdateWwwDirectory();
+#endif //HAVE_SDCARD
 
   /***************/
   /* init button */

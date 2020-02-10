@@ -53,7 +53,7 @@ struct S_Stat {
    bool          EnableRecord;
    int8_t 		   time[3];
 	 int8_t        duree[3];
-	 uint8_t       date[3];
+	 uint16_t       date[4];
 };
 
 /********************/

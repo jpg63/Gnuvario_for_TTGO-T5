@@ -14,6 +14,8 @@
  *    1.0    18/01/20                                                            *
  *    1.0.1  19/01/20   Ajout execHTTPexist et execHTTPSexist					 					 *
  *    1.0.2  06/02/20   Ajout downloadWwwFiles()                                 *         
+ *    1.0.3             Ajout downloadWwwFiles                                   *
+ *    1.0.4  10/02/20   Ajout UpdateWwwDirectory                                 *
  *                                                                               *
  *********************************************************************************/
 
@@ -965,6 +967,31 @@ void esp32FOTA2::downloadWwwFiles()
 
         http.end();
     }
+}
+
+//************************************
+bool esp32FOTA2::UpdateWwwDirectory()
+//************************************
+{
+	
+	TRACE();
+
+#ifdef WIFI_DEBUG
+  SerialPort.println("[HTTP] Debut méthode updateWwwDirectory");
+#endif
+    // File system object.
+    // Directory file.
+    SdFile root;
+
+    String newPath = "wwwnew";
+    if (!SDHAL_SD.exists(newPath.c_str()))
+    {
+#ifdef WIFI_DEBUG
+      SerialPort.println("[HTTP] le dossier wwwnew existe");
+#endif
+			return true; // Mise à jour site web OK
+	  }
+  return false;   //Pas de mise à jour
 }
 
 /*{

@@ -523,7 +523,7 @@ uint16_t EEPROMClassEx::readInt(int address)
 }
 
 
-/*
+// *
  void EEwriteFloat(int addr, float f) {
     unsigned char *buf = (unsigned char*)(&f);
     for ( int i = 0 ; i < sizeof(f) ; i++ ) {

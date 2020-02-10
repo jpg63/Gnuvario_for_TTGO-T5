@@ -261,7 +261,7 @@ uint16_t MS5611::readRegister16(uint8_t reg)
     #else
         uint8_t vha = Wire.receive();
         uint8_t vla = Wire.receive();
-    #endif;
+    #endif
     Wire.endTransmission();
 
     value = vha << 8 | vla;
@@ -292,7 +292,7 @@ uint32_t MS5611::readRegister24(uint8_t reg)
         uint8_t vxa = Wire.receive();
         uint8_t vha = Wire.receive();
         uint8_t vla = Wire.receive();
-    #endif;
+    #endif
     Wire.endTransmission();
 
     value = ((int32_t)vxa << 16) | ((int32_t)vha << 8) | vla;

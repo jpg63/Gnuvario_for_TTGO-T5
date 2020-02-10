@@ -154,8 +154,8 @@
 #define MAXW_OBJECT_LONG_DIR                32
 #define MAXW_OBJECT_BEARING_TEXT            110
 #define MAXW_OBJECT_BEARING      						80
-#define MAXW_OBJECT_LAT 									 	160
-#define MAXW_OBJECT_LONG									 	160
+#define MAXW_OBJECT_LAT 									 	185
+#define MAXW_OBJECT_LONG									 	185
 
 #include <VarioSettings.h>
 extern VarioSettings GnuSettings;

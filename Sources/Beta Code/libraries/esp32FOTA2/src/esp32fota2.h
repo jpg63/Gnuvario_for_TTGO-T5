@@ -14,6 +14,8 @@
  *    1.0    18/01/20                                                            *
  *    1.0.1  19/01/20   Ajout execHTTPexist et execHTTPSexist										 *
  *    1.0.2  23/01/20   Ajout String getHTTPVersion() et getHTTPSVersion()			 *
+ *    1.0.3             Ajout downloadWwwFiles                                   *
+ *    1.0.4  10/02/20   Ajout UpdateWwwDirectory                                 *
  *                                                                               *
  *********************************************************************************/
 
@@ -43,6 +45,7 @@ public:
 	int  UpdateBetaVersion;	
 	String getHTTPVersion();
 	String getHTTPSVersion();
+	bool UpdateWwwDirectory(void);
 
 private:
   String getHeaderValue(String header, String headerName);

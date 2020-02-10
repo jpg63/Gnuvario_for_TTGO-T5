@@ -29,6 +29,7 @@
  *    1.0.1  04/01/20   Ajout décodage Compas                                    *
  *    1.0.2  27/01/20   Ajout décodage Long / Lat                                *
  *    1.0.3  09/02/20   Ajout getLongDegree, getLatDegree et DegreesToDegMinSec  *
+ *    1.0.4  10/02/20   Correction getlongDegree et DegreesToDegMinSec           *
  *                                                                               *
  *********************************************************************************/
 
@@ -338,7 +339,7 @@ String NmeaParser::getLongDegree(void) {
 //	dtostrf(f_val,7, 3, outstr);
 //	String tmp = String(outstr) + " " + String(longDir);
   String tmp = DegreesToDegMinSec(f_val);
-	tmp +=  " " + String(latDir);
+	tmp +=  " " + String(longDir);
 	return tmp;
 }
 
@@ -388,16 +389,20 @@ String NmeaParser::DegreesToDegMinSec(float x)
   SerialPort.println();
 #endif //NMEAPARSER_DEBUG
 
-  float tmpfloat = round(deg*1000);
+/*  float tmpfloat = round(deg*1000);
 	int tmpint   = tmpfloat / 1000;
-	String tmpStr = String(tmpint) + "*";
+	String tmpStr = String(tmpint) + "*";*/
+	String tmpStr = String(deg) + "*";
 	
-  tmpfloat = round(arcMinutes*100);
+/*  tmpfloat = round(arcMinutes*100);
 	tmpint   = tmpfloat / 100;
-	tmpStr += String(tmpint) + "'";
+	tmpStr += String(tmpint) + "'";*/
+	tmpStr += String(arcMinutes) + "'";
 	
-  tmpfloat = round(arcSeconds*100);
+/*  tmpfloat = round(arcSeconds*100);
 	tmpint   = tmpfloat / 100;
-	tmpStr += String(tmpint) + "''";
+	tmpStr += String(tmpint) + "''";*/
+	int tmpint = arcSeconds;
+	tmpStr += String(tmpint) + "''";	
 	return tmpStr;
 }
