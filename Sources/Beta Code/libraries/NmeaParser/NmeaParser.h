@@ -134,7 +134,7 @@ class NmeaParser {
   uint8_t commaCount;
   uint32_t value;
 	char valuechar;
-	String DegreesToDegMinSec(float x);
+	String DegreesToDegMinSec(double x);
 
 };
 

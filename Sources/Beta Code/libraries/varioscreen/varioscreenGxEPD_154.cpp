@@ -833,7 +833,7 @@ bool VarioScreen::clearStep(void) {
 void VarioScreen::ScreenViewStat(void)
 //****************************************************************************************************************************
 {
-	
+	delay(100);
   display.setFullWindow();
   display.clearScreen(ColorScreen);
   display.fillScreen(ColorScreen);

@@ -30,6 +30,7 @@
  *    1.0.2  27/01/20   Ajout décodage Long / Lat                                *
  *    1.0.3  09/02/20   Ajout getLongDegree, getLatDegree et DegreesToDegMinSec  *
  *    1.0.4  10/02/20   Correction getlongDegree et DegreesToDegMinSec           *
+ *    1.0.5  12/02/20   Ajout tracedebug                                         *
  *                                                                               *
  *********************************************************************************/
 
@@ -37,6 +38,15 @@
 
 #include <Arduino.h>
 #include <DebugConfig.h>
+
+#ifdef NMEAPARSER_DEBUG
+#define ARDUINOTRACE_ENABLE 1
+#else
+#define ARDUINOTRACE_ENABLE 0
+#endif
+
+#define ARDUINOTRACE_SERIAL SerialPort
+#include <ArduinoTrace.h>
 
 #define parserState_set(bit) state |= (1 << bit)
 #define parserState_unset(bit) state &= ~(1 << bit)
@@ -372,9 +382,9 @@ String NmeaParser::getLatDegree(void) {
 	return tmp;	
 }
 
-String NmeaParser::DegreesToDegMinSec(float x)
+String NmeaParser::DegreesToDegMinSec(double x)
 {
-  int deg=x;
+/*  int deg=x;
   float minutesRemainder = abs(x - deg) * 60;
   int arcMinutes = minutesRemainder;
   float arcSeconds = (minutesRemainder - arcMinutes) * 60;
@@ -387,7 +397,22 @@ String NmeaParser::DegreesToDegMinSec(float x)
   SerialPort.print(arcSeconds,4);
 	SerialPort.print('"');
   SerialPort.println();
-#endif //NMEAPARSER_DEBUG
+#endif //NMEAPARSER_DEBUG*/
+
+	DUMP(x);
+	char outchar[15];
+	dtostrf(x,7, 3, outchar);
+	DUMP(outchar);
+	String outstr = String(outchar);
+	DUMP(outstr);
+	int pos = outstr.indexOf('.');
+//	String tmpString = outstr.substring(0,pos-1);
+	DUMP(pos);
+	String tmpString = "0" + outstr.substring(pos);
+	DUMP(tmpString);
+	double tmpdouble = tmpString.toDouble();
+	int deg = x - tmpdouble;
+	DUMP(deg);
 
 /*  float tmpfloat = round(deg*1000);
 	int tmpint   = tmpfloat / 1000;
@@ -397,12 +422,22 @@ String NmeaParser::DegreesToDegMinSec(float x)
 /*  tmpfloat = round(arcMinutes*100);
 	tmpint   = tmpfloat / 100;
 	tmpStr += String(tmpint) + "'";*/
+  float minutesRemainder = tmpdouble * 60;
+  int arcMinutes = minutesRemainder;
+  float arcSeconds = (minutesRemainder - arcMinutes) * 60;
+
 	tmpStr += String(arcMinutes) + "'";
 	
 /*  tmpfloat = round(arcSeconds*100);
 	tmpint   = tmpfloat / 100;
 	tmpStr += String(tmpint) + "''";*/
 	int tmpint = arcSeconds;
-	tmpStr += String(tmpint) + "''";	
+	tmpStr += String(tmpint); // + "''";	
+	
+#ifdef NMEAPARSER_DEBUG
+  SerialPort.print("Coordonnée : ");
+  SerialPort.println(tmpStr);
+#endif
+	
 	return tmpStr;
 }

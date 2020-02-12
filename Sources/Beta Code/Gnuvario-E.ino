@@ -284,6 +284,7 @@ SimpleBLE ble;
 *                                    Correction bug, seul de monté/descente sur la SDcard non pris en *
 *                                    compte                                                           *
 *               10/02/20             Correction ecran 2                                               *
+*               12/02/20             Correction affichage lat / long sur écran 2
 *******************************************************************************************************
 *                                                                                                     *
 *                                   Developpement a venir                                             *
@@ -300,6 +301,7 @@ SimpleBLE ble;
 * BUG   - update manuelle - doit être lancée 2 fois                                                   *
 * AJOUT - Récupération du cap depuis le capteur baromètrique                                          *
 * AJOUT - Mise à jour site web embarqué via Internet - rename et suppression au démmarage             *
+* BUG   - Time out gxepd affichage ecran statç^m0
 *                                                                                                     *
 * VX.X                                                                                                *
 * Paramètrage des écrans                                                                              *
@@ -2163,7 +2165,7 @@ void loop() {
       String longitude = nmeaParser.getLongitude();
 #ifdef PROG_DEBUG
       SerialPort.print("Longitude : ");
-      SerialPort.print(longitude);
+      SerialPort.println(longitude);
 #endif //PROG_DEBUG     
       DUMPLOG(LOG_TYPE_DEBUG, MAIN_DEBUG_LOG, longitude);
 
@@ -2177,7 +2179,7 @@ void loop() {
       String latitude = nmeaParser.getLatitude();
 #ifdef PROG_DEBUG
       SerialPort.print("Latitude : ");
-      SerialPort.print(latitude);
+      SerialPort.println(latitude);
 #endif //PROG_DEBUG     
       DUMPLOG(LOG_TYPE_DEBUG, MAIN_DEBUG_LOG, latitude);
 //      screen.gpsLatDir->setValue(String(nmeaParser.getLatDir()));
