@@ -95,8 +95,8 @@
 #define VARIOSCREEN_BAT_PIXEL_COUNT 10
 #define VARIOSCREEN_BAT_MULTIPLIER 6
 
-#define ColorScreen    GxEPD_BLACK
-#define ColorText      GxEPD_WHITE
+#define ColorScreen    GxEPD_WHITE
+#define ColorText      GxEPD_BLACK
 
 #define STATE_OK									0x00
 #define STATE_BUSY                0x01

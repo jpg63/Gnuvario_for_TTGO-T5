@@ -284,7 +284,8 @@ SimpleBLE ble;
 *                                    Correction bug, seul de monté/descente sur la SDcard non pris en *
 *                                    compte                                                           *
 *               10/02/20             Correction ecran 2                                               *
-*               12/02/20             Correction affichage lat / long sur écran 2
+*               12/02/20             Correction affichage lat / long sur écran 2                      *
+*                                    Correction time out Gxepd à l'affichage de l'écran de stat       *
 *******************************************************************************************************
 *                                                                                                     *
 *                                   Developpement a venir                                             *
@@ -301,7 +302,9 @@ SimpleBLE ble;
 * BUG   - update manuelle - doit être lancée 2 fois                                                   *
 * AJOUT - Récupération du cap depuis le capteur baromètrique                                          *
 * AJOUT - Mise à jour site web embarqué via Internet - rename et suppression au démmarage             *
-* BUG   - Time out gxepd affichage ecran statç^m0
+* BUG   - stat affichage temps de vol                                                                 *
+* MODIF - Modification librairie varioscreen - MAJ GxEpd2                                             *
+* BUG   - fichier log                                                                                 *
 *                                                                                                     *
 * VX.X                                                                                                *
 * Paramètrage des écrans                                                                              *

@@ -401,6 +401,7 @@ String NmeaParser::DegreesToDegMinSec(double x)
 
 	DUMP(x);
 	char outchar[15];
+		
 	dtostrf(x,7, 3, outchar);
 	DUMP(outchar);
 	String outstr = String(outchar);
@@ -408,16 +409,30 @@ String NmeaParser::DegreesToDegMinSec(double x)
 	int pos = outstr.indexOf('.');
 //	String tmpString = outstr.substring(0,pos-1);
 	DUMP(pos);
+	
+	String chaineSansEspace = "";
+	unsigned int lastStringLength = outstr.length();
+	
+	for(int i=0; i < lastStringLength; i++) {
+    if(outstr[i] == '.') break;
+    if(outstr[i] != ' ') chaineSansEspace += outstr[i];
+	}
+	
+	DUMP(chaineSansEspace);
+	String tmpResult = chaineSansEspace + "*";
+	
 	String tmpString = "0" + outstr.substring(pos);
 	DUMP(tmpString);
+
 	double tmpdouble = tmpString.toDouble();
-	int deg = x - tmpdouble;
+/*	int deg = x - tmpdouble;
 	DUMP(deg);
+	String tmpStr = String(deg) + "*";
+	*/
 
 /*  float tmpfloat = round(deg*1000);
 	int tmpint   = tmpfloat / 1000;
 	String tmpStr = String(tmpint) + "*";*/
-	String tmpStr = String(deg) + "*";
 	
 /*  tmpfloat = round(arcMinutes*100);
 	tmpint   = tmpfloat / 100;
@@ -426,18 +441,18 @@ String NmeaParser::DegreesToDegMinSec(double x)
   int arcMinutes = minutesRemainder;
   float arcSeconds = (minutesRemainder - arcMinutes) * 60;
 
-	tmpStr += String(arcMinutes) + "'";
+	tmpResult += String(arcMinutes) + "'";
 	
 /*  tmpfloat = round(arcSeconds*100);
 	tmpint   = tmpfloat / 100;
 	tmpStr += String(tmpint) + "''";*/
 	int tmpint = arcSeconds;
-	tmpStr += String(tmpint); // + "''";	
+	tmpResult += String(tmpint); // + "''";	
 	
 #ifdef NMEAPARSER_DEBUG
   SerialPort.print("Coordonnée : ");
-  SerialPort.println(tmpStr);
+  SerialPort.println(tmpResult);
 #endif
 	
-	return tmpStr;
+	return tmpResult;
 }
