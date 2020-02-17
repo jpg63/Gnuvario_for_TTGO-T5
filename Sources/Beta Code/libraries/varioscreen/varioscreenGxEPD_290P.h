@@ -1,6 +1,6 @@
-/* varioscreenGxEPD -- 
+/* varioscreenGxEPD_290P -- 
  *
- * Copyright 2019 Jean-philippe GOI
+ * Copyright 2019 Jean-philippe GOI / Pierre FRANCIA
  * 
  * This file is part of GnuVario-E.
  *
@@ -21,34 +21,36 @@
 /* 
  *********************************************************************************
  *                                                                               *
- *                           VarioScreenGxEPD_154                                *
- *                               Ecran 1.54''                                    *
+ *                           VarioScreenGxEPD_290 Portrait                       *
+ *                               Ecran 2,90''                                    *
  *                                                                               *
  *  version    Date     Description                                              *
  *    1.0    24/09/19                                                            *
  *    1.0.1  28/09/19   Modification des noms des librairies                     *
- *    1.0.2  09/10/19   Ajout showtitle                                          *
- *    1.0.3	 13/10/19		Ajout Wind																							 *	
- *    1.0.4  07/11/19   Modif updateScreen																			 *
+ *    1.0.2  06/10/19   Mise à jour ratamuse                                     *
+ *    1.0.3  13/10/19   Integration au GnuVario                                  *
+ *                      Ajout Wind                                               *
+ *    1.0.4  16/11/19   Modif updateScreen																			 *
  *    1.0.5  11/01/20   Modif ScreenViewPage																		 *
- *                      Modif effacement de zone +1 à gauche et +3 pour vitesse  *
+ *                      Modif VARIOSCREEN_SIZE == 290                            *
  *    1.0.6  17/01/20   Desactivation effacement ligne 1427                      *
  *    1.0.7  20/01/20   Modif ScreenViewReboot																	 *
  *    1.0.8  28/01/20   Modification écran 1 - ajout info gps                    *
- *    1.0.9  09/02/20   Modif écran 1 - font normal / coordonné GPS en degrés    *
- *    1.0.10 17/02/20   Ajout large (font) varioscreenDigit                      *
+ *    1.0.9  03/02/20   changement de nom passage de 29 à 290                    *
+ *    1.0.10 09/02/20   Modif écran 1 - font normal / coordonné GPS en degrés    *
+ *    1.0.11 17/02/20   Ajout 2.90P et 2.90L                                     *
  *                                                                               *
  *********************************************************************************/
 
-#ifndef VARIOSCREENGXEPD_154_H
-#define VARIOSCREENGXEPD_154_H
+#ifndef VARIOSCREENGXEPD_290P_H
+#define VARIOSCREENGXEPD_290P_H
 
 #include <HardwareConfig.h>
 #include <DebugConfig.h>
 
-#if (VARIOSCREEN_SIZE == 154)
+#if (VARIOSCREEN_SIZE == 291)
 
-#include <varioscreenObjects_154.h>
+#include <varioscreenObjects_290P.h>
 
 /************************/
 /* The screen scheduler */
@@ -175,13 +177,15 @@ class VarioScreen {
 	FIXGPSInfo* fixgpsinfo;
 	BTInfo* btinfo;
 	
-/*	WIND* wind;
+	WIND* wind;
+
 	BGLine* bgline1;
 	BGLine* bgline2;
 	BGLine* bgline3;
 	BGLine* bgline4;
-	BGCircle* bgcircle; */
 	
+//	BGCircle* bgcircle; 
+
 //object page 10 - calibrate GPS 	
 	
 	ScreenDigit*  gpsPeriodDigit; 
@@ -246,7 +250,8 @@ class VarioScreen {
 
 extern VarioScreen screen;
 extern volatile uint8_t stateDisplay;
-extern GxEPD2_BW<GxEPD2_154, GxEPD2_154::HEIGHT> display;
+extern GxEPD2_BW<GxEPD2_290, GxEPD2_290::HEIGHT> display;
+
 
 #endif
 #endif

@@ -28,6 +28,7 @@
 /*                         Ajout gestion du fichier log.cfg                      */
 /*    1.1.1    06/01/20		 Ajout logvariable																		 */
 /*    1.1.2    19/01/20    Ajout DEEPSLEEP_DEBUG                                 */
+/*    1.1.3    16/02/20    Correction rotation des fichiers log                  */
 /*                                                                               */
 /*********************************************************************************/
 /*                                                                               */

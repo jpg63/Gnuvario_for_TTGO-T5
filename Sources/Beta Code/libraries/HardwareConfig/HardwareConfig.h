@@ -48,8 +48,8 @@
 /******************************/
 
 #define VARIOSCREEN_SIZE 	154			//Ecran 1.54''
-//#define VARIOSCREEN_SIZE	290			//Ecran 2.9''
-//#define VARIOSCREEN_SIZE 	213			//Ecran 2.13''
+//#define VARIOSCREEN_SIZE	290 	//Ecran 2.90'' Paysage
+//#define VARIOSCREEN_SIZE 	291 	//Ecran 2.90'' Portrait
 
 #if (VARIOSCREEN_SIZE == 154)
 #define DISPLAY_LOW_UPDATE 50
@@ -57,7 +57,7 @@
 #elif (VARIOSCREEN_SIZE == 290)
 #define DISPLAY_LOW_UPDATE 40
 #define DISPLAY_UPDATE     10
-#elif (VARIOSCREEN_SIZE == 213)
+#elif (VARIOSCREEN_SIZE == 291)
 #define DISPLAY_LOW_UPDATE 40
 #define DISPLAY_UPDATE     10
 #endif

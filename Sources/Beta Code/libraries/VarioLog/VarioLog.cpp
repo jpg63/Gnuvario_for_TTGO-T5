@@ -28,6 +28,7 @@
 /*                         Ajout gestion du fichier log.cfg                      */
 /*    1.1.1    06/01/20		 Ajout logvariable																		 */
 /*    1.1.2    19/01/20    Ajout DEEPSLEEP_DEBUG                                 */
+/*    1.1.3    16/02/20    Correction rotation des fichiers log                  */
 /*                                                                               */
 /*********************************************************************************/
 /*                                                                               */
@@ -75,6 +76,9 @@
 #endif //ESP32
 
 #define FILE_MAX_NAME   30 //15
+
+char logDirectory[20] = "logs/vario.log";
+VarioLog varioLog(logDirectory, 100000, 5);
 
 //******************************
 VarioLog::VarioLog(char *filename, size_t maxSize, int backupCount) {
@@ -427,6 +431,10 @@ SdFile VarioLog::openLog(void)
 int VarioLog::logRotate(void)
 //********************************************
 {
+#ifdef SDCARD_DEBUG
+    SerialPort.println("LogRotate");
+#endif
+	
   int count = 0, fno, flast = 0;
   size_t size;
 
@@ -558,13 +566,15 @@ int VarioLog::logRotate(void)
 #endif
     return 0;
   }
+	
   while (file.openNext(&dir, O_RDONLY)) {
     char fname[FILE_MAX_NAME];
     file.getName(fname, FILE_MAX_NAME);
     if (!strncmp(fname, log_name, strlen(log_name))) {
 #ifdef SDCARD_DEBUG
 			char tmpstr[100];
-			sprintf(tmpstr, "found %s %ld\n", fname, size);
+//			sprintf(tmpstr, "found %s %ld\n", fname, size);
+			sprintf(tmpstr, "found %s\n", fname);
       SerialPort.print(tmpstr);
 #endif
       char *p = strrchr(fname, '.');
@@ -578,23 +588,25 @@ int VarioLog::logRotate(void)
     }
   }
   file.close();
+	
 #ifdef SDCARD_DEBUG
 	char tmpstr[100];
 	sprintf(tmpstr, "logRotate: %d files\n", flast);
   SerialPort.print(tmpstr);
 #endif
+
   if (flast != 0) {
     for (fno = flast ; fno >= log_backup ; fno--) {
       char name[FILE_MAX_NAME];
-      sprintf(name, "logs/%s.%d", log_name, fno);
+      sprintf(name, "%s.%d", log_name, fno);
 #ifdef SDCARD_DEBUG
-			sprintf(tmpstr, "logs/%s: delete\n", name);
+			sprintf(tmpstr, "%s: delete\n", name);
       SerialPort.print(tmpstr);
 #endif
       if (SDHAL_SD.remove(name) != true) {
 #ifdef SDCARD_DEBUG
 				char tmpstr[100];
-				sprintf(tmpstr, "logs/%s: cannot delete\n", name);
+				sprintf(tmpstr, "%s: cannot delete\n", name);
         SerialPort.print(tmpstr);
 #endif
       }
@@ -604,14 +616,15 @@ int VarioLog::logRotate(void)
 #endif
       flast--;
     }
+		
     for (fno = flast ; fno > 0 ; fno--) {
       char name[FILE_MAX_NAME];
       char newname[FILE_MAX_NAME];
-      sprintf(name, "logs/%s.%d", log_name, fno);
-      sprintf(newname, "logs/%s.%d", log_name, fno+1);
+      sprintf(name, "%s.%d", log_name, fno);
+      sprintf(newname, "%s.%d", log_name, fno+1);
 #ifdef SDCARD_DEBUG
 			char tmpstr[100];
-			sprintf(tmpstr, "%s: rename to %s\n", name, newname);
+			sprintf(tmpstr, "%s : rename to %s\n", name, newname);
       SerialPort.print(tmpstr);
 #endif
       if (SDHAL_SD.rename(name, newname) != true) {
@@ -627,12 +640,14 @@ int VarioLog::logRotate(void)
 #endif
     }
   }
+	
   char newname[FILE_MAX_NAME];
-  sprintf(newname, "log/%s.%d", log_name, fno+1);
+  sprintf(newname, "%s.%d", log_name, fno+1);
 #ifdef SDCARD_DEBUG
-	sprintf(tmpstr, "%s: rename to %s\n", log_name, newname);
+	sprintf(tmpstr, "%s : rename to %s\n", log_name, newname);
   SerialPort.print(tmpstr);
 #endif
+
   if (SDHAL_SD.rename(log_name, newname) != true) {
 #ifdef SDCARD_DEBUG
 		char tmpstr[100];
@@ -640,6 +655,7 @@ int VarioLog::logRotate(void)
     SerialPort.print(tmpstr);
 #endif
   }
+	
 #ifdef SDCARD_DEBUG
 	sprintf(tmpstr, "%s: successfully renamed to %s\n", log_name, newname);
   SerialPort.print(tmpstr);
@@ -730,6 +746,3 @@ void VarioLog::openSd(void)
 	      ESP_LOGE(TAG, "Erreur capteur MPU9250 introuvable");
 
 */
-
-char logDirectory[20] = "logs/vario.log";
-VarioLog varioLog(logDirectory, 10000, 5);

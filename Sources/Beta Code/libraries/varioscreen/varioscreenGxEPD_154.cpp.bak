@@ -411,13 +411,13 @@ void VarioScreen::createScreenObjectsDisplayPage0(void) {
 //****************************************************************************************************************************
 void VarioScreen::createScreenObjectsDisplayPage10(void) {
 //****************************************************************************************************************************
-/*		CreateObjectDisplay(DISPLAY_OBJECT_GPS_PERIOD				, gpsPeriodDigit		, 10, 0, true); 
+		CreateObjectDisplay(DISPLAY_OBJECT_GPS_PERIOD				, gpsPeriodDigit		, 10, 0, true); 
 		CreateObjectDisplay(DISPLAY_OBJECT_GPS_MEAN_PERIOD	, gpsMeanPeriodDigit, 10, 0, true); 
 		CreateObjectDisplay(DISPLAY_OBJECT_GPS_DURATION			, gpsDurationDigit	, 10, 0, true); 
 
 		CreateObjectDisplay(DISPLAY_OBJECT_VOLLEVEL					, volLevel					, 10, 0, true); 
 		CreateObjectDisplay(DISPLAY_OBJECT_BATLEVEL					, batLevel					, 10, 0, true); 
-		CreateObjectDisplay(DISPLAY_OBJECT_SATLEVEL					, satLevel					, 10, 0, true); */
+		CreateObjectDisplay(DISPLAY_OBJECT_SATLEVEL					, satLevel					, 10, 0, true); 
 }	
 
 //****************************************************************************************************************************

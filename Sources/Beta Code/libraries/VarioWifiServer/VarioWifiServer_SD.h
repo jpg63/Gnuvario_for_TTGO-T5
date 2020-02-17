@@ -20,6 +20,7 @@
 /*    1.2.11 23/01/20   Ajout setClock()																				 */
 /*    1.2.12 25/01/20   Correction Upload                                        */
 /*                      Ajout HandleFirmwareVersion / handleUpgradeWeb           */
+/*    1.2.13 16/02/20   refactoring variowifiserver                              */
 /*                                                                               */
 /*********************************************************************************/
 
@@ -30,7 +31,6 @@
 
 #include <VarioWifiServer.h>
 
-
 #if defined(WEBSERVER_SDCARD)
 
 #include <Arduino.h>
@@ -40,15 +40,12 @@
 #include <WiFiClient.h>
 #include <VarioWebServer.h>
 #include <ESPmDNS.h>
-//  #include "FS.h"
+
+#ifdef HAVE_SDCARD
+#include <sdcardHAL.h>
+#endif
 
 #define WEBSERVERTYPE "VarioWebServer"
-
-
-
-/*#ifdef HAVE_SDCARD
-#include <sdcardHAL.h>
-#endif //HAVE_SDCARD*/
 
 //#define ServerVersion "1.0"
 extern char ServerVersion[20];
@@ -67,7 +64,6 @@ extern char password_3[50];
 extern char ssid_4[50];
 extern char password_4[50];
 
-
 extern WiFiMulti wifiMulti;
 extern VarioWebServer server;
 
@@ -85,13 +81,12 @@ public:
   void disableAll(void);
   void connect(void);
   void start(void);
-	void setClock(void);
+  void setClock(void);
   void handleClient(void);
 };
 
 void returnOK();
 void returnFail(String msg);
-//void listDirectory(File dir, int numTabs);
 
 //////////////////////////////////////
 //          GENERIC HANDLERS        //
@@ -118,6 +113,13 @@ void handleSaveParams();
 void handleSaveWifi();
 void handleFirmwareVersion();
 void handleUpgradeWeb();
+
+//////////////////////////////////////
+//              HELPERS            //
+/////////////////////////////////////
+
+String getFileSizeStringFromBytes(int bytes);
+void listDirectory(SdFile dir, int numTabs);
 
 extern VarioWifiServer varioWifiServer;
 
