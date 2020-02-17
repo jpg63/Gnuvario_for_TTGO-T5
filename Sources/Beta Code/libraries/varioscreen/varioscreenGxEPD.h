@@ -29,7 +29,7 @@
  *    1.0.1  28/09/19   Changement de nom des librairies                         *
  *    1.0.2  22/10/19   Ajout écran 2.13''                                       *
  *    1.0.3  03/02/20   Changement nom passage à 290 au lieu de 29							 *
- *    1.0.4  17/02/20   Suppression 2.13 ajouter 2.90P et 2.90L                  *
+ *    1.0.4  17/02/20   Suppression 2.13 ajouter 2.90 et 2.91                  *
  *                                                                               *
  *********************************************************************************/
  
@@ -51,11 +51,11 @@
 #include <varioscreenGxEPD_154.h>
 
 // Ecran 2.90'' Paysage
-#include <varioscreenGxEPD_290L.h>
-#include <varioscreenObjects_290L.h>
+#include <varioscreenGxEPD_290.h>
+#include <varioscreenObjects_290.h>
 
 // Ecran 2.90'' Portrait
-#include <varioscreenGxEPD_290P.h>
-#include <varioscreenObjects_290P.h>
+#include <varioscreenGxEPD_291.h>
+#include <varioscreenObjects_291.h>
 
 #endif
