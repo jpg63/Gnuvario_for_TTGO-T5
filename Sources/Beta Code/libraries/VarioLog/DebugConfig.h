@@ -74,7 +74,7 @@
 //#define I2CDEV_SERIAL_DEBUG   //debug I2Cdev
 //#define DEBUG_SERIAL_NMEA_1
 //#define SCREEN_DEBUG
-#define SCREEN_DEBUG2
+//#define SCREEN_DEBUG2
 //#define GPS_DEBUG
 //#define BUTTON_DEBUG
 //#define TONEDAC_DEBUG
@@ -82,13 +82,13 @@
 //#define KALMAN_DEBUG
 //#define ACCEL_DEBUG
 //#define EEPROM_DEBUG
-#define NMEAPARSER_DEBUG
+//#define NMEAPARSER_DEBUG
 //#define VOLTAGE_DIVISOR_DEBUG
 //#define SDCARD_DEBUG
 //#define IGC_DEBUG
 #define DATA_DEBUG
 //#define BT_DEBUG
-#define WIFI_DEBUG
+//#define WIFI_DEBUG
 //#define SOUND_DEBUG
 
 #endif //ENABLE_DEBUG
