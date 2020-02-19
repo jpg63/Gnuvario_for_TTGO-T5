@@ -36,9 +36,7 @@
  *    1.0.6  17/01/20   Desactivation effacement ligne 1427                      *
  *    1.0.7  20/01/20   Modif ScreenViewReboot																	 *
  *    1.0.8  28/01/20   Modification écran 1 - ajout info gps                    *
- *    1.0.9  03/02/20   changement de nom passage de 29 à 290                    *
- *    1.0.10 09/02/20   Modif écran 1 - font normal / coordonné GPS en degrés    *
- *    1.0.11 17/02/20   Ajout 2.90 et 2.91                                       *
+ *    1.0.9  09/02/20   Modif écran 1 - font normal / coordonné GPS en degrés    *
  *                                                                               *
  *********************************************************************************/
 

@@ -310,6 +310,7 @@ SimpleBLE ble;
 * MODIF - Modification librairie varioscreen - MAJ GxEpd2                                             *
 * BUG   - Affichage long - lat                                                                        *
 * MODIF - Passer long / lat sur 6 digits après la virgule                                             *
+* BUG   - Affichage niveau batterie                                                                   *
 *                                                                                                     *
 * VX.X                                                                                                *
 * Paramètrage des écrans                                                                              *

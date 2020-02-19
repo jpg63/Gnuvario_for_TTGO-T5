@@ -1330,11 +1330,8 @@ void ScreenText::show() {
 		case DISPLAY_OBJECT_BEARING :
 			display.drawInvertedBitmap(titleX+100, titleY-50, beartext, 22, 11, GxEPD_BLACK);
 			break;
-		case DISPLAY_OBJECT_LAT :
-//			display.drawInvertedBitmap(titleX+2, titleY-14, lattext, 41, 14, GxEPD_BLACK);
-			break;
 		case DISPLAY_OBJECT_LONG :
-//			display.drawInvertedBitmap(titleX, titleY-14, longtext, 29, 11, GxEPD_BLACK);
+			//display.drawInvertedBitmap(titleX, titleY-14, longtext, 29, 11, GxEPD_BLACK);
 			break;
 		default :
 			break;
