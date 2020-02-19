@@ -59,7 +59,6 @@
  *                      Ajout ALIGNCENTER                                        *
  *                      Ajout Objet ScreenText                                   *
  *    1.1.8  09/02/20   Modif font screenText                                    *
- *    1.0.9  17/02/20   Ajout large (font) varioscreenDigit                      *
  *                                                                               *
  *********************************************************************************/
  
@@ -353,14 +352,13 @@ void VarioScreenObject::reset(void) {
 
 
 //****************************************************************************************************************************
-ScreenDigit::ScreenDigit(uint16_t anchorX, uint16_t anchorY, uint16_t width, uint16_t precision, boolean plusDisplay, boolean zero, int8_t Align, boolean showtitle, int8_t displayTypeID, bool large) 
-   : VarioScreenObject(0), anchorX(anchorX), anchorY(anchorY), width(width), precision(precision), plusDisplay(plusDisplay), zero(zero), Align(Align), showtitle(showtitle), displayTypeID(displayTypeID), large(large) { 
+ScreenDigit::ScreenDigit(uint16_t anchorX, uint16_t anchorY, uint16_t width, uint16_t precision, boolean plusDisplay, boolean zero, int8_t Align, boolean showtitle, int8_t displayTypeID) 
+   : VarioScreenObject(0), anchorX(anchorX), anchorY(anchorY), width(width), precision(precision), plusDisplay(plusDisplay), zero(zero), Align(Align), showtitle(showtitle), displayTypeID(displayTypeID) { 
 //****************************************************************************************************************************
   lastDisplayWidth = 0; 
 
   display.setFont(&FreeSansBold12pt7b);
-  if (large) 	display.setTextSize(2);
-	else 				display.setTextSize(1);
+  display.setTextSize(2);
 
   int16_t box_x = anchorX;
   int16_t box_y = anchorY;
@@ -423,9 +421,7 @@ ScreenDigit::ScreenDigit(uint16_t anchorX, uint16_t anchorY, uint16_t width, uin
 	} else {
 	  Zwidth   = w-box_x+2;
 	}
-
-  if (large) Zheight  = 24+6;
-  else       Zheight  = 12+3;
+	Zheight  = 24+6;
 
     switch (displayTypeID) {
 		case DISPLAY_OBJECT_SPEED :
@@ -674,10 +670,9 @@ void ScreenDigit::show() {
   //normalise value
   char digitCharacters[MAX_CHAR_IN_LINE];
 	char tmpChar[MAX_CHAR_IN_LINE];
-
-	display.setFont(&FreeSansBold12pt7b);
-  if (large) 	display.setTextSize(2);
-	else 				display.setTextSize(1);
+   
+  display.setFont(&FreeSansBold12pt7b);
+  display.setTextSize(2);
 
 //  int16_t box_x = anchorX;
   int16_t box_y = anchorY;
@@ -1324,9 +1319,6 @@ void ScreenText::show() {
   if (showtitle) {
 		
     switch (displayTypeID) {
-		case DISPLAY_OBJECT_BEARING :
-//			display.drawInvertedBitmap(titleX+100, titleY-50, beartext, 22, 11, GxEPD_BLACK);
-			break;
 		case DISPLAY_OBJECT_LAT :
 //			display.drawInvertedBitmap(titleX+2, titleY-14, lattext, 41, 14, GxEPD_BLACK);
 			break;

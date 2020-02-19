@@ -1,4 +1,4 @@
-/* varioscreenGxEPD_291 -- 
+/* varioscreenGxEPD_290 -- 
  *
  * Copyright 2019 Jean-philippe GOI / Pierre FRANCIA
  * 
@@ -21,8 +21,8 @@
 /* 
  *********************************************************************************
  *                                                                               *
- *                           VarioScreenGxEPD_291                                *
- *                               Ecran 2,90''  portrait                          *
+ *                           VarioScreenGxEPD_290                                 *
+ *                               Ecran 2,90''                                     *
  *                                                                               *
  *  version    Date     Description                                              *
  *    1.0    24/09/19                                                            *
@@ -40,15 +40,15 @@
  *                                                                               *
  *********************************************************************************/
 
-#ifndef VARIOSCREENGXEPD_291_H
-#define VARIOSCREENGXEPD_291_H
+#ifndef VARIOSCREENGXEPD_290_H
+#define VARIOSCREENGXEPD_290_H
 
 #include <HardwareConfig.h>
 #include <DebugConfig.h>
 
-#if (VARIOSCREEN_SIZE == 291)
+#if (VARIOSCREEN_SIZE == 290)
 
-#include <varioscreenObjects_291.h>
+#include <varioscreenObjects_290.h>
 
 /************************/
 /* The screen scheduler */

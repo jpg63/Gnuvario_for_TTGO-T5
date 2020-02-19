@@ -55,6 +55,7 @@
  *    1.1.8  11/01/20   Modif VARIOSCREEN_SIZE == 290                            *
  *    1.1.9  03/02/20   Changement de nom passage de 29 à 290                    *
  *    1.1.10 07/02/20   Ajout 290 et 291                                         *
+ *                      Ajout FONTLARGE / FONTNORMAL pour Digit                  *
  *********************************************************************************/ 
  /*
  *********************************************************************************
@@ -95,7 +96,7 @@
 
 #include <VarioButton.h>
 
-#include <GxEPD2_BW.h>
+#include <GxEPD2_BWU.h>
 #include <GxEPD2_3C.h>
 
 #include "GxEPD2_boards.h"
@@ -419,7 +420,7 @@ ScreenDigit::ScreenDigit(uint16_t anchorX, uint16_t anchorY, uint16_t width, uin
 	  Zwidth   = w-box_x+2;
 	}
 
-   if (large)	Zheight  = 36+6;  //Hauteur des caractères + espace
+   if (large)	Zheight  = 18+6;  //Hauteur des caractères + espace
    else			Zheight  = 9+3;
 
     switch (displayTypeID) {

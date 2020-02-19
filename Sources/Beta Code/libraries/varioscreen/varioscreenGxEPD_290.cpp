@@ -20,6 +20,7 @@
 
 /* 
  *********************************************************************************
+ *********************************************************************************
  *                                                                               *
  *                           VarioScreenGxEPD_290 Paysage                        *
  *                               Ecran 2.90''                                    *
@@ -38,7 +39,8 @@
  *    1.0.8  28/01/20   Modification écran 1 - ajout info gps                    *
  *    1.0.9  03/02/20   changement de nom passage de 29 à 290                    *
  *    1.0.10 09/02/20   Modif écran 1 - font normal / coordonné GPS en degrés    *
- *    1.0.11 17/02/20   Ajout 2.90 et 2.91                                     *
+ *    1.0.11 17/02/20   Ajout 2.90 et 2.91                                      *
+ *                      Ajout FONTLARGE / FONTNORMAL                             *
  *********************************************************************************/
  
  /*
@@ -540,7 +542,7 @@ void VarioScreen::updateScreen (void)
 			stateDisplay = STATE_OK;
 			vTaskDelete(taskDisplay);
 //			display.powerOff();
-//			display.epd2.reset();
+			display.epd2.reset();
 #ifdef SCREEN_DEBUG2
 			SerialPort.println("Task reset");	
 #endif //SCREEN_DEBUG

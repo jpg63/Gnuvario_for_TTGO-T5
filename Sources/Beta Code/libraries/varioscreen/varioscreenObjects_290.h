@@ -55,6 +55,7 @@
  *    1.1.8  16/11/19   Ajout classe GxEPD2_BW_U                                 *
  *    1.1.9  11/01/20   Modif VARIOSCREEN_SIZE == 290                            *
  *    1.1.10 07/02/20   Ajout 290 et 291                                         *
+ *                      Ajouter FONTNORMAL / FONTLARGE Digit                     *
  *********************************************************************************/
 
 #ifndef VARIOSCREENOBJECTS_290_H
@@ -69,7 +70,7 @@
 #include <digit.h>
 #include <variostat.h>
 
-#include <GxEPD2_BW.h>
+#include <GxEPD2_BWU.h>
 #include <GxEPD2_3C.h>
 
 // FreeFonts from Adafruit_GFX

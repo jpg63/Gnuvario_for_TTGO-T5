@@ -286,12 +286,11 @@ SimpleBLE ble;
 *               10/02/20             Correction ecran 2                                               *
 *               12/02/20             Correction affichage lat / long sur écran 2                      *
 *                                    Correction time out Gxepd à l'affichage de l'écran de stat       *
-*               15/02/20             Mise à jour de la librairie GxEpd2 suppresion de la version U    *
-*                                    Correction BUG seuils de monte / descente non pris en compte     *
+*               15/02/20             Correction BUG seuils de monte / descente non pris en compte     *
 *                                    ajout beeper.init                                                *
 *                                    Correction Bug rotation du fichier de log                        *
 *                                    Mise à jour via internet - site Web + firmware                   *
-*               17/02/20             Ajout gestion écran 2.90'' en mode portrait                      *
+*               19/02/20             Ajout gestion écran 2.90'' en mode portrait                      *
 *******************************************************************************************************
 *                                                                                                     *
 *                                   Developpement a venir                                             *
@@ -308,6 +307,7 @@ SimpleBLE ble;
 * BUG   - update manuelle - doit être lancée 2 fois                                                   *
 * AJOUT - Récupération du cap depuis le capteur baromètrique                                          *
 * BUG   - stat affichage temps de vol                                                                 *
+* MODIF - Modification librairie varioscreen - MAJ GxEpd2                                             *
 * BUG   - Affichage long - lat                                                                        *
 * MODIF - Passer long / lat sur 6 digits après la virgule                                             *
 *                                                                                                     *

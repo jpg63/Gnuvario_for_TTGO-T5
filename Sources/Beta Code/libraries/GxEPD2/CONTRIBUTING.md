@@ -9,10 +9,9 @@
 ### issues:
 - please post only issues that are real issues with this library!
 - please add all information according to the issue template
-- issues are disabled because above rules were not obeyed
 
 ### pull requests:
-- I will not merge pull request. There may be exceptions to this. I may add (modified) fixes.
+- in general, I will not merge pull request.
 - pull requests are useful to inform users and me about interesting additions in forked repositories.
 - I will close or remove pull request at will.
 - enhancements as separate classes are preferred.

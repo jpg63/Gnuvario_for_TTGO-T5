@@ -21,14 +21,15 @@
 /* 
  *********************************************************************************
  *                                                                               *
- *                           VarioScreenIcone_29                                 *
+ *                           VarioScreenIcone_291                                *
  *                                                                               *
  *  version    Date     Description                                              *
  *    1.0                                                                        *
  *    1.0.1  13/10/19   Ajout Wind                                               *
  *    1.0.2  11/01/20   VARIOSCREEN_SIZE == 290                                  *
- *    1.0.3  17/02/20   Ajout 290 et 291                                         *
- *                                                                               *
+ *    1.0.3  03/02/20   Changement de nom passage de 29 à 290                    *
+ *    1.0.4  16/02/20	Adaptation écran 2.9" mode portrait						 *
+ *						VARIOSCREEN_SIZE == 291								 *
  *********************************************************************************/
 
 #ifndef VARIOSCREENICONE_291_H
@@ -227,6 +228,11 @@ const unsigned char beartext [] PROGMEM = {
 	0xb7, 0x5b, 0x60, 0xbb, 0x7d, 0xb7, 0x5b, 0x60, 0x83, 0x0c, 0x37, 0x5b, 0x00, 0xff, 0xff, 0xff, 
 	0xff, 0xe0, 0xff, 0xff, 0xff, 0xff, 0x00
 };
+
+
+
+
+
 
 const unsigned char thermo [] PROGMEM = {
 	// 'thermometer_icon-icons, 48x48px

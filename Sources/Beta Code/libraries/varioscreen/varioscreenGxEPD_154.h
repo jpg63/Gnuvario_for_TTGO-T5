@@ -246,7 +246,7 @@ class VarioScreen {
 
 extern VarioScreen screen;
 extern volatile uint8_t stateDisplay;
-extern GxEPD2_BW<GxEPD2_154, GxEPD2_154::HEIGHT> display;
+extern GxEPD2_BW<GxEPD2_154U, GxEPD2_154U::HEIGHT> display;
 
 #endif
 #endif

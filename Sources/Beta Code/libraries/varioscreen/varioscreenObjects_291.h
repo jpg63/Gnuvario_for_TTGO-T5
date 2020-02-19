@@ -54,7 +54,6 @@
  *                      Modification DISPLAY_OBJECT_ALTI                         *
  *    1.1.8  16/11/19   Ajout classe GxEPD2_BW_U                                 *
  *    1.1.9  11/01/20   Modif VARIOSCREEN_SIZE == 290                            *
- *    1.1.10 07/02/20   Ajout 290 et 291                                         *
  *********************************************************************************/
 
 #ifndef VARIOSCREENOBJECTS_291_H
@@ -69,7 +68,7 @@
 #include <digit.h>
 #include <variostat.h>
 
-#include <GxEPD2_BW.h>
+#include <GxEPD2_BWU.h>
 #include <GxEPD2_3C.h>
 
 // FreeFonts from Adafruit_GFX
@@ -221,7 +220,7 @@ class ScreenDigit: public VarioScreenObject {
 // TitleY       Position du titre en Y
 
  public :
-   ScreenDigit(uint16_t anchorX, uint16_t anchorY, uint16_t width, uint16_t precision, boolean plusDisplay = false, boolean zero = false, int8_t Align = ALIGNLEFT, boolean showtitle = true, 	int8_t displayTypeID = 0, bool large = FONTLARGE);
+   ScreenDigit(uint16_t anchorX, uint16_t anchorY, uint16_t width, uint16_t precision, boolean plusDisplay = false, boolean zero = false, int8_t Align = ALIGNLEFT, boolean showtitle = true, 	int8_t displayTypeID = 0);
  //  : VarioScreenObject(0), anchorX(anchorX), anchorY(anchorY), width(width), precision(precision), plusDisplay(plusDisplay), zero(zero), leftAlign(leftAlign), showtitle(showtitle)
  // { lastDisplayWidth = 0; }
   void show(void);
@@ -241,7 +240,6 @@ class ScreenDigit: public VarioScreenObject {
 	uint16_t Zwidth, Zheight;
 	uint16_t MaxWidth, MaxHeight;
 	int8_t displayTypeID;
-  boolean large;
 };
 
 class ScreenText: public VarioScreenObject {

@@ -59,7 +59,6 @@
  *                      Ajout ALIGNCENTER                                        *
  *                      Ajout Objet ScreenText                                   *
  *    1.1.8  09/02/20   Modif font screenText                                    *
- *    1.0.9  17/02/20   Ajout large (font) varioscreenDigit                      *
  *                                                                               *
  *********************************************************************************/
 
@@ -227,7 +226,7 @@ class ScreenDigit: public VarioScreenObject {
 // TitleY       Position du titre en Y
 
  public :
-   ScreenDigit(uint16_t anchorX, uint16_t anchorY, uint16_t width, uint16_t precision, boolean plusDisplay = false, boolean zero = false, int8_t Align = ALIGNLEFT, boolean showtitle = true, 	int8_t displayTypeID = 0, bool large = FONTLARGE);
+   ScreenDigit(uint16_t anchorX, uint16_t anchorY, uint16_t width, uint16_t precision, boolean plusDisplay = false, boolean zero = false, int8_t Align = ALIGNLEFT, boolean showtitle = true, 	int8_t displayTypeID = 0);
  //  : VarioScreenObject(0), anchorX(anchorX), anchorY(anchorY), width(width), precision(precision), plusDisplay(plusDisplay), zero(zero), leftAlign(leftAlign), showtitle(showtitle)
  // { lastDisplayWidth = 0; }
   void show(void);
@@ -247,7 +246,6 @@ class ScreenDigit: public VarioScreenObject {
 	uint16_t Zwidth, Zheight;
 	uint16_t MaxWidth, MaxHeight;
 	int8_t displayTypeID;
-  boolean large;
 };
 
 class ScreenText: public VarioScreenObject {

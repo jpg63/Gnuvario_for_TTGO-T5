@@ -39,6 +39,7 @@
  *    1.0.9  03/02/20   changement de nom passage de 29 à 290                    *
  *    1.0.10 09/02/20   Modif écran 1 - font normal / coordonné GPS en degrés    *
  *    1.0.11 17/02/20   Ajout 2.90 et 2.91                                       *
+ *                      Ajout FONTLARGE / FONTNORMAL                             *
  *                                                                               *
  *********************************************************************************/
 
@@ -250,8 +251,8 @@ class VarioScreen {
 
 extern VarioScreen screen;
 extern volatile uint8_t stateDisplay;
-extern GxEPD2_BW<GxEPD2_290, GxEPD2_290::HEIGHT> display;
-//extern GxEPD2_BW<GxEPD2_290U, GxEPD2_290U::HEIGHT> display;
+extern GxEPD2_BW<GxEPD2_290U, GxEPD2_290U::HEIGHT> display;
+
 
 #endif
 #endif

@@ -21,18 +21,18 @@
 /* 
  *********************************************************************************
  *                                                                               *
- *                           VarioScreenIcone_29                                 *
+ *                           VarioScreenIcone_290                                *
  *                                                                               *
  *  version    Date     Description                                              *
  *    1.0                                                                        *
  *    1.0.1  13/10/19   Ajout Wind                                               *
  *    1.0.2  11/01/20   VARIOSCREEN_SIZE == 290                                  *
- *    1.0.3  17/02/20   Ajout 290 et 291                                         *
+ *    1.0.3  03/02/20   Changement de nom passage de 29 à 290                    *
  *                                                                               *
  *********************************************************************************/
 
-#ifndef VARIOSCREENICONE_290L_H
-#define VARIOSCREENICONE_290L_H
+#ifndef VARIOSCREENICONE_290_H
+#define VARIOSCREENICONE_290_H
 
 #include <HardwareConfig.h>
 
@@ -219,15 +219,6 @@ const unsigned char temp [] PROGMEM = {
 	0xf8, 0xff, 0x9f, 0xf0, 0xff, 0x8f, 0xe0, 0xff, 0xcf, 0xe0, 0xff, 0xc3, 0xc8, 0xff, 0xe0, 0x18, 
 	0xff, 0xf8, 0x38
 };
-
-const unsigned char beartext [] PROGMEM = {
-	// 'bearing', 36x11px
-	0xff, 0xff, 0xff, 0xff, 0xf0, 0x87, 0xff, 0xff, 0x7f, 0xf0, 0xb7, 0xff, 0xff, 0xff, 0xf0, 0xb7, 
-	0x0c, 0x31, 0x43, 0x00, 0x87, 0x6f, 0xb7, 0x5b, 0x60, 0xbb, 0x0c, 0x37, 0x5b, 0x60, 0xbb, 0x7d, 
-	0xb7, 0x5b, 0x60, 0xbb, 0x7d, 0xb7, 0x5b, 0x60, 0x83, 0x0c, 0x37, 0x5b, 0x00, 0xff, 0xff, 0xff, 
-	0xff, 0xe0, 0xff, 0xff, 0xff, 0xff, 0x00
-};
-
 
 const unsigned char thermo [] PROGMEM = {
 	// 'thermometer_icon-icons, 48x48px

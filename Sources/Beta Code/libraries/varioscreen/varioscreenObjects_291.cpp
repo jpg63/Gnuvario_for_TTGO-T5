@@ -35,12 +35,12 @@
  *    1.0.6  12/08/19   Ajout gestion écran de config GPS                        *
  *    1.0.7  15/08/19   Ajout gestion bouton dans screeninit                     *
  *    1.0.8  15/09/19   Ajout écran connection Wifi - ScreenViewWifi             *
- *    1.0.9  22/08/19   Ajout ScreenViewReboot																	 *
+ *    1.0.9  22/08/19   Ajout ScreenViewReboot									 *
  *    1.0.10 22/08/19   Ajout Page1                                              *
  *    1.0.11 23/08/19   Correction bug previousPage                              *
  *                      Ajout TUnit                                              *
  *    1.0.12 24/08/19   Ajout ScreenViewSound(int volume)                        *
- *		1.0.13 25/08/19		Gestion de l'écran de config du son											 *	
+ *		1.0.13 25/08/19		Gestion de l'écran de config du son					 						 *	
  *    1.0.14 23/09/19   Modification page stat                                   *
  *                      Modification de l'affichage de la charge de la betterie  *
  *                      Ajout d'un deep-sleep en cas de batterie trop faible     *
@@ -50,14 +50,13 @@
  *    1.1.3  13/10/19   Integration au Gnuvario                                  *
  *    1.1.4  14/10/19   Modification affichage titre champs screendigit          *
  *    1.1.5  15/10/19   Modification affichage des satellites                    *
- *    1.1.6  20/10/19   Suppression classe GxEPD2_BW_U													 *
+ *    1.1.6  20/10/19   Suppression classe GxEPD2_BW_U							 						 *
  *    1.1.7  16/11/19   Ajout classe GxEPD2_BW_U                                 *
  *    1.1.8  11/01/20   Modif VARIOSCREEN_SIZE == 290                            *
- *    1.1.9  03/02/20   Changement de nom passage de 29 à 290                    *
- *    1.1.10 07/02/20   Ajout 290 et 291                                       *
- *    					Adaptation écran 2.9" mode portrait						 *
- *						VARIOSCREEN_SIZE == 291							     *	
- *********************************************************************************/ 
+ *    1.1.9  03/02/20   Changement de nom passage de 29 à 290  					 				 *
+ *    1.0.10 16/02/20		Adaptation écran 2.9" mode portrait						 					 *
+ *											VARIOSCREEN_SIZE == 291              										 *	
+ *********************************************************************************/
  /*
  *********************************************************************************
  *                    conversion image to cpp code                               *
@@ -97,7 +96,7 @@
 
 #include <VarioButton.h>
 
-#include <GxEPD2_BW.h>
+#include <GxEPD2_BWU.h>
 #include <GxEPD2_3C.h>
 
 #include "GxEPD2_boards.h"
@@ -349,15 +348,13 @@ void VarioScreenObject::reset(void) {
 
 
 //****************************************************************************************************************************
-ScreenDigit::ScreenDigit(uint16_t anchorX, uint16_t anchorY, uint16_t width, uint16_t precision, boolean plusDisplay, boolean zero, int8_t Align, boolean showtitle, int8_t displayTypeID, bool large) 
-   : VarioScreenObject(0), anchorX(anchorX), anchorY(anchorY), width(width), precision(precision), plusDisplay(plusDisplay), zero(zero), Align(Align), showtitle(showtitle), displayTypeID(displayTypeID), large(large) { 
+ScreenDigit::ScreenDigit(uint16_t anchorX, uint16_t anchorY, uint16_t width, uint16_t precision, boolean plusDisplay, boolean zero, int8_t Align, boolean showtitle, int8_t displayTypeID) 
+   : VarioScreenObject(0), anchorX(anchorX), anchorY(anchorY), width(width), precision(precision), plusDisplay(plusDisplay), zero(zero), Align(Align), showtitle(showtitle), displayTypeID(displayTypeID) { 
 //****************************************************************************************************************************
   lastDisplayWidth = 0; 
 
   display.setFont(&FreeSansBold9pt7b);
-  if (large) 	display.setTextSize(2);
-  else 				display.setTextSize(1);
-
+  display.setTextSize(1);
 
   int16_t box_x = anchorX;
   int16_t box_y = anchorY;
@@ -420,9 +417,7 @@ ScreenDigit::ScreenDigit(uint16_t anchorX, uint16_t anchorY, uint16_t width, uin
 	} else {
 	  Zwidth   = w-box_x+2;
 	}
-
-  if (large) Zheight  = 18+6;  //Hauteur des caractères + espace
-  else       Zheight  = 9+3;
+	Zheight  = 18+6;  //Hauteur des caractères + espace
 
     switch (displayTypeID) {
 		case DISPLAY_OBJECT_SPEED :
@@ -673,9 +668,7 @@ void ScreenDigit::show() {
 	char tmpChar[MAX_CHAR_IN_LINE];
    
   display.setFont(&FreeSansBold18pt7b);
-  if (large) 	display.setTextSize(2);
-	else 				display.setTextSize(1);
-
+  display.setTextSize(1);
 
 //  int16_t box_x = anchorX;
   int16_t box_y = anchorY;
@@ -1069,7 +1062,7 @@ ScreenText::ScreenText(uint16_t anchorX, uint16_t anchorY, uint16_t width, bool 
   lastDisplayWidth = 0; 
 
   display.setFont(&FreeSansBold18pt7b);
-	if (large) display.setTextSize(2);
+	if (large) display.setTextSize(1);
 	else 			 display.setTextSize(1);	
 
 //  int16_t box_x = anchorX;
@@ -1218,7 +1211,7 @@ void ScreenText::show() {
 	if (large) 
 	{
   		display.setFont(&FreeSansBold18pt7b);
-  		display.setTextSize(2);
+  		display.setTextSize(1);
 	}
 	else 			 
 	{
@@ -1338,11 +1331,8 @@ void ScreenText::show() {
 		case DISPLAY_OBJECT_BEARING :
 			display.drawInvertedBitmap(titleX+100, titleY-50, beartext, 22, 11, GxEPD_BLACK);
 			break;
-		case DISPLAY_OBJECT_LAT :
-//			display.drawInvertedBitmap(titleX+2, titleY-14, lattext, 41, 14, GxEPD_BLACK);
-			break;
 		case DISPLAY_OBJECT_LONG :
-//			display.drawInvertedBitmap(titleX, titleY-14, longtext, 29, 11, GxEPD_BLACK);
+			//display.drawInvertedBitmap(titleX, titleY-14, longtext, 29, 11, GxEPD_BLACK);
 			break;
 		default :
 			break;
@@ -1829,7 +1819,6 @@ if    X< 1700 = deep sleep (comme ça si la sécu batterie ne fonctionne pas ou 
     display.drawInvertedBitmap(110, 8, bat1icons, 17, 8, GxEPD_BLACK);   //GxEPD_BLACK);
   else {
     display.drawInvertedBitmap(110, 8, bat0icons, 17, 8, GxEPD_BLACK);   //GxEPD_BLACK);
-
 		//Deep Sleep
 	}
 
