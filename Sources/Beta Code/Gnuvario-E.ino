@@ -669,6 +669,8 @@ long MaxVoltage   = 0;
 
 long compteurInt = 0;
 
+int compteurBoucle = 0;
+
 void IRAM_ATTR isr() {
   compteurInt++;  
 }
@@ -2088,14 +2090,28 @@ void loop() {
 //  if (maxVoltage < tmpVoltage) {maxVoltage = tmpVoltage;}
 
       /* update battery level */
+
+      
 #if defined(VOLTAGE_DIVISOR_DEBUG)
     int val = adc1_get_raw(ADC1_CHANNEL_7);
 
     SerialPort.print("Tension : ");
     SerialPort.println(val);
+    if (compteurBoucle == 5) DUMPLOG(LOG_TYPE_DEBUG, VOLTAGE_DEBUG_LOG,val);
 #endif //VOLTAGE_DIVISOR_DEBUG
 
-  int TmpVoltage = analogRead(VOLTAGE_DIVISOR_PIN);  
+  long TmpVoltage = 0;
+  for(int i=0; i<10; i++) TmpVoltage += analogRead(VOLTAGE_DIVISOR_PIN);  
+  TmpVoltage = TmpVoltage / 10;
+
+  if (compteurBoucle == 4) {
+    DUMPLOG(LOG_TYPE_DEBUG, VOLTAGE_DEBUG_LOG,TmpVoltage);
+    compteurBoucle = 0;
+  }
+  else {
+    compteurBoucle++;
+  }
+  
   if (TmpVoltage > MaxVoltage) MaxVoltage = TmpVoltage;
   
     if (MaxVoltage < 1750) {
@@ -2162,8 +2178,8 @@ void loop() {
       SerialPort.print(" - ");
       SerialPort.print(bearingStr);
 #endif //PROG_DEBUG     
-      DUMPLOG(LOG_TYPE_DEBUG, MAIN_DEBUG_LOG, bearing);
-      DUMPLOG(LOG_TYPE_DEBUG, MAIN_DEBUG_LOG, bearingStr);
+      DUMPLOG(LOG_TYPE_DEBUG, DATA_DEBUG_LOG, bearing);
+      DUMPLOG(LOG_TYPE_DEBUG, DATA_DEBUG_LOG, bearingStr);
 
      screen.gpsBearing->setValue(bearing); 
      screen.gpsBearingText->setValue(bearingStr); 
@@ -2176,7 +2192,7 @@ void loop() {
       SerialPort.print("Longitude : ");
       SerialPort.println(longitude);
 #endif //PROG_DEBUG     
-      DUMPLOG(LOG_TYPE_DEBUG, MAIN_DEBUG_LOG, longitude);
+      DUMPLOG(LOG_TYPE_DEBUG, DATA_DEBUG_LOG, longitude);
 
 //      screen.gpsLongDir->setValue(String(nmeaParser.getLongDir()));
 //      screen.gpsLong->setValue(nmeaParser.getLong());
@@ -2190,7 +2206,7 @@ void loop() {
       SerialPort.print("Latitude : ");
       SerialPort.println(latitude);
 #endif //PROG_DEBUG     
-      DUMPLOG(LOG_TYPE_DEBUG, MAIN_DEBUG_LOG, latitude);
+      DUMPLOG(LOG_TYPE_DEBUG, DATA_DEBUG_LOG, latitude);
 //      screen.gpsLatDir->setValue(String(nmeaParser.getLatDir()));
 //      screen.gpsLat->setValue(nmeaParser.getLat());
       screen.gpsLat->setValue(nmeaParser.getLatDegree());

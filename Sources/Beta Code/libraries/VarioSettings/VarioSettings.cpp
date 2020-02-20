@@ -545,6 +545,12 @@ boolean VarioSettings::readSDSettings(char *FileName, boolean *ModifiedValue){
    else if(settingName == "DEEPSLEEP_DEBUG") {
 		 varioLog.setDebug(DEEPSLEEP_DEBUG_LOG,toBoolean(settingValue));
     }	 
+   else if(settingName == "VOLTAGE_DEBUG") {
+		 varioLog.setDebug(VOLTAGE_DEBUG_LOG,toBoolean(settingValue));
+    }	 
+   else if(settingName == "DATA_DEBUG") {
+		 varioLog.setDebug(DATA_DEBUG_LOG,toBoolean(settingValue));
+    }	 
   else {       
    }  
 	return ValeurDifferente;

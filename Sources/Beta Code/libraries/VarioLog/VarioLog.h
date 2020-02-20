@@ -77,6 +77,8 @@
 #define WIFI_DEBUG_LOG				12
 #define SOUND_DEBUG_LOG				13
 #define DEEPSLEEP_DEBUG_LOG   14
+#define VOLTAGE_DEBUG_LOG     15
+#define DATA_DEBUG_LOG				16
 
 #define LOG_TYPE_DEBUG				0
 #define LOG_TYPE_INFO					1
