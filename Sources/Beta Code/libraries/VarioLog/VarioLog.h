@@ -125,7 +125,7 @@ class VarioLog {
 #endif //SDFAT_LIB
    int logRotate(void);
 
-   VarioLog(char *filename, size_t maxSize, int backupCount);
+   VarioLog(char *directoty, char *filename, size_t maxSize, int backupCount);
    void send(const char *msg);
 	 void send(String msg);
 	 void writeSd(const char *msg);
@@ -133,7 +133,8 @@ class VarioLog {
 	 void openSd(void);
 	 
 protected:
-	 char *log_name;
+	 char *log_file;
+	 char *log_dir;
 	 size_t log_size;
 	 int log_backup;
 

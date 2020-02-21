@@ -56,6 +56,7 @@
  *    1.1.9  03/02/20   Changement de nom passage de 29 à 290                    *
  *    1.1.10 07/02/20   Ajout 290 et 291                                         *
  *                      Ajout FONTLARGE / FONTNORMAL pour Digit                  *
+ *    1.1.11 21/02/20   Correction bug affichage batterie                        *
  *********************************************************************************/ 
  /*
  *********************************************************************************
@@ -1801,6 +1802,8 @@ if    X< 1700 = deep sleep (comme ça si la sécu batterie ne fonctionne pas ou 
 #endif //SCREEN_DEBUG
 
 #if defined (SIMPLE_VOLTAGE_VIEW)
+
+  display.fillRect(posX, posY, 32, 32, GxEPD_WHITE);
 
   if (Voltage >= 2160)
     display.drawInvertedBitmap(274, 8, bat4icons, 17, 8, GxEPD_BLACK);   //GxEPD_BLACK);

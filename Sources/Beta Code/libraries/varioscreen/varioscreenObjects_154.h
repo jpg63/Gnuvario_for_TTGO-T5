@@ -60,6 +60,8 @@
  *                      Ajout Objet ScreenText                                   *
  *    1.1.8  09/02/20   Modif font screenText                                    *
  *    1.0.9  17/02/20   Ajout large (font) varioscreenDigit                      *
+ *    1.0.10 19/02/20   Ajout variolog                                           *
+ *    1.0.11 21/02/20   Correction Bug d'affichage batterie                      *
  *                                                                               *
  *********************************************************************************/
 

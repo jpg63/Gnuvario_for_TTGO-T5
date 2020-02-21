@@ -60,6 +60,8 @@
  *                      Ajout Objet ScreenText                                   *
  *    1.1.8  09/02/20   Modif font screenText                                    *
  *    1.0.9  17/02/20   Ajout large (font) varioscreenDigit                      *
+ *    1.0.10 19/02/20   Ajout variolog                                           *
+ *    1.0.11 21/02/20   Correction Bug d'affichage batterie                      *
  *                                                                               *
  *********************************************************************************/
  
@@ -92,6 +94,8 @@
 
 #define ARDUINOTRACE_SERIAL SerialPort
 #include <ArduinoTrace.h>
+
+#include <VarioLog.h>
 
 //#include <avr\dtostrf.h>
 #include <stdlib.h>
@@ -1747,6 +1751,8 @@ b=0.386384
   SerialPort.println(voltage);
 #endif //SCREEN_DEBUG
 
+	DUMP(voltage);
+	DUMPLOG(LOG_TYPE_DEBUG, VOLTAGE_DEBUG_LOG,voltage);
   Voltage = voltage;
 	
 #if not defined(SIMPLE_VOLTAGE_VIEW)
@@ -1802,12 +1808,17 @@ if    X< 1700 = deep sleep (comme ça si la sécu batterie ne fonctionne pas ou 
   /* battery level */
  /* uint16_t baseVoltage = base + inc;
   uint8_t pixelCount = 0;*/
-#ifdef SCREEN_DEBUG
+#ifdef VOLTAGE_DIVISOR_DEBUG
   SerialPort.println("Show : BatLevel");
 #endif //SCREEN_DEBUG
 
 #if defined (SIMPLE_VOLTAGE_VIEW)
 
+	DUMP(Voltage);
+	DUMPLOG(LOG_TYPE_DEBUG, VOLTAGE_DEBUG_LOG,Voltage);
+	
+  display.fillRect(posX, posY, 32, 32, GxEPD_WHITE);
+	
   if (Voltage >= 2160)
     display.drawInvertedBitmap(posX, posY, bat4icons, 32, 32, GxEPD_BLACK);   //GxEPD_BLACK);
   else if ((Voltage < 2160) && (Voltage >= 2100))
@@ -1822,7 +1833,7 @@ if    X< 1700 = deep sleep (comme ça si la sécu batterie ne fonctionne pas ou 
 	}
 
 #else //SIMPLE_VOLTAGE_VIEW
-#ifdef SCREEN_DEBUG
+#ifdef VOLTAGE_DIVISOR_DEBUG
   SerialPort.print("uVoltage : ");
   SerialPort.println(uVoltage);
 #endif //SCREEN_DEBUG

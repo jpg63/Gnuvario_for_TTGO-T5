@@ -75,16 +75,18 @@
 #include "esp_log.h"
 #endif //ESP32
 
-#define FILE_MAX_NAME   30 //15
+#define FILE_MAX_NAME   50 //15
 
-char logDirectory[20] = "logs/vario.log";
-VarioLog varioLog(logDirectory, 100000, 5);
+char logDirectory[20] = "logs/";
+char logFile[20] = "vario.log";
+VarioLog varioLog(logDirectory, logFile, 100000, 5);
 
 //******************************
-VarioLog::VarioLog(char *filename, size_t maxSize, int backupCount) {
+VarioLog::VarioLog(char *directory, char *filename, size_t maxSize, int backupCount) {
 //******************************
 
-  log_name 		= filename;
+	log_dir     = directory;
+  log_file 		= filename;
   log_size 		= maxSize;
   log_backup 	= backupCount;
 }
@@ -313,6 +315,10 @@ File VarioLog::openLog(void)
 //********************************************
 {
   File f;
+	char log_name[50];
+  strcpy(log_name, log_dir);
+	strcat(log_name, log_file);
+	
 
   if (SDHAL_SD->exists(log_name)) {
 #ifdef SDCARD_DEBUG
@@ -370,6 +376,9 @@ SdFile VarioLog::openLog(void)
 //********************************************
 {
   SdFile f;
+	char log_name[50];
+  strcpy(log_name, log_dir);
+	strcat(log_name, log_file);
 
   if (SDHAL_SD.exists(log_name)) {
 #ifdef SDCARD_DEBUG
@@ -437,23 +446,28 @@ int VarioLog::logRotate(void)
 	
   int count = 0, fno, flast = 0;
   size_t size;
+	char log_name[50];
+  strcpy(log_name, log_dir);
+	strcat(log_name, log_file);
 
-  File dir = SDHAL_SD.open("/");
+  File dir = SDHAL_SD.open("/logs/");
   if (!dir) {
 #ifdef SDCARD_DEBUG
-    SerialPort.println("/: error");
+    SerialPort.println("/logs : error");
 #endif
     return 0;
   }
   dir.rewindDirectory();
   while (true) {
     File entry = dir.openNextFile();
+		
     if (!entry) {
       break;
     }
+		
     char fname[FILE_MAX_NAME];
     strcpy(fname, entry.name());
-    if (!strncmp(fname, log_name, strlen(log_name))) {
+    if (!strncmp(fname, log_file, strlen(log_file))) {
 #ifdef SDCARD_DEBUG
 			char tmpstr[100];
 			sprintf(tmpstr, "found %s %ld\n", fname, entry.size());
@@ -557,9 +571,13 @@ int VarioLog::logRotate(void)
   int fno=0, flast = 0;
  // size_t size;
   SdFile file;
-  
 	SdFile dir;
-	bool retour = dir.open("logs", O_RDONLY);
+	
+	char log_name[50];
+  strcpy(log_name, log_dir);
+	strcat(log_name, log_file);
+	
+	bool retour = dir.open("/logs", O_RDONLY);
   if (!retour) {
 #ifdef SDCARD_DEBUG
     SerialPort.println("/logs: error");
@@ -567,10 +585,28 @@ int VarioLog::logRotate(void)
     return 0;
   }
 	
+  dir.rewind();
+#ifdef SDCARD_DEBUG
+  SerialPort.println("reniew");
+#endif
+	
   while (file.openNext(&dir, O_RDONLY)) {
     char fname[FILE_MAX_NAME];
     file.getName(fname, FILE_MAX_NAME);
-    if (!strncmp(fname, log_name, strlen(log_name))) {
+		
+#ifdef SDCARD_DEBUG
+    SerialPort.print("log file : ");
+		SerialPort.println(fname);
+#endif
+
+#ifdef SDCARD_DEBUG
+    SerialPort.print("log name : ");
+		SerialPort.print(log_name);
+		SerialPort.print(" / ");
+		SerialPort.println(strlen(log_name));
+#endif
+
+    if (!strncmp(fname, log_file, strlen(log_file))) {
 #ifdef SDCARD_DEBUG
 			char tmpstr[100];
 //			sprintf(tmpstr, "found %s %ld\n", fname, size);
@@ -586,8 +622,9 @@ int VarioLog::logRotate(void)
         }
       }
     }
+
+    file.close();
   }
-  file.close();
 	
 #ifdef SDCARD_DEBUG
 	char tmpstr[100];
@@ -669,6 +706,10 @@ int VarioLog::logRotate(void)
 void VarioLog::send(const char *msg)
 //********************************************
 {
+	char log_name[50];
+  strcpy(log_name, log_dir);
+	strcat(log_name, log_file);
+	
 #if not defined(SDFAT_LIB)
   File f = openLog();
   if (f) {
@@ -702,6 +743,10 @@ void VarioLog::send(String msg)
 void VarioLog::writeSd(const char *msg)
 //********************************************
 {
+ char log_name[50];
+  strcpy(log_name, log_dir);
+	strcat(log_name, log_file);
+
 #if not defined(SDFAT_LIB)
   if (logFile) {
 #else

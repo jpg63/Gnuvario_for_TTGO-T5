@@ -35,7 +35,7 @@
  *    1.0.6  12/08/19   Ajout gestion écran de config GPS                        *
  *    1.0.7  15/08/19   Ajout gestion bouton dans screeninit                     *
  *    1.0.8  15/09/19   Ajout écran connection Wifi - ScreenViewWifi             *
- *    1.0.9  22/08/19   Ajout ScreenViewReboot									 *
+ *    1.0.9  22/08/19   Ajout ScreenViewReboot									 								 *
  *    1.0.10 22/08/19   Ajout Page1                                              *
  *    1.0.11 23/08/19   Correction bug previousPage                              *
  *                      Ajout TUnit                                              *
@@ -55,7 +55,8 @@
  *    1.1.8  11/01/20   Modif VARIOSCREEN_SIZE == 290                            *
  *    1.1.9  03/02/20   Changement de nom passage de 29 à 290  					 				 *
  *    1.0.10 16/02/20   Adaptation écran 2.9" mode portrait						 					 *
- *						VARIOSCREEN_SIZE == 291              										 *	
+ *						VARIOSCREEN_SIZE == 291              										 					 *	
+ *    1.1.11 21/02/20   Correction bug affichage batterie                        *
  *********************************************************************************/
  /*
  *********************************************************************************
@@ -421,7 +422,7 @@ ScreenDigit::ScreenDigit(uint16_t anchorX, uint16_t anchorY, uint16_t width, uin
 	}
 
   if (large) Zheight  = 18+6;  //Hauteur des caractères + espace
-  else       Zheight  = 9+3;
+  else       Zheight  = 18+6;
 
     switch (displayTypeID) {
 		case DISPLAY_OBJECT_SPEED :
@@ -773,7 +774,7 @@ void ScreenDigit::show() {
 		
     switch (displayTypeID) {
 		case DISPLAY_OBJECT_SPEED :
-			display.drawBitmap(titleX+2, titleY-8, speedtext, 32, 10, GxEPD_BLACK);
+			display.drawBitmap(titleX+7, titleY-8, speedtext, 32, 10, GxEPD_BLACK);
 //			display.drawInvertedBitmap(0, 141, speedtext, 41, 14, GxEPD_BLACK);
 			break;
 		case DISPLAY_OBJECT_TIME :
@@ -786,7 +787,7 @@ void ScreenDigit::show() {
 			break;
 		case DISPLAY_OBJECT_VARIO :
 //			display.drawInvertedBitmap(0, 85, variotext, 31, 11, GxEPD_BLACK);
-			display.drawBitmap(titleX+22, titleY-8, variotext, 23, 7, GxEPD_BLACK);
+			display.drawBitmap(titleX+27, titleY-10, variotext, 23, 7, GxEPD_BLACK);
 			break;
 		case DISPLAY_OBJECT_RATIO :
 //			display.drawInvertedBitmap(13 2, 85, grtext, 21, 11, GxEPD_BLACK); //finesse/glade ratio
@@ -794,7 +795,7 @@ void ScreenDigit::show() {
 			break;
 			case DISPLAY_OBJECT_BEARING :
 //			display.drawInvertedBitmap(132, 85, grtext, 21, 11, GxEPD_BLACK); //finesse/glade ratio
-			display.drawInvertedBitmap(titleX, titleY-5, beartext, 36, 11, GxEPD_BLACK); //finesse/glade ratio
+			display.drawInvertedBitmap(titleX, titleY-6, beartext, 36, 11, GxEPD_BLACK); //finesse/glade ratio
 			break;
 		default :
 			break;
@@ -805,7 +806,7 @@ void ScreenDigit::show() {
 		display.drawLine(0, 150, 128, 150, GxEPD_BLACK);
 		display.drawLine(0, 200, 128, 200, GxEPD_BLACK);
 		display.drawLine(0, 250, 128, 250, GxEPD_BLACK);
-		display.drawLine(85, 150, 85, 200, GxEPD_BLACK);
+		display.drawLine(75, 150, 75, 200, GxEPD_BLACK);
 		
 		
 		
@@ -1068,7 +1069,7 @@ ScreenText::ScreenText(uint16_t anchorX, uint16_t anchorY, uint16_t width, bool 
   lastDisplayWidth = 0; 
 
   display.setFont(&FreeSansBold18pt7b);
-	if (large) display.setTextSize(2);
+	if (large) display.setTextSize(1);
 	else 			 display.setTextSize(1);	
 
 //  int16_t box_x = anchorX;
@@ -1214,10 +1215,13 @@ void ScreenText::show() {
 //  char digitCharacters[MAX_CHAR_IN_LINE];
 //	char tmpChar[MAX_CHAR_IN_LINE];
    
-	display.setFont(&FreeSansBold18pt7b);
-	if (large) display.setTextSize(2);
-	else 	   display.setTextSize(1);	
-
+	
+	if (large) {display.setFont(&FreeSansBold12pt7b);
+	display.setTextSize(1);
+	}
+	else {	display.setFont(&FreeSansBold18pt7b);   
+		display.setTextSize(1);	
+	}
 //  int16_t box_x = anchorX;
 //  int16_t box_y = anchorY;
 //  uint16_t w, h, w1, h1;
@@ -1811,6 +1815,8 @@ if    X< 1700 = deep sleep (comme ça si la sécu batterie ne fonctionne pas ou 
 
 #if defined (SIMPLE_VOLTAGE_VIEW)
 
+  display.fillRect(posX, posY, 32, 32, GxEPD_WHITE);
+
   if (Voltage >= 2160)
     display.drawInvertedBitmap(110, 8, bat4icons, 17, 8, GxEPD_BLACK);   //GxEPD_BLACK);
   else if ((Voltage < 2160) && (Voltage >= 2100))
@@ -2022,7 +2028,7 @@ const unsigned char saticons[] = {
 0x08, 0x42, 0x10, 0x08, 0x42, 0x10, 0x08, 0x42, 0x10, 0x08, 0x42, 0x10
 };
   
-const unsigned char satfixicons[] = { 
+/*const unsigned char satfixicons[] = { 
 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 
 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xfc, 0xff, 0xff, 0xff, 0xf8, 0xff, 0xff, 
 0xff, 0xe0, 0xff, 0xff, 0xff, 0xc0, 0xff, 0xff, 0xff, 0x80, 0xff, 0xff, 0xe0, 0x00, 0xfe, 0xff, 
@@ -2031,7 +2037,7 @@ const unsigned char satfixicons[] = {
 0xe0, 0x00, 0xfe, 0xff, 0xff, 0x80, 0xff, 0xff, 0xff, 0xc0, 0xff, 0xff, 0xff, 0xe0, 0xff, 0xff, 
 0xff, 0xf8, 0xff, 0xff, 0xff, 0xfc, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 
 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff
-};
+};/*
 
 
 
@@ -2091,7 +2097,7 @@ const unsigned char recicons[] = {
 };
 
 const unsigned char pauseicons[] = { 
- // 'Clock_4-24'
+ // 'Clock_24x24'
 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xc3, 0xff, 0xff, 0xc3, 0xff, 0xff, 0xe7, 0xff, 0xff, 
 0xc7, 0xdf, 0xff, 0x00, 0x8f, 0xfc, 0x7e, 0x1f, 0xf9, 0xff, 0x3f, 0xfb, 0xff, 0x9f, 0xf3, 0xfe, 
 0xcf, 0xf7, 0xfd, 0xef, 0xe7, 0xfb, 0xef, 0xe7, 0xf7, 0xef, 0xe7, 0xff, 0xef, 0xe7, 0xff, 0xef, 
@@ -2100,7 +2106,7 @@ const unsigned char pauseicons[] = {
 };
 
 const unsigned char fix1icons[] = { 
- // 'Arrow_46-24'
+ // 'Arrow_16-16'
 0xbf, 0xfd, 0x1b, 0xd8, 0x83, 0xc1, 0xc3, 0xc3, 0xc3, 0xc3, 0x83, 0xc1, 0xff, 0xff, 0xff, 0xff, 
 0xff, 0xff, 0xff, 0xff, 0x83, 0xc1, 0xc3, 0xc3, 0xc3, 0xc3, 0x83, 0xc1, 0x1b, 0xd8, 0xbf, 0xfd
 };
@@ -2112,7 +2118,7 @@ const unsigned char fix2icons[] = {
 };
 
 const unsigned char norecordicons[] = { 
-// 'Error-32', 32x32px
+// 'Error-32', 24x24px
 0xff, 0x81, 0xff, 0xfe, 0x00, 0x7f, 0xf8, 0x00, 0x1f, 0xf0, 0x7e, 0x0f, 0xe1, 0xff, 0x87, 0xc3, 
 0xff, 0x83, 0xc7, 0xff, 0x03, 0x8f, 0xfe, 0x31, 0x8f, 0xfc, 0x71, 0x1f, 0xf8, 0xf8, 0x1f, 0xf1, 
 0xf8, 0x1f, 0xe3, 0xf8, 0x1f, 0xc7, 0xf8, 0x1f, 0x8f, 0xf8, 0x1f, 0x1f, 0xf8, 0x8e, 0x3f, 0xf1, 
@@ -2432,11 +2438,11 @@ void ScreenElapsedTime::setCurrentTime(int8_t* currentTime) {
 
   // 16 x 16 
 const unsigned char fixgpsicons[] = { 
-// 'location-marker-24', 20x20px
-0xff, 0x0f, 0xf0, 0xfc, 0x03, 0xf0, 0xf8, 0x01, 0xf0, 0xf8, 0x61, 0xf0, 0xf0, 0xf0, 0xf0, 0xf0, 
-0xf0, 0xf0, 0xf0, 0xf0, 0xf0, 0xf0, 0xf0, 0xf0, 0xf0, 0x00, 0xf0, 0xf8, 0x01, 0xf0, 0xf8, 0x01, 
-0xf0, 0xf8, 0x01, 0xf0, 0xfc, 0x03, 0xf0, 0xfc, 0x03, 0xf0, 0xfe, 0x07, 0xf0, 0xfe, 0x07, 0xf0, 
-0xff, 0x0f, 0xf0, 0xff, 0x0f, 0xf0, 0xff, 0x9f, 0xf0, 0xff, 0xff, 0xf0
+// 'location-marker-24', 17x18px
+0xff, 0xff, 0x80, 0xff, 0xe7, 0x80, 0xff, 0x81, 0x80, 0xff, 0x00, 0x80, 0xfe, 0x1c, 0x00, 0xfe, 
+0x3c, 0x00, 0xfe, 0x3c, 0x00, 0xfe, 0x1c, 0x00, 0xfe, 0x00, 0x00, 0xff, 0x00, 0x80, 0xff, 0x00, 
+0x80, 0xff, 0x81, 0x80, 0xff, 0x81, 0x80, 0xff, 0xc3, 0x80, 0xff, 0xc3, 0x80, 0xff, 0xe3, 0x80, 
+0xff, 0xe7, 0x80, 0xff, 0xff, 0x80
 };
 
 
@@ -2470,10 +2476,10 @@ boolean FIXGPSInfo::getFixGps(void) {
 void FIXGPSInfo::show() {
 //****************************************************************************************************************************
 // display.drawBitmap(msicons, posX, posY, 48, 48, GxEPD_WHITE,false);   //GxEPD_BLACK);
- display.fillRect(posX, posY, 20, 20, GxEPD_WHITE);
+ display.fillRect(posX, posY, 17, 18, GxEPD_WHITE);
 // display.drawRect(posX, posY, 24, 24, GxEPD_BLACK);
 
- if (FixGPS == true) display.drawInvertedBitmap(posX, posY, fixgpsicons, 20, 20, GxEPD_BLACK);   //GxEPD_BLACK);
+ if (FixGPS == true) display.drawInvertedBitmap(posX, posY, fixgpsicons, 17, 18, GxEPD_BLACK);   //GxEPD_BLACK);
 // else                display.fillRect(posX, posY, 24, 24, GxEPD_WHITE);
   
 //  display.drawBitmap(100, 10, gridicons_sync, 24, 24, GxEPD_BLACK);

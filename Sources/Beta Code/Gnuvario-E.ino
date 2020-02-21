@@ -291,6 +291,8 @@ SimpleBLE ble;
 *                                    Correction Bug rotation du fichier de log                        *
 *                                    Mise à jour via internet - site Web + firmware                   *
 *               19/02/20             Ajout gestion écran 2.90'' en mode portrait                      *
+*               21/02/20             Correction Bug affichage batterie                                *
+*                                    Correction rotation fichier log                                  *
 *******************************************************************************************************
 *                                                                                                     *
 *                                   Developpement a venir                                             *
@@ -310,7 +312,6 @@ SimpleBLE ble;
 * MODIF - Modification librairie varioscreen - MAJ GxEpd2                                             *
 * BUG   - Affichage long - lat                                                                        *
 * MODIF - Passer long / lat sur 6 digits après la virgule                                             *
-* BUG   - Affichage niveau batterie                                                                   *
 *                                                                                                     *
 * VX.X                                                                                                *
 * Paramètrage des écrans                                                                              *
