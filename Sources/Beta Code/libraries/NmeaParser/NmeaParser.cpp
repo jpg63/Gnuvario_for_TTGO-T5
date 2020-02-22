@@ -80,6 +80,7 @@ void NmeaParser::beginGGA(void) {
   parserState_unset(DIGIT_PARSED);
 }
 
+ 
 void NmeaParser::feed(uint8_t c) {
 
   /* maybe we need to stop parsing */
@@ -98,9 +99,14 @@ void NmeaParser::feed(uint8_t c) {
       value *= 10;
       value += c - '0';
       parserState_set(DIGIT_PARSED);
+			comptdec++;
+      char tmpchar = c;
+			tmpstr = tmpstr + tmpchar;
     } else if ( c != '.') {
 			valuechar = c;
-		}
+		} else {
+			comptdec = 0;
+	  }
   }
 
   /* comma case */
@@ -144,17 +150,30 @@ void NmeaParser::feed(uint8_t c) {
 				
 				else if( commaCount == NMEA_PARSER_RMC_LONG_POS ) {
 					longitude = value;
+//          longitude = tmpstr.toInt();
 #ifdef NMEAPARSER_DEBUG
+          SerialPort.println("");
 					SerialPort.print("longitude : ");
-					SerialPort.println(((double)longitude) /NMEA_RMC_LONG_PRECISION);
+					SerialPort.print(longitude);
+					SerialPort.print(" / ");
+					double tmpdouble = longitude /NMEA_RMC_LONG_PRECISION;
+					SerialPort.println(tmpdouble);
+					SerialPort.println(tmpstr);
+					SerialPort.println(value);
 #endif //NMEAPARSER_DEBUG
 				}
 
 				else if( commaCount == NMEA_PARSER_RMC_LAT_POS ) {
 					latitude = value;
 #ifdef NMEAPARSER_DEBUG
+          SerialPort.println("");
 					SerialPort.print("latitude : ");
-					SerialPort.println(((double)latitude) /NMEA_RMC_LAT_PRECISION);
+					SerialPort.print(latitude);
+					SerialPort.print(" / ");
+					double tmpdouble = latitude /NMEA_RMC_LAT_PRECISION;					
+					SerialPort.println(tmpdouble);
+					SerialPort.println(tmpstr);
+					SerialPort.println(value);
 #endif //NMEAPARSER_DEBUG
 				}
      }
@@ -198,6 +217,8 @@ void NmeaParser::feed(uint8_t c) {
 
     /* reset value */
     value = 0;
+		comptdec = 0;
+		tmpstr = "";
     parserState_unset(DIGIT_PARSED);
   }
 }	

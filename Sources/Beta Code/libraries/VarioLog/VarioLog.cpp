@@ -79,7 +79,7 @@
 
 char logDirectory[20] = "logs/";
 char logFile[20] = "vario.log";
-VarioLog varioLog(logDirectory, logFile, 100000, 5);
+VarioLog varioLog(logDirectory, logFile, 1000000, 5);
 
 //******************************
 VarioLog::VarioLog(char *directory, char *filename, size_t maxSize, int backupCount) {

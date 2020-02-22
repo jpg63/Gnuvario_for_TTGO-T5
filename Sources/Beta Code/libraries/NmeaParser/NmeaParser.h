@@ -50,11 +50,11 @@
 #endif
 
 #ifndef NMEA_RMC_LAT_PRECISION
-#define NMEA_RMC_LAT_PRECISION 1000.0
+#define NMEA_RMC_LAT_PRECISION 1000000.0
 #endif
 
 #ifndef NMEA_RMC_LONG_PRECISION
-#define NMEA_RMC_LONG_PRECISION 10000.0
+#define NMEA_RMC_LONG_PRECISION 1000000.0
 #endif
 
 #ifndef NMEA_RMC_TRACK_PRECISION
@@ -98,10 +98,10 @@ class NmeaParser {
 	double   track;
 	double	 magnetic;
 	bool     magneticSens;
-	uint16_t latitude;
+	uint32_t latitude;
 	char		 latDir;
 	char     longDir;
-	uint16_t longitude;
+	uint32_t longitude;
 
   void beginRMC(void);
   void beginGGA(void);
@@ -135,7 +135,8 @@ class NmeaParser {
   uint32_t value;
 	char valuechar;
 	String DegreesToDegMinSec(double x);
-
+	int comptdec = 0;
+	String tmpstr = "";
 };
 
 #endif

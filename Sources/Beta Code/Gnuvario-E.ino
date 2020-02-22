@@ -312,6 +312,7 @@ SimpleBLE ble;
 * MODIF - Modification librairie varioscreen - MAJ GxEpd2                                             *
 * BUG   - Affichage long - lat                                                                        *
 * MODIF - Passer long / lat sur 6 digits après la virgule                                             *
+* MODIF - réécriture maj affichage                                                                    *
 *                                                                                                     *
 * VX.X                                                                                                *
 * Paramètrage des écrans                                                                              *
@@ -1749,6 +1750,10 @@ void loop() {
         /* parse sentence */        
         nmeaParser.feed( c );
 
+#ifdef NMEAPARSER_DEBUG
+)j          SerialPort.print(tmpchar);
+#endif //NMEAPARSER_DEBUG
+
 #ifdef HAVE_SDCARD          
         /* if GGA, convert to IGC and write to sdcard */
         if( sdcardState == SDCARD_STATE_READY && nmeaParser.isParsingGGA() ) {
@@ -1760,7 +1765,11 @@ void loop() {
         }
 #endif //HAVE_SDCARD
       }
-      
+
+#ifdef NMEAPARSER_DEBUG
+          SerialPort.println("");
+#endif //NMEAPARSER_DEBUG
+
       serialNmea.release();
 #ifdef HAVE_SDCARD          
       fileIgc.flush();
