@@ -30,6 +30,7 @@
  *    1.0.2  27/01/20   Ajout décodage Long / Lat                                *
  *    1.0.3  09/02/20   Ajout getLongDegree, getLatDegree et DegreesToDegMinSec  *
  *    1.0.4  10/02/20   Correction getlongDegree et DegreesToDegMinSec           *
+ *    1.0.6  25/02/20   Correction calcul long /lat                              *
  *                                                                               *
  *********************************************************************************/
 
@@ -49,13 +50,13 @@
 #define NMEA_RMC_SPEED_PRECISION 100.0
 #endif
 
-#ifndef NMEA_RMC_LAT_PRECISION
+/*#ifndef NMEA_RMC_LAT_PRECISION
 #define NMEA_RMC_LAT_PRECISION 1000000.0
-#endif
+#endif*/
 
-#ifndef NMEA_RMC_LONG_PRECISION
+/*#ifndef NMEA_RMC_LONG_PRECISION
 #define NMEA_RMC_LONG_PRECISION 1000000.0
-#endif
+#endif*/
 
 #ifndef NMEA_RMC_TRACK_PRECISION
 #define NMEA_RMC_TRACK_PRECISION 100.0
@@ -137,6 +138,10 @@ class NmeaParser {
 	String DegreesToDegMinSec(double x);
 	int comptdec = 0;
 	String tmpstr = "";
+	
+	double NMEA_RMC_LAT_PRECISION  = 1000000.0;
+	double NMEA_RMC_LONG_PRECISION = 1000000.0;
+
 };
 
 #endif

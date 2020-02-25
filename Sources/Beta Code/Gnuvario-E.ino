@@ -293,6 +293,7 @@ SimpleBLE ble;
 *               19/02/20             Ajout gestion écran 2.90'' en mode portrait                      *
 *               21/02/20             Correction Bug affichage batterie                                *
 *                                    Correction rotation fichier log                                  *
+*               25/02/20             Correction precision Lat/long                                    *                     
 *******************************************************************************************************
 *                                                                                                     *
 *                                   Developpement a venir                                             *
@@ -789,7 +790,7 @@ void setup() {
 #ifdef SDCARD_DEBUG
     SerialPort.println("initialization done.");
     SerialPort.flush();
-#endif //PROG_DEBUG
+#endif //SDCARD_DEBUG
 
 #if defined(ESP32)
     ESP_LOGI("SDCARD", "initialization done.");
@@ -1565,10 +1566,10 @@ void loop() {
 //  DISPLAY ALTI
 //**********************************************************
 
-#ifdef PROG_DEBUG
+#ifdef DATA_DEBUG
  //   SerialPort.print("altitude : ");
  //   SerialPort.println(currentalti);
-#endif //PROG_DEBUG
+#endif //DATA_DEBUG
 
     if (displayLowUpdateState) screen.altiDigit->setValue(currentalti);
 
@@ -1591,10 +1592,10 @@ void loop() {
     if( history.haveNewClimbRate() ) {
       double TmpTrend;
       TmpTrend = history.getClimbRate(GnuSettings.SETTINGS_CLIMB_PERIOD_COUNT);
-#ifdef PROG_DEBUG
+#ifdef DATA_DEBUG
       SerialPort.print("Trend value : ");
       SerialPort.println(TmpTrend);
-#endif //PROG_DEBUG
+#endif //DATA_DEBUG
       
       if (displayLowUpdateState) {
         if (GnuSettings.RATIO_CLIMB_RATE > 1) {
@@ -1602,9 +1603,9 @@ void loop() {
           else                    screen.trendDigit->setValue(9.9);
         }
 
-#ifdef PROG_DEBUG
+#ifdef DATA_DEBUG
         SerialPort.println("display trendLevel");
-#endif //PROG_DEBUG
+#endif //DATA_DEBUG
 
         if (TmpTrend == 0)     screen.trendLevel->stateTREND(0);
         else if (TmpTrend > 0) screen.trendLevel->stateTREND(1);
@@ -1751,7 +1752,8 @@ void loop() {
         nmeaParser.feed( c );
 
 #ifdef NMEAPARSER_DEBUG
-)j          SerialPort.print(tmpchar);
+        char tmpchar = c;
+        SerialPort.print(tmpchar);
 #endif //NMEAPARSER_DEBUG
 
 #ifdef HAVE_SDCARD          
@@ -2182,12 +2184,12 @@ void loop() {
 
       double bearing    = nmeaParser.getBearing();
       String bearingStr = nmeaParser.Bearing_to_Ordinal(bearing);
-#ifdef PROG_DEBUG
+#ifdef DATA_DEBUG
       SerialPort.print("Compas : ");
       SerialPort.print(bearing);
       SerialPort.print(" - ");
-      SerialPort.print(bearingStr);
-#endif //PROG_DEBUG     
+      SerialPort.println(bearingStr);
+#endif //DATA_DEBUG     
       DUMPLOG(LOG_TYPE_DEBUG, DATA_DEBUG_LOG, bearing);
       DUMPLOG(LOG_TYPE_DEBUG, DATA_DEBUG_LOG, bearingStr);
 
@@ -2198,10 +2200,10 @@ void loop() {
     if (nmeaParser.haveLongitude()) {
 
       String longitude = nmeaParser.getLongitude();
-#ifdef PROG_DEBUG
+#ifdef DATA_DEBUG
       SerialPort.print("Longitude : ");
       SerialPort.println(longitude);
-#endif //PROG_DEBUG     
+#endif //DATA_DEBUG     
       DUMPLOG(LOG_TYPE_DEBUG, DATA_DEBUG_LOG, longitude);
 
 //      screen.gpsLongDir->setValue(String(nmeaParser.getLongDir()));
@@ -2212,10 +2214,10 @@ void loop() {
     if (nmeaParser.haveLatitude()) {
 
       String latitude = nmeaParser.getLatitude();
-#ifdef PROG_DEBUG
+#ifdef DATA_DEBUG
       SerialPort.print("Latitude : ");
       SerialPort.println(latitude);
-#endif //PROG_DEBUG     
+#endif //DATA_DEBUG     
       DUMPLOG(LOG_TYPE_DEBUG, DATA_DEBUG_LOG, latitude);
 //      screen.gpsLatDir->setValue(String(nmeaParser.getLatDir()));
 //      screen.gpsLat->setValue(nmeaParser.getLat());

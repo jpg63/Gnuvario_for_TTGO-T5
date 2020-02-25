@@ -31,16 +31,18 @@
  *    1.0.2  06/10/19   Mise à jour ratamuse                                     *
  *    1.0.3  13/10/19   Integration au GnuVario                                  *
  *                      Ajout wind                                               *
- *    1.0.4  16/11/19   Modif updateScreen										 									 *    
- *	  1.0.5	 11/01/20		Modif ScreenViewPage						     	 									 *
+ *    1.0.4  16/11/19   Modif updateScreen										 *    
+ *	  1.0.5	 11/01/20		Modif ScreenViewPage						     	 *
  *                      VARIOSCREEN_SIZE == 290                                  *
- *    1.0.6  17/01/20   Desactivation effacement ligne 1534						 					 *
+ *    1.0.6  17/01/20   Desactivation effacement ligne 1534						 *
  *    1.0.7  18/01/20   Modif  ScreenViewMessage                                 *
  *    1.0.8  28/01/20   Modification écran 1 - ajout info gps                    *
  *    1.0.9  03/02/20   changement de nom passage de 29 à 290                    *
  *    1.0.10 09/02/20   Modif écran 1 - font normal / coordonné GPS en degrés    *
- *	  1.0.11 16/02/20	Adaptation écran 2.9" mode portrait												 *
- *	                    VARIOSCREEN_SIZE == 291																	 *
+ *	  1.0.11 16/02/20	Adaptation écran 2.9" mode portrait						 *
+ *	                    VARIOSCREEN_SIZE == 291									 *
+ *    1.0.12 23/02/20   Ajout d'objets texte (compass, Lat, Long), changement    *
+ *					    de taille de texte                                       *
  *********************************************************************************/
  
  /*
@@ -147,31 +149,31 @@ volatile uint8_t stateMulti = 0;
 /*****************************************/
 
 #define VARIOSCREEN_ALTI_ANCHOR_X 80				//Altidude
-#define VARIOSCREEN_ALTI_ANCHOR_Y 85
-#define VARIOSCREEN_ALTI_UNIT_ANCHOR_X  82
+#define VARIOSCREEN_ALTI_ANCHOR_Y 86
+#define VARIOSCREEN_ALTI_UNIT_ANCHOR_X  83
 #define VARIOSCREEN_VARIO_ANCHOR_X 85
 #define VARIOSCREEN_VARIO_ANCHOR_Y 140
-#define VARIOSCREEN_VARIO_UNIT_ANCHOR_X 90
+#define VARIOSCREEN_VARIO_UNIT_ANCHOR_X 95
 #define VARIOSCREEN_VARIO_UNIT_ANCHOR_Y 117
 #define VARIOSCREEN_SPEED_ANCHOR_X 45
-#define VARIOSCREEN_SPEED_ANCHOR_Y 190
+#define VARIOSCREEN_SPEED_ANCHOR_Y 193
 #define VARIOSCREEN_SPEED_UNIT_ANCHOR_X 48
-#define VARIOSCREEN_SPEED_UNIT_ANCHOR_Y 165
+#define VARIOSCREEN_SPEED_UNIT_ANCHOR_Y 168
 #define VARIOSCREEN_GR_ANCHOR_X 80                  //Finesse
 #define VARIOSCREEN_GR_ANCHOR_Y 190
 #define VARIOSCREEN_INFO_ANCHOR_X 94				// icone USB
 #define VARIOSCREEN_INFO_ANCHOR_Y 20
 #define VARIOSCREEN_VOL_ANCHOR_X 0				//Volume
 #define VARIOSCREEN_VOL_ANCHOR_Y 3
-#define VARIOSCREEN_RECCORD_ANCHOR_X 33				//Fleches, horloge, enregistrement 
+#define VARIOSCREEN_RECCORD_ANCHOR_X 30				//Fleches, horloge, enregistrement 
 #define VARIOSCREEN_RECCORD_ANCHOR_Y 0
 #define VARIOSCREEN_BAT_ANCHOR_X 110				//Batterie
 #define VARIOSCREEN_BAT_ANCHOR_Y 8
-#define VARIOSCREEN_SAT_ANCHOR_X 72				//Nombre de satellites
+#define VARIOSCREEN_SAT_ANCHOR_X 75				//Nombre de satellites
 #define VARIOSCREEN_SAT_ANCHOR_Y 2
-#define VARIOSCREEN_SAT_FIX_ANCHOR_X 50			//GPS fixé
+#define VARIOSCREEN_SAT_FIX_ANCHOR_X 53			//GPS fixé
 #define VARIOSCREEN_SAT_FIX_ANCHOR_Y 2
-#define VARIOSCREEN_TIME_ANCHOR_X 110
+#define VARIOSCREEN_TIME_ANCHOR_X 125
 #define VARIOSCREEN_TIME_ANCHOR_Y 243
 #define VARIOSCREEN_ELAPSED_TIME_ANCHOR_X 110
 #define VARIOSCREEN_ELAPSED_TIME_ANCHOR_Y 243
@@ -327,7 +329,7 @@ void VarioScreen::createScreenObjectsPage0(void) {
 
 	fixgpsinfo = new FIXGPSInfo(VARIOSCREEN_SAT_FIX_ANCHOR_X, VARIOSCREEN_SAT_FIX_ANCHOR_Y);
 	btinfo = new BTInfo(VARIOSCREEN_BT_ANCHOR_X, VARIOSCREEN_BT_ANCHOR_Y);
-	gpsBearingText = new ScreenText(VARIOSCREEN_BEARING_TEXT_ANCHOR_X, VARIOSCREEN_BEARING_TEXT_ANCHOR_Y, 3, FONTNORMAL, ALIGNLEFT, false, DISPLAY_OBJECT_BEARING_TEXT);
+	gpsBearingText = new ScreenText(VARIOSCREEN_BEARING_TEXT_ANCHOR_X, VARIOSCREEN_BEARING_TEXT_ANCHOR_Y, 3, FONTNORMAL, ALIGNLEFT, true, DISPLAY_OBJECT_BEARING_TEXT);
 	gpsBearing = new ScreenDigit(VARIOSCREEN_BEARING_ANCHOR_X, VARIOSCREEN_BEARING_ANCHOR_Y, 3, 0, false, false, ALIGNRIGHT, true, DISPLAY_OBJECT_BEARING, FONTNORMAL);
 	
 	
@@ -342,6 +344,7 @@ void VarioScreen::createScreenObjectsPage0(void) {
 	bgline4 = new BGLine(1, 28, 127, 28);	
 	
 	wind = new WIND(VARIOSCREEN_WIND_ANCHOR_X, VARIOSCREEN_WIND_ANCHOR_Y);
+	
 	
 //	bgcircle = new BGCircle(245, 80, 40);
 }
@@ -363,8 +366,8 @@ void VarioScreen::createScreenObjectsPage1(void) {
 //	gpsBearing 					= new ScreenDigit(VARIOSCREEN_BEARING_ANCHOR_X, VARIOSCREEN_BEARING_ANCHOR_Y, 3, 0, false, false, ALIGNRIGHT, true, DISPLAY_OBJECT_BEARING, FONTNORMAL);
 //	gpsLat    					= new ScreenDigit(VARIOSCREEN_LAT_ANCHOR_X, VARIOSCREEN_LAT_ANCHOR_Y, 6, 3, false, false, ALIGNRIGHT, false, DISPLAY_OBJECT_LAT);
 //	gpsLong   					= new ScreenDigit(VARIOSCREEN_LONG_ANCHOR_X, VARIOSCREEN_LONG_ANCHOR_Y, 6, 3, false, false, ALIGNRIGHT, false, DISPLAY_OBJECT_LONG);
-    gpsLat 						= new ScreenText(VARIOSCREEN_LAT_ANCHOR_X, VARIOSCREEN_LAT_ANCHOR_Y, 11, FONTLARGE, ALIGNLEFT, false, DISPLAY_OBJECT_LAT);
-	gpsLong					    = new ScreenText(VARIOSCREEN_LONG_ANCHOR_X, VARIOSCREEN_LONG_ANCHOR_Y, 11, FONTLARGE, ALIGNLEFT, false, DISPLAY_OBJECT_LONG);
+    gpsLat 						= new ScreenText(VARIOSCREEN_LAT_ANCHOR_X, VARIOSCREEN_LAT_ANCHOR_Y, 11, FONTLARGE, ALIGNLEFT, true, DISPLAY_OBJECT_LAT);
+	gpsLong					    = new ScreenText(VARIOSCREEN_LONG_ANCHOR_X, VARIOSCREEN_LONG_ANCHOR_Y, 11, FONTLARGE, ALIGNLEFT, true, DISPLAY_OBJECT_LONG);
 
 //	tempDigit 					= new ScreenDigit(VARIOSCREEN_TEMP_ANCHOR_X, VARIOSCREEN_TEMP_ANCHOR_Y, 2, 0, false, false, ALIGNLEFT, false, DISPLAY_OBJECT_TEMPERATURE);
 //	tunit 						= new TUnit(VARIOSCREEN_TEMP_UNIT_ANCHOR_X, VARIOSCREEN_TEMP_ANCHOR_Y);
@@ -455,7 +458,8 @@ void VarioScreen::createScreenObjectsDisplayPage1(void) {
 		CreateObjectDisplay(DISPLAY_OBJECT_SATLEVEL					, satLevel					, 1, 0, true); 
 		CreateObjectDisplay(DISPLAY_OBJECT_FIXGPSINFO				, fixgpsinfo				, 1, 0, true); 
 		CreateObjectDisplay(DISPLAY_OBJECT_BTINFO						, btinfo						, 1, 0, true); 
-
+		CreateObjectDisplay(DISPLAY_OBJECT_KMHUNIT				  , kmhunit								, 1, 0, true); 
+		CreateObjectDisplay(DISPLAY_OBJECT_SPEED						, speedDigit				    , 1, 0, true); 
 }	
 
 //****************************************************************************************************************************
@@ -991,7 +995,7 @@ void VarioScreen::ScreenViewWifi(String SSID, String IP)
 			display.setTextColor(ColorText);
 			display.setTextSize(2);
 
-			display.setCursor(15, 50);
+			display.setCursor(20, 50);
 			display.print("WIFI");
 
 			display.setTextSize(1);
@@ -1021,7 +1025,7 @@ void VarioScreen::ScreenViewWifi(String SSID, String IP)
 
 		updateScreen ();
 	} else {
-		display.setCursor(5, 210);
+		display.setCursor(30, 200);
 		display.print("START");
 		
 #ifdef SCREEN_DEBUG

@@ -1838,7 +1838,7 @@ if    X< 1700 = deep sleep (comme ça si la sécu batterie ne fonctionne pas ou 
   SerialPort.println(uVoltage);
 #endif //SCREEN_DEBUG
 
-//  display.fillRect(posX, posY, 32, 32, GxEPD_WHITE);
+  display.fillRect(posX, posY, 32, 32, GxEPD_WHITE);
 //	display.drawRect(posX, posY, 32, 32, GxEPD_BLACK);
   
   if (pVoltage >= 75)

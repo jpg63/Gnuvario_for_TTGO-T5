@@ -31,6 +31,7 @@
  *    1.0.3  09/02/20   Ajout getLongDegree, getLatDegree et DegreesToDegMinSec  *
  *    1.0.4  10/02/20   Correction getlongDegree et DegreesToDegMinSec           *
  *    1.0.5  12/02/20   Ajout tracedebug                                         *
+ *    1.0.6  25/02/20   Correction calcul long /lat                              *
  *                                                                               *
  *********************************************************************************/
 
@@ -153,11 +154,17 @@ void NmeaParser::feed(uint8_t c) {
 //          longitude = tmpstr.toInt();
 #ifdef NMEAPARSER_DEBUG
           SerialPort.println("");
+					SerialPort.print("comptdec : ");
+					SerialPort.println(comptdec);					
 					SerialPort.print("longitude : ");
 					SerialPort.print(longitude);
 					SerialPort.print(" / ");
+					NMEA_RMC_LONG_PRECISION = 1;
+					for (int i=0; i < comptdec; i++) NMEA_RMC_LONG_PRECISION *= 10;				
+					NMEA_RMC_LONG_PRECISION *= 100;
 					double tmpdouble = longitude /NMEA_RMC_LONG_PRECISION;
 					SerialPort.println(tmpdouble);
+					DUMP(NMEA_RMC_LONG_PRECISION);
 					SerialPort.println(tmpstr);
 					SerialPort.println(value);
 #endif //NMEAPARSER_DEBUG
@@ -167,11 +174,17 @@ void NmeaParser::feed(uint8_t c) {
 					latitude = value;
 #ifdef NMEAPARSER_DEBUG
           SerialPort.println("");
+					SerialPort.print("comptdec : ");
+					SerialPort.println(comptdec);					
 					SerialPort.print("latitude : ");
 					SerialPort.print(latitude);
 					SerialPort.print(" / ");
+					NMEA_RMC_LAT_PRECISION = 1;
+					for (int i=0; i < comptdec; i++) NMEA_RMC_LAT_PRECISION *= 10;				
+					NMEA_RMC_LAT_PRECISION *= 100;
 					double tmpdouble = latitude /NMEA_RMC_LAT_PRECISION;					
 					SerialPort.println(tmpdouble);
+					DUMP(NMEA_RMC_LONG_PRECISION);
 					SerialPort.println(tmpstr);
 					SerialPort.println(value);
 #endif //NMEAPARSER_DEBUG
