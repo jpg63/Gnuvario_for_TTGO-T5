@@ -41,7 +41,8 @@
  *    1.0.10 09/02/20   Modif écran 1 - font normal / coordonné GPS en degrés    *
  *    1.0.11 17/02/20   Ajout 2.90 et 2.91                                      *
  *                      Ajout FONTLARGE / FONTNORMAL                             *
- *********************************************************************************/
+ *    1.0.11 25/02/20   Ajout ScreenBackground                                   *
+*********************************************************************************/
  
  /*
  *********************************************************************************
@@ -332,10 +333,10 @@ void VarioScreen::createScreenObjectsPage0(void) {
   display.drawLine(295, 26, 295, 0, GxEPD_BLACK);
   display.drawLine(191, 26, 191, 127, GxEPD_BLACK);*/
 	
-	bgline1 = new BGLine(130, 26, 295, 26);
+/*	bgline1 = new BGLine(130, 26, 295, 26);
 	bgline2 = new BGLine(130, 26, 130, 0);
 	bgline3 = new BGLine(295, 26, 295, 0);
-	bgline4 = new BGLine(190, 26, 190, 127);	
+	bgline4 = new BGLine(190, 26, 190, 127);*/	
 	
 	wind = new WIND(VARIOSCREEN_WIND_ANCHOR_X, VARIOSCREEN_WIND_ANCHOR_Y);
 	
@@ -402,10 +403,10 @@ void VarioScreen::createScreenObjectsDisplayPage0(void) {
 		CreateObjectDisplay(DISPLAY_OBJECT_FIXGPSINFO				, fixgpsinfo				, 0, 0, true); 
 		CreateObjectDisplay(DISPLAY_OBJECT_BTINFO					, btinfo			     	  , 0, 0, true); 
 
-		CreateObjectDisplay(DISPLAY_OBJECT_LINE	          	, bgline1           , 0, 0, false);
+/*		CreateObjectDisplay(DISPLAY_OBJECT_LINE	          	, bgline1           , 0, 0, false);
 		CreateObjectDisplay(DISPLAY_OBJECT_LINE	          	, bgline2           , 0, 0, false);
 		CreateObjectDisplay(DISPLAY_OBJECT_LINE	          	, bgline3           , 0, 0, false);
-		CreateObjectDisplay(DISPLAY_OBJECT_LINE	          	, bgline4           , 0, 0, false);
+		CreateObjectDisplay(DISPLAY_OBJECT_LINE	          	, bgline4           , 0, 0, false);*/
 
 		CreateObjectDisplay(DISPLAY_OBJECT_WIND         		, wind          		, 0, 0, true);				
 
@@ -449,6 +450,30 @@ void VarioScreen::createScreenObjectsDisplayPage1(void) {
 		CreateObjectDisplay(DISPLAY_OBJECT_BTINFO						, btinfo						, 1, 0, true); 
 
 }	
+
+//****************************************************************************************************************************
+void VarioScreen::ScreenBackground(int8_t page)
+//****************************************************************************************************************************
+{
+	switch (page) {
+	  case 0:
+			display.drawLine(130, 26, 295, 26, GxEPD_BLACK);
+			display.drawLine(130, 26, 130, 0, GxEPD_BLACK);
+			display.drawLine(295, 26, 295, 0, GxEPD_BLACK);
+			display.drawLine(190, 26, 190, 127, GxEPD_BLACK);
+//			display.drawCircle(245, 80, 40, GxEPD_BLACK);	
+			break;
+	  case 1:
+			display.drawLine(130, 26, 295, 26, GxEPD_BLACK);
+			display.drawLine(130, 26, 130, 0, GxEPD_BLACK);
+			display.drawLine(295, 26, 295, 0, GxEPD_BLACK);
+			display.drawLine(190, 26, 190, 127, GxEPD_BLACK);
+//			display.drawCircle(245, 80, 40, GxEPD_BLACK);
+			break;
+	  default:
+			break;
+	}
+}
 
 //****************************************************************************************************************************
 void VarioScreen::begin(void)
@@ -1559,6 +1584,9 @@ void ScreenScheduler::displayStep(void) {
 //		display.fillRect(0, 0, display.width(), display.height(), GxEPD_WHITE);
 		//.clearScreen();
 	}
+	
+	
+	screen.ScreenBackground(currentPage);
 	
 #ifdef SCREEN_DEBUG
   SerialPort.println("displayStep : Display");

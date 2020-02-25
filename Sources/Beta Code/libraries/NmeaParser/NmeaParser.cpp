@@ -152,6 +152,10 @@ void NmeaParser::feed(uint8_t c) {
 				else if( commaCount == NMEA_PARSER_RMC_LONG_POS ) {
 					longitude = value;
 //          longitude = tmpstr.toInt();
+					NMEA_RMC_LONG_PRECISION = 1;
+					for (int i=0; i < comptdec; i++) NMEA_RMC_LONG_PRECISION *= 10;				
+					NMEA_RMC_LONG_PRECISION *= 100;
+
 #ifdef NMEAPARSER_DEBUG
           SerialPort.println("");
 					SerialPort.print("comptdec : ");
@@ -159,9 +163,6 @@ void NmeaParser::feed(uint8_t c) {
 					SerialPort.print("longitude : ");
 					SerialPort.print(longitude);
 					SerialPort.print(" / ");
-					NMEA_RMC_LONG_PRECISION = 1;
-					for (int i=0; i < comptdec; i++) NMEA_RMC_LONG_PRECISION *= 10;				
-					NMEA_RMC_LONG_PRECISION *= 100;
 					double tmpdouble = longitude /NMEA_RMC_LONG_PRECISION;
 					SerialPort.println(tmpdouble);
 					DUMP(NMEA_RMC_LONG_PRECISION);
@@ -172,6 +173,10 @@ void NmeaParser::feed(uint8_t c) {
 
 				else if( commaCount == NMEA_PARSER_RMC_LAT_POS ) {
 					latitude = value;
+					NMEA_RMC_LAT_PRECISION = 1;
+					for (int i=0; i < comptdec; i++) NMEA_RMC_LAT_PRECISION *= 10;				
+					NMEA_RMC_LAT_PRECISION *= 100;
+					
 #ifdef NMEAPARSER_DEBUG
           SerialPort.println("");
 					SerialPort.print("comptdec : ");
@@ -179,9 +184,6 @@ void NmeaParser::feed(uint8_t c) {
 					SerialPort.print("latitude : ");
 					SerialPort.print(latitude);
 					SerialPort.print(" / ");
-					NMEA_RMC_LAT_PRECISION = 1;
-					for (int i=0; i < comptdec; i++) NMEA_RMC_LAT_PRECISION *= 10;				
-					NMEA_RMC_LAT_PRECISION *= 100;
 					double tmpdouble = latitude /NMEA_RMC_LAT_PRECISION;					
 					SerialPort.println(tmpdouble);
 					DUMP(NMEA_RMC_LONG_PRECISION);

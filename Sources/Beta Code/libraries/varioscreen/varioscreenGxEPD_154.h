@@ -37,6 +37,7 @@
  *    1.0.8  28/01/20   Modification écran 1 - ajout info gps                    *
  *    1.0.9  09/02/20   Modif écran 1 - font normal / coordonné GPS en degrés    *
  *    1.0.10 17/02/20   Ajout large (font) varioscreenDigit                      *
+ *    1.0.11 25/02/20   Ajout ScreenBackground                                   *
  *                                                                               *
  *********************************************************************************/
 
@@ -232,6 +233,7 @@ class VarioScreen {
 	void ScreenViewReboot(String message = "");
   void ScreenViewSound(int volume);	
 	void ScreenViewMessage(String message, int delai);
+	void ScreenBackground(int8_t page);
 		
 	void CreateObjectDisplay(int8_t ObjectDisplayTypeID, VarioScreenObject* object, int8_t page, int8_t multiDisplayID, boolean actif); 
 	void updateData(int8_t ObjectDisplayTypeID, double data);

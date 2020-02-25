@@ -1,4 +1,4 @@
-/* varioscreenObjects_291 -- 
+/* varioscreenObjects_290 -- 
  *
  * Copyright 2019 Jean-philippe GOI / Pierre FRANCIA
  * 
@@ -35,12 +35,12 @@
  *    1.0.6  12/08/19   Ajout gestion écran de config GPS                        *
  *    1.0.7  15/08/19   Ajout gestion bouton dans screeninit                     *
  *    1.0.8  15/09/19   Ajout écran connection Wifi - ScreenViewWifi             *
- *    1.0.9  22/08/19   Ajout ScreenViewReboot									 *
+ *    1.0.9  22/08/19   Ajout ScreenViewReboot																	 *
  *    1.0.10 22/08/19   Ajout Page1                                              *
  *    1.0.11 23/08/19   Correction bug previousPage                              *
  *                      Ajout TUnit                                              *
  *    1.0.12 24/08/19   Ajout ScreenViewSound(int volume)                        *
- *		1.0.13 25/08/19		Gestion de l'écran de config du son					 *	
+ *		1.0.13 25/08/19		Gestion de l'écran de config du son											 *	
  *    1.0.14 23/09/19   Modification page stat                                   *
  *                      Modification de l'affichage de la charge de la betterie  *
  *                      Ajout d'un deep-sleep en cas de batterie trop faible     *
@@ -50,17 +50,15 @@
  *    1.1.3  13/10/19   Integration au Gnuvario                                  *
  *    1.1.4  14/10/19   Modification affichage titre champs screendigit          *
  *    1.1.5  15/10/19   Modification affichage des satellites                    *
- *    1.1.6  20/10/19   Suppression classe GxEPD2_BW_U							 *
+ *    1.1.6  20/10/19   Suppression classe GxEPD2_BW_U													 *
  *    1.1.7  16/11/19   Ajout classe GxEPD2_BW_U                                 *
  *    1.1.8  11/01/20   Modif VARIOSCREEN_SIZE == 290                            *
- *    1.1.9  03/02/20   Changement de nom passage de 29 à 290  					 *
- *    1.1.10 16/02/20   Adaptation écran 2.9" mode portrait						 *
- *						VARIOSCREEN_SIZE == 291              					 *	
- *    1.1.11 21/02/20   Correction bug affichage batterie                        *
- *    1.0.12 19/02/20   Ajout variolog                                           *
- *    1.1.13 23/02/20   Ajout d'objets texte (compass, Lat, Long), changement    *
- *					    de taille de texte                                       *
- *********************************************************************************/
+ *    1.1.9  03/02/20   Changement de nom passage de 29 à 290                    *
+ *    1.1.10 07/02/20   Ajout 290 et 291                                         *
+ *                      Ajout FONTLARGE / FONTNORMAL pour Digit                  *
+ *    1.0.11 19/02/20   Ajout variolog                                           *
+ *    1.1.12 21/02/20   Correction bug affichage batterie                        *
+ *********************************************************************************/ 
  /*
  *********************************************************************************
  *                    conversion image to cpp code                               *
@@ -74,9 +72,9 @@
 #include <HardwareConfig.h>
 #include <DebugConfig.h>
 
-#if (VARIOSCREEN_SIZE == 291)
+#if (VARIOSCREEN_SIZE == 290)
 
-#include <varioscreenObjects_291.h>
+#include <varioscreenObjects_290.h>
 
 #if defined(ESP32)
 //static const char* TAG = "VarioScreen";
@@ -91,8 +89,6 @@
 
 #define ARDUINOTRACE_SERIAL SerialPort
 #include <ArduinoTrace.h>
-
-#include <VarioLog.h>
 
 //#include <avr\dtostrf.h>
 #include <stdlib.h>
@@ -110,7 +106,7 @@
 //#include "GxEPD2_more_boards_added.h" // private
 
 #include <imglib/gridicons_sync.h>
-#include <varioscreenIcone_291.h>
+#include <varioscreenIcone_290.h>
 
 #include <VarioSettings.h>
 #include <toneHAL.h>
@@ -360,8 +356,9 @@ ScreenDigit::ScreenDigit(uint16_t anchorX, uint16_t anchorY, uint16_t width, uin
   lastDisplayWidth = 0; 
 
   display.setFont(&FreeSansBold9pt7b);
-  if (large) display.setTextSize(1);
-  else display.setTextSize(1);
+  if (large) 	display.setTextSize(2);
+	else 				display.setTextSize(1);
+
 
   int16_t box_x = anchorX;
   int16_t box_y = anchorY;
@@ -425,8 +422,8 @@ ScreenDigit::ScreenDigit(uint16_t anchorX, uint16_t anchorY, uint16_t width, uin
 	  Zwidth   = w-box_x+2;
 	}
 
-  if (large) Zheight  = 18+6;  //Hauteur des caractères + espace
-  else       Zheight  = 9+3;
+   if (large)	Zheight  = 18+6;  //Hauteur des caractères + espace
+   else			Zheight  = 9+3;
 
     switch (displayTypeID) {
 		case DISPLAY_OBJECT_SPEED :
@@ -469,19 +466,38 @@ ScreenDigit::ScreenDigit(uint16_t anchorX, uint16_t anchorY, uint16_t width, uin
 #if defined (MAXW_OBJECT_RATION)		
 		  MaxWidth   = MAXW_OBJECT_RATION;
 #else
-		  MaxWidth   = Zwidth+5;
+		  MaxWidth   = Zwidth;
 #endif	
 			MaxHeight  = Zheight;	
 			break;
-case DISPLAY_OBJECT_BEARING :
-#if defined (MAXW_OBJECT_BEARING)		
+
+		case DISPLAY_OBJECT_LAT :
+#if defined (MAXW_OBJECT_LAT)		
+		  MaxWidth   = MAXW_OBJECT_LAT;
+#else
+		  MaxWidth   = Zwidth;
+#endif	
+			MaxHeight  = Zheight;
+			break;
+
+		case DISPLAY_OBJECT_LONG :
+#if defined (MAXW_OBJECT_LONG)		
+		  MaxWidth   = MAXW_OBJECT_LONG;
+#else
+		  MaxWidth   = Zwidth;
+#endif	
+			MaxHeight  = Zheight;
+			break;	
+
+		case DISPLAY_OBJECT_BEARING :
+#if defined (MAXW_OBJECT_LONG)		
 		  MaxWidth   = MAXW_OBJECT_BEARING;
 #else
 		  MaxWidth   = Zwidth;
 #endif	
 			MaxHeight  = Zheight;
 			break;
-			
+		
 		default :
 		  MaxWidth   = Zwidth;
 			MaxHeight  = Zheight;
@@ -759,38 +775,30 @@ void ScreenDigit::show() {
 		
     switch (displayTypeID) {
 		case DISPLAY_OBJECT_SPEED :
-			display.drawInvertedBitmap(titleX+7, titleY-9, speedtext, 35, 11, GxEPD_BLACK);
-//			
+			display.drawBitmap(titleX+2, titleY-7, speedtext, 32, 10, GxEPD_BLACK);
+//			display.drawInvertedBitmap(0, 141, speedtext, 41, 14, GxEPD_BLACK);
 			break;
 		case DISPLAY_OBJECT_TIME :
-//			
-			display.drawInvertedBitmap(titleX+2, titleY-10, timetext, 27, 9, GxEPD_BLACK);
+//			display.drawInvertedBitmap(85, 141, timetext, 24, 7, GxEPD_BLACK);
+			display.drawBitmap(titleX+20, titleY-7, timetext, 24, 7, GxEPD_BLACK);
 			break;
 		case DISPLAY_OBJECT_ALTI :
-//			
-			display.drawInvertedBitmap(titleX-68, titleY-6, altitext, 16, 9, GxEPD_BLACK);
+//			display.drawInvertedBitmap(0, 31, altitext, 18, 11, GxEPD_BLACK);
+			display.drawBitmap(titleX-77, titleY-5, altitext, 15, 7, GxEPD_BLACK);
 			break;
 		case DISPLAY_OBJECT_VARIO :
-//			
-			display.drawInvertedBitmap(titleX+2, titleY-11, variotext, 27, 9, GxEPD_BLACK);
+//			display.drawInvertedBitmap(0, 85, variotext, 31, 11, GxEPD_BLACK);
+			display.drawBitmap(titleX+22, titleY-8, variotext, 23, 7, GxEPD_BLACK);
 			break;
 		case DISPLAY_OBJECT_RATIO :
-//			
+//			display.drawInvertedBitmap(132, 85, grtext, 21, 11, GxEPD_BLACK); //finesse/glade ratio
 			display.drawBitmap(titleX, titleY-8, grtext, 14, 7, GxEPD_BLACK); //finesse/glade ratio
 			break;
-		case DISPLAY_OBJECT_BEARING :
-//			
-			display.drawInvertedBitmap(titleX, titleY-6, beartext, 42, 11, GxEPD_BLACK); 
-			break;
-		
-			
-			
-			
-			
 		default :
 			break;
 		}
 	}
+
 }
 
 /*
@@ -1048,8 +1056,8 @@ ScreenText::ScreenText(uint16_t anchorX, uint16_t anchorY, uint16_t width, bool 
 //****************************************************************************************************************************
   lastDisplayWidth = 0; 
 
-  display.setFont(&FreeSansBold18pt7b);
-	if (large) display.setTextSize(1);
+  display.setFont(&FreeSansBold12pt7b);
+	if (large) display.setTextSize(2);
 	else 			 display.setTextSize(1);	
 
 //  int16_t box_x = anchorX;
@@ -1133,8 +1141,8 @@ ScreenText::ScreenText(uint16_t anchorX, uint16_t anchorY, uint16_t width, bool 
 #endif	
 			MaxHeight  = Zheight;
 			break;
-		
-			case DISPLAY_OBJECT_LAT :
+
+		case DISPLAY_OBJECT_LAT :
 #if defined (MAXW_OBJECT_LAT)		
 		  MaxWidth   = MAXW_OBJECT_LAT;
 #else
@@ -1195,13 +1203,17 @@ void ScreenText::show() {
 //  char digitCharacters[MAX_CHAR_IN_LINE];
 //	char tmpChar[MAX_CHAR_IN_LINE];
    
-	
-	if (large) {display.setFont(&FreeSansBold12pt7b);
-	display.setTextSize(1);
+	if (large) 
+	{
+  		display.setFont(&FreeSansBold12pt7b);
+  		display.setTextSize(2);
 	}
-	else {	display.setFont(&FreeSansBold18pt7b);   
+	else 			 
+	{
+		display.setFont(&FreeSerifBold18pt7b);
 		display.setTextSize(1);	
 	}
+
 //  int16_t box_x = anchorX;
 //  int16_t box_y = anchorY;
 //  uint16_t w, h, w1, h1;
@@ -1312,19 +1324,12 @@ void ScreenText::show() {
 		
     switch (displayTypeID) {
 		case DISPLAY_OBJECT_LAT :
-//		
-			display.drawInvertedBitmap(titleX-2, titleY-2, lattext, 17, 9, GxEPD_BLACK); //affichage Lat
+//			display.drawInvertedBitmap(titleX+2, titleY-14, lattext, 41, 14, GxEPD_BLACK);
 			break;
 		case DISPLAY_OBJECT_LONG :
-//			
-			display.drawInvertedBitmap(titleX-2, titleY-2, longtext, 27, 11, GxEPD_BLACK); //affichage Long
+//			display.drawInvertedBitmap(titleX, titleY-14, longtext, 29, 11, GxEPD_BLACK);
 			break;
-		case DISPLAY_OBJECT_BEARING_TEXT :
-//			
-			display.drawInvertedBitmap(titleX-35, titleY-12, compasstext, 54, 11, GxEPD_BLACK); //affichage Compass
-			break;			
-			
-			default :
+		default :
 			break;
 		}
 	}
@@ -1738,8 +1743,6 @@ b=0.386384
   SerialPort.println(voltage);
 #endif //SCREEN_DEBUG
 
-	DUMP(voltage);
-	DUMPLOG(LOG_TYPE_DEBUG, VOLTAGE_DEBUG_LOG,voltage);
   Voltage = voltage;
 	
 #if not defined(SIMPLE_VOLTAGE_VIEW)
@@ -1758,13 +1761,6 @@ b=0.386384
   SerialPort.print("pVoltage : ");
   SerialPort.println(pVoltage);
 #endif //SCREEN_DEBUG
-
-#if defined(VOLTAGE_DIVISOR_DEBUG)
-  float percentage = 2808.3808 * pow(voltage, 4) - 43560.9157 * pow(voltage, 3) + 252848.5888 * pow(voltage, 2) - 650767.4615 * voltage + 626532.5703;
-  if (voltage > 4.19) percentage = 100;
-  else if (voltage <= 3.50) percentage = 0;
-  SerialPort.println(String(percentage)+"%");
-#endif //VOLTAGE_DIVISOR_DEBUG
 #endif //SIMPLE_VOLTAGE_VIEW
   
   reset();
@@ -1802,32 +1798,29 @@ if    X< 1700 = deep sleep (comme ça si la sécu batterie ne fonctionne pas ou 
   /* battery level */
  /* uint16_t baseVoltage = base + inc;
   uint8_t pixelCount = 0;*/
-#ifdef VOLTAGE_DIVISOR_DEBUG
+#ifdef SCREEN_DEBUG
   SerialPort.println("Show : BatLevel");
 #endif //SCREEN_DEBUG
 
 #if defined (SIMPLE_VOLTAGE_VIEW)
 
-	DUMP(Voltage);
-	DUMPLOG(LOG_TYPE_DEBUG, VOLTAGE_DEBUG_LOG,Voltage);
-	
   display.fillRect(posX, posY, 32, 32, GxEPD_WHITE);
 
   if (Voltage >= 2160)
-    display.drawInvertedBitmap(110, 8, bat4icons, 17, 8, GxEPD_BLACK);   //GxEPD_BLACK);
+    display.drawInvertedBitmap(274, 8, bat4icons, 17, 8, GxEPD_BLACK);   //GxEPD_BLACK);
   else if ((Voltage < 2160) && (Voltage >= 2100))
-    display.drawInvertedBitmap(110, 8, bat3icons, 17, 8, GxEPD_BLACK);   //GxEPD_BLACK);
+    display.drawInvertedBitmap(274, 8, bat3icons, 17, 8, GxEPD_BLACK);   //GxEPD_BLACK);
   else if ((Voltage < 2100) && (Voltage >= 2000))
-    display.drawInvertedBitmap(110, 8, bat2icons, 17, 8, GxEPD_BLACK);   //GxEPD_BLACK);
+    display.drawInvertedBitmap(274, 8, bat2icons, 17, 8, GxEPD_BLACK);   //GxEPD_BLACK);
   else if ((Voltage < 2000) && (Voltage >= 1750))
-    display.drawInvertedBitmap(110, 8, bat1icons, 17, 8, GxEPD_BLACK);   //GxEPD_BLACK);
+    display.drawInvertedBitmap(274, 8, bat1icons, 17, 8, GxEPD_BLACK);   //GxEPD_BLACK);
   else {
-    display.drawInvertedBitmap(110, 8, bat0icons, 17, 8, GxEPD_BLACK);   //GxEPD_BLACK);
+    display.drawInvertedBitmap(274, 8, bat0icons, 17, 8, GxEPD_BLACK);   //GxEPD_BLACK);
 		//Deep Sleep
 	}
 
 #else //SIMPLE_VOLTAGE_VIEW
-#ifdef VOLTAGE_DIVISOR_DEBUG
+#ifdef SCREEN_DEBUG
   SerialPort.print("uVoltage : ");
   SerialPort.println(uVoltage);
 #endif //SCREEN_DEBUG
@@ -2024,7 +2017,7 @@ const unsigned char saticons[] = {
 0x08, 0x42, 0x10, 0x08, 0x42, 0x10, 0x08, 0x42, 0x10, 0x08, 0x42, 0x10
 };
   
-/*const unsigned char satfixicons[] = { 
+const unsigned char satfixicons[] = { 
 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 
 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xfc, 0xff, 0xff, 0xff, 0xf8, 0xff, 0xff, 
 0xff, 0xe0, 0xff, 0xff, 0xff, 0xc0, 0xff, 0xff, 0xff, 0x80, 0xff, 0xff, 0xe0, 0x00, 0xfe, 0xff, 
@@ -2033,7 +2026,7 @@ const unsigned char saticons[] = {
 0xe0, 0x00, 0xfe, 0xff, 0xff, 0x80, 0xff, 0xff, 0xff, 0xc0, 0xff, 0xff, 0xff, 0xe0, 0xff, 0xff, 
 0xff, 0xf8, 0xff, 0xff, 0xff, 0xfc, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 
 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff
-};/*
+};
 
 
 
@@ -2093,7 +2086,7 @@ const unsigned char recicons[] = {
 };
 
 const unsigned char pauseicons[] = { 
- // 'Clock_24x24'
+ // 'Clock_4-24'
 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xc3, 0xff, 0xff, 0xc3, 0xff, 0xff, 0xe7, 0xff, 0xff, 
 0xc7, 0xdf, 0xff, 0x00, 0x8f, 0xfc, 0x7e, 0x1f, 0xf9, 0xff, 0x3f, 0xfb, 0xff, 0x9f, 0xf3, 0xfe, 
 0xcf, 0xf7, 0xfd, 0xef, 0xe7, 0xfb, 0xef, 0xe7, 0xf7, 0xef, 0xe7, 0xff, 0xef, 0xe7, 0xff, 0xef, 
@@ -2102,7 +2095,7 @@ const unsigned char pauseicons[] = {
 };
 
 const unsigned char fix1icons[] = { 
- // 'Arrow_16-16'
+ // 'Arrow_46-24'
 0xbf, 0xfd, 0x1b, 0xd8, 0x83, 0xc1, 0xc3, 0xc3, 0xc3, 0xc3, 0x83, 0xc1, 0xff, 0xff, 0xff, 0xff, 
 0xff, 0xff, 0xff, 0xff, 0x83, 0xc1, 0xc3, 0xc3, 0xc3, 0xc3, 0x83, 0xc1, 0x1b, 0xd8, 0xbf, 0xfd
 };
@@ -2114,7 +2107,7 @@ const unsigned char fix2icons[] = {
 };
 
 const unsigned char norecordicons[] = { 
-// 'Error-32', 24x24px
+// 'Error-32', 32x32px
 0xff, 0x81, 0xff, 0xfe, 0x00, 0x7f, 0xf8, 0x00, 0x1f, 0xf0, 0x7e, 0x0f, 0xe1, 0xff, 0x87, 0xc3, 
 0xff, 0x83, 0xc7, 0xff, 0x03, 0x8f, 0xfe, 0x31, 0x8f, 0xfc, 0x71, 0x1f, 0xf8, 0xf8, 0x1f, 0xf1, 
 0xf8, 0x1f, 0xe3, 0xf8, 0x1f, 0xc7, 0xf8, 0x1f, 0x8f, 0xf8, 0x1f, 0x1f, 0xf8, 0x8e, 0x3f, 0xf1, 
@@ -2207,9 +2200,9 @@ void RECORDIndicator::show(void) {
   } else if  (recordState==STATE_NORECORD) {
       display.drawInvertedBitmap(posX, posY,norecordicons,  24, 24, GxEPD_BLACK);   //GxEPD_BLACK);
   } else if (displayRecord) {
-      display.drawInvertedBitmap(posX+5, 5,fix1icons,  16, 16, GxEPD_BLACK);   //GxEPD_BLACK);
+      display.drawInvertedBitmap(posX, 5,fix1icons,  16, 16, GxEPD_BLACK);   //GxEPD_BLACK);
   } else  {
-      display.drawInvertedBitmap(posX+5, 5,fix2icons,  16, 16, GxEPD_BLACK);   //GxEPD_BLACK);
+      display.drawInvertedBitmap(posX, 5,fix2icons,  16, 16, GxEPD_BLACK);   //GxEPD_BLACK);
   }
 }
 
@@ -2434,11 +2427,11 @@ void ScreenElapsedTime::setCurrentTime(int8_t* currentTime) {
 
   // 16 x 16 
 const unsigned char fixgpsicons[] = { 
-// 'location-marker-24', 17x18px
-0xff, 0xff, 0x80, 0xff, 0xe7, 0x80, 0xff, 0x81, 0x80, 0xff, 0x00, 0x80, 0xfe, 0x1c, 0x00, 0xfe, 
-0x3c, 0x00, 0xfe, 0x3c, 0x00, 0xfe, 0x1c, 0x00, 0xfe, 0x00, 0x00, 0xff, 0x00, 0x80, 0xff, 0x00, 
-0x80, 0xff, 0x81, 0x80, 0xff, 0x81, 0x80, 0xff, 0xc3, 0x80, 0xff, 0xc3, 0x80, 0xff, 0xe3, 0x80, 
-0xff, 0xe7, 0x80, 0xff, 0xff, 0x80
+// 'location-marker-24', 20x20px
+0xff, 0x0f, 0xf0, 0xfc, 0x03, 0xf0, 0xf8, 0x01, 0xf0, 0xf8, 0x61, 0xf0, 0xf0, 0xf0, 0xf0, 0xf0, 
+0xf0, 0xf0, 0xf0, 0xf0, 0xf0, 0xf0, 0xf0, 0xf0, 0xf0, 0x00, 0xf0, 0xf8, 0x01, 0xf0, 0xf8, 0x01, 
+0xf0, 0xf8, 0x01, 0xf0, 0xfc, 0x03, 0xf0, 0xfc, 0x03, 0xf0, 0xfe, 0x07, 0xf0, 0xfe, 0x07, 0xf0, 
+0xff, 0x0f, 0xf0, 0xff, 0x0f, 0xf0, 0xff, 0x9f, 0xf0, 0xff, 0xff, 0xf0
 };
 
 
@@ -2472,10 +2465,10 @@ boolean FIXGPSInfo::getFixGps(void) {
 void FIXGPSInfo::show() {
 //****************************************************************************************************************************
 // display.drawBitmap(msicons, posX, posY, 48, 48, GxEPD_WHITE,false);   //GxEPD_BLACK);
- display.fillRect(posX, posY, 17, 18, GxEPD_WHITE);
+ display.fillRect(posX, posY, 20, 20, GxEPD_WHITE);
 // display.drawRect(posX, posY, 24, 24, GxEPD_BLACK);
 
- if (FixGPS == true) display.drawInvertedBitmap(posX, posY, fixgpsicons, 17, 18, GxEPD_BLACK);   //GxEPD_BLACK);
+ if (FixGPS == true) display.drawInvertedBitmap(posX, posY, fixgpsicons, 20, 20, GxEPD_BLACK);   //GxEPD_BLACK);
 // else                display.fillRect(posX, posY, 24, 24, GxEPD_WHITE);
   
 //  display.drawBitmap(100, 10, gridicons_sync, 24, 24, GxEPD_BLACK);

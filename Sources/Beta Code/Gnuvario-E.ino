@@ -294,6 +294,9 @@ SimpleBLE ble;
 *               21/02/20             Correction Bug affichage batterie                                *
 *                                    Correction rotation fichier log                                  *
 *               25/02/20             Correction precision Lat/long                                    *                     
+*                                    Ajout ScreenBackground                                           *
+*                                    Correction Bug   - Affichage long - lat                          *                     
+*                                    reccupération long / lat sur 6 ou 7 digits après la virgule      *
 *******************************************************************************************************
 *                                                                                                     *
 *                                   Developpement a venir                                             *
@@ -311,8 +314,6 @@ SimpleBLE ble;
 * AJOUT - Récupération du cap depuis le capteur baromètrique                                          *
 * BUG   - stat affichage temps de vol                                                                 *
 * MODIF - Modification librairie varioscreen - MAJ GxEpd2                                             *
-* BUG   - Affichage long - lat                                                                        *
-* MODIF - Passer long / lat sur 6 digits après la virgule                                             *
 * MODIF - réécriture maj affichage                                                                    *
 *                                                                                                     *
 * VX.X                                                                                                *

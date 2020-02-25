@@ -56,6 +56,8 @@
  *    1.1.9  11/01/20   Modif VARIOSCREEN_SIZE == 290                            *
  *    1.1.10 07/02/20   Ajout 290 et 291                                         *
  *                      Ajouter FONTNORMAL / FONTLARGE Digit                     *
+ *    1.0.11 19/02/20   Ajout variolog                                           *
+ *    1.0.12 21/02/20   Correction Bug d'affichage batterie                      *
  *********************************************************************************/
 
 #ifndef VARIOSCREENOBJECTS_290_H

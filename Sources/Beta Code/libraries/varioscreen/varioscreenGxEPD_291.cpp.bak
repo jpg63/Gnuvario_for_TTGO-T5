@@ -462,11 +462,11 @@ void VarioScreen::createScreenObjectsDisplayPage1(void) {
 
 
 //****************************************************************************************************************************
-void VarioScreen::ScreenBackground(int8_t page)
+void VarioScreen::ScreenBackground(void)
 //****************************************************************************************************************************
 {
 	switch (page) {
-	  case 0:		
+	  case 0:
 			display.drawLine(0, 45, 128, 45, GxEPD_BLACK);
 			display.drawLine(0, 95, 128, 95, GxEPD_BLACK);
 			display.drawLine(0, 150, 128, 150, GxEPD_BLACK);
@@ -583,7 +583,10 @@ void VarioScreen::updateScreen (void)
 	  return;
 	}
 	
-	timerShow = millis();	
+	timerShow = millis();
+	
+	ScreenBackground();
+	
 	display.setFullWindow();
 #ifdef SCREEN_DEBUG
 	SerialPort.println("screen update : setFullWindows");	
@@ -1594,9 +1597,6 @@ void ScreenScheduler::displayStep(void) {
 //		display.fillRect(0, 0, display.width(), display.height(), GxEPD_WHITE);
 		//.clearScreen();
 	}
-	
-	
-	screen.ScreenBackground(currentPage);
 	
 #ifdef SCREEN_DEBUG
   SerialPort.println("displayStep : Display");

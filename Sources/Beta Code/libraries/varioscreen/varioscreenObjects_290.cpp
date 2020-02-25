@@ -56,7 +56,8 @@
  *    1.1.9  03/02/20   Changement de nom passage de 29 à 290                    *
  *    1.1.10 07/02/20   Ajout 290 et 291                                         *
  *                      Ajout FONTLARGE / FONTNORMAL pour Digit                  *
- *    1.1.11 21/02/20   Correction bug affichage batterie                        *
+ *    1.0.11 19/02/20   Ajout variolog                                           *
+ *    1.1.12 21/02/20   Correction bug affichage batterie                        *
  *********************************************************************************/ 
  /*
  *********************************************************************************
@@ -88,6 +89,8 @@
 
 #define ARDUINOTRACE_SERIAL SerialPort
 #include <ArduinoTrace.h>
+
+#include <VarioLog.h>
 
 //#include <avr\dtostrf.h>
 #include <stdlib.h>
@@ -1322,6 +1325,9 @@ void ScreenText::show() {
   if (showtitle) {
 		
     switch (displayTypeID) {
+		case DISPLAY_OBJECT_BEARING :
+//			display.drawInvertedBitmap(titleX+100, titleY-50, beartext, 22, 11, GxEPD_BLACK);
+			break;
 		case DISPLAY_OBJECT_LAT :
 //			display.drawInvertedBitmap(titleX+2, titleY-14, lattext, 41, 14, GxEPD_BLACK);
 			break;
@@ -1742,6 +1748,8 @@ b=0.386384
   SerialPort.println(voltage);
 #endif //SCREEN_DEBUG
 
+	DUMP(voltage);
+	DUMPLOG(LOG_TYPE_DEBUG, VOLTAGE_DEBUG_LOG,voltage);
   Voltage = voltage;
 	
 #if not defined(SIMPLE_VOLTAGE_VIEW)
@@ -1760,6 +1768,13 @@ b=0.386384
   SerialPort.print("pVoltage : ");
   SerialPort.println(pVoltage);
 #endif //SCREEN_DEBUG
+
+#if defined(VOLTAGE_DIVISOR_DEBUG)
+  float percentage = 2808.3808 * pow(voltage, 4) - 43560.9157 * pow(voltage, 3) + 252848.5888 * pow(voltage, 2) - 650767.4615 * voltage + 626532.5703;
+  if (voltage > 4.19) percentage = 100;
+  else if (voltage <= 3.50) percentage = 0;
+  SerialPort.println(String(percentage)+"%");
+#endif //VOLTAGE_DIVISOR_DEBUG
 #endif //SIMPLE_VOLTAGE_VIEW
   
   reset();
@@ -1797,12 +1812,15 @@ if    X< 1700 = deep sleep (comme ça si la sécu batterie ne fonctionne pas ou 
   /* battery level */
  /* uint16_t baseVoltage = base + inc;
   uint8_t pixelCount = 0;*/
-#ifdef SCREEN_DEBUG
+#ifdef VOLTAGE_DIVISOR_DEBUG
   SerialPort.println("Show : BatLevel");
 #endif //SCREEN_DEBUG
 
 #if defined (SIMPLE_VOLTAGE_VIEW)
 
+	DUMP(Voltage);
+	DUMPLOG(LOG_TYPE_DEBUG, VOLTAGE_DEBUG_LOG,Voltage);
+	
   display.fillRect(posX, posY, 32, 32, GxEPD_WHITE);
 
   if (Voltage >= 2160)
@@ -1819,7 +1837,7 @@ if    X< 1700 = deep sleep (comme ça si la sécu batterie ne fonctionne pas ou 
 	}
 
 #else //SIMPLE_VOLTAGE_VIEW
-#ifdef SCREEN_DEBUG
+#ifdef VOLTAGE_DIVISOR_DEBUG
   SerialPort.print("uVoltage : ");
   SerialPort.println(uVoltage);
 #endif //SCREEN_DEBUG
