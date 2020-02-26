@@ -1496,7 +1496,11 @@ void loop() {
                        0.0,
                        millis() );
 #endif //HAVE_ACCELEROMETER
-  
+
+ #ifdef PROG_DEBUG
+    SerialPort.println("Kalman Update");
+#endif //PROG_DEBUG
+ 
     if (displayLowUpdateState) {
 //      screen.tempDigit->setValue(tmpTemp);
 //      screen.tunit->toDisplay();
@@ -2153,7 +2157,7 @@ void loop() {
 
     screen.recordIndicator->stateRECORD();
 #ifdef PROG_DEBUG
-    SerialPort.println("Record Indicator : staterecord ");
+//    SerialPort.println("Record Indicator : staterecord ");
     SerialPort.print("VarioState : ");
     SerialPort.println(variometerState);
 #endif //PROG_DEBUG
@@ -2235,6 +2239,10 @@ void loop() {
 //**********************************************************
 //  UPDATE DISPLAY
 //**********************************************************
+
+#ifdef PROG_DEBUG
+    SerialPort.println("Update Screen");
+#endif //PROG_DEBUG
 
   screen.schedulerScreen->displayStep();
   screen.updateScreen(); 

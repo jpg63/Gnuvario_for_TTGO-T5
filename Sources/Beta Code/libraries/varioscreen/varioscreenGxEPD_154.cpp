@@ -170,7 +170,7 @@ volatile uint8_t stateMulti = 0;
 #define VARIOSCREEN_SAT_ANCHOR_X 164
 #define VARIOSCREEN_SAT_ANCHOR_Y 0
 #define VARIOSCREEN_SAT_FIX_ANCHOR_X 176
-#define VARIOSCREEN_SAT_FIX_ANCHOR_Y 37    //32
+#define VARIOSCREEN_SAT_FIX_ANCHOR_Y 38    //32
 #define VARIOSCREEN_TIME_ANCHOR_X 198
 #define VARIOSCREEN_TIME_ANCHOR_Y 190
 #define VARIOSCREEN_ELAPSED_TIME_ANCHOR_X 198
@@ -451,10 +451,10 @@ void VarioScreen::ScreenBackground(int8_t page)
 {
 	switch (page) {
 	  case 0:
-			display.drawLine(0, 33, 200, 33, GxEPD_BLACK);
+			display.drawLine(0, 35, 200, 35, GxEPD_BLACK);
 			break;
 	  case 1:
-			display.drawLine(0, 33, 200, 33, GxEPD_BLACK);
+			display.drawLine(0, 35, 200, 35, GxEPD_BLACK);
 			break;
 	  default:
 			break;
