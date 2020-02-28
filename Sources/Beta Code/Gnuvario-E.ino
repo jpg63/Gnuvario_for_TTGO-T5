@@ -297,6 +297,7 @@ SimpleBLE ble;
 *                                    Ajout ScreenBackground                                           *
 *                                    Correction Bug   - Affichage long - lat                          *                     
 *                                    reccupération long / lat sur 6 ou 7 digits après la virgule      *
+*               28/02/20             Correction calcul lat/long                                       *
 *******************************************************************************************************
 *                                                                                                     *
 *                                   Developpement a venir                                             *
