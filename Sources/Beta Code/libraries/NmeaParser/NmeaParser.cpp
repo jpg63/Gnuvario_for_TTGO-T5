@@ -33,6 +33,7 @@
  *    1.0.5  12/02/20   Ajout tracedebug                                         *
  *    1.0.6  25/02/20   Correction calcul long /lat                              *
  *    1.0.7  28/02/20   Correction DegreesToDegMinSec                            *
+ *    1.0.8  01/03/20   Modification affichage lat/long                          *
  *                                                                               *
  *********************************************************************************/
 
@@ -478,7 +479,7 @@ String NmeaParser::DegreesToDegMinSec(double x)
   int arcMinutes = minutesRemainder;
   float arcSeconds = (minutesRemainder - arcMinutes) * 100;
 
-	tmpResult += String(arcMinutes) + "'";
+	tmpResult += String(arcMinutes) + ".";
 	
 /*  tmpfloat = round(arcSeconds*100);
 	tmpint   = tmpfloat / 100;

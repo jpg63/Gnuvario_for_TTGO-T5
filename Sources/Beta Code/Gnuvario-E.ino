@@ -298,13 +298,16 @@ SimpleBLE ble;
 *                                    Correction Bug   - Affichage long - lat                          *                     
 *                                    reccupération long / lat sur 6 ou 7 digits après la virgule      *
 *               28/02/20             Correction calcul lat/long                                       *
+*               29/02/20             Modification Mise à jour auto internet                           *
+*                                    Nouveau site web embarqué                                        *
+*                                    Mise à jour calibration                                          *
+*               01/03/20             Correction affichage lat/long                                    *
 *******************************************************************************************************
 *                                                                                                     *
 *                                   Developpement a venir                                             *
 *                                                                                                     *
 * v0.6                                                                                                *   
 * MODIF - Refaire gestion Eeprom avec preference                                                      *
-* AJOUT - Calibration MPU                                                                             *                                 
 * BUG   - temperature                                                                                 *
 * BUG   - DISPLAY_OBJECT_LINE object ligne ne fonctionne pas                                          *
 *                                                                                                     *
@@ -385,6 +388,7 @@ SimpleBLE ble;
  *   démmarage                                                          *
  * - Ajout Update via internet                                          *
  * - Ajout affichage du cap, longitude, latitude                        *
+ * - Calibration des accèlerometres                                     *
  *                                                                      *
  ************************************************************************/
  

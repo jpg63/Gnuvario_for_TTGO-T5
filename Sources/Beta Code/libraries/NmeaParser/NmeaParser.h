@@ -32,6 +32,7 @@
  *    1.0.4  10/02/20   Correction getlongDegree et DegreesToDegMinSec           *
  *    1.0.6  25/02/20   Correction calcul long /lat                              *
  *    1.0.7  28/02/20   Correction DegreesToDegMinSec                            *
+ *    1.0.8  01/03/20   Modification affichage lat/long                          *
  *                                                                               *
  *********************************************************************************/
 
