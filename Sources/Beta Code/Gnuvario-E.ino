@@ -315,11 +315,16 @@ SimpleBLE ble;
 * BUG   - Affichage barres GPS - problème de raffraichissement                                        *
 * BUG   - upload wifi - ne se termine pas  - bug espressif le buffer n'est pas vidé à la fin          *
 * BUG   - update manuelle - doit être lancée 2 fois                                                   *
-* AJOUT - Récupération du cap depuis le capteur baromètrique                                          *
 * BUG   - stat affichage temps de vol                                                                 *
 * MODIF - Modification librairie varioscreen - MAJ GxEpd2                                             *
-* MODIF - réécriture maj affichage                                                                    *
+* VERIF - Seuil déclenchement début du vol                                                            *
+* VERIF - Sensibilité du vario                                                                        *
 *                                                                                                     *
+* v0.8                                                                                                *       
+* MODIF - Réecrire loop                                                                               *
+* AJOUT - Récupération du cap depuis le capteur baromètrique                                          *
+* MODIF - réécriture maj affichage                                                                    *
+*                                                                                                     * 
 * VX.X                                                                                                *
 * Paramètrage des écrans                                                                              *
 * Gérer le son via le DAC                                                                             *
@@ -332,8 +337,8 @@ SimpleBLE ble;
 *     10 zones d'eeprom - reduit le nombre d'écriture et économise la mémoire flash                   *
 * verifier fonctionnement BT                                                                          *
 * Recupération vol via USB                                                                            *                                                                                        
-* Ecran 2.9'' en vertical                                                                             *
 * Espaces aeriens                                                                                     *
+* AGL                                                                                                 *
 *******************************************************************************************************/
 
 /************************************************************************
