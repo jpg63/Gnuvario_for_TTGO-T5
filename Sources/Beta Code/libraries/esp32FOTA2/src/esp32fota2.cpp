@@ -812,7 +812,7 @@ String esp32FOTA2::getHTTPVersion()
 
     int8_t updatedNeeded = execHTTPcheck(false);
 
-    if (updatedNeeded >= 0)
+    if (updatedNeeded > 0)
     {
 #ifdef WIFI_DEBUG
         SerialPort.println("************** Version Stable : Mise à jour disponible *****************");
@@ -831,7 +831,7 @@ String esp32FOTA2::getHTTPVersion()
     }
 
     updatedNeeded = execHTTPcheck(true);
-    if (updatedNeeded >= 0)
+    if (updatedNeeded > 0)
     {
 #ifdef WIFI_DEBUG
         SerialPort.println("***************** Version Beta : Mise à jour disponible *********************");
