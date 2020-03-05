@@ -481,7 +481,12 @@ case DISPLAY_OBJECT_BEARING :
 #endif	
 			MaxHeight  = Zheight;
 			break;
-		
+								
+			
+		default :
+		  MaxWidth   = Zwidth;
+			MaxHeight  = Zheight;
+			break;
 		}
 }
 
@@ -654,7 +659,7 @@ void ScreenDigit::show() {
 	char tmpChar[MAX_CHAR_IN_LINE];
    
   display.setFont(&FreeSansBold18pt7b);
-  if (large) 	display.setTextSize(2);
+  if (large) 	display.setTextSize(1);
 	else 				display.setTextSize(1);
 
 
@@ -755,12 +760,12 @@ void ScreenDigit::show() {
 		
     switch (displayTypeID) {
 		case DISPLAY_OBJECT_SPEED :
+//		
 			display.drawInvertedBitmap(titleX+7, titleY-9, speedtext, 35, 11, GxEPD_BLACK);
-//			
-			break;
+			break;		
 		case DISPLAY_OBJECT_TIME :
 //			
-			display.drawInvertedBitmap(titleX+2, titleY-10, timetext, 27, 9, GxEPD_BLACK);
+			display.drawInvertedBitmap(titleX+1, titleY-10, timetext, 27, 9, GxEPD_BLACK);
 			break;
 		case DISPLAY_OBJECT_ALTI :
 //			
@@ -772,11 +777,11 @@ void ScreenDigit::show() {
 			break;
 		case DISPLAY_OBJECT_RATIO :
 //			
-			display.drawBitmap(titleX, titleY-8, grtext, 14, 7, GxEPD_BLACK); //finesse/glade ratio
+			display.drawBitmap(titleX-6, titleY-8, grtext, 14, 7, GxEPD_BLACK); //finesse/glade ratio
 			break;
 		case DISPLAY_OBJECT_BEARING :
 //			
-			display.drawInvertedBitmap(titleX, titleY-6, beartext, 42, 11, GxEPD_BLACK); 
+			display.drawInvertedBitmap(titleX+2, titleY-6, beartext, 42, 11, GxEPD_BLACK); 
 			break;
 		
 			
@@ -1087,7 +1092,7 @@ ScreenText::ScreenText(uint16_t anchorX, uint16_t anchorY, uint16_t width, bool 
 	
 	float tmpcar;
 	int   carwidth;
-	if (large) carwidth = 14;
+	if (large) carwidth = 7;
 	else       carwidth = 7;
 		
 	tmpcar = tmpwidth / carwidth;
@@ -1099,7 +1104,7 @@ ScreenText::ScreenText(uint16_t anchorX, uint16_t anchorY, uint16_t width, bool 
 		Zwidth = width * carwidth;
 	}
 	
-	if (large) Zheight  = 24+6;
+	if (large) Zheight  = 18+3;
 	else       Zheight  = 18+3;
 		
     switch (displayTypeID) {
@@ -1146,9 +1151,14 @@ ScreenText::ScreenText(uint16_t anchorX, uint16_t anchorY, uint16_t width, bool 
 		  MaxWidth   = Zwidth;
 #endif	
 			MaxHeight  = Zheight;
-			break;	
-
-		
+			break;
+			
+	
+			
+		default :
+		  MaxWidth   = Zwidth;
+			MaxHeight  = Zheight;
+			break;
 		}
 }
 
@@ -1189,10 +1199,10 @@ void ScreenText::show() {
 //	char tmpChar[MAX_CHAR_IN_LINE];
    
 	
-	if (large) {display.setFont(&FreeSansBold12pt7b);
+	if (large) {display.setFont(&FreeSansBold18pt7b);
 	display.setTextSize(1);
 	}
-	else {	display.setFont(&FreeSansBold18pt7b);   
+	else {	display.setFont(&FreeSansBold12pt7b);   
 		display.setTextSize(1);	
 	}
 //  int16_t box_x = anchorX;
@@ -1306,15 +1316,15 @@ void ScreenText::show() {
     switch (displayTypeID) {
 		case DISPLAY_OBJECT_LAT :
 //		
-			display.drawInvertedBitmap(titleX-2, titleY-2, lattext, 17, 9, GxEPD_BLACK); //affichage Lat
+			display.drawInvertedBitmap(titleX-2, titleY-10, lattext, 17, 9, GxEPD_BLACK); //affichage Lat
 			break;
 		case DISPLAY_OBJECT_LONG :
 //			
-			display.drawInvertedBitmap(titleX-2, titleY-2, longtext, 27, 11, GxEPD_BLACK); //affichage Long
+			display.drawInvertedBitmap(titleX-2, titleY-10, longtext, 27, 11, GxEPD_BLACK); //affichage Long
 			break;
 		case DISPLAY_OBJECT_BEARING_TEXT :
 //			
-			display.drawInvertedBitmap(titleX-35, titleY-12, compasstext, 54, 11, GxEPD_BLACK); //affichage Compass
+			display.drawInvertedBitmap(titleX-32, titleY-10, compasstext, 54, 11, GxEPD_BLACK); //affichage Compass
 			break;			
 			
 			default :
@@ -1731,6 +1741,8 @@ b=0.386384
   SerialPort.println(voltage);
 #endif //SCREEN_DEBUG
 
+	DUMP(voltage);
+	DUMPLOG(LOG_TYPE_DEBUG, VOLTAGE_DEBUG_LOG,voltage);
   Voltage = voltage;
 	
 #if not defined(SIMPLE_VOLTAGE_VIEW)
@@ -1749,6 +1761,13 @@ b=0.386384
   SerialPort.print("pVoltage : ");
   SerialPort.println(pVoltage);
 #endif //SCREEN_DEBUG
+
+#if defined(VOLTAGE_DIVISOR_DEBUG)
+  float percentage = 2808.3808 * pow(voltage, 4) - 43560.9157 * pow(voltage, 3) + 252848.5888 * pow(voltage, 2) - 650767.4615 * voltage + 626532.5703;
+  if (voltage > 4.19) percentage = 100;
+  else if (voltage <= 3.50) percentage = 0;
+  SerialPort.println(String(percentage)+"%");
+#endif //VOLTAGE_DIVISOR_DEBUG
 #endif //SIMPLE_VOLTAGE_VIEW
   
   reset();
@@ -1786,12 +1805,15 @@ if    X< 1700 = deep sleep (comme ça si la sécu batterie ne fonctionne pas ou 
   /* battery level */
  /* uint16_t baseVoltage = base + inc;
   uint8_t pixelCount = 0;*/
-#ifdef SCREEN_DEBUG
+#ifdef VOLTAGE_DIVISOR_DEBUG
   SerialPort.println("Show : BatLevel");
 #endif //SCREEN_DEBUG
 
 #if defined (SIMPLE_VOLTAGE_VIEW)
 
+	DUMP(Voltage);
+	DUMPLOG(LOG_TYPE_DEBUG, VOLTAGE_DEBUG_LOG,Voltage);
+	
   display.fillRect(posX, posY, 32, 32, GxEPD_WHITE);
 
   if (Voltage >= 2160)
@@ -1808,7 +1830,7 @@ if    X< 1700 = deep sleep (comme ça si la sécu batterie ne fonctionne pas ou 
 	}
 
 #else //SIMPLE_VOLTAGE_VIEW
-#ifdef SCREEN_DEBUG
+#ifdef VOLTAGE_DIVISOR_DEBUG
   SerialPort.print("uVoltage : ");
   SerialPort.println(uVoltage);
 #endif //SCREEN_DEBUG

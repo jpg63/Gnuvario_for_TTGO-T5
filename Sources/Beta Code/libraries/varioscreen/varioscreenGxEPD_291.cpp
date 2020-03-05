@@ -44,7 +44,8 @@
  *    1.0.12 23/02/20   Ajout d'objets texte (compass, Lat, Long), changement    *
  *					    de taille de texte                                       *
  *    1.0.13 25/02/20   Ajout ScreenBackground                                   *
- *********************************************************************************/
+ *    1.0.14 05/03/20   Ajout affichage alti agl                                 *
+*********************************************************************************/
  
  /*
  *********************************************************************************
@@ -303,15 +304,18 @@ void VarioScreen::createScreenObjects(void)
 //****************************************************************************************************************************
 void VarioScreen::createScreenObjectsPage0(void) {
 //****************************************************************************************************************************
-	altiDigit = new ScreenDigit(VARIOSCREEN_ALTI_ANCHOR_X, VARIOSCREEN_ALTI_ANCHOR_Y, 4, 0, false, false, ALIGNRIGHT, true, DISPLAY_OBJECT_ALTI, FONTNORMAL);
-	munit = new MUnit(VARIOSCREEN_ALTI_UNIT_ANCHOR_X, VARIOSCREEN_ALTI_ANCHOR_Y-2);
-	varioDigit = new ScreenDigit(VARIOSCREEN_VARIO_ANCHOR_X, VARIOSCREEN_VARIO_ANCHOR_Y, 4, 1, true, false,  ALIGNRIGHT, true, DISPLAY_OBJECT_VARIO, FONTNORMAL);
+	altiDigit = new ScreenDigit(VARIOSCREEN_ALTI_ANCHOR_X, VARIOSCREEN_ALTI_ANCHOR_Y, 4, 0, false, false, ALIGNRIGHT, true, DISPLAY_OBJECT_ALTI, FONTLARGE);
+	heightDigit = new ScreenDigit(VARIOSCREEN_ALTI_ANCHOR_X, VARIOSCREEN_ALTI_ANCHOR_Y, 4, 0, false, false, ALIGNRIGHT, true, DISPLAY_OBJECT_HEIGHT, FONTLARGE);
 
+	munit = new MUnit(VARIOSCREEN_ALTI_UNIT_ANCHOR_X, VARIOSCREEN_ALTI_ANCHOR_Y-2);
+	varioDigit = new ScreenDigit(VARIOSCREEN_VARIO_ANCHOR_X, VARIOSCREEN_VARIO_ANCHOR_Y, 4, 1, true, false,  ALIGNRIGHT, true, DISPLAY_OBJECT_VARIO, FONTLARGE);
+ 
 	msunit = new MSUnit(VARIOSCREEN_VARIO_UNIT_ANCHOR_X, VARIOSCREEN_VARIO_UNIT_ANCHOR_Y);
 	kmhunit = new KMHUnit(VARIOSCREEN_SPEED_UNIT_ANCHOR_X, VARIOSCREEN_SPEED_UNIT_ANCHOR_Y);
-	speedDigit = new ScreenDigit(VARIOSCREEN_SPEED_ANCHOR_X, VARIOSCREEN_SPEED_ANCHOR_Y, 2, 0, false, false, ALIGNRIGHT, true, DISPLAY_OBJECT_SPEED, FONTNORMAL);
-	ratioDigit = new ScreenDigit(VARIOSCREEN_GR_ANCHOR_X, VARIOSCREEN_GR_ANCHOR_Y, 2, 0, false, true, ALIGNLEFT, true, DISPLAY_OBJECT_RATIO, FONTNORMAL);
-	trendDigit = new ScreenDigit(VARIOSCREEN_GR_ANCHOR_X, VARIOSCREEN_GR_ANCHOR_Y, 3, 1, false, true, ALIGNLEFT, true, DISPLAY_OBJECT_TREND, FONTNORMAL);
+	kmhunit = new KMHUnit(VARIOSCREEN_SPEED_UNIT_ANCHOR_X, VARIOSCREEN_SPEED_UNIT_ANCHOR_Y);
+	speedDigit = new ScreenDigit(VARIOSCREEN_SPEED_ANCHOR_X, VARIOSCREEN_SPEED_ANCHOR_Y, 2, 0, false, false, ALIGNRIGHT, true, DISPLAY_OBJECT_SPEED, FONTLARGE);
+	ratioDigit = new ScreenDigit(VARIOSCREEN_GR_ANCHOR_X, VARIOSCREEN_GR_ANCHOR_Y, 2, 0, false, true, ALIGNLEFT, true, DISPLAY_OBJECT_RATIO, FONTLARGE);
+	trendDigit = new ScreenDigit(VARIOSCREEN_GR_ANCHOR_X, VARIOSCREEN_GR_ANCHOR_Y, 3, 1, false, true, ALIGNLEFT, true, DISPLAY_OBJECT_TREND, FONTLARGE);
 
 	infoLevel = new INFOLevel(VARIOSCREEN_INFO_ANCHOR_X, VARIOSCREEN_INFO_ANCHOR_Y);
 	volLevel = new VOLLevel(VARIOSCREEN_VOL_ANCHOR_X, VARIOSCREEN_VOL_ANCHOR_Y);
@@ -322,8 +326,8 @@ void VarioScreen::createScreenObjectsPage0(void) {
 
 	satLevel = new SATLevel(VARIOSCREEN_SAT_ANCHOR_X, VARIOSCREEN_SAT_ANCHOR_Y);
 
-	timeMDigit = new ScreenDigit (VARIOSCREEN_TIME_ANCHOR_X-55, VARIOSCREEN_TIME_ANCHOR_Y, 2, 0, false, true, ALIGNLEFT, false, DISPLAY_OBJECT_DURATION, FONTNORMAL);
-	timeHDigit = new ScreenDigit (VARIOSCREEN_TIME_ANCHOR_X-73, VARIOSCREEN_TIME_ANCHOR_Y, 2, 0, false, true, ALIGNRIGHT, true, DISPLAY_OBJECT_TIME, FONTNORMAL);
+	timeMDigit = new ScreenDigit (VARIOSCREEN_TIME_ANCHOR_X-55, VARIOSCREEN_TIME_ANCHOR_Y, 2, 0, false, true, ALIGNLEFT, false, DISPLAY_OBJECT_DURATION, FONTLARGE);
+	timeHDigit = new ScreenDigit (VARIOSCREEN_TIME_ANCHOR_X-73, VARIOSCREEN_TIME_ANCHOR_Y, 2, 0, false, true, ALIGNRIGHT, true, DISPLAY_OBJECT_TIME, FONTLARGE);
 
 	screenTime = new ScreenTime(VARIOSCREEN_TIME_ANCHOR_X, VARIOSCREEN_TIME_ANCHOR_Y, *timeHDigit, *timeMDigit,false);
 	screenElapsedTime = new ScreenElapsedTime(VARIOSCREEN_ELAPSED_TIME_ANCHOR_X, VARIOSCREEN_ELAPSED_TIME_ANCHOR_Y, *timeHDigit, *timeMDigit);
@@ -331,7 +335,7 @@ void VarioScreen::createScreenObjectsPage0(void) {
 	fixgpsinfo = new FIXGPSInfo(VARIOSCREEN_SAT_FIX_ANCHOR_X, VARIOSCREEN_SAT_FIX_ANCHOR_Y);
 	btinfo = new BTInfo(VARIOSCREEN_BT_ANCHOR_X, VARIOSCREEN_BT_ANCHOR_Y);
 	gpsBearingText = new ScreenText(VARIOSCREEN_BEARING_TEXT_ANCHOR_X, VARIOSCREEN_BEARING_TEXT_ANCHOR_Y, 3, FONTNORMAL, ALIGNLEFT, true, DISPLAY_OBJECT_BEARING_TEXT);
-	gpsBearing = new ScreenDigit(VARIOSCREEN_BEARING_ANCHOR_X, VARIOSCREEN_BEARING_ANCHOR_Y, 3, 0, false, false, ALIGNRIGHT, true, DISPLAY_OBJECT_BEARING, FONTNORMAL);
+	gpsBearing = new ScreenDigit(VARIOSCREEN_BEARING_ANCHOR_X, VARIOSCREEN_BEARING_ANCHOR_Y, 3, 0, false, false, ALIGNRIGHT, true, DISPLAY_OBJECT_BEARING, FONTLARGE);
 	
 	
 	//separationline = new SeparationLine(VARIOSCREEN_SEPARATIONLINE_ANCHOR_X, VARIOSCREEN_SEPARATIONLINE_ANCHOR_Y);
@@ -346,6 +350,7 @@ void VarioScreen::createScreenObjectsPage0(void) {
 	
 //	bgcircle = new BGCircle(245, 80, 40);
 }
+
 	
 //****************************************************************************************************************************
 void VarioScreen::createScreenObjectsPage10(void) {
@@ -364,9 +369,10 @@ void VarioScreen::createScreenObjectsPage1(void) {
 //	gpsBearing 					= new ScreenDigit(VARIOSCREEN_BEARING_ANCHOR_X, VARIOSCREEN_BEARING_ANCHOR_Y, 3, 0, false, false, ALIGNRIGHT, true, DISPLAY_OBJECT_BEARING, FONTNORMAL);
 //	gpsLat    					= new ScreenDigit(VARIOSCREEN_LAT_ANCHOR_X, VARIOSCREEN_LAT_ANCHOR_Y, 6, 3, false, false, ALIGNRIGHT, false, DISPLAY_OBJECT_LAT);
 //	gpsLong   					= new ScreenDigit(VARIOSCREEN_LONG_ANCHOR_X, VARIOSCREEN_LONG_ANCHOR_Y, 6, 3, false, false, ALIGNRIGHT, false, DISPLAY_OBJECT_LONG);
-    gpsLat 							= new ScreenText(VARIOSCREEN_LAT_ANCHOR_X, VARIOSCREEN_LAT_ANCHOR_Y, 11, FONTLARGE, ALIGNLEFT, true, DISPLAY_OBJECT_LAT);
-		gpsLong					    = new ScreenText(VARIOSCREEN_LONG_ANCHOR_X, VARIOSCREEN_LONG_ANCHOR_Y, 11, FONTLARGE, ALIGNLEFT, true, DISPLAY_OBJECT_LONG);
-
+    gpsLat 						= new ScreenText(VARIOSCREEN_LAT_ANCHOR_X, VARIOSCREEN_LAT_ANCHOR_Y, 11, FONTNORMAL, ALIGNLEFT, true, DISPLAY_OBJECT_LAT);
+	gpsLong					    = new ScreenText(VARIOSCREEN_LONG_ANCHOR_X, VARIOSCREEN_LONG_ANCHOR_Y, 11, FONTNORMAL, ALIGNLEFT, true, DISPLAY_OBJECT_LONG);
+	kmhunit						= new KMHUnit(VARIOSCREEN_SPEED_UNIT_ANCHOR_X, VARIOSCREEN_SPEED_UNIT_ANCHOR_Y);	
+	speedDigit	 				= new ScreenDigit(VARIOSCREEN_SPEED_ANCHOR_X, VARIOSCREEN_SPEED_ANCHOR_Y, 2, 0, false, false, ALIGNRIGHT, true, DISPLAY_OBJECT_SPEED, FONTLARGE);
 //	tempDigit 					= new ScreenDigit(VARIOSCREEN_TEMP_ANCHOR_X, VARIOSCREEN_TEMP_ANCHOR_Y, 2, 0, false, false, ALIGNLEFT, false, DISPLAY_OBJECT_TEMPERATURE);
 //	tunit 						= new TUnit(VARIOSCREEN_TEMP_UNIT_ANCHOR_X, VARIOSCREEN_TEMP_ANCHOR_Y);
 }
@@ -377,14 +383,13 @@ void VarioScreen::createScreenObjectsDisplayPage0(void) {
 //	CreateObjectDisplay(DISPLAY_OBJECT_TENSION, tensionDigit, 0, 0, true); 
 //	CreateObjectDisplay(DISPLAY_OBJECT_TEMPRATURE, tempratureDigit, 0, 2, true); 
 		CreateObjectDisplay(DISPLAY_OBJECT_ALTI							, altiDigit					    , 0, 0, true); 
-		CreateObjectDisplay(DISPLAY_OBJECT_MUNIT						, munit						 	    , 0, 0, true); 
+		CreateObjectDisplay(DISPLAY_OBJECT_HEIGHT						, heightDigit				, 0, 2, true);
+		CreateObjectDisplay(DISPLAY_OBJECT_MUNIT						, munit						 	, 0, 0, true); 
 		CreateObjectDisplay(DISPLAY_OBJECT_VARIO						, varioDigit				    , 0, 0, true); 
-		CreateObjectDisplay(DISPLAY_OBJECT_MSUNIT						, msunit						    , 0, 0, true); 
-		CreateObjectDisplay(DISPLAY_OBJECT_KMHUNIT				  , kmhunit								, 0, 0, true); 
-		CreateObjectDisplay(DISPLAY_OBJECT_SPEED						, speedDigit				    , 0, 0, true); 
-		//CreateObjectDisplay(DISPLAY_OBJECT_SEPARATIONLINE	, separationline		    , 0, 0, true);
-		//CreateObjectDisplay(DISPLAY_OBJECT_BEARING_TEXT			, gpsBearingText		, 0, 0, true);       
-		CreateObjectDisplay(DISPLAY_OBJECT_BEARING  				, gpsBearing				, 0, 0, true);
+		CreateObjectDisplay(DISPLAY_OBJECT_MSUNIT						, msunit						, 0, 0, true); 
+		CreateObjectDisplay(DISPLAY_OBJECT_KMHUNIT				 		, kmhunit						, 0, 0, true); 
+		CreateObjectDisplay(DISPLAY_OBJECT_SPEED						, speedDigit				    , 0, 0, true); 		   
+		CreateObjectDisplay(DISPLAY_OBJECT_BEARING  					, gpsBearing				    , 0, 0, true);
 		
 		
 #ifdef SCREEN_DEBUG
@@ -402,24 +407,22 @@ void VarioScreen::createScreenObjectsDisplayPage0(void) {
     }
 		CreateObjectDisplay(DISPLAY_OBJECT_INFOLEVEL				, infoLevel					, 0, 0, true); 
 		CreateObjectDisplay(DISPLAY_OBJECT_VOLLEVEL					, volLevel					, 0, 0, true); 
-		CreateObjectDisplay(DISPLAY_OBJECT_RECORDIND				, recordIndicator   , 0, 0, true); 
+		CreateObjectDisplay(DISPLAY_OBJECT_RECORDIND				, recordIndicator  		    , 0, 0, true); 
 		CreateObjectDisplay(DISPLAY_OBJECT_TRENDLEVEL				, trendLevel				, 0, 0, true); 
 		CreateObjectDisplay(DISPLAY_OBJECT_BATLEVEL					, batLevel					, 0, 0, true); 
 		CreateObjectDisplay(DISPLAY_OBJECT_SATLEVEL					, satLevel					, 0, 0, true); 
 		CreateObjectDisplay(DISPLAY_OBJECT_SCREENTIME				, screenTime				, 0, 1, true); 
-		CreateObjectDisplay(DISPLAY_OBJECT_SCREENELAPSEDTIME, screenElapsedTime , 0, 2, true); 		
+		CreateObjectDisplay(DISPLAY_OBJECT_SCREENELAPSEDTIME		, screenElapsedTime 		, 0, 2, true); 		
 		CreateObjectDisplay(DISPLAY_OBJECT_FIXGPSINFO				, fixgpsinfo				, 0, 0, true); 
-		CreateObjectDisplay(DISPLAY_OBJECT_BTINFO					, btinfo			     	  , 0, 0, true); 
-
-/*		CreateObjectDisplay(DISPLAY_OBJECT_LINE	          	, bgline1           , 0, 0, false);
-		CreateObjectDisplay(DISPLAY_OBJECT_LINE	          	, bgline2           , 0, 0, false);
-		CreateObjectDisplay(DISPLAY_OBJECT_LINE	          	, bgline3           , 0, 0, false);
-		CreateObjectDisplay(DISPLAY_OBJECT_LINE	          	, bgline4           , 0, 0, false);*/
-
-		CreateObjectDisplay(DISPLAY_OBJECT_WIND         		, wind          		, 1, 0, true);				
+		CreateObjectDisplay(DISPLAY_OBJECT_BTINFO					, btinfo			     	, 0, 0, true); 
+		CreateObjectDisplay(DISPLAY_OBJECT_WIND         		    , wind          	    	, 1, 0, true);				
+		 
 		
-//		CreateObjectDisplay(DISPLAY_OBJECT_CIRCLE         	, bgcircle          , 0, 0, true);				
 }
+
+
+
+
 
 
 	
@@ -438,26 +441,26 @@ void VarioScreen::createScreenObjectsDisplayPage10(void) {
 //****************************************************************************************************************************
 void VarioScreen::createScreenObjectsDisplayPage1(void) {
 //****************************************************************************************************************************
-//		CreateObjectDisplay(DISPLAY_OBJECT_ALTI							, altiDigit					, 1, 0, true); 
-//		CreateObjectDisplay(DISPLAY_OBJECT_MUNIT						, munit							, 1, 0, true); 
-    CreateObjectDisplay(DISPLAY_OBJECT_LAT							, gpsLat					  , 1, 1, true);    
-    CreateObjectDisplay(DISPLAY_OBJECT_LONG							, gpsLong						, 1, 2, true);
-//    CreateObjectDisplay(DISPLAY_OBJECT_LAT_DIR					, gpsLatDir				  , 1, 1, true);    
-//    CreateObjectDisplay(DISPLAY_OBJECT_LONG_DIR 				, gpsLongDir				, 1, 2, true);
-    CreateObjectDisplay(DISPLAY_OBJECT_BEARING_TEXT			, gpsBearingText		, 1, 0, true);       
-    CreateObjectDisplay(DISPLAY_OBJECT_BEARING  				, gpsBearing				, 1, 0, true);       
-//		CreateObjectDisplay(DISPLAY_OBJECT_TEMPERATURE			, tempDigit					, 1, 0, true); 
-//		CreateObjectDisplay(DISPLAY_OBJECT_TUNIT						, tunit							, 1, 0, true); 
+//		CreateObjectDisplay(DISPLAY_OBJECT_ALTI							, altiDigit				, 1, 0, true); 
+//		CreateObjectDisplay(DISPLAY_OBJECT_MUNIT						, munit					, 1, 0, true); 
+		CreateObjectDisplay(DISPLAY_OBJECT_LAT							, gpsLat				, 1, 1, true);    
+		CreateObjectDisplay(DISPLAY_OBJECT_LONG							, gpsLong				, 1, 2, true);
+//      CreateObjectDisplay(DISPLAY_OBJECT_LAT_DIR						, gpsLatDir				, 1, 1, true);    
+//  	CreateObjectDisplay(DISPLAY_OBJECT_LONG_DIR 					, gpsLongDir			, 1, 2, true);
+		CreateObjectDisplay(DISPLAY_OBJECT_BEARING_TEXT					, gpsBearingText		, 1, 0, true);       
+		CreateObjectDisplay(DISPLAY_OBJECT_BEARING  					, gpsBearing			, 1, 0, true);       
+//		CreateObjectDisplay(DISPLAY_OBJECT_TEMPERATURE					, tempDigit				, 1, 0, true); 
+//		CreateObjectDisplay(DISPLAY_OBJECT_TUNIT						, tunit					, 1, 0, true); 
 
-		CreateObjectDisplay(DISPLAY_OBJECT_INFOLEVEL				, infoLevel					, 1, 0, true); 
-		CreateObjectDisplay(DISPLAY_OBJECT_VOLLEVEL					, volLevel					, 1, 0, true); 
-		CreateObjectDisplay(DISPLAY_OBJECT_RECORDIND				, recordIndicator		, 1, 0, true); 
-		CreateObjectDisplay(DISPLAY_OBJECT_BATLEVEL					, batLevel					, 1, 0, true); 
-		CreateObjectDisplay(DISPLAY_OBJECT_SATLEVEL					, satLevel					, 1, 0, true); 
-		CreateObjectDisplay(DISPLAY_OBJECT_FIXGPSINFO				, fixgpsinfo				, 1, 0, true); 
-		CreateObjectDisplay(DISPLAY_OBJECT_BTINFO						, btinfo						, 1, 0, true); 
-		CreateObjectDisplay(DISPLAY_OBJECT_KMHUNIT				  , kmhunit								, 1, 0, true); 
-		CreateObjectDisplay(DISPLAY_OBJECT_SPEED						, speedDigit				    , 1, 0, true); 
+		CreateObjectDisplay(DISPLAY_OBJECT_INFOLEVEL					, infoLevel				, 1, 0, true); 
+		CreateObjectDisplay(DISPLAY_OBJECT_VOLLEVEL						, volLevel				, 1, 0, true); 
+		CreateObjectDisplay(DISPLAY_OBJECT_RECORDIND					, recordIndicator		, 1, 0, true); 
+		CreateObjectDisplay(DISPLAY_OBJECT_BATLEVEL						, batLevel				, 1, 0, true); 
+		CreateObjectDisplay(DISPLAY_OBJECT_SATLEVEL						, satLevel				, 1, 0, true); 
+		CreateObjectDisplay(DISPLAY_OBJECT_FIXGPSINFO					, fixgpsinfo			, 1, 0, true); 
+		CreateObjectDisplay(DISPLAY_OBJECT_BTINFO						, btinfo				, 1, 0, true); 
+		CreateObjectDisplay(DISPLAY_OBJECT_KMHUNIT				  		, kmhunit				, 1, 0, true); 
+		CreateObjectDisplay(DISPLAY_OBJECT_SPEED						, speedDigit			, 1, 0, true); 
 }	
 
 
@@ -480,12 +483,18 @@ void VarioScreen::ScreenBackground(int8_t page)
 			display.drawLine(0, 150, 128, 150, GxEPD_BLACK);
 			display.drawLine(0, 200, 128, 200, GxEPD_BLACK);
 			display.drawLine(0, 250, 128, 250, GxEPD_BLACK);
-			display.drawLine(75, 150, 75, 200, GxEPD_BLACK);
+			//display.drawLine(75, 150, 75, 200, GxEPD_BLACK);
 			break;
 	  default:
 			break;
 	}
 }
+
+
+
+
+
+
 
 //****************************************************************************************************************************
 void VarioScreen::begin(void)
@@ -556,6 +565,11 @@ void genericTask( void * parameter ){
   stateDisplay = STATE_OK;
   vTaskDelete(taskDisplay);
 }
+
+
+
+
+
 
 //****************************************************************************************************************************
 void VarioScreen::updateScreen (void)
@@ -712,7 +726,10 @@ void VarioScreen::ScreenViewInit(uint8_t Version, uint8_t Sub_Version, String Au
 	unsigned long TmplastDisplayTimestamp = millis();
 	int compteur = 0;
 	while (compteur < 3) {
+
+
 		ButtonScheduleur.update();
+
 		if (ButtonScheduleur.Get_StatePage() == STATE_PAGE_CALIBRATION) break;
 		
 		if( millis() - TmplastDisplayTimestamp > 1000 ) {
@@ -778,6 +795,7 @@ void VarioScreen::ScreenViewPage(int8_t page, boolean clear, boolean refresh)
 
 	if (refresh) {
 		altiDigit->update(true);
+		heightDigit->update(true);
 		varioDigit->update(true);
 		speedDigit->update(true);
 		ratioDigit->update(true);
@@ -807,6 +825,7 @@ void VarioScreen::ScreenViewPage(int8_t page, boolean clear, boolean refresh)
 	}
 	else {		
 		altiDigit->setValue(9999);
+		heightDigit->setValue(9999);
 		varioDigit->setValue(0.0);
 		speedDigit->setValue(0);
 		ratioDigit->setValue(0);
@@ -1508,6 +1527,13 @@ void ScreenScheduler::displayStep(void) {
 //****************************************************************************************************************************
 
 	if (currentPage == endPage+1) return;
+
+  if (stateDisplay != STATE_OK) {
+#ifdef SCREEN_DEBUG2
+		SerialPort.println("Task en cours");	
+#endif //SCREEN_DEBUG
+	  return;
+	}
 
 #ifndef TIMER_DISPLAY
 

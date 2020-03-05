@@ -37,9 +37,13 @@
  *    1.0.8  28/01/20   Modification écran 1 - ajout info gps                    *
  *    1.0.9  09/02/20   Modif écran 1 - font normal / coordonné GPS en degrés    *
  *    1.0.10 17/02/20   Ajout large (font) varioscreenDigit                      *
- *    1.0.11 25/02/20   Ajout ScreenBackground                                   *
- *                                                                               *
+  *    1.0.11 25/02/20   Ajout ScreenBackground                                   *
+ *    1.0.12 04/03/20   Ajout affichage alti agl                                 *
+*                                                                               *
  *********************************************************************************/
+
+
+
 
 #ifndef VARIOSCREENGXEPD_154_H
 #define VARIOSCREENGXEPD_154_H
@@ -149,6 +153,7 @@ class VarioScreen {
 	ScreenDigit* tempratureDigit; 
 	
 	ScreenDigit* altiDigit;
+	ScreenDigit* heightDigit;
 	
 	MUnit* munit;
 	ScreenDigit* varioDigit;
@@ -182,6 +187,8 @@ class VarioScreen {
 	BGLine* bgline3;
 	BGLine* bgline4;
 	BGCircle* bgcircle; */
+
+
 	
 //object page 10 - calibrate GPS 	
 	

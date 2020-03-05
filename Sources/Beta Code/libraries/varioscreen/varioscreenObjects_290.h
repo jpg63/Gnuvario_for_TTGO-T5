@@ -60,6 +60,11 @@
  *    1.0.12 21/02/20   Correction Bug d'affichage batterie                      *
  *********************************************************************************/
 
+
+
+
+
+
 #ifndef VARIOSCREENOBJECTS_290_H
 #define VARIOSCREENOBJECTS_290_H
 
@@ -137,6 +142,7 @@
 #define DISPLAY_OBJECT_BEARING_TEXT         34
 #define DISPLAY_OBJECT_LAT_DIR              35
 #define DISPLAY_OBJECT_LONG_DIR             36  
+#define DISPLAY_OBJECT_HEIGHT							  37
 
 #define MAXW_OBJECT_VARIO 								 	85
 #define MAXW_OBJECT_TIME									 	50

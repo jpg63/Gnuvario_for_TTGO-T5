@@ -374,6 +374,7 @@ ScreenDigit::ScreenDigit(uint16_t anchorX, uint16_t anchorY, uint16_t width, uin
 #if defined(ESP32)
 	ESP_LOGI(TAG, "ScreenDigit constructeur");
 //  ESP_LOGE(TAG, "Failed to initialize the card (%d). Make sure SD card lines have pull-up resistors in place.", ret);
+
 #endif //ESP32
 
 
@@ -458,6 +459,15 @@ ScreenDigit::ScreenDigit(uint16_t anchorX, uint16_t anchorY, uint16_t width, uin
 #endif	
 			MaxHeight  = Zheight;
 			break;
+
+/*		case DISPLAY_OBJECT_HEIGHT :
+#if defined (MAXW_OBJECT_ALTI)		
+		  MaxWidth   = MAXW_OBJECT_ALTI;
+#else
+		  MaxWidth   = Zwidth;
+#endif	
+			MaxHeight  = Zheight;
+			break;*/
 			
 		case DISPLAY_OBJECT_VARIO :
 #if defined (MAXW_OBJECT_VARIO)		
@@ -496,7 +506,7 @@ ScreenDigit::ScreenDigit(uint16_t anchorX, uint16_t anchorY, uint16_t width, uin
 			break;
 
 		case DISPLAY_OBJECT_BEARING :
-#if defined (MAXW_OBJECT_LONG)		
+#if defined (MAXW_OBJECT_BEARING)		
 		  MaxWidth   = MAXW_OBJECT_BEARING;
 #else
 		  MaxWidth   = Zwidth;
@@ -788,8 +798,11 @@ void ScreenDigit::show() {
 			display.drawInvertedBitmap(titleX, titleY-14, timetext, 29, 11, GxEPD_BLACK);
 			break;
 		case DISPLAY_OBJECT_ALTI :
+//		  TRACE();
 //			display.drawInvertedBitmap(0, 31, altitext, 18, 11, GxEPD_BLACK);
-			display.drawInvertedBitmap(titleX-95, titleY-14, altitext, 18, 11, GxEPD_BLACK);
+//			display.drawInvertedBitmap(titleX-95, titleY-14, altitext, 18, 11, GxEPD_BLACK);
+   		display.fillRect(titleX, titleY-12, 40, 14, GxEPD_WHITE);
+			display.drawInvertedBitmap(titleX+3, titleY-12, altitext, 18, 11, GxEPD_BLACK);
 			break;
 		case DISPLAY_OBJECT_VARIO :
 //			display.drawInvertedBitmap(0, 85, variotext, 31, 11, GxEPD_BLACK);
@@ -799,12 +812,24 @@ void ScreenDigit::show() {
 //			display.drawInvertedBitmap(132, 85, grtext, 21, 11, GxEPD_BLACK); //finesse/glade ratio
 			display.drawInvertedBitmap(titleX, titleY-14, grtext, 21, 11, GxEPD_BLACK); //finesse/glade ratio
 			break;
+    case DISPLAY_OBJECT_HEIGHT :
+//		  TRACE();
+//			display.drawInvertedBitmap(titleX, titleY-8, heighttext, 32, 14, GxEPD_BLACK);
+   		display.fillRect(titleX-30, titleY-12, 40, 14, GxEPD_WHITE);
+			display.drawInvertedBitmap(titleX-27, titleY-12, heighttext, 32, 14, GxEPD_BLACK);
+			break;
 		default :
 			break;
 		}
 	}
 
 }
+
+
+
+
+
+
 
 /*
 // ****************************************************************************************************************************
@@ -1121,7 +1146,7 @@ ScreenText::ScreenText(uint16_t anchorX, uint16_t anchorY, uint16_t width, bool 
 		
     switch (displayTypeID) {
 		case DISPLAY_OBJECT_BEARING_TEXT :
-#if defined (MAXW_OBJECT_BEARING)		
+#if defined (MAXW_OBJECT_BEARING_TEXT)		
 		  MaxWidth   = MAXW_OBJECT_BEARING_TEXT;
 #else
 		  MaxWidth   = Zwidth;
@@ -1328,15 +1353,16 @@ void ScreenText::show() {
   if (showtitle) {
 		
     switch (displayTypeID) {
-		case DISPLAY_OBJECT_BEARING :
-//			display.drawInvertedBitmap(titleX+100, titleY-50, beartext, 22, 11, GxEPD_BLACK);
-			break;
 		case DISPLAY_OBJECT_LAT :
 //			display.drawInvertedBitmap(titleX+2, titleY-14, lattext, 41, 14, GxEPD_BLACK);
 			break;
 		case DISPLAY_OBJECT_LONG :
 //			display.drawInvertedBitmap(titleX, titleY-14, longtext, 29, 11, GxEPD_BLACK);
 			break;
+		case DISPLAY_OBJECT_BEARING :
+//			display.drawInvertedBitmap(titleX+100, titleY-50, beartext, 22, 11, GxEPD_BLACK);
+			break;
+
 		default :
 			break;
 		}

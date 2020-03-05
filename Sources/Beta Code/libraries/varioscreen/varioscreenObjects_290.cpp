@@ -35,12 +35,12 @@
  *    1.0.6  12/08/19   Ajout gestion écran de config GPS                        *
  *    1.0.7  15/08/19   Ajout gestion bouton dans screeninit                     *
  *    1.0.8  15/09/19   Ajout écran connection Wifi - ScreenViewWifi             *
- *    1.0.9  22/08/19   Ajout ScreenViewReboot																	 *
+ *    1.0.9  22/08/19   Ajout ScreenViewReboot									 *
  *    1.0.10 22/08/19   Ajout Page1                                              *
  *    1.0.11 23/08/19   Correction bug previousPage                              *
  *                      Ajout TUnit                                              *
  *    1.0.12 24/08/19   Ajout ScreenViewSound(int volume)                        *
- *		1.0.13 25/08/19		Gestion de l'écran de config du son											 *	
+ *		1.0.13 25/08/19		Gestion de l'écran de config du son					 *	
  *    1.0.14 23/09/19   Modification page stat                                   *
  *                      Modification de l'affichage de la charge de la betterie  *
  *                      Ajout d'un deep-sleep en cas de batterie trop faible     *
@@ -50,23 +50,28 @@
  *    1.1.3  13/10/19   Integration au Gnuvario                                  *
  *    1.1.4  14/10/19   Modification affichage titre champs screendigit          *
  *    1.1.5  15/10/19   Modification affichage des satellites                    *
- *    1.1.6  20/10/19   Suppression classe GxEPD2_BW_U													 *
+ *    1.1.6  20/10/19   Suppression classe GxEPD2_BW_U							 *
  *    1.1.7  16/11/19   Ajout classe GxEPD2_BW_U                                 *
  *    1.1.8  11/01/20   Modif VARIOSCREEN_SIZE == 290                            *
  *    1.1.9  03/02/20   Changement de nom passage de 29 à 290                    *
  *    1.1.10 07/02/20   Ajout 290 et 291                                         *
  *                      Ajout FONTLARGE / FONTNORMAL pour Digit                  *
  *    1.0.11 19/02/20   Ajout variolog                                           *
- *    1.1.12 21/02/20   Correction bug affichage batterie                        *
+ *    1.1.12 21/02/20   Correction bug affichage batterie   					 *	
+ *    1.0.13 04/03/20   Réorganisation de l'affichage des variable               *
  *********************************************************************************/ 
- /*
+ 
+ 
+
+
+
+/*
  *********************************************************************************
  *                    conversion image to cpp code                               *
  *                                                                               *
  *      https://javl.github.io/image2cpp/                                        *
  *                                                                               *
  *********************************************************************************/
-
 
 #include <Arduino.h>
 #include <HardwareConfig.h>
@@ -454,6 +459,15 @@ ScreenDigit::ScreenDigit(uint16_t anchorX, uint16_t anchorY, uint16_t width, uin
 #endif	
 			MaxHeight  = Zheight;
 			break;
+
+/*		case DISPLAY_OBJECT_HEIGHT :
+#if defined (MAXW_OBJECT_ALTI)		
+		  MaxWidth   = MAXW_OBJECT_ALTI;
+#else
+		  MaxWidth   = Zwidth;
+#endif	
+			MaxHeight  = Zheight;
+			break;*/
 			
 		case DISPLAY_OBJECT_VARIO :
 #if defined (MAXW_OBJECT_VARIO)		
@@ -471,7 +485,7 @@ ScreenDigit::ScreenDigit(uint16_t anchorX, uint16_t anchorY, uint16_t width, uin
 		  MaxWidth   = Zwidth;
 #endif	
 			MaxHeight  = Zheight;	
-			break;
+	 		break;
 
 		case DISPLAY_OBJECT_LAT :
 #if defined (MAXW_OBJECT_LAT)		
@@ -489,10 +503,10 @@ ScreenDigit::ScreenDigit(uint16_t anchorX, uint16_t anchorY, uint16_t width, uin
 		  MaxWidth   = Zwidth;
 #endif	
 			MaxHeight  = Zheight;
-			break;	
-
+			break;
+			
 		case DISPLAY_OBJECT_BEARING :
-#if defined (MAXW_OBJECT_LONG)		
+#if defined (MAXW_OBJECT_BEARING)		
 		  MaxWidth   = MAXW_OBJECT_BEARING;
 #else
 		  MaxWidth   = Zwidth;
@@ -676,9 +690,8 @@ void ScreenDigit::show() {
 	char tmpChar[MAX_CHAR_IN_LINE];
    
   display.setFont(&FreeSansBold18pt7b);
-  if (large) 	display.setTextSize(2);
+  if (large) 	display.setTextSize(1);
 	else 				display.setTextSize(1);
-
 
 //  int16_t box_x = anchorX;
   int16_t box_y = anchorY;
@@ -735,7 +748,7 @@ void ScreenDigit::show() {
 	
 		if ((anchorX+w+2) > display.width()) w = display.width()-anchorX+2; //if ((anchorX+w+2) > display.width()) w = display.width()-anchorX+2
 
-		display.fillRect(anchorX, anchorY-Zheight-3, w+6, Zheight+3, GxEPD_WHITE);; //display.fillRect(anchorX, anchorY-Zheight-3, w+6, Zheight+4, GxEPD_BLACK);
+		display.fillRect(anchorX, anchorY-Zheight-3, w+4, Zheight+3, GxEPD_WHITE);; //display.fillRect(anchorX, anchorY-Zheight-3, w+6, Zheight+4, GxEPD_BLACK);
 	
 //		display.drawRect(anchorX, anchorY-Zheight-3, w+5, Zheight+4, GxEPD_BLACK);
   
@@ -777,25 +790,40 @@ void ScreenDigit::show() {
 		
     switch (displayTypeID) {
 		case DISPLAY_OBJECT_SPEED :
-			display.drawBitmap(titleX+2, titleY-7, speedtext, 32, 10, GxEPD_BLACK);
-//			display.drawInvertedBitmap(0, 141, speedtext, 41, 14, GxEPD_BLACK);
+			display.drawInvertedBitmap(titleX-6, titleY-8, speedtext, 30, 11, GxEPD_BLACK);
+
 			break;
 		case DISPLAY_OBJECT_TIME :
-//			display.drawInvertedBitmap(85, 141, timetext, 24, 7, GxEPD_BLACK);
-			display.drawBitmap(titleX+20, titleY-7, timetext, 24, 7, GxEPD_BLACK);
+
+			display.drawInvertedBitmap(titleX-25, titleY-7, timetext, 21, 9, GxEPD_BLACK);
 			break;
 		case DISPLAY_OBJECT_ALTI :
-//			display.drawInvertedBitmap(0, 31, altitext, 18, 11, GxEPD_BLACK);
-			display.drawBitmap(titleX-77, titleY-5, altitext, 15, 7, GxEPD_BLACK);
+
+   		    display.fillRect(titleX-74, titleY-6, 40, 14, GxEPD_WHITE);
+			display.drawInvertedBitmap(titleX-72, titleY-6, altitext, 16, 9, GxEPD_BLACK);
 			break;
+
+
 		case DISPLAY_OBJECT_VARIO :
-//			display.drawInvertedBitmap(0, 85, variotext, 31, 11, GxEPD_BLACK);
-			display.drawBitmap(titleX+22, titleY-8, variotext, 23, 7, GxEPD_BLACK);
+
+			display.drawInvertedBitmap(titleX+22, titleY-8, variotext, 24, 9, GxEPD_BLACK);
 			break;
 		case DISPLAY_OBJECT_RATIO :
-//			display.drawInvertedBitmap(132, 85, grtext, 21, 11, GxEPD_BLACK); //finesse/glade ratio
-			display.drawBitmap(titleX, titleY-8, grtext, 14, 7, GxEPD_BLACK); //finesse/glade ratio
+
+			display.drawInvertedBitmap(titleX-15, titleY-8, grtext, 15, 9, GxEPD_BLACK); //finesse/glade ratio
 			break;
+    case DISPLAY_OBJECT_HEIGHT :
+//		  TRACE();
+//			display.drawInvertedBitmap(titleX, titleY-8, heighttext, 32, 14, GxEPD_BLACK);
+   		display.fillRect(titleX-29, titleY-8, 40, 14, GxEPD_WHITE);
+			display.drawInvertedBitmap(titleX-27, titleY-8, heighttext, 32, 14, GxEPD_BLACK);
+			break;
+			
+		case DISPLAY_OBJECT_BEARING :
+		
+			display.drawInvertedBitmap(titleX+24, titleY-9, bearingtext, 36, 11, GxEPD_BLACK);
+			break;	
+			
 		default :
 			break;
 		}
@@ -1058,8 +1086,8 @@ ScreenText::ScreenText(uint16_t anchorX, uint16_t anchorY, uint16_t width, bool 
 //****************************************************************************************************************************
   lastDisplayWidth = 0; 
 
-  display.setFont(&FreeSansBold12pt7b);
-	if (large) display.setTextSize(2);
+  display.setFont(&FreeSansBold18pt7b);
+	if (large) display.setTextSize(1);
 	else 			 display.setTextSize(1);	
 
 //  int16_t box_x = anchorX;
@@ -1101,7 +1129,7 @@ ScreenText::ScreenText(uint16_t anchorX, uint16_t anchorY, uint16_t width, bool 
 	
 	float tmpcar;
 	int   carwidth;
-	if (large) carwidth = 14;
+	if (large) carwidth = 7;
 	else       carwidth = 7;
 		
 	tmpcar = tmpwidth / carwidth;
@@ -1113,12 +1141,12 @@ ScreenText::ScreenText(uint16_t anchorX, uint16_t anchorY, uint16_t width, bool 
 		Zwidth = width * carwidth;
 	}
 	
-	if (large) Zheight  = 24+6;
+	if (large) Zheight  = 18+3;
 	else       Zheight  = 18+3;
 		
     switch (displayTypeID) {
 		case DISPLAY_OBJECT_BEARING_TEXT :
-#if defined (MAXW_OBJECT_BEARING)		
+#if defined (MAXW_OBJECT_BEARING_TEXT)		
 		  MaxWidth   = MAXW_OBJECT_BEARING_TEXT;
 #else
 		  MaxWidth   = Zwidth;
@@ -1207,12 +1235,12 @@ void ScreenText::show() {
    
 	if (large) 
 	{
-  		display.setFont(&FreeSansBold12pt7b);
-  		display.setTextSize(2);
+  		display.setFont(&FreeSansBold18pt7b);
+  		display.setTextSize(1);
 	}
 	else 			 
 	{
-		display.setFont(&FreeSerifBold18pt7b);
+		display.setFont(&FreeSansBold12pt7b);
 		display.setTextSize(1);	
 	}
 
@@ -1325,15 +1353,16 @@ void ScreenText::show() {
   if (showtitle) {
 		
     switch (displayTypeID) {
-		case DISPLAY_OBJECT_BEARING :
-//			display.drawInvertedBitmap(titleX+100, titleY-50, beartext, 22, 11, GxEPD_BLACK);
-			break;
 		case DISPLAY_OBJECT_LAT :
-//			display.drawInvertedBitmap(titleX+2, titleY-14, lattext, 41, 14, GxEPD_BLACK);
+			display.drawInvertedBitmap(titleX-23, titleY-5, lattext, 15, 9, GxEPD_BLACK);
 			break;
 		case DISPLAY_OBJECT_LONG :
-//			display.drawInvertedBitmap(titleX, titleY-14, longtext, 29, 11, GxEPD_BLACK);
+			display.drawInvertedBitmap(titleX-23, titleY-5, longtext, 23, 11, GxEPD_BLACK);
 			break;
+		case DISPLAY_OBJECT_BEARING_TEXT :
+			display.drawInvertedBitmap(titleX-31, titleY-5, compasstext, 45, 11, GxEPD_BLACK);
+			break;			
+			
 		default :
 			break;
 		}
@@ -1780,13 +1809,6 @@ b=0.386384
   reset();
 }
 
-
-
-
-
-
-
-
 //****************************************************************************************************************************
 void BATLevel::show(void) {
 //****************************************************************************************************************************
@@ -1821,7 +1843,7 @@ if    X< 1700 = deep sleep (comme ça si la sécu batterie ne fonctionne pas ou 
 	DUMP(Voltage);
 	DUMPLOG(LOG_TYPE_DEBUG, VOLTAGE_DEBUG_LOG,Voltage);
 	
-  display.fillRect(posX, posY, 32, 32, GxEPD_WHITE);
+  display.fillRect(274, 8, 18, 9, GxEPD_WHITE);
 
   if (Voltage >= 2160)
     display.drawInvertedBitmap(274, 8, bat4icons, 17, 8, GxEPD_BLACK);   //GxEPD_BLACK);
@@ -2644,9 +2666,9 @@ void WIND::show() {
 #endif //SCREEN_DEBUG
 
 // display.drawBitmap(msicons, posX, posY, 48, 48, GxEPD_WHITE,false);   //GxEPD_BLACK);
-	display.fillRect(posX, posY, 24, 24, GxEPD_WHITE);
+	//display.fillRect(posX, posY, 24, 24, GxEPD_WHITE);
 //	display.drawRect(posX, posY, 24, 24, GxEPD_BLACK);
-  display.drawInvertedBitmap(200, 33, wind, 90, 90, GxEPD_BLACK);
+ // display.drawInvertedBitmap(200, 33, wind, 90, 90, GxEPD_BLACK);
 //display.drawInvertedBitmap	
 //  display.drawBitmap(100, 10, gridicons_sync, 24, 24, GxEPD_BLACK);
 }

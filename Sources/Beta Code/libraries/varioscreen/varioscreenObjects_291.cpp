@@ -61,14 +61,17 @@
  *    1.1.13 23/02/20   Ajout d'objets texte (compass, Lat, Long), changement    *
  *					    de taille de texte                                       *
  *********************************************************************************/
- /*
+ 
+
+
+
+/*
  *********************************************************************************
  *                    conversion image to cpp code                               *
  *                                                                               *
  *      https://javl.github.io/image2cpp/                                        *
  *                                                                               *
  *********************************************************************************/
-
 
 #include <Arduino.h>
 #include <HardwareConfig.h>
@@ -371,6 +374,7 @@ ScreenDigit::ScreenDigit(uint16_t anchorX, uint16_t anchorY, uint16_t width, uin
 #if defined(ESP32)
 	ESP_LOGI(TAG, "ScreenDigit constructeur");
 //  ESP_LOGE(TAG, "Failed to initialize the card (%d). Make sure SD card lines have pull-up resistors in place.", ret);
+
 #endif //ESP32
 
 
@@ -455,6 +459,15 @@ ScreenDigit::ScreenDigit(uint16_t anchorX, uint16_t anchorY, uint16_t width, uin
 #endif	
 			MaxHeight  = Zheight;
 			break;
+
+/*		case DISPLAY_OBJECT_HEIGHT :
+#if defined (MAXW_OBJECT_ALTI)		
+		  MaxWidth   = MAXW_OBJECT_ALTI;
+#else
+		  MaxWidth   = Zwidth;
+#endif	
+			MaxHeight  = Zheight;
+			break;*/
 			
 		case DISPLAY_OBJECT_VARIO :
 #if defined (MAXW_OBJECT_VARIO)		
@@ -473,6 +486,25 @@ ScreenDigit::ScreenDigit(uint16_t anchorX, uint16_t anchorY, uint16_t width, uin
 #endif	
 			MaxHeight  = Zheight;	
 			break;
+
+		case DISPLAY_OBJECT_LAT :
+#if defined (MAXW_OBJECT_LAT)		
+		  MaxWidth   = MAXW_OBJECT_LAT;
+#else
+		  MaxWidth   = Zwidth;
+#endif	
+			MaxHeight  = Zheight;
+			break;
+
+		case DISPLAY_OBJECT_LONG :
+#if defined (MAXW_OBJECT_LONG)		
+		  MaxWidth   = MAXW_OBJECT_LONG;
+#else
+		  MaxWidth   = Zwidth;
+#endif	
+			MaxHeight  = Zheight;
+			break;
+
 case DISPLAY_OBJECT_BEARING :
 #if defined (MAXW_OBJECT_BEARING)		
 		  MaxWidth   = MAXW_OBJECT_BEARING;
@@ -481,7 +513,7 @@ case DISPLAY_OBJECT_BEARING :
 #endif	
 			MaxHeight  = Zheight;
 			break;
-			
+									
 		default :
 		  MaxWidth   = Zwidth;
 			MaxHeight  = Zheight;
@@ -658,9 +690,8 @@ void ScreenDigit::show() {
 	char tmpChar[MAX_CHAR_IN_LINE];
    
   display.setFont(&FreeSansBold18pt7b);
-  if (large) 	display.setTextSize(2);
+  if (large) 	display.setTextSize(1);
 	else 				display.setTextSize(1);
-
 
 //  int16_t box_x = anchorX;
   int16_t box_y = anchorY;
@@ -759,15 +790,16 @@ void ScreenDigit::show() {
 		
     switch (displayTypeID) {
 		case DISPLAY_OBJECT_SPEED :
+//		
 			display.drawInvertedBitmap(titleX+7, titleY-9, speedtext, 35, 11, GxEPD_BLACK);
-//			
-			break;
+			break;		
 		case DISPLAY_OBJECT_TIME :
 //			
-			display.drawInvertedBitmap(titleX+2, titleY-10, timetext, 27, 9, GxEPD_BLACK);
+			display.drawInvertedBitmap(titleX+1, titleY-10, timetext, 27, 9, GxEPD_BLACK);
 			break;
 		case DISPLAY_OBJECT_ALTI :
 //			
+   			display.fillRect(titleX-70, titleY-6, 40, 9, GxEPD_WHITE);
 			display.drawInvertedBitmap(titleX-68, titleY-6, altitext, 16, 9, GxEPD_BLACK);
 			break;
 		case DISPLAY_OBJECT_VARIO :
@@ -776,11 +808,17 @@ void ScreenDigit::show() {
 			break;
 		case DISPLAY_OBJECT_RATIO :
 //			
-			display.drawBitmap(titleX, titleY-8, grtext, 14, 7, GxEPD_BLACK); //finesse/glade ratio
+			display.drawBitmap(titleX-6, titleY-8, grtext, 14, 7, GxEPD_BLACK); //finesse/glade ratio
+			break;
+    case DISPLAY_OBJECT_HEIGHT :
+//		  TRACE();
+//			display.drawInvertedBitmap(titleX, titleY-8, heighttext, 32, 14, GxEPD_BLACK);
+   			display.fillRect(titleX-70, titleY-6, 40, 9, GxEPD_WHITE);
+			display.drawInvertedBitmap(titleX-68, titleY-6, heighttext, 32, 14, GxEPD_BLACK);
 			break;
 		case DISPLAY_OBJECT_BEARING :
 //			
-			display.drawInvertedBitmap(titleX, titleY-6, beartext, 42, 11, GxEPD_BLACK); 
+			display.drawInvertedBitmap(titleX+2, titleY-6, beartext, 42, 11, GxEPD_BLACK); 
 			break;
 		
 			
@@ -1091,7 +1129,7 @@ ScreenText::ScreenText(uint16_t anchorX, uint16_t anchorY, uint16_t width, bool 
 	
 	float tmpcar;
 	int   carwidth;
-	if (large) carwidth = 14;
+	if (large) carwidth = 7;
 	else       carwidth = 7;
 		
 	tmpcar = tmpwidth / carwidth;
@@ -1103,12 +1141,12 @@ ScreenText::ScreenText(uint16_t anchorX, uint16_t anchorY, uint16_t width, bool 
 		Zwidth = width * carwidth;
 	}
 	
-	if (large) Zheight  = 24+6;
+	if (large) Zheight  = 18+3;
 	else       Zheight  = 18+3;
 		
     switch (displayTypeID) {
 		case DISPLAY_OBJECT_BEARING_TEXT :
-#if defined (MAXW_OBJECT_BEARING)		
+#if defined (MAXW_OBJECT_BEARING_TEXT)		
 		  MaxWidth   = MAXW_OBJECT_BEARING_TEXT;
 #else
 		  MaxWidth   = Zwidth;
@@ -1196,10 +1234,10 @@ void ScreenText::show() {
 //	char tmpChar[MAX_CHAR_IN_LINE];
    
 	
-	if (large) {display.setFont(&FreeSansBold12pt7b);
+	if (large) {display.setFont(&FreeSansBold18pt7b);
 	display.setTextSize(1);
 	}
-	else {	display.setFont(&FreeSansBold18pt7b);   
+	else {	display.setFont(&FreeSansBold12pt7b);   
 		display.setTextSize(1);	
 	}
 //  int16_t box_x = anchorX;
@@ -1313,15 +1351,15 @@ void ScreenText::show() {
     switch (displayTypeID) {
 		case DISPLAY_OBJECT_LAT :
 //		
-			display.drawInvertedBitmap(titleX-2, titleY-2, lattext, 17, 9, GxEPD_BLACK); //affichage Lat
+			display.drawInvertedBitmap(titleX-2, titleY-10, lattext, 17, 9, GxEPD_BLACK); //affichage Lat
 			break;
 		case DISPLAY_OBJECT_LONG :
 //			
-			display.drawInvertedBitmap(titleX-2, titleY-2, longtext, 27, 11, GxEPD_BLACK); //affichage Long
+			display.drawInvertedBitmap(titleX-2, titleY-10, longtext, 27, 11, GxEPD_BLACK); //affichage Long
 			break;
 		case DISPLAY_OBJECT_BEARING_TEXT :
 //			
-			display.drawInvertedBitmap(titleX-35, titleY-12, compasstext, 54, 11, GxEPD_BLACK); //affichage Compass
+			display.drawInvertedBitmap(titleX-32, titleY-10, compasstext, 54, 11, GxEPD_BLACK); //affichage Compass
 			break;			
 			
 			default :

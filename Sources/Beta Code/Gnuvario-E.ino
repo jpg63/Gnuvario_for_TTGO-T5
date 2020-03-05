@@ -61,6 +61,10 @@
 #define SDCARD_STATE_ERROR -1
 #endif //HAVE_GPS
 
+#if defined(HAVE_SDCARD) && defined(HAVE_GPS)
+#include <AglManager.h>
+#endif //HAVE_SDCARD && HAVE_GPS
+
 #include <FlightHistory.h>
 #include <variostat.h>
 #include <VarioButton.h>
@@ -302,6 +306,7 @@ SimpleBLE ble;
 *                                    Nouveau site web embarqué                                        *
 *                                    Mise à jour calibration                                          *
 *               01/03/20             Correction affichage lat/long                                    *
+*               04/03/20             Ajout AGL                                                        *
 *******************************************************************************************************
 *                                                                                                     *
 *                                   Developpement a venir                                             *
@@ -319,12 +324,13 @@ SimpleBLE ble;
 * MODIF - Modification librairie varioscreen - MAJ GxEpd2                                             *
 * VERIF - Seuil déclenchement début du vol                                                            *
 * VERIF - Sensibilité du vario                                                                        *
+* BUG   - Problème d'éffacement alti                                                                  *
 *                                                                                                     *
 * v0.8                                                                                                *       
 * MODIF - Réecrire loop                                                                               *
 * AJOUT - Récupération du cap depuis le capteur baromètrique                                          *
 * MODIF - réécriture maj affichage                                                                    *
-*                                                                                                     * 
+*                                                                                                     *
 * VX.X                                                                                                *
 * Paramètrage des écrans                                                                              *
 * Gérer le son via le DAC                                                                             *
@@ -600,6 +606,10 @@ boolean lastSentence = false;
 #endif //HAVE_BLUETOOTH
 
 #endif //HAVE_GPS
+
+#ifdef AGL_MANAGER_H
+  AglManager aglManager;
+#endif
 
 /*********************/
 /* bluetooth objects */
@@ -1414,7 +1424,6 @@ void loop() {
 //**********************************************************
 //  ACQUISITION DES DONNEES
 //**********************************************************
-
 #ifdef HAVE_ACCELEROMETER
 #ifdef TWOWIRESCHEDULER
   if( twScheduler.havePressure() && twScheduler.haveAccel() ) {
@@ -1506,9 +1515,9 @@ void loop() {
                        0.0,
                        millis() );
 #endif //HAVE_ACCELEROMETER
-
+  
  #ifdef PROG_DEBUG
-    SerialPort.println("Kalman Update");
+    //SerialPort.println("Kalman Update");
 #endif //PROG_DEBUG
  
     if (displayLowUpdateState) {
@@ -1586,7 +1595,12 @@ void loop() {
  //   SerialPort.println(currentalti);
 #endif //DATA_DEBUG
 
-    if (displayLowUpdateState) screen.altiDigit->setValue(currentalti);
+    if (displayLowUpdateState) {
+      screen.altiDigit->setValue(currentalti);
+      #ifdef AGL_MANAGER_H
+      aglManager.setAlti(currentalti);
+      #endif
+    }
 
 //**********************************************************
 //  DISPLAY VARIO
@@ -1931,6 +1945,11 @@ void loop() {
       else {  //variometerState == VARIOMETER_STATE_CALIBRATED
         
         /* check flight start condition */
+
+        DUMP(kalmanvert.getVelocity());
+        DUMP(GnuSettings.FLIGHT_START_VARIO_LOW_THRESHOLD);
+        DUMP(GnuSettings.FLIGHT_START_VARIO_HIGH_THRESHOLD);
+        
         if( (millis() > GnuSettings.FLIGHT_START_MIN_TIMESTAMP) &&
             ((GnuSettings.VARIOMETER_RECORD_WHEN_FLIGHT_START) &&   
              ((kalmanvert.getVelocity() < GnuSettings.FLIGHT_START_VARIO_LOW_THRESHOLD) || (kalmanvert.getVelocity() > GnuSettings.FLIGHT_START_VARIO_HIGH_THRESHOLD)) 
@@ -1965,9 +1984,11 @@ void loop() {
         (kalmanvert.getVelocity() < GnuSettings.FLIGHT_START_VARIO_LOW_THRESHOLD || kalmanvert.getVelocity() > GnuSettings.FLIGHT_START_VARIO_HIGH_THRESHOLD) ) {
       variometerState = VARIOMETER_STATE_FLIGHT_STARTED;
       enableflightStartComponents();*/
+
+
       if( (millis() > GnuSettings.FLIGHT_START_MIN_TIMESTAMP) &&
           (((GnuSettings.VARIOMETER_RECORD_WHEN_FLIGHT_START) &&   
-           (kalmanvert.getVelocity() < GnuSettings.FLIGHT_START_VARIO_LOW_THRESHOLD || kalmanvert.getVelocity() > GnuSettings.FLIGHT_START_VARIO_HIGH_THRESHOLD)) || 
+           ((kalmanvert.getVelocity() < GnuSettings.FLIGHT_START_VARIO_LOW_THRESHOLD) || (kalmanvert.getVelocity() > GnuSettings.FLIGHT_START_VARIO_HIGH_THRESHOLD))) || 
            (!GnuSettings.VARIOMETER_RECORD_WHEN_FLIGHT_START))) {
 //        variometerState = VARIOMETER_STATE_FLIGHT_STARTED;
         enableflightStartComponents();      
@@ -2213,32 +2234,42 @@ void loop() {
     }
 
     if (nmeaParser.haveLongitude()) {
-
-      String longitude = nmeaParser.getLongitude();
+      String longitude = nmeaParser.getLongitude();      
 #ifdef DATA_DEBUG
       SerialPort.print("Longitude : ");
       SerialPort.println(longitude);
 #endif //DATA_DEBUG     
       DUMPLOG(LOG_TYPE_DEBUG, DATA_DEBUG_LOG, longitude);
-
+      #ifdef AGL_MANAGER_H
+      aglManager.setLongitude(nmeaParser.getLong());
+      #endif
 //      screen.gpsLongDir->setValue(String(nmeaParser.getLongDir()));
 //      screen.gpsLong->setValue(nmeaParser.getLong());
       screen.gpsLong->setValue(nmeaParser.getLongDegree());
     }
 
     if (nmeaParser.haveLatitude()) {
-
       String latitude = nmeaParser.getLatitude();
 #ifdef DATA_DEBUG
       SerialPort.print("Latitude : ");
       SerialPort.println(latitude);
 #endif //DATA_DEBUG     
       DUMPLOG(LOG_TYPE_DEBUG, DATA_DEBUG_LOG, latitude);
+      #ifdef AGL_MANAGER_H
+      aglManager.setLatitude(nmeaParser.getLat());
+      #endif
 //      screen.gpsLatDir->setValue(String(nmeaParser.getLatDir()));
 //      screen.gpsLat->setValue(nmeaParser.getLat());
       screen.gpsLat->setValue(nmeaParser.getLatDegree());
     }
-   
+    #ifdef AGL_MANAGER_H
+      double currentHeight = aglManager.getHeight();
+#ifdef PROG_DEBUG
+      SerialPort.print("Height : ");
+      SerialPort.println(currentHeight);
+#endif //PROG_DEBUG     
+      screen.heightDigit->setValue(currentHeight);
+      #endif
   }
    
   displayLowUpdateState = false;
@@ -2251,7 +2282,7 @@ void loop() {
 //**********************************************************
 
 #ifdef PROG_DEBUG
-    SerialPort.println("Update Screen");
+    //SerialPort.println("Update Screen");
 #endif //PROG_DEBUG
 
   screen.schedulerScreen->displayStep();
