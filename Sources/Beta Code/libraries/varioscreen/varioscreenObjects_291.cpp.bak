@@ -804,17 +804,11 @@ void ScreenDigit::show() {
 			break;
 		case DISPLAY_OBJECT_VARIO :
 //			
-   			display.fillRect(titleX+2, titleY-11, 40, 9, GxEPD_WHITE);
 			display.drawInvertedBitmap(titleX+2, titleY-11, variotext, 27, 9, GxEPD_BLACK);
 			break;
 		case DISPLAY_OBJECT_RATIO :
 //			
 			display.drawBitmap(titleX-6, titleY-8, grtext, 14, 7, GxEPD_BLACK); //finesse/glade ratio
-			break;
-		case DISPLAY_OBJECT_TREND :
-//			display.drawInvertedBitmap(132, 85, grtext, 21, 11, GxEPD_BLACK); //finesse/glade ratio
-   			display.fillRect(titleX+2, titleY-11, 40, 9, GxEPD_WHITE);
-			display.drawInvertedBitmap(titleX+2, titleY-11, trtext, 27, 9, GxEPD_BLACK); //finesse/glade ratio
 			break;
     case DISPLAY_OBJECT_HEIGHT :
 //		  TRACE();

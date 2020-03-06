@@ -38,9 +38,9 @@
  *    1.0.8  28/01/20   Modification écran 1 - ajout info gps                    *
  *    1.0.9  09/02/20   Modif écran 1 - font normal / coordonné GPS en degrés    *
  *    1.0.10 17/02/20   Ajout large (font) varioscreenDigit                      *
-  *    1.0.11 25/02/20   Ajout ScreenBackground                                   *
+ *    1.0.11 25/02/20   Ajout ScreenBackground                                   *
  *    1.0.12 04/03/20   Ajout affichage alti agl                                 *
-*                                                                               *
+ *                                                                               *
  *********************************************************************************/
  
 

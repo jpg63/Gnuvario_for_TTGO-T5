@@ -62,6 +62,8 @@
  *    1.0.9  17/02/20   Ajout large (font) varioscreenDigit                      *
  *    1.0.10 19/02/20   Ajout variolog                                           *
  *    1.0.11 21/02/20   Correction Bug d'affichage batterie                      *
+ *    1.0.12 05/03/20   Ajout affichage AGL                                      *
+ *    1.0.13 06/03/20   Ajout gestion icone DISPLAY_OBJECT_TREND                 *
  *                                                                               *
  *********************************************************************************/
  
@@ -810,7 +812,13 @@ void ScreenDigit::show() {
 			break;
 		case DISPLAY_OBJECT_RATIO :
 //			display.drawInvertedBitmap(132, 85, grtext, 21, 11, GxEPD_BLACK); //finesse/glade ratio
+   		display.fillRect(titleX, titleY-14, 40, 11, GxEPD_WHITE);
 			display.drawInvertedBitmap(titleX, titleY-14, grtext, 21, 11, GxEPD_BLACK); //finesse/glade ratio
+			break;
+		case DISPLAY_OBJECT_TREND :
+//			display.drawInvertedBitmap(132, 85, grtext, 21, 11, GxEPD_BLACK); //finesse/glade ratio
+   		display.fillRect(titleX, titleY-14, 40, 11, GxEPD_WHITE);
+			display.drawInvertedBitmap(titleX, titleY-14, trtext, 21, 11, GxEPD_BLACK); //finesse/glade ratio
 			break;
     case DISPLAY_OBJECT_HEIGHT :
 //		  TRACE();

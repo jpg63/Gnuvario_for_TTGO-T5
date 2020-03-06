@@ -86,6 +86,8 @@
 
 #include <SysCall.h>
 
+#include <AglManager.h>
+
 #ifdef __AVR__
   #include <avr/pgmspace.h>
 #elif defined(ESP8266) || defined(ESP32)
@@ -377,8 +379,16 @@ void VarioScreen::createScreenObjectsDisplayPage0(void) {
 //****************************************************************************************************************************
 //	CreateObjectDisplay(DISPLAY_OBJECT_TENSION, tensionDigit, 0, 0, true); 
 //	CreateObjectDisplay(DISPLAY_OBJECT_TEMPRATURE, tempratureDigit, 0, 2, true); 
-		CreateObjectDisplay(DISPLAY_OBJECT_ALTI							, altiDigit					, 0, 1, true); 
-		CreateObjectDisplay(DISPLAY_OBJECT_HEIGHT						, heightDigit				, 0, 2, true);
+
+/*detection dossier AGL et AGL enable*/
+
+		if (GnuSettings.VARIOMETER_ENABLE_AGL && aglManager.IsOk()) {
+			CreateObjectDisplay(DISPLAY_OBJECT_ALTI							, altiDigit					, 0, 1, true); 
+			CreateObjectDisplay(DISPLAY_OBJECT_HEIGHT						, heightDigit				, 0, 2, true);
+		} else {
+			CreateObjectDisplay(DISPLAY_OBJECT_ALTI							, altiDigit					, 0, 1, true); 
+		}
+
 		CreateObjectDisplay(DISPLAY_OBJECT_MUNIT						, munit						 	, 0, 0, true); 
 		CreateObjectDisplay(DISPLAY_OBJECT_VARIO						, varioDigit				    , 0, 0, true); 
 		CreateObjectDisplay(DISPLAY_OBJECT_MSUNIT						, msunit						, 0, 0, true); 
@@ -720,7 +730,6 @@ void VarioScreen::ScreenViewInit(uint8_t Version, uint8_t Sub_Version, String Au
 	unsigned long TmplastDisplayTimestamp = millis();
 	int compteur = 0;
 	while (compteur < 3) {
-
 
 		ButtonScheduleur.update();
 
