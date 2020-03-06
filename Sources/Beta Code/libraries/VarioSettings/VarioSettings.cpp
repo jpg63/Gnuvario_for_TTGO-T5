@@ -1001,7 +1001,7 @@ void VarioSettings::loadConfigurationVario(char *filename) {
   }
 
 //	const size_t capacity = JSON_OBJECT_SIZE(1) + JSON_OBJECT_SIZE(3) + 2*JSON_OBJECT_SIZE(5) + JSON_OBJECT_SIZE(11) + JSON_OBJECT_SIZE(12) + 790;
-	const size_t capacity = JSON_OBJECT_SIZE(1) + JSON_OBJECT_SIZE(3) + 3*JSON_OBJECT_SIZE(5) + JSON_OBJECT_SIZE(11) + JSON_OBJECT_SIZE(12) + 1090;
+	const size_t capacity = JSON_OBJECT_SIZE(1) + JSON_OBJECT_SIZE(3) + 3*JSON_OBJECT_SIZE(5) + JSON_OBJECT_SIZE(12) + JSON_OBJECT_SIZE(13) + 1090;
   DynamicJsonDocument doc(capacity);
 
   SerialPort.println("deserialisation");
@@ -1433,6 +1433,19 @@ void VarioSettings::loadConfigurationVario(char *filename) {
   SerialPort.print("RATIO_MIN_SPEED : ");
   SerialPort.println(RATIO_MIN_SPEED);
 
+	if (Vario.containsKey("VARIOMETER_ENABLE_AGL")) {
+		     tmpValue = Vario["VARIOMETER_ENABLE_AGL"]; 
+		SerialPort.print("Json Recup - ");
+	} else {
+		tmpValue = DEFAULT_VARIOMETER_ENABLE_AGL;
+		MajFileParams = true;												
+		SerialPort.print("Defaut Recup - ");
+	}
+  if (tmpValue == 1) VARIOMETER_ENABLE_AGL = true;
+  else              VARIOMETER_ENABLE_AGL = false;
+  SerialPort.print("VARIOMETER_ENABLE_AGL : ");
+  SerialPort.println(VARIOMETER_ENABLE_AGL);
+
 /*  tmpValue = Systeme["SENT_LXNAV_SENTENCE"]; 
   if (tmpValue = 1) VARIOMETER_SENT_LXNAV_SENTENCE = true;
   else              VARIOMETER_SENT_LXNAV_SENTENCE = false;
@@ -1587,7 +1600,7 @@ void VarioSettings::saveConfigurationVario(char *filename) {
   // Don't forget to change the capacity to match your requirements.
   // Use arduinojson.org/assistant to compute the capacity.
 //	const size_t capacity = JSON_OBJECT_SIZE(1) + JSON_OBJECT_SIZE(3) + 2*JSON_OBJECT_SIZE(5) + JSON_OBJECT_SIZE(11) + JSON_OBJECT_SIZE(12) + 790;
-	const size_t capacity = JSON_OBJECT_SIZE(1) + JSON_OBJECT_SIZE(3) + 3*JSON_OBJECT_SIZE(5) + JSON_OBJECT_SIZE(11) + JSON_OBJECT_SIZE(12) + 1090;
+	const size_t capacity = JSON_OBJECT_SIZE(1) + JSON_OBJECT_SIZE(3) + 3*JSON_OBJECT_SIZE(5) + JSON_OBJECT_SIZE(12) + JSON_OBJECT_SIZE(13) + 1090;
 	DynamicJsonDocument doc(capacity);
 
   SerialPort.println("****** GnuvarioE *******");
@@ -1685,6 +1698,9 @@ void VarioSettings::saveConfigurationVario(char *filename) {
   Vario["RATIO_MAX_VALUE"] = RATIO_MAX_VALUE;
 
   Vario["RATIO_MIN_SPEED"] = RATIO_MIN_SPEED;
+
+  if (VARIOMETER_ENABLE_AGL) Vario["VARIOMETER_ENABLE_AGL"] = 1;
+  else              				 Vario["VARIOMETER_ENABLE_AGL"] = 0;
 
 /*  
   if (VARIOMETER_SENT_LXNAV_SENTENCE) Systeme["SENT_LXNAV_SENTENCE"] = 1;
@@ -1880,12 +1896,13 @@ double Statistic::getGain(void) {
         "ALARM_SDCARD": 1,
         "BEEP_GPSFIX": 1,
         "BEEP_FLYBEGIN": 1,
-	"BEEP_VARIOBEGIN": 0,
-	"COMPENSATION_TEMP": -6.1,
-	"COMPENSATION_GPSALTI": -70,
-	"SLEEP_TIMEOUT_MINUTES": 20,
-	"SLEEP_THRESHOLD_CPS": 50,
-	"ALTERNATE_DATA_DURATION": 2000
+				"BEEP_VARIOBEGIN": 0,
+				"COMPENSATION_TEMP": -6.1,
+				"COMPENSATION_GPSALTI": -70,
+				"SLEEP_TIMEOUT_MINUTES": 20,
+				"SLEEP_THRESHOLD_CPS": 50,
+				"ALTERNATE_DATA_DURATION": 2000,
+				"URL_UPDATE": "http://gnuvario-e.yj.fr/webupdate/checkversion"
     },
     "General": {
         "PILOT_NAME": "MagaliXXXXXXXXXXXXXX",
@@ -1910,7 +1927,8 @@ double Statistic::getGain(void) {
         "RATIO_MAX_VALUE": 30.1,
         "RATIO_MIN_SPEED": 10.1,
         "RATIO_CLIMB_RATE": 2,
-        "SENT_LXNAV_SENTENCE": 1
+        "SENT_LXNAV_SENTENCE": 1,
+				"VARIOMETER_ENABLE_AGL": 1
    },
     "Flight start": {
         "FLIGHT_START_MIN_TIMESTAMP": 15000,

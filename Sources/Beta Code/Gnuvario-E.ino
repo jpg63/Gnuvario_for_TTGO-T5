@@ -307,6 +307,8 @@ SimpleBLE ble;
 *                                    Mise à jour calibration                                          *
 *               01/03/20             Correction affichage lat/long                                    *
 *               04/03/20             Ajout AGL                                                        *
+*               05/03/20             Correction ecran qui clignote                                    *
+*                                    AJOUT - Champs enable AGL                                        *
 *******************************************************************************************************
 *                                                                                                     *
 *                                   Developpement a venir                                             *
@@ -324,8 +326,11 @@ SimpleBLE ble;
 * MODIF - Modification librairie varioscreen - MAJ GxEpd2                                             *
 * VERIF - Seuil déclenchement début du vol                                                            *
 * VERIF - Sensibilité du vario                                                                        *
-* BUG   - Problème d'éffacement alti                                                                  *
-*                                                                                                     *
+* BUG   - Problème d'effacement alti                                                                  *
+* AJOUT - Champs enable AGL dans site Web                                                             *
+* AJOUT - déclenchement manuel de l'enregistrement                                                    *
+* BUG   - AGL                                                                                         *                                                                                                    *
+*                                                                                                     *        
 * v0.8                                                                                                *       
 * MODIF - Réecrire loop                                                                               *
 * AJOUT - Récupération du cap depuis le capteur baromètrique                                          *
@@ -400,6 +405,7 @@ SimpleBLE ble;
  * - Ajout Update via internet                                          *
  * - Ajout affichage du cap, longitude, latitude                        *
  * - Calibration des accèlerometres                                     *
+ * - AGL                                                                *
  *                                                                      *
  ************************************************************************/
  
@@ -986,6 +992,12 @@ void setup() {
 
   INFOLOG(tmpStr);
   TRACELOG(LOG_TYPE_DEBUG, MAIN_DEBUG_LOG);
+
+//***********************************************
+// INIT AGL
+//***********************************************
+
+  aglManager.init();
   
   /***************/
   /* init screen */

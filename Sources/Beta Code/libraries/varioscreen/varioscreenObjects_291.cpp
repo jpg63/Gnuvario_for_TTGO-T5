@@ -460,14 +460,14 @@ ScreenDigit::ScreenDigit(uint16_t anchorX, uint16_t anchorY, uint16_t width, uin
 			MaxHeight  = Zheight;
 			break;
 
-/*		case DISPLAY_OBJECT_HEIGHT :
+		case DISPLAY_OBJECT_HEIGHT :
 #if defined (MAXW_OBJECT_ALTI)		
 		  MaxWidth   = MAXW_OBJECT_ALTI;
 #else
 		  MaxWidth   = Zwidth;
 #endif	
 			MaxHeight  = Zheight;
-			break;*/
+			break;
 			
 		case DISPLAY_OBJECT_VARIO :
 #if defined (MAXW_OBJECT_VARIO)		
@@ -799,7 +799,7 @@ void ScreenDigit::show() {
 			break;
 		case DISPLAY_OBJECT_ALTI :
 //			
-   			display.fillRect(titleX-70, titleY-6, 40, 9, GxEPD_WHITE);
+   			display.fillRect(titleX-70, titleY-6, 22, 9, GxEPD_WHITE);
 			display.drawInvertedBitmap(titleX-68, titleY-6, altitext, 16, 9, GxEPD_BLACK);
 			break;
 		case DISPLAY_OBJECT_VARIO :
@@ -813,8 +813,8 @@ void ScreenDigit::show() {
     case DISPLAY_OBJECT_HEIGHT :
 //		  TRACE();
 //			display.drawInvertedBitmap(titleX, titleY-8, heighttext, 32, 14, GxEPD_BLACK);
-   			display.fillRect(titleX-70, titleY-6, 40, 9, GxEPD_WHITE);
-			display.drawInvertedBitmap(titleX-68, titleY-6, heighttext, 32, 14, GxEPD_BLACK);
+   			display.fillRect(titleX-70, titleY-6, 22, 9, GxEPD_WHITE);
+			display.drawInvertedBitmap(titleX-67, titleY-6, agltext, 22, 9, GxEPD_BLACK);
 			break;
 		case DISPLAY_OBJECT_BEARING :
 //			

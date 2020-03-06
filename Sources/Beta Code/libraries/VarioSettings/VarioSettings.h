@@ -55,6 +55,7 @@
 /*    1.3.2 17/01/20    Ajout DISPLAY_STAT_DURATION - passage en v1.1 					 */
 /*    1.3.3 19/01/20    Ajout DEEPSLEEP_DEBUG                                    */
 /*    1.3.4 04/02/20    Ajout URL_UPDATE passage en version 1.2 de params.json   */
+/*    1.3.5 05/03/20    Ajout DEFAULT_VARIOMETER_ENABLE_AGL											 */
 /*                                                                               */
 /*********************************************************************************/
 
@@ -71,7 +72,7 @@
 #endif
 
 
-#define PARAMS_VERSION "1.2"
+#define PARAMS_VERSION "1.3"
 
 /*----------------------------*/
 /*          DEFAULT           */
@@ -163,6 +164,8 @@
 #define DEFAULT_ALTERNATE_DATA_DURATION										2000
 
 #define DEFAULT_DISPLAY_STAT_DURATION                     6
+
+#define DEFAULT_VARIOMETER_ENABLE_AGL											true
 
   
 /*----------------------------*/
@@ -404,6 +407,8 @@ class VarioSettings {
 		uint8_t  DISPLAY_STAT_DURATION											= DEFAULT_DISPLAY_STAT_DURATION;
 		
 		String   URL_UPDATE																	= DEFAULT_URL_UPDATE;
+		
+		boolean  VARIOMETER_ENABLE_AGL											= DEFAULT_VARIOMETER_ENABLE_AGL;
 		
  protected:
 #ifdef HAVE_SDCARD

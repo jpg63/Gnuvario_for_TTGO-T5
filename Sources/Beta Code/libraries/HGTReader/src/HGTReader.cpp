@@ -1,3 +1,19 @@
+#include <HardwareConfig.h>
+#include <DebugConfig.h>
+
+#include "AglManager.h"
+
+#ifdef AGL_DEBUG
+#define ARDUINOTRACE_ENABLE 1
+#else
+#define ARDUINOTRACE_ENABLE 0
+#endif
+
+#define ARDUINOTRACE_SERIAL SerialPort
+#include <ArduinoTrace.h>
+
+#include <VarioLog.h>
+
 #include <sdcardHAL.h>
 #include "HGTReader.h"
 
@@ -46,27 +62,42 @@ int HGTReader::getGroundLevel(const String& latitude, const String& longitude)
 */
 int HGTReader::getGroundLevel(float latitude, float longitude)
 {
-  Serial.printf("getGroundLevel(%f,%f)\n", latitude, longitude);
+#ifdef AGL_DEBUG
+	SerialPort.printf("getGroundLevel(%f,%f)\n", latitude, longitude);
+#endif //AGL_DEBUG
+
   String fileName = getFileNameForPosition(latitude, longitude);
-  Serial.printf("Filename : %s\n", fileName.c_str());
+	
+#ifdef AGL_DEBUG
+	SerialPort.printf("Filename : %s\n", fileName.c_str());
+#endif //AGL_DEBUG
+
   if (fileName != currentFileName) {
     if (currentFileName != "") {
-      Serial.printf("Close %s\n", currentFileName.c_str());
+#ifdef AGL_DEBUG
+		  SerialPort.printf("Close %s\n", currentFileName.c_str());
+#endif //AGL_DEBUG
       currentFile.close();
     }
     if (openFile(fileName)) {
-      Serial.printf("Open %s\n", currentFileName.c_str());
+#ifdef AGL_DEBUG
+		  SerialPort.printf("Open %s\n", currentFileName.c_str());
+#endif //AGL_DEBUG
       currentFileName = fileName;
     }
     else
     {
-      Serial.printf("Echec ouverture\n");
+#ifdef AGL_DEBUG
+		  SerialPort.printf("Echec ouverture\n");
+#endif //AGL_DEBUG
       currentFileName = "";
     }
   }
   if (currentFileName == "")
   {
-    Serial.printf("Pas de fichier\n");
+#ifdef AGL_DEBUG
+		SerialPort.printf("Pas de fichier\n");
+#endif //AGL_DEBUG
     return NO_FILE_FOR_POS;
   }
   return loadGroundLevel(latitude, longitude);
@@ -92,7 +123,9 @@ String HGTReader::getFileNameForPosition(const String& latitude, const String& l
   }
   char  r[12];
   sprintf(r, "%s%02d%s%03d%s", sLatDir.c_str(), iIntLat, sLongDir.c_str(), iIntLong, String(FILE_EXTENSION).c_str());
-  Serial.println(r);
+#ifdef AGL_DEBUG
+	SerialPort.println(r);
+#endif //AGL_DEBUG
   return String(r);
 }
 
@@ -111,7 +144,9 @@ String HGTReader::getFileNameForPosition(float latitude, float longitude)
   char  r[30];
   sprintf(r, "%c%02d%c%03d%s", cLatDir, abs(iLatDec), cLonDir, abs(iLonDec), String(FILE_EXTENSION).c_str());  
   String tmp = String(r);
-  Serial.println(tmp.c_str());
+#ifdef AGL_DEBUG
+	SerialPort.println(tmp.c_str());
+#endif //AGL_DEBUG
   return tmp;
 }
 
@@ -123,15 +158,21 @@ String HGTReader::getFileNameForPosition(float latitude, float longitude)
 bool HGTReader::openFile(const String& fileName)
 {
   String path = String(aglDir) + fileName;
-  Serial.printf("Path : %s\n", path.c_str());  
+#ifdef AGL_DEBUG
+	SerialPort.printf("Path : %s\n", path.c_str());  
+#endif //AGL_DEBUG
   if (currentFile.open(path.c_str(), O_RDONLY))
   {
-    Serial.printf("Open OK\n");
+#ifdef AGL_DEBUG
+		SerialPort.printf("Open OK\n");
+#endif //AGL_DEBUG
     return true;
   }
   else
   {
-    Serial.printf("Open KO\n");
+#ifdef AGL_DEBUG
+		SerialPort.printf("Open KO\n");
+#endif //AGL_DEBUG
     return false;
   }
 }
@@ -159,7 +200,9 @@ int HGTReader::loadGroundLevel(const String& latitude, const String& longitude)
 */
 int HGTReader::loadGroundLevel(float latitude, float longitude)
 {
-   Serial.printf("loadGroundLevel\n");
+#ifdef AGL_DEBUG
+	SerialPort.printf("loadGroundLevel\n");
+#endif //AGL_DEBUG
   
   int latDec = (int)floor(latitude);
   int lonDec = (int)floor(longitude);
