@@ -1,3 +1,34 @@
+/* HGTReader -- 
+ *
+ * Copyright 2020 JeromeV
+ * 
+ * This file is part of GnuVario-E.
+ *
+ * ToneHAL is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * ToneHAL is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+/* 
+ *********************************************************************************
+ *                                                                               *
+ *                           HGTReader                                           *
+ *                                                                               *
+ *  version    Date     Description                                              *
+ *    1.0    07/03/20                                                            *
+ *                                                                               *
+ *********************************************************************************
+ */
+
 #include <HardwareConfig.h>
 #include <DebugConfig.h>
 
@@ -21,7 +52,9 @@
   \brief Constructeur de classe.
   \param aglDir: répertoire contenant les fichiers HGT.
 */
+//****************************************************************************************************************************
 HGTReader::HGTReader(const String& aglDir) : aglDir(aglDir), currentFileName("")
+//****************************************************************************************************************************
 {}
 
 /**
@@ -30,37 +63,9 @@ HGTReader::HGTReader(const String& aglDir) : aglDir(aglDir), currentFileName("")
   \param longitude: longitude de la position au format Degrés Minutes Secondes.
   \return une altitude en mètres.
 */
-int HGTReader::getGroundLevel(const String& latitude, const String& longitude)
-{
-  String fileName = getFileNameForPosition(latitude, longitude);
-  if (fileName != currentFileName) {
-    if (currentFileName != "") {
-
-      currentFile.close();
-    }
-    if (openFile(fileName)) {
-      currentFileName = fileName;
-    }
-    else
-    {
-      currentFileName = "";
-    }
-  }
-  if (currentFileName != "")
-  {
-
-    return NO_FILE_FOR_POS;
-  }
-  return loadGroundLevel(latitude, longitude);
-}
-
-/**
-  \brief Calcule la hauteur du sol à la position donnée.
-  \param latitude: latitude de la position au format Degrés Minutes Secondes.
-  \param longitude: longitude de la position au format Degrés Minutes Secondes.
-  \return une altitude en mètres.
-*/
+//****************************************************************************************************************************
 int HGTReader::getGroundLevel(float latitude, float longitude)
+//****************************************************************************************************************************
 {
 #ifdef AGL_DEBUG
 	SerialPort.printf("getGroundLevel(%f,%f)\n", latitude, longitude);
@@ -109,38 +114,14 @@ int HGTReader::getGroundLevel(float latitude, float longitude)
   \param latitude: latitude de la position au format Degrés Minutes Secondes.
   \return un nom de fichier.
 */
-String HGTReader::getFileNameForPosition(const String& latitude, const String& longitude)
-{
-  int iIntLat = latitude.substring(0, latitude.indexOf(".")).toInt();
-  String sLatDir = latitude.substring(latitude.length() - 1);
-  if (sLatDir == "S") {
-    iIntLat += 1;
-  }
-  int iIntLong = longitude.substring(0, longitude.indexOf(".")).toInt();
-  String sLongDir = longitude.substring(longitude.length() - 1);
-  if (sLongDir == "W") {
-    iIntLong +=1;
-  }
-  char  r[12];
-  sprintf(r, "%s%02d%s%03d%s", sLatDir.c_str(), iIntLat, sLongDir.c_str(), iIntLong, String(FILE_EXTENSION).c_str());
-#ifdef AGL_DEBUG
-	SerialPort.println(r);
-#endif //AGL_DEBUG
-  return String(r);
-}
-
-/**
-  \brief Génère le nom de fichier contenant la hauteur du sol à la position donnée.
-  \param longitude: longitude de la position au format Degrés Minutes Secondes.
-  \param latitude: latitude de la position au format Degrés Minutes Secondes.
-  \return un nom de fichier.
-*/
+//****************************************************************************************************************************
 String HGTReader::getFileNameForPosition(float latitude, float longitude)
+//****************************************************************************************************************************
 {
   int iLatDec = (int)floor(latitude);
   int iLonDec = (int)floor(longitude);
-  char cLatDir = iLatDec > 0 ? 'N' : 'S';
-  char cLonDir = iLonDec > 0 ? 'E' : 'W';
+  char cLatDir = iLatDec >= 0 ? 'N' : 'S';
+  char cLonDir = iLonDec >= 0 ? 'E' : 'W';
   char  r[30];
   sprintf(r, "%c%02d%c%03d%s", cLatDir, abs(iLatDec), cLonDir, abs(iLonDec), String(FILE_EXTENSION).c_str());  
   String tmp = String(r);
@@ -155,7 +136,9 @@ String HGTReader::getFileNameForPosition(float latitude, float longitude)
   \param file: le fichier à ouvrir.
   \return true si l'ouverture s'est bien passée.
 */
+//****************************************************************************************************************************
 bool HGTReader::openFile(const String& fileName)
+//****************************************************************************************************************************
 {
   String path = String(aglDir) + fileName;
 #ifdef AGL_DEBUG
@@ -183,27 +166,10 @@ bool HGTReader::openFile(const String& fileName)
   \param longitude: longitude de la position au format Degrés Minutes Secondes Direction.
   \return une altitude en mètres.
 */
-int HGTReader::loadGroundLevel(const String& latitude, const String& longitude)
-{
-  float fLat = latitude.substring(0, latitude.indexOf(' ')).toFloat();
-  float fLon = longitude.substring(0, longitude.indexOf(' ')).toFloat();
-  if(latitude.substring(latitude.length() - 1) == "S" ) fLat = -fLat;
-  if(longitude.substring(longitude.length() - 1) == "W" ) fLon = -fLon;
-  return loadGroundLevel(fLat, fLon);
-}
-
-/**
-  \brief Lit la hauteur du sol dans un fichier chargé.
-  \param latitude: latitude de la position au format Degrés Minutes Secondes Direction.
-  \param longitude: longitude de la position au format Degrés Minutes Secondes Direction.
-  \return une altitude en mètres.
-*/
+//****************************************************************************************************************************
 int HGTReader::loadGroundLevel(float latitude, float longitude)
+//****************************************************************************************************************************
 {
-#ifdef AGL_DEBUG
-	SerialPort.printf("loadGroundLevel\n");
-#endif //AGL_DEBUG
-  
   int latDec = (int)floor(latitude);
   int lonDec = (int)floor(longitude);
 
@@ -228,7 +194,9 @@ int HGTReader::loadGroundLevel(float latitude, float longitude)
           height[3] * (1 - dy) * dx;
 }
 
+//****************************************************************************************************************************
 int HGTReader::getTileHeight(int x, int y)
+//****************************************************************************************************************************
 {
   int offsetX = 2 * ( x+ ( NB_PT_PER_ROW - y - 1) * NB_PT_PER_ROW);
   currentFile.seekSet(offsetX);
@@ -248,7 +216,9 @@ int HGTReader::getTileHeight(int x, int y)
   \param c: le caractère pour compléter la chaine.
   \return une chaine de taille size (si src est moins longue que size)
 */
+//****************************************************************************************************************************
 String HGTReader::rightPad(const String& src, int size, char c)
+//****************************************************************************************************************************
 {
   String r = src;
   while (src.length() < size) {
@@ -256,3 +226,4 @@ String HGTReader::rightPad(const String& src, int size, char c)
   }
   return r;
 }
+

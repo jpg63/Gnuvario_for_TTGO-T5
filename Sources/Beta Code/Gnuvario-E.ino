@@ -309,6 +309,7 @@ SimpleBLE ble;
 *               04/03/20             Ajout AGL                                                        *
 *               05/03/20             Correction ecran qui clignote                                    *
 *                                    AJOUT - Champs enable AGL                                        *
+*               07/03/20             Correction gestion AGL                                           *
 *******************************************************************************************************
 *                                                                                                     *
 *                                   Developpement a venir                                             *

@@ -48,12 +48,22 @@
 #ifndef VARIOSCREENGXEPD_154_H
 #define VARIOSCREENGXEPD_154_H
 
+#include <Arduino.h>
+#include <VarioSettings.h>
+#include "freertos/FreeRTOS.h"
+#include "freertos/semphr.h"
+
 #include <HardwareConfig.h>
 #include <DebugConfig.h>
 
 #if (VARIOSCREEN_SIZE == 154)
 
 #include <varioscreenObjects_154.h>
+
+/* task parameters */
+#define SCREEN_STACK_SIZE 2000
+#define SCREEN_CORE 1
+#define SCREEN_PRIORITY 10
 
 /************************/
 /* The screen scheduler */
@@ -247,9 +257,15 @@ class VarioScreen {
 		
  /* void beginClear(void); //multi step clear
   bool clearStep(void); //return true while clearing*/
-  
+ 
+	 static SemaphoreHandle_t screenMutex;
+ 
  private:
    unsigned long timerShow = 0;
+   static uint8_t volatile status;
+   static TaskHandle_t screenTaskHandler;
+   static void screenTask(void* param);
+
 //  uint8_t clearingStep;
 };
 

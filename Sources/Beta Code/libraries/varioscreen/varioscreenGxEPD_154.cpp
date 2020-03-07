@@ -88,6 +88,9 @@
 
 #include <AglManager.h>
 
+#include "freertos/FreeRTOS.h"
+#include "freertos/semphr.h"
+
 #ifdef __AVR__
   #include <avr/pgmspace.h>
 #elif defined(ESP8266) || defined(ESP32)
@@ -129,6 +132,12 @@ volatile uint8_t stateDisplay;
 volatile unsigned long oldtime;
 volatile uint8_t led1stat = 0; 
 volatile uint8_t stateMulti = 0;
+
+/*********************/
+/* static class data */
+/*********************/
+SemaphoreHandle_t VarioScreen::screenMutex;
+TaskHandle_t VarioScreen::screenTaskHandler;
 
 #define VARIOSCREEN_DOT_WIDTH 6
 #define VARIOSCREEN_DIGIT_WIDTH 11
@@ -264,6 +273,12 @@ void VarioScreen::init(void)
 #endif //SCREEN_DEBUG
 	
   display.setTextColor(GxEPD_BLACK);
+	
+  screenMutex = xSemaphoreCreateBinary();
+  xSemaphoreGive(screenMutex);
+
+  xTaskCreatePinnedToCore(screenTask, "TaskDisplay", SCREEN_STACK_SIZE, NULL, SCREEN_PRIORITY, &screenTaskHandler,SCREEN_CORE);
+	
 }
 	
 //****************************************************************************************************************************
@@ -552,7 +567,7 @@ void VarioScreen::CreateObjectDisplay(int8_t ObjectDisplayTypeID, VarioScreenObj
 	
 }
 
-TaskHandle_t taskDisplay;
+/*TaskHandle_t taskDisplay;
 
 //****************************************************************************************************************************
 void genericTask( void * parameter ){
@@ -569,10 +584,28 @@ void genericTask( void * parameter ){
 		delay(1);
 // Passes control to other tasks when called
 		SysCall::yield();
-	}*/
+	}*
 //	display.
   stateDisplay = STATE_OK;
   vTaskDelete(taskDisplay);
+}*/
+
+//****************************************************************************************************************************
+void VarioScreen::screenTask( void * parameter ){
+//****************************************************************************************************************************
+
+  while( true ) {
+
+    /* wait */
+    xTaskNotifyWait(0, 0, NULL, portMAX_DELAY);
+  
+    /* launch interrupt */
+	 xSemaphoreTake(screenMutex, portMAX_DELAY);	
+	 display.setFullWindow();
+	 display.display(true); // partial update
+	 display.epd2.powerOff();
+   xSemaphoreGive(screenMutex);
+  }
 }
 
 //****************************************************************************************************************************
@@ -582,7 +615,13 @@ void VarioScreen::updateScreen (void)
 #ifdef SCREEN_DEBUG2
 	SerialPort.println("screen update");	
 #endif //SCREEN_DEBUG
+
+//  BaseType_t xHigherPriorityTaskWoken = 0;
+  xTaskNotify(screenTaskHandler, 0, eNoAction); //, &xHigherPriorityTaskWoken);
 	
+}
+	
+/*	
   if (stateDisplay != STATE_OK) {
 #ifdef SCREEN_DEBUG2
 		SerialPort.println("Task en cours");	
@@ -629,10 +668,10 @@ void VarioScreen::updateScreen (void)
 	SerialPort.println("screen update : create task");	
 #endif //SCREEN_DEBUG
 
-//	display.updateWindow(0, 0, display.width(), display.height(), false);*/
+//	display.updateWindow(0, 0, display.width(), display.height(), false);
 	//display.display(true); // partial update
 
-}
+}*/
 
 //****************************************************************************************************************************
 void VarioScreen::updateScreenNB (void)
@@ -1526,12 +1565,12 @@ ScreenScheduler::ScreenScheduler(ScreenSchedulerObject* displayList, uint8_t obj
 void ScreenScheduler::displayStep(void) {
 //****************************************************************************************************************************
 
-  if (stateDisplay != STATE_OK) {
+ /* if (stateDisplay != STATE_OK) {
 #ifdef SCREEN_DEBUG2
 		SerialPort.println("Task en cours");	
 #endif //SCREEN_DEBUG
 	  return;
-	}
+	}*/
 
 	if (currentPage == endPage+1) return;
 
@@ -1557,32 +1596,33 @@ void ScreenScheduler::displayStep(void) {
   SerialPort.println(objectCount);
 #endif //SCREEN_DEBUG
 
-  display.setFullWindow();
+  if( xSemaphoreTake( screen.screenMutex, ( TickType_t ) 0 ) ) {
+		display.setFullWindow();
  	
-	if (millis() - oldtimeAllDisplay >= 30000)	{
-		oldtimeAllDisplay  = millis();	
-		ShowDisplayAll = true;
+		if (millis() - oldtimeAllDisplay >= 30000)	{
+			oldtimeAllDisplay  = millis();	
+			ShowDisplayAll = true;
 //		display.fillRect(0, 0, display.width(), display.height(), GxEPD_WHITE);
 		
 #ifdef SCREEN_DEBUG
-		SerialPort.println("displaystep - showDisplayAll");
+			SerialPort.println("displaystep - showDisplayAll");
 #endif //SCREEN_DEBUG
 		
-	}
+		}
 
-	uint8_t n = 0;
-	while( n <= objectCount ) {
+		uint8_t n = 0;
+		while( n <= objectCount ) {
 /*   if( displayList[pos].page == currentPage && displayList[pos].actif == true && displayList[pos].object->update() ) {
 	return;
 }*/
 #ifdef SCREEN_DEBUG
-  SerialPort.print("displaylist number : ");
-  SerialPort.println(n);
-  SerialPort.print("displaylist / Page : ");
+		SerialPort.print("displaylist number : ");
+		SerialPort.println(n);
+		SerialPort.print("displaylist / Page : ");
 //  SerialPort.println(displayList[pos].page);
-  SerialPort.print(displayList[n].page);
-  SerialPort.print(" - Pageactive : ");
-  SerialPort.println(currentPage);
+		SerialPort.print(displayList[n].page);
+		SerialPort.print(" - Pageactive : ");
+		SerialPort.println(currentPage);
 	
 #endif //SCREEN_DEBUG
 
@@ -1591,41 +1631,41 @@ void ScreenScheduler::displayStep(void) {
 		tmppointeur->update(); 
 	}*/
 
-  currentMultiDisplay = 1 + stateMulti;
+		currentMultiDisplay = 1 + stateMulti;
 	
 #ifdef SCREEN_DEBUG
-  SerialPort.print("Current Multidisplay : ");
-  SerialPort.println(currentMultiDisplay);
+		SerialPort.print("Current Multidisplay : ");
+		SerialPort.println(currentMultiDisplay);
 #endif //SCREEN_DEBUG
 
-	if (ShowDisplayAll && displayList[n].page == currentPage && displayList[n].actif == true ) {
-		displayList[n].object->reset();
-		displayList[n].object->update(true);
+		if (ShowDisplayAll && displayList[n].page == currentPage && displayList[n].actif == true ) {
+			displayList[n].object->reset();
+			displayList[n].object->update(true);
 #ifdef SCREEN_DEBUG
-		SerialPort.println("displaystep - reset");
+			SerialPort.println("displaystep - reset");
 #endif //SCREEN_DEBUG
-  }
-	else if ( displayList[n].page == currentPage && displayList[n].actif == true && (displayList[n].multiDisplayID == 0 || displayList[n].multiDisplayID == currentMultiDisplay))	displayList[n].object->update();
+		}
+		else if ( displayList[n].page == currentPage && displayList[n].actif == true && (displayList[n].multiDisplayID == 0 || displayList[n].multiDisplayID == currentMultiDisplay))	displayList[n].object->update();
 
 /* next */
-		pos++;
-		if( pos == objectCount) {
-			pos = 0;
+			pos++;
+			if( pos == objectCount) {
+				pos = 0;
+			}
+			n++;
 		}
-		n++;
-	}
 
-  if (ShowDisplayAll == true) {
-		ShowDisplayAll = false;
+		if (ShowDisplayAll == true) {
+			ShowDisplayAll = false;
 //		display.fillRect(0, 0, display.width(), display.height(), GxEPD_WHITE);
 		//.clearScreen();
-	}
+		}
 
 	
-	screen.ScreenBackground(currentPage);
+		screen.ScreenBackground(currentPage);
 	
 #ifdef SCREEN_DEBUG
-  SerialPort.println("displayStep : Display");
+		SerialPort.println("displayStep : Display");
 #endif //SCREEN_DEBUG
 
 /*  display.setCursor(10, 150);
@@ -1634,7 +1674,8 @@ void ScreenScheduler::displayStep(void) {
 //    display.displayWindow(box_x, box_y, box_w, box_h);
 
 //  display.display(true); // partial update
-	
+    xSemaphoreGive(screen.screenMutex);
+	}
 }
 
 //****************************************************************************************************************************

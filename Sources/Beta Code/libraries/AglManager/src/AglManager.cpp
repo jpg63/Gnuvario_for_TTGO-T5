@@ -1,3 +1,34 @@
+/* AgManager -- 
+ *
+ * Copyright 2020 JeromeV
+ * 
+ * This file is part of GnuVario-E.
+ *
+ * ToneHAL is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * ToneHAL is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+/* 
+ *********************************************************************************
+ *                                                                               *
+ *                           AgManager                                           *
+ *                                                                               *
+ *  version    Date     Description                                              *
+ *    1.0    07/03/20                                                            *
+ *                                                                               *
+ *********************************************************************************
+ */
+ 
 #include <HardwareConfig.h>
 #include <DebugConfig.h>
 
@@ -16,14 +47,18 @@
 
 #define AGL_Directory "/AGL"
 
+//****************************************************************************************************************************
 AglManager::AglManager()
+//****************************************************************************************************************************
 {   
 	String tmpStr = AGL_Directory;
 	tmpStr += "/";
 	hgtReader = new HGTReader(tmpStr);
 }
 
+//****************************************************************************************************************************
 void AglManager::init(void) 
+//****************************************************************************************************************************
 {
 	char tmpFileName[15] = AGL_Directory;
  
@@ -36,7 +71,9 @@ void AglManager::init(void)
 #endif //AGL_DEBUG
 }
 
+//****************************************************************************************************************************
 void AglManager::setAlti(double dAlti)
+//****************************************************************************************************************************
 {
     if (currentAlti != dAlti)
     {
@@ -45,7 +82,9 @@ void AglManager::setAlti(double dAlti)
     }
 }
 
+//****************************************************************************************************************************
 void AglManager::setLatitude(double dLatitude)
+//****************************************************************************************************************************
 {
     if (currentLat != dLatitude)
     {
@@ -54,7 +93,9 @@ void AglManager::setLatitude(double dLatitude)
     }
 }
 
+//****************************************************************************************************************************
 void AglManager::setLongitude(double dLongitude)
+//****************************************************************************************************************************
 {
     if (currentLong != dLongitude)
     {
@@ -63,7 +104,9 @@ void AglManager::setLongitude(double dLongitude)
     }
 }
 
+//****************************************************************************************************************************
 void AglManager::computeHeight()
+//****************************************************************************************************************************
 {
 #ifdef AGL_DEBUG
 	SerialPort.print("ComputeHeight ");
@@ -79,7 +122,7 @@ void AglManager::computeHeight()
     if(currentAlti != -1 && currentLat != -1 && currentLong != -1
                         && currentLat != 0 && currentLong != 0)    
     {
-        int groundLevel = hgtReader->getGroundLevel(currentLat, currentLong);
+        int groundLevel = hgtReader->getGroundLevel(degMinToDeg(currentLat), degMinToDeg(currentLong));
         if(groundLevel != NO_FILE_FOR_POS)
         {
             currentHeight = currentAlti - groundLevel;
@@ -104,7 +147,9 @@ void AglManager::computeHeight()
 #endif //AGL_DEBUG
 }
 
+//****************************************************************************************************************************
 boolean AglManager::IsOk(void) 
+//****************************************************************************************************************************
 { 
 
 #ifdef AGL_DEBUG
@@ -115,12 +160,18 @@ boolean AglManager::IsOk(void)
   return Directory_AGL_Exists; 
 }
 
-/*
-ComputeHeight Alti : 444.84, Lat : 45.46, Long :3.12
-getGroundLevel(4.546228,0.311662)
-N04W000.HGT
-Filename : N04W000.HGT
-Path : AGL/N04W000.HGT
-Open KO
-Echec ouverture
+/**
+ \brief Fonction utilitaire : convertit un angle au format degrés.minutes vers degrés.decimales
+ \param value : un angle au format degrés.minutes 
+ \return un angle en degrés.décimales
 */
+//****************************************************************************************************************************
+float AglManager::degMinToDeg(float value)
+//****************************************************************************************************************************
+{
+  float r = value;
+  int intValue = value;
+  float min = value - intValue;
+  float decimal = min/0.6;  
+  return intValue + decimal;
+}
