@@ -277,6 +277,10 @@ void VarioScreen::init(void)
   screenMutex = xSemaphoreCreateBinary();
   xSemaphoreGive(screenMutex);
 
+#ifdef SCREEN_DEBUG2
+		SerialPort.println("int : Give");	
+#endif //SCREEN_DEBUG
+
   xTaskCreatePinnedToCore(screenTask, "TaskDisplay", SCREEN_STACK_SIZE, NULL, SCREEN_PRIORITY, &screenTaskHandler,SCREEN_CORE);
 	
 }
@@ -598,13 +602,36 @@ void VarioScreen::screenTask( void * parameter ){
 
     /* wait */
     xTaskNotifyWait(0, 0, NULL, portMAX_DELAY);
-  
+ 
+#ifdef SCREEN_DEBUG2
+	SerialPort.println("screenTask : wake");	
+#endif //SCREEN_DEBUG
+ 
     /* launch interrupt */
 	 xSemaphoreTake(screenMutex, portMAX_DELAY);	
+
+#ifdef SCREEN_DEBUG2
+		SerialPort.println("screenTask : take");	
+#endif //SCREEN_DEBUG
+
 	 display.setFullWindow();
 	 display.display(true); // partial update
+	 
+#ifdef SCREEN_DEBUG2
+		SerialPort.println("screenTask : display");	
+#endif //SCREEN_DEBUG
+	 
 	 display.epd2.powerOff();
+	 
+#ifdef SCREEN_DEBUG2
+		SerialPort.println("screenTask : poweroff");	
+#endif //SCREEN_DEBUG
+
    xSemaphoreGive(screenMutex);
+#ifdef SCREEN_DEBUG2
+		SerialPort.println("screenTask : Give");	
+#endif //SCREEN_DEBUG
+
   }
 }
 
@@ -617,8 +644,16 @@ void VarioScreen::updateScreen (void)
 #endif //SCREEN_DEBUG
 
 //  BaseType_t xHigherPriorityTaskWoken = 0;
-  xTaskNotify(screenTaskHandler, 0, eNoAction); //, &xHigherPriorityTaskWoken);
-	
+
+	if( xSemaphoreTake( screen.screenMutex, ( TickType_t ) 0 )  == pdTRUE) {
+    xSemaphoreGive(screen.screenMutex);
+    xTaskNotify(screenTaskHandler, 0, eNoAction);
+	 
+#ifdef SCREEN_DEBUG2
+		SerialPort.println("updateScreen : wake");	
+#endif //SCREEN_DEBUG
+	 
+	}
 }
 	
 /*	
@@ -1562,7 +1597,7 @@ ScreenScheduler::ScreenScheduler(ScreenSchedulerObject* displayList, uint8_t obj
 }
 		 
 //****************************************************************************************************************************
-void ScreenScheduler::displayStep(void) {
+boolean ScreenScheduler::displayStep(void) {
 //****************************************************************************************************************************
 
  /* if (stateDisplay != STATE_OK) {
@@ -1572,7 +1607,11 @@ void ScreenScheduler::displayStep(void) {
 	  return;
 	}*/
 
-	if (currentPage == endPage+1) return;
+#ifdef SCREEN_DEBUG2
+	SerialPort.println("displayStep");	
+#endif //SCREEN_DEBUG
+
+	if (currentPage == endPage+1) return false;
 
 #ifndef TIMER_DISPLAY
 
@@ -1591,12 +1630,17 @@ void ScreenScheduler::displayStep(void) {
 
   /* next try to find something to display */
   /* for the current page                  */
-#ifdef SCREEN_DEBUG
+#ifdef SCREEN_DEBUG2
   SerialPort.print("displaystep - objectCount  : ");
   SerialPort.println(objectCount);
 #endif //SCREEN_DEBUG
 
-  if( xSemaphoreTake( screen.screenMutex, ( TickType_t ) 0 ) ) {
+  if( xSemaphoreTake( screen.screenMutex, ( TickType_t ) 0 )  == pdTRUE) {
+
+#ifdef SCREEN_DEBUG2
+		SerialPort.println("DisplayStep : Take");	
+#endif //SCREEN_DEBUG
+
 		display.setFullWindow();
  	
 		if (millis() - oldtimeAllDisplay >= 30000)	{
@@ -1604,7 +1648,7 @@ void ScreenScheduler::displayStep(void) {
 			ShowDisplayAll = true;
 //		display.fillRect(0, 0, display.width(), display.height(), GxEPD_WHITE);
 		
-#ifdef SCREEN_DEBUG
+#ifdef SCREEN_DEBUG2
 			SerialPort.println("displaystep - showDisplayAll");
 #endif //SCREEN_DEBUG
 		
@@ -1675,6 +1719,13 @@ void ScreenScheduler::displayStep(void) {
 
 //  display.display(true); // partial update
     xSemaphoreGive(screen.screenMutex);
+#ifdef SCREEN_DEBUG2
+		SerialPort.println("DisplayStep : Give");	
+#endif //SCREEN_DEBUG
+		return true;
+	}
+	else {
+		return false;
 	}
 }
 

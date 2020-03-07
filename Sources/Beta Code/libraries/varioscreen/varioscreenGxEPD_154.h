@@ -86,7 +86,7 @@ class ScreenScheduler {
  ScreenScheduler(ScreenSchedulerObject* displayList, uint8_t objectCount, int8_t startPage, int8_t endPage);
 //   : displayList(displayList), objectCount(objectCount), pos(0), currentPage(startPage), endPage(endPage); // {};
   
-  void displayStep(void);
+  boolean displayStep(void);
   int8_t getPage(void);
   int8_t getMaxPage(void);
   void setPage(int8_t page, boolean forceUpdate = false);

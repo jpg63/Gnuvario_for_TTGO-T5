@@ -2298,8 +2298,9 @@ void loop() {
     //SerialPort.println("Update Screen");
 #endif //PROG_DEBUG
 
-  screen.schedulerScreen->displayStep();
-  screen.updateScreen(); 
+  if (screen.schedulerScreen->displayStep()) {
+    screen.updateScreen(); 
+  }
 #endif //HAVE_SCREEN
 
 //**********************************************************
