@@ -40,6 +40,7 @@
  *    1.0.10 17/02/20   Ajout large (font) varioscreenDigit                      *
  *    1.0.11 25/02/20   Ajout ScreenBackground                                   *
  *    1.0.12 04/03/20   Ajout affichage alti agl                                 *
+ *    1.0.13 07/03/20   Correction xSemaphore                                    *
  *                                                                               *
  *********************************************************************************/
  
@@ -1867,3 +1868,30 @@ void MultiDisplay::displayStep(void) {
 }
 
 #endif //VARIOSCREEN_SIZE
+
+/*
+
+500/portTICK_PERIOD_MS  = 500ms
+
+    if (xSemaphore! = NULL)
+    {
+        / * Voyez si nous pouvons obtenir le sémaphore. Si le sémaphore n'est pas
+        disponible attendez 10 ticks pour voir s'il devient gratuit. * /
+        if (xSemaphoreTake (xSemaphore, (TickType_t) 10) == pdTRUE)
+        {
+            / * Nous avons pu obtenir le sémaphore et pouvons maintenant accéder au
+            ressource partagée. * /
+
+            / * ... * /
+
+            / * Nous avons fini d'accéder à la ressource partagée. Relâchez le
+            sémaphore. * /
+            xSemaphoreGive (xSemaphore);
+        }
+        autre
+        {
+            / * Nous n'avons pas pu obtenir le sémaphore et ne pouvons donc pas accéder
+            la ressource partagée en toute sécurité. * /
+        }
+    }
+*/

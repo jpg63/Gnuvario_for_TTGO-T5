@@ -107,7 +107,7 @@
 
 #include <VarioButton.h>
 
-#include <GxEPD2_BWU.h>
+#include <GxEPD2_BW.h>
 #include <GxEPD2_3C.h>
 
 #include "GxEPD2_boards.h"

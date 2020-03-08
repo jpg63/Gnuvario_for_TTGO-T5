@@ -57,8 +57,8 @@
 #if defined(ESP32)
 // select one and adapt to your mapping, can use full buffer size (full HEIGHT)
 #if (VARIOSCREEN_SIZE == 154)
-GxEPD2_BW_U<GxEPD2_154U, GxEPD2_154U::HEIGHT> display(GxEPD2_154U(/*CS=5*/ SS, /*DC=*/ 17, /*RST=*/ 16, /*BUSY=*/ 4));
-//GxEPD2_BW<GxEPD2_154, GxEPD2_154::HEIGHT> display(GxEPD2_154(/*CS=5*/ SS, /*DC=*/ 17, /*RST=*/ 16, /*BUSY=*/ 4));
+//GxEPD2_BW_U<GxEPD2_154U, GxEPD2_154U::HEIGHT> display(GxEPD2_154U(/*CS=5*/ SS, /*DC=*/ 17, /*RST=*/ 16, /*BUSY=*/ 4));
+GxEPD2_BW<GxEPD2_154, GxEPD2_154::HEIGHT> display(GxEPD2_154(/*CS=5*/ SS, /*DC=*/ 17, /*RST=*/ 16, /*BUSY=*/ 4));
 #endif //VARIOSCREEN_SIZE == 154
 
 //#if (VARIOSCREEN_SIZE == 213)
