@@ -46,6 +46,7 @@
  *                      bouton gauche                                            *
  *    1.0.14 29/11/19   Ajout arduinotrace                                       *
  *                      Modif sdfat                                              *
+ *    1.0.15 09/03/20   Modification ScreenViewSound                             *
  *                                                                               *
  *********************************************************************************/
  
@@ -264,7 +265,7 @@ void VARIOButtonScheduleur::treatmentBtnA(bool Debounce) {
 //			beeper.setVolume(tmpvol);
 			RegVolume = tmpvol;
 			beeper.generateTone(2000,300,RegVolume); 
-			screen.ScreenViewSound(RegVolume); //toneHAL.getVolume());
+			screen.SetViewSound(RegVolume); //toneHAL.getVolume());
 		}
 	} 
 	else if (StatePage == STATE_PAGE_DEEP_SLEEP) {					  
@@ -292,7 +293,7 @@ void VARIOButtonScheduleur::treatmentBtnB(bool Debounce) {
 		if (screen.schedulerScreen->getPage() == screen.schedulerScreen->getMaxPage()+1) {
 			StatePage = STATE_PAGE_CONFIG_SOUND;
 			RegVolume = toneHAL.getVolume();
-			screen.ScreenViewSound(RegVolume);
+			screen.SetViewSound(RegVolume);
 		} else {
 		
 #ifdef BUTTON_DEBUG
@@ -304,7 +305,7 @@ void VARIOButtonScheduleur::treatmentBtnB(bool Debounce) {
 		}
 	} else if (StatePage == STATE_PAGE_CONFIG_SOUND) {		
 		StatePage = STATE_PAGE_VARIO;	
-		screen.ScreenViewSound(RegVolume);
+		screen.SetViewSound(RegVolume);
 		toneHAL.setVolume(RegVolume); 
 		GnuSettings.soundSettingWrite(RegVolume);
 		screen.volLevel->setVolume(RegVolume);
@@ -348,7 +349,7 @@ void VARIOButtonScheduleur::treatmentBtnC(bool Debounce) {
 //			beeper.setVolume(tmpvol);
 			RegVolume = tmpvol;
 			beeper.generateTone(2000,300,RegVolume); 
-			screen.ScreenViewSound(RegVolume); //toneHAL.getVolume());
+			screen.SetViewSound(RegVolume); //toneHAL.getVolume());
 		}
 	} 
 	else if (StatePage == STATE_PAGE_INIT) {					  

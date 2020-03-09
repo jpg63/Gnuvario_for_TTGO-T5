@@ -48,12 +48,22 @@
 #ifndef VARIOSCREENGXEPD_291_H
 #define VARIOSCREENGXEPD_291_H
 
+#include <Arduino.h>
+#include <VarioSettings.h>
+#include "freertos/FreeRTOS.h"
+#include "freertos/semphr.h"
+
 #include <HardwareConfig.h>
 #include <DebugConfig.h>
 
 #if (VARIOSCREEN_SIZE == 291)
 
 #include <varioscreenObjects_291.h>
+
+/* task parameters */
+#define SCREEN_STACK_SIZE 2000
+#define SCREEN_CORE 1
+#define SCREEN_PRIORITY 10
 
 /************************/
 /* The screen scheduler */
@@ -76,7 +86,7 @@ class ScreenScheduler {
  ScreenScheduler(ScreenSchedulerObject* displayList, uint8_t objectCount, int8_t startPage, int8_t endPage);
 //   : displayList(displayList), objectCount(objectCount), pos(0), currentPage(startPage), endPage(endPage); // {};
   
-  void displayStep(void);
+  boolean displayStep(void);
   int8_t getPage(void);
   int8_t getMaxPage(void);
   void setPage(int8_t page, boolean forceUpdate = false);
@@ -238,7 +248,8 @@ class VarioScreen {
 	void ScreenViewPage(int8_t page, boolean clear, boolean refresh = false);
 	void ScreenViewWifi(String SSID, String IP);
 	void ScreenViewReboot(String message = "");
-  void ScreenViewSound(int volume);	
+  boolean ScreenViewSound(void);	
+	void SetViewSound(int volume);	
 	void ScreenViewMessage(String message, int delai);
 	void ScreenBackground(int8_t page);
 		
@@ -247,15 +258,22 @@ class VarioScreen {
 		
  /* void beginClear(void); //multi step clear
   bool clearStep(void); //return true while clearing*/
+
+	 static SemaphoreHandle_t screenMutex;
   
  private:
    unsigned long timerShow = 0;
+   static uint8_t volatile status;
+   static TaskHandle_t screenTaskHandler;
+   static void screenTask(void* param);
+	 int    viewSound;
+
 //  uint8_t clearingStep;
 };
 
 extern VarioScreen screen;
 extern volatile uint8_t stateDisplay;
-extern GxEPD2_BW<GxEPD2_290U, GxEPD2_290U::HEIGHT> display;
+extern GxEPD2_BW<GxEPD2_290, GxEPD2_290::HEIGHT> display;
 
 
 #endif

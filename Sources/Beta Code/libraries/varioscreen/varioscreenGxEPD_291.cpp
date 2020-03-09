@@ -54,6 +54,8 @@
  *                                                                               *
  *********************************************************************************/
 
+
+
 #include <HardwareConfig.h>
 #include <DebugConfig.h>
 
@@ -87,6 +89,9 @@
 #include <SysCall.h>
 
 #include <AglManager.h>
+
+#include "freertos/FreeRTOS.h"
+#include "freertos/semphr.h"
 
 #ifdef __AVR__
   #include <avr/pgmspace.h>
@@ -129,6 +134,12 @@ volatile uint8_t stateDisplay;
 volatile unsigned long oldtime;
 volatile uint8_t led1stat = 0; 
 volatile uint8_t stateMulti = 0;
+
+/*********************/
+/* static class data */
+/*********************/
+SemaphoreHandle_t VarioScreen::screenMutex;
+TaskHandle_t VarioScreen::screenTaskHandler;
 
 #define VARIOSCREEN_DOT_WIDTH 6
 #define VARIOSCREEN_DIGIT_WIDTH 11
@@ -188,9 +199,6 @@ volatile uint8_t stateMulti = 0;
 //#define VARIOSCREEN_SEPARATIONLINE_ANCHOR_Y 0
 #define VARIOSCREEN_WIND_ANCHOR_X 90
 #define VARIOSCREEN_WIND_ANCHOR_Y 200
-
-
-
 
 
 /*****************************************/
@@ -267,6 +275,16 @@ void VarioScreen::init(void)
 #endif //SCREEN_DEBUG
 	
   display.setTextColor(GxEPD_BLACK);
+	
+  screenMutex = xSemaphoreCreateBinary();
+  xSemaphoreGive(screenMutex);
+
+#ifdef SCREEN_DEBUG2
+		SerialPort.println("int : Give");	
+#endif //SCREEN_DEBUG
+
+  xTaskCreatePinnedToCore(screenTask, "TaskDisplay", SCREEN_STACK_SIZE, NULL, SCREEN_PRIORITY, &screenTaskHandler,SCREEN_CORE);
+
 }
 	
 //****************************************************************************************************************************
@@ -555,7 +573,7 @@ void VarioScreen::CreateObjectDisplay(int8_t ObjectDisplayTypeID, VarioScreenObj
 	
 }
 
-TaskHandle_t taskDisplay;
+/*TaskHandle_t taskDisplay;
 
 //****************************************************************************************************************************
 void genericTask( void * parameter ){
@@ -576,7 +594,48 @@ void genericTask( void * parameter ){
 
 
 
+*/
 
+//****************************************************************************************************************************
+void VarioScreen::screenTask( void * parameter ){
+//****************************************************************************************************************************
+
+  while( true ) {
+
+    /* wait */
+    xTaskNotifyWait(0, 0, NULL, portMAX_DELAY);
+ 
+#ifdef SCREEN_DEBUG2
+	SerialPort.println("screenTask : wake");	
+#endif //SCREEN_DEBUG
+ 
+    /* launch interrupt */
+	 xSemaphoreTake(screenMutex, portMAX_DELAY);	
+
+#ifdef SCREEN_DEBUG2
+		SerialPort.println("screenTask : take");	
+#endif //SCREEN_DEBUG
+
+	 display.setFullWindow();
+	 display.display(true); // partial update
+	 
+#ifdef SCREEN_DEBUG2
+		SerialPort.println("screenTask : display");	
+#endif //SCREEN_DEBUG
+	 
+	 display.epd2.powerOff();
+	 
+#ifdef SCREEN_DEBUG2
+		SerialPort.println("screenTask : poweroff");	
+#endif //SCREEN_DEBUG
+
+   xSemaphoreGive(screenMutex);
+#ifdef SCREEN_DEBUG2
+		SerialPort.println("screenTask : Give");	
+#endif //SCREEN_DEBUG
+
+  }
+}
 
 //****************************************************************************************************************************
 void VarioScreen::updateScreen (void)
@@ -585,7 +644,20 @@ void VarioScreen::updateScreen (void)
 #ifdef SCREEN_DEBUG2
 	SerialPort.println("screen update");	
 #endif //SCREEN_DEBUG
-	
+
+//  BaseType_t xHigherPriorityTaskWoken = 0;
+
+	if( xSemaphoreTake( screen.screenMutex, ( TickType_t ) 0 )  == pdTRUE) {
+    xSemaphoreGive(screen.screenMutex);
+    xTaskNotify(screenTaskHandler, 0, eNoAction);
+	 
+#ifdef SCREEN_DEBUG2
+		SerialPort.println("updateScreen : wake");	
+#endif //SCREEN_DEBUG
+	}
+}
+
+/*	
   if (stateDisplay != STATE_OK) {
 #ifdef SCREEN_DEBUG2
 		SerialPort.println("Task en cours");	
@@ -632,10 +704,10 @@ void VarioScreen::updateScreen (void)
 	SerialPort.println("screen update : create task");	
 #endif //SCREEN_DEBUG
 
-//	display.updateWindow(0, 0, display.width(), display.height(), false);*/
+//	display.updateWindow(0, 0, display.width(), display.height(), false);*
 	//display.display(true); // partial update
 
-}
+}*/
 
 //****************************************************************************************************************************
 void VarioScreen::updateScreenNB (void)
@@ -733,7 +805,6 @@ void VarioScreen::ScreenViewInit(uint8_t Version, uint8_t Sub_Version, String Au
 	unsigned long TmplastDisplayTimestamp = millis();
 	int compteur = 0;
 	while (compteur < 3) {
-
 
 		ButtonScheduleur.update();
 
@@ -1417,7 +1488,7 @@ const unsigned char volume75_4_icons[] = {
 
 
 //****************************************************************************************************************************
-void VarioScreen::ScreenViewSound(int volume)
+boolean VarioScreen::ScreenViewSound(void)
 //****************************************************************************************************************************
 {
 	
@@ -1428,6 +1499,7 @@ void VarioScreen::ScreenViewSound(int volume)
 // 	  display.fillScreen(ColorScreen);
 //		display.clearScreen(ColorScreen);
 
+	int volume = viewSound;
 #ifdef SCREEN_DEBUG
 		SerialPort.println("Show : VolLevel");
 #endif //SCREEN_DEBUG
@@ -1437,6 +1509,12 @@ void VarioScreen::ScreenViewSound(int volume)
 		SerialPort.println(volume);
 #endif //SCREEN_DEBUG
 		
+	if( xSemaphoreTake( screen.screenMutex, ( TickType_t ) 0 )  == pdTRUE) {
+
+#ifdef SCREEN_DEBUG2
+		SerialPort.println("ScreenViewSound : Take");	
+#endif //SCREEN_DEBUG
+
 		display.fillRect(35, 50, 30+75, 24+75, GxEPD_WHITE);
 		
 		if (volume == 0) display.drawInvertedBitmap(35, 50, volume75_4_icons, 75, 75, GxEPD_BLACK);
@@ -1462,9 +1540,24 @@ void VarioScreen::ScreenViewSound(int volume)
 			display.fillTriangle(18,163,5,186,18,213,GxEPD_BLACK);
 			display.fillTriangle(110,163,123,186,110,213,GxEPD_BLACK); //display.fillTriangle(45,130,25,145,45,160,GxEPD_BLACK);
 		}
-		
+
+    xSemaphoreGive(screen.screenMutex);
+#ifdef SCREEN_DEBUG2
+		SerialPort.println("ScreenViewSound : Give");	
+#endif //SCREEN_DEBUG
+		return true;
+	}
+	else {
+		return false;
+	}				
  /* }
   while (display.nextPage());*/
+}
+
+//****************************************************************************************************************************
+void VarioScreen::SetViewSound(int volume) {
+//****************************************************************************************************************************
+	viewSound = volume;
 }
 
 /************************/
@@ -1530,17 +1623,22 @@ ScreenScheduler::ScreenScheduler(ScreenSchedulerObject* displayList, uint8_t obj
 }
 		 
 //****************************************************************************************************************************
-void ScreenScheduler::displayStep(void) {
+boolean ScreenScheduler::displayStep(void) {
 //****************************************************************************************************************************
 
-	if (currentPage == endPage+1) return;
-
-  if (stateDisplay != STATE_OK) {
+/*  if (stateDisplay != STATE_OK) {
 #ifdef SCREEN_DEBUG2
 		SerialPort.println("Task en cours");	
 #endif //SCREEN_DEBUG
 	  return;
-	}
+	}*/
+
+#ifdef SCREEN_DEBUG2
+	SerialPort.println("displayStep");	
+#endif //SCREEN_DEBUG
+
+	if (currentPage == endPage+1) 
+		return(screen.ScreenViewSound());
 
 #ifndef TIMER_DISPLAY
 
@@ -1559,9 +1657,15 @@ void ScreenScheduler::displayStep(void) {
 
   /* next try to find something to display */
   /* for the current page                  */
-#ifdef SCREEN_DEBUG
+#ifdef SCREEN_DEBUG2
   SerialPort.print("displaystep - objectCount  : ");
   SerialPort.println(objectCount);
+#endif //SCREEN_DEBUG
+
+  if( xSemaphoreTake( screen.screenMutex, ( TickType_t ) 0 )  == pdTRUE) {
+
+#ifdef SCREEN_DEBUG2
+		SerialPort.println("DisplayStep : Take");	
 #endif //SCREEN_DEBUG
 
   display.setFullWindow();
@@ -1571,7 +1675,7 @@ void ScreenScheduler::displayStep(void) {
 		ShowDisplayAll = true;
 //		display.fillRect(0, 0, display.width(), display.height(), GxEPD_WHITE);
 		
-#ifdef SCREEN_DEBUG
+#ifdef SCREEN_DEBUG2
 		SerialPort.println("displaystep - showDisplayAll");
 #endif //SCREEN_DEBUG
 		
@@ -1641,7 +1745,15 @@ void ScreenScheduler::displayStep(void) {
 //    display.displayWindow(box_x, box_y, box_w, box_h);
 
 //  display.display(true); // partial update
-	
+    xSemaphoreGive(screen.screenMutex);
+#ifdef SCREEN_DEBUG2
+		SerialPort.println("DisplayStep : Give");	
+#endif //SCREEN_DEBUG
+		return true;
+	}
+	else {
+		return false;
+	}	
 }
 
 //****************************************************************************************************************************
@@ -1683,7 +1795,8 @@ void ScreenScheduler::setPage(int8_t page, boolean forceUpdate)  {
 
 	if (currentPage == endPage+1) {
 		displayStat = true;
-		screen.ScreenViewSound(toneHAL.getVolume());
+		screen.SetViewSound(toneHAL.getVolume());
+
 	} else if ((currentPage == endPage+2) && (displayStat)) {
 		displayStat = false;
 		screen.ScreenViewStatPage(0);

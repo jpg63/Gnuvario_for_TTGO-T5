@@ -64,6 +64,7 @@
  *    1.0.11 21/02/20   Correction Bug d'affichage batterie                      *
  *    1.0.12 05/03/20   Ajout affichage AGL                                      *
  *    1.0.13 06/03/20   Ajout gestion icone DISPLAY_OBJECT_TREND                 *
+ *    1.0.14 09/03/20   Modification de l'effacement digit left                  *
  *                                                                               *
  *********************************************************************************/
  
@@ -480,9 +481,18 @@ ScreenDigit::ScreenDigit(uint16_t anchorX, uint16_t anchorY, uint16_t width, uin
 			MaxHeight  = Zheight;
 			break;
 			
+		case DISPLAY_OBJECT_TREND :
+#if defined (MAXW_OBJECT_TREND)		
+		  MaxWidth   = MAXW_OBJECT_TREND;
+#else
+		  MaxWidth   = Zwidth;
+#endif	
+			MaxHeight  = Zheight;
+			break;
+
 		case DISPLAY_OBJECT_RATIO :
-#if defined (MAXW_OBJECT_RATION)		
-		  MaxWidth   = MAXW_OBJECT_RATION;
+#if defined (MAXW_OBJECT_RATIO)		
+		  MaxWidth   = MAXW_OBJECT_RATIO;
 #else
 		  MaxWidth   = Zwidth;
 #endif	
@@ -748,11 +758,13 @@ void ScreenDigit::show() {
 			SerialPort.println("left align");
 #endif //SCREEN_DEBUG
 	
-		if ((anchorX+w+2) > display.width()) w = display.width()-anchorX+2;
+//		if ((anchorX+w+2) > display.width()) w = display.width()-anchorX+2;
 
-		display.fillRect(anchorX, anchorY-Zheight-3, w+5, Zheight+4, GxEPD_WHITE);
+//		display.fillRect(anchorX, anchorY-Zheight-3, w+5, Zheight+4, GxEPD_WHITE);
 
 //		display.drawRect(anchorX, anchorY-Zheight-3, w+5, Zheight+4, GxEPD_BLACK);
+
+		display.fillRect(anchorX-1, anchorY-MaxHeight-3, MaxWidth+5, MaxHeight+6, GxEPD_WHITE);
 	  
     display.setCursor(anchorX, anchorY-1);
 		titleX = anchorX + 4;
@@ -812,20 +824,27 @@ void ScreenDigit::show() {
 			break;
 		case DISPLAY_OBJECT_RATIO :
 //			display.drawInvertedBitmap(132, 85, grtext, 21, 11, GxEPD_BLACK); //finesse/glade ratio
-   		display.fillRect(titleX, titleY-14, 40, 11, GxEPD_WHITE);
+   		display.fillRect(titleX, titleY-14, 21, 11, GxEPD_WHITE);
 			display.drawInvertedBitmap(titleX, titleY-14, grtext, 21, 11, GxEPD_BLACK); //finesse/glade ratio
 			break;
 		case DISPLAY_OBJECT_TREND :
 //			display.drawInvertedBitmap(132, 85, grtext, 21, 11, GxEPD_BLACK); //finesse/glade ratio
-   		display.fillRect(titleX, titleY-14, 40, 11, GxEPD_WHITE);
-			display.drawInvertedBitmap(titleX, titleY-14, trtext, 21, 11, GxEPD_BLACK); //finesse/glade ratio
+   		display.fillRect(titleX, titleY-14, 22, 11, GxEPD_WHITE);
+			display.drawInvertedBitmap(titleX, titleY-14, trtext, 19, 11, GxEPD_BLACK); //finesse/glade ratio
 			break;
     case DISPLAY_OBJECT_HEIGHT :
 //		  TRACE();
 //			display.drawInvertedBitmap(titleX, titleY-8, heighttext, 32, 14, GxEPD_BLACK);
    		display.fillRect(titleX-30, titleY-12, 40, 14, GxEPD_WHITE);
-			display.drawInvertedBitmap(titleX-27, titleY-12, heighttext, 32, 14, GxEPD_BLACK);
+			display.drawInvertedBitmap(titleX-30, titleY-12, heighttext, 29, 11, GxEPD_BLACK);
 			break;
+			
+			case DISPLAY_OBJECT_BEARING :
+
+   		display.fillRect(titleX+10, titleY-15, 58, 14, GxEPD_WHITE);
+			display.drawInvertedBitmap(titleX+10, titleY-15, beartext, 48, 14, GxEPD_BLACK);
+			break;
+
 		default :
 			break;
 		}
@@ -1362,13 +1381,13 @@ void ScreenText::show() {
 		
     switch (displayTypeID) {
 		case DISPLAY_OBJECT_LAT :
-//			display.drawInvertedBitmap(titleX+2, titleY-14, lattext, 41, 14, GxEPD_BLACK);
+			display.drawInvertedBitmap(titleX-10, titleY-16, lattext, 20, 11, GxEPD_BLACK);
 			break;
 		case DISPLAY_OBJECT_LONG :
-//			display.drawInvertedBitmap(titleX, titleY-14, longtext, 29, 11, GxEPD_BLACK);
+			display.drawInvertedBitmap(titleX-10, titleY-16, longtext, 31, 14, GxEPD_BLACK);
 			break;
-		case DISPLAY_OBJECT_BEARING :
-//			display.drawInvertedBitmap(titleX+100, titleY-50, beartext, 22, 11, GxEPD_BLACK);
+		case DISPLAY_OBJECT_BEARING_TEXT :
+			display.drawInvertedBitmap(titleX-10, titleY-22, compasstext, 58, 14, GxEPD_BLACK);
 			break;
 
 		default :

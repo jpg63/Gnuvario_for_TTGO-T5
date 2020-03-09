@@ -65,6 +65,8 @@
 
 
 
+
+
 /*
  *********************************************************************************
  *                    conversion image to cpp code                               *
@@ -105,7 +107,7 @@
 
 #include <VarioButton.h>
 
-#include <GxEPD2_BWU.h>
+#include <GxEPD2_BW.h>
 #include <GxEPD2_3C.h>
 
 #include "GxEPD2_boards.h"
@@ -804,11 +806,18 @@ void ScreenDigit::show() {
 			break;
 		case DISPLAY_OBJECT_VARIO :
 //			
+   			display.fillRect(titleX+2, titleY-11, 40, 9, GxEPD_WHITE);
 			display.drawInvertedBitmap(titleX+2, titleY-11, variotext, 27, 9, GxEPD_BLACK);
 			break;
 		case DISPLAY_OBJECT_RATIO :
 //			
+			display.fillRect(titleX-6, titleY-8, 14, 9, GxEPD_WHITE);
 			display.drawBitmap(titleX-6, titleY-8, grtext, 14, 7, GxEPD_BLACK); //finesse/glade ratio
+			break;
+		case DISPLAY_OBJECT_TREND :
+//			
+   			display.fillRect(titleX-6, titleY-9, 14, 9, GxEPD_WHITE);
+			display.drawInvertedBitmap(titleX-6, titleY-9, trtext, 13, 8, GxEPD_BLACK); //finesse/glade ratio
 			break;
     case DISPLAY_OBJECT_HEIGHT :
 //		  TRACE();
@@ -830,6 +839,12 @@ void ScreenDigit::show() {
 		}
 	}
 }
+
+
+
+
+
+
 
 /*
 // ****************************************************************************************************************************

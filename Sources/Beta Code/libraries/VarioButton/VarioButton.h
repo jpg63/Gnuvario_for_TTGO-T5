@@ -45,6 +45,7 @@
  *                      bouton gauche                                            *
  *    1.0.14 29/11/19   Ajout arduinotrace                                       *
  *                      Modif sdfat                                              *
+ *    1.0.15 09/03/20   Modification ScreenViewSound                             *
  *                                                                               *
  *********************************************************************************/
  

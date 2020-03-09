@@ -1,4 +1,4 @@
-/* varioscreenGxEPD_290 -- 
+/* varioscreenGxEPD_291 -- 
  *
  * Copyright 2019 Jean-philippe GOI / Pierre FRANCIA
  * 
@@ -21,8 +21,8 @@
 /* 
  *********************************************************************************
  *                                                                               *
- *                           VarioScreenGxEPD_290 Paysage                        *
- *                               Ecran 2,90''                                    *
+ *                           VarioScreenGxEPD_291                                *
+ *                               Ecran 2,90''  portrait                          *
  *                                                                               *
  *  version    Date     Description                                              *
  *    1.0    24/09/19                                                            *
@@ -39,14 +39,14 @@
  *    1.0.9  03/02/20   changement de nom passage de 29 à 290                    *
  *    1.0.10 09/02/20   Modif écran 1 - font normal / coordonné GPS en degrés    *
  *    1.0.11 17/02/20   Ajout 2.90 et 2.91                                       *
- *                      Ajout FONTLARGE / FONTNORMAL                             *
  *    1.0.12 25/02/20   Ajout ScreenBackground                                   *
  *    1.0.13 05/03/20   Ajout affichage alti agl                                 *
-*                                                                               *
+ *                                                                               *
  *********************************************************************************/
 
-#ifndef VARIOSCREENGXEPD_290_H
-#define VARIOSCREENGXEPD_290_H
+
+#ifndef VARIOSCREENGXEPD_291_H
+#define VARIOSCREENGXEPD_291_H
 
 #include <Arduino.h>
 #include <VarioSettings.h>
@@ -56,9 +56,9 @@
 #include <HardwareConfig.h>
 #include <DebugConfig.h>
 
-#if (VARIOSCREEN_SIZE == 290)
+#if (VARIOSCREEN_SIZE == 291)
 
-#include <varioscreenObjects_290.h>
+#include <varioscreenObjects_291.h>
 
 /* task parameters */
 #define SCREEN_STACK_SIZE 2000
@@ -248,8 +248,7 @@ class VarioScreen {
 	void ScreenViewPage(int8_t page, boolean clear, boolean refresh = false);
 	void ScreenViewWifi(String SSID, String IP);
 	void ScreenViewReboot(String message = "");
-  boolean ScreenViewSound(void);	
-	void SetViewSound(int volume);	
+  void ScreenViewSound(int volume);	
 	void ScreenViewMessage(String message, int delai);
 	void ScreenBackground(int8_t page);
 		
@@ -258,15 +257,14 @@ class VarioScreen {
 		
  /* void beginClear(void); //multi step clear
   bool clearStep(void); //return true while clearing*/
-  	 
-	static SemaphoreHandle_t screenMutex;
 
+	 static SemaphoreHandle_t screenMutex;
+  
  private:
    unsigned long timerShow = 0;
    static uint8_t volatile status;
    static TaskHandle_t screenTaskHandler;
    static void screenTask(void* param);
-	 int    viewSound;
 
 //  uint8_t clearingStep;
 };

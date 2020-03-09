@@ -41,6 +41,7 @@
  *    1.0.11 25/02/20   Ajout ScreenBackground                                   *
  *    1.0.12 04/03/20   Ajout affichage alti agl                                 *
  *    1.0.13 07/03/20   Correction xSemaphore                                    *
+ *    1.0.14 09/03/20   Modification ScreenViewSound                             *
  *                                                                               *
  *********************************************************************************/
  
@@ -211,11 +212,11 @@ TaskHandle_t VarioScreen::screenTaskHandler;
 #define VARIOSCREEN_LONG_ANCHOR_Y 135 //90
 #define VARIOSCREEN_LAT_ANCHOR_X 10 //150
 //#define VARIOSCREEN_LATDIR_ANCHOR_X 165
-#define VARIOSCREEN_LAT_ANCHOR_Y 90 //135
+#define VARIOSCREEN_LAT_ANCHOR_Y 85 //135
 #define VARIOSCREEN_BEARING_TEXT_ANCHOR_X 10
 #define VARIOSCREEN_BEARING_TEXT_ANCHOR_Y 190
 #define VARIOSCREEN_BEARING_ANCHOR_X 190 //115
-#define VARIOSCREEN_BEARING_ANCHOR_Y 190
+#define VARIOSCREEN_BEARING_ANCHOR_Y 192
 
 /*****************************************/
 /* screen objets Page 10 - Calibrate GPS */
@@ -653,7 +654,6 @@ void VarioScreen::updateScreen (void)
 #ifdef SCREEN_DEBUG2
 		SerialPort.println("updateScreen : wake");	
 #endif //SCREEN_DEBUG
-	 
 	}
 }
 	
@@ -1485,7 +1485,7 @@ const unsigned char volume75_4_icons[] = {
 
 
 //****************************************************************************************************************************
-void VarioScreen::ScreenViewSound(int volume)
+boolean VarioScreen::ScreenViewSound(void)
 //****************************************************************************************************************************
 {
 	
@@ -1496,13 +1496,20 @@ void VarioScreen::ScreenViewSound(int volume)
 // 	  display.fillScreen(ColorScreen);
 //		display.clearScreen(ColorScreen);
 
-#ifdef SCREEN_DEBUG
+	int volume = viewSound;
+#ifdef SCREEN_DEBUG2
 		SerialPort.println("Show : VolLevel");
 #endif //SCREEN_DEBUG
 
-#ifdef SCREEN_DEBUG
+#ifdef SCREEN_DEBUG2
 		SerialPort.print("Volume : ");
 		SerialPort.println(volume);
+#endif //SCREEN_DEBUG
+
+	if( xSemaphoreTake( screen.screenMutex, ( TickType_t ) 0 )  == pdTRUE) {
+
+#ifdef SCREEN_DEBUG2
+		SerialPort.println("ScreenViewSound : Take");	
 #endif //SCREEN_DEBUG
   
 		display.fillRect(60, 30, 60+75, 30+75, GxEPD_WHITE);
@@ -1531,8 +1538,23 @@ void VarioScreen::ScreenViewSound(int volume)
 			display.fillTriangle(45,130,25,145,45,160,GxEPD_BLACK);
 		}
 		
+    xSemaphoreGive(screen.screenMutex);
+#ifdef SCREEN_DEBUG2
+		SerialPort.println("ScreenViewSound : Give");	
+#endif //SCREEN_DEBUG
+		return true;
+	}
+	else {
+		return false;
+	}			
  /* }
   while (display.nextPage());*/
+}
+
+//****************************************************************************************************************************
+void VarioScreen::SetViewSound(int volume) {
+//****************************************************************************************************************************
+	viewSound = volume;
 }
 
 /************************/
@@ -1612,7 +1634,8 @@ boolean ScreenScheduler::displayStep(void) {
 	SerialPort.println("displayStep");	
 #endif //SCREEN_DEBUG
 
-	if (currentPage == endPage+1) return false;
+	if (currentPage == endPage+1) 
+		return(screen.ScreenViewSound());
 
 #ifndef TIMER_DISPLAY
 
@@ -1769,7 +1792,8 @@ void ScreenScheduler::setPage(int8_t page, boolean forceUpdate)  {
 
 	if (currentPage == endPage+1) {
 		displayStat = true;
-		screen.ScreenViewSound(toneHAL.getVolume());
+		screen.SetViewSound(toneHAL.getVolume());
+//		  screen.updateScreen ();
 	} else if ((currentPage == endPage+2) && (displayStat)) {
 		displayStat = false;
 		screen.ScreenViewStatPage(0);

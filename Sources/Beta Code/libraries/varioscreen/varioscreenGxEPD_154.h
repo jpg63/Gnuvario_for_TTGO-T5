@@ -39,6 +39,8 @@
  *    1.0.10 17/02/20   Ajout large (font) varioscreenDigit                      *
  *    1.0.11 25/02/20   Ajout ScreenBackground                                   *
  *    1.0.12 04/03/20   Ajout affichage alti agl                                 *
+ *    1.0.13 07/03/20   Correction xSemaphore                                    *
+ *    1.0.14 09/03/20   Modification ScreenViewSound                             *
  *                                                                               *
  *********************************************************************************/
 
@@ -248,7 +250,8 @@ class VarioScreen {
 	void ScreenViewPage(int8_t page, boolean clear, boolean refresh = false);
 	void ScreenViewWifi(String SSID, String IP);
 	void ScreenViewReboot(String message = "");
-  void ScreenViewSound(int volume);	
+  boolean ScreenViewSound(void);
+	void SetViewSound(int volume);	
 	void ScreenViewMessage(String message, int delai);
 	void ScreenBackground(int8_t page);
 		
@@ -265,6 +268,7 @@ class VarioScreen {
    static uint8_t volatile status;
    static TaskHandle_t screenTaskHandler;
    static void screenTask(void* param);
+	 int    viewSound;
 
 //  uint8_t clearingStep;
 };

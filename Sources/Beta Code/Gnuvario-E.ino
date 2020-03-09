@@ -312,6 +312,9 @@ SimpleBLE ble;
 *               07/03/20             Correction gestion AGL                                           *
 *                                    Correction screenGxEpd2 - xSemaphore                             *
 *               08/03/20             Mise à jour GxEpd2                                               *
+*               09/03/20             Correction bug ViewSound                                         *
+*                                    correction bug effacement GR / TR                                *
+*                                    correction Bug affichage titre GR/TR                             *
 *******************************************************************************************************
 *                                                                                                     *
 *                                   Developpement a venir                                             *
@@ -329,13 +332,14 @@ SimpleBLE ble;
 * BUG   - stat affichage temps de vol                                                                 *
 * VERIF - Seuil déclenchement début du vol                                                            *
 * VERIF - Sensibilité du vario                                                                        *
-* AJOUT - Champs enable AGL dans site Web                                                             *
 * AJOUT - déclenchement manuel de l'enregistrement                                                    *
+* BUG   - blocage du MPU                                                                              *
+* MODIF - Calibrage avec mesure AGL                                                                   *
 *                                                                                                     *        
 * v0.8                                                                                                *       
 * MODIF - Réecrire loop                                                                               *
 * AJOUT - Récupération du cap depuis le capteur baromètrique                                          *
-* MODIF - réécriture maj affichage                                                                    *
+* AJOUT - Espaces aeriens                                                                             *
 *                                                                                                     *
 * VX.X                                                                                                *
 * Paramètrage des écrans                                                                              *
@@ -350,7 +354,6 @@ SimpleBLE ble;
 * verifier fonctionnement BT                                                                          *
 * Recupération vol via USB                                                                            *                                                                                        
 * Espaces aeriens                                                                                     *
-* AGL                                                                                                 *
 *******************************************************************************************************/
 
 /************************************************************************
@@ -1386,6 +1389,7 @@ void setup() {
 }
 
 double temprature=0;
+double currentHeight = 0;
 
 #if defined(HAVE_SDCARD) && defined(HAVE_GPS)
 void createSDCardTrackFile(void);
@@ -1918,6 +1922,8 @@ void loop() {
         //  recordIndicator->stateRECORD();
 #endif //HAVE_SCREEN
             kalmanvert.calibratePosition(gpsAlti+GnuSettings.COMPENSATION_GPSALTI);
+/*            if (currentHeight == 0) kalmanvert.calibratePosition(gpsAlti+GnuSettings.COMPENSATION_GPSALTI);
+            else                    kalmanvert.calibratePosition(gpsAlti+currentHeight);*/
 
 #ifdef DATA_DEBUG
             SerialPort.print("Gps Alti : ");
@@ -2276,7 +2282,7 @@ void loop() {
       screen.gpsLat->setValue(nmeaParser.getLatDegree());
     }
     #ifdef AGL_MANAGER_H
-      double currentHeight = aglManager.getHeight();
+      currentHeight = aglManager.getHeight();
 #ifdef PROG_DEBUG
       SerialPort.print("Height : ");
       SerialPort.println(currentHeight);
@@ -2301,6 +2307,7 @@ void loop() {
   if (screen.schedulerScreen->displayStep()) {
     screen.updateScreen(); 
   }
+ 
 #endif //HAVE_SCREEN
 
 //**********************************************************

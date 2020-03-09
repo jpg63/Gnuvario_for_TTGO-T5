@@ -65,6 +65,8 @@
 
 
 
+
+
 #ifndef VARIOSCREENOBJECTS_291_H
 #define VARIOSCREENOBJECTS_291_H
 
@@ -77,7 +79,7 @@
 #include <digit.h>
 #include <variostat.h>
 
-#include <GxEPD2_BWU.h>
+#include <GxEPD2_BW.h>
 #include <GxEPD2_3C.h>
 
 // FreeFonts from Adafruit_GFX

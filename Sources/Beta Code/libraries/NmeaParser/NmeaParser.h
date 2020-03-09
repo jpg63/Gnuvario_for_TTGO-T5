@@ -122,11 +122,11 @@ class NmeaParser {
 	double getLong(void);
 	char   getLongDir();
 	String getLongDegree(void);
-	String getLongitude(void);
+	String getLongitude(boolean majState = true);
 	double getLat(void);
 	char   getLatDir(void);
 	String getLatDegree(void);
-	String getLatitude(void);
+	String getLatitude(boolean majState = true);
   bool isParsing(void);
   bool isParsingRMC(void);
   bool isParsingGGA(void);

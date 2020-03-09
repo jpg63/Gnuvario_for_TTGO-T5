@@ -73,6 +73,8 @@
  *                                                                               *
  *********************************************************************************/
 
+
+
 #include <Arduino.h>
 #include <HardwareConfig.h>
 #include <DebugConfig.h>
@@ -105,7 +107,7 @@
 
 #include <VarioButton.h>
 
-#include <GxEPD2_BWU.h>
+#include <GxEPD2_BW.h>
 #include <GxEPD2_3C.h>
 
 #include "GxEPD2_boards.h"
@@ -809,13 +811,15 @@ void ScreenDigit::show() {
 			display.drawInvertedBitmap(titleX+22, titleY-8, variotext, 24, 9, GxEPD_BLACK);
 			break;
 		case DISPLAY_OBJECT_RATIO :
-   			display.fillRect(titleX-15, titleY-8, 40, 11, GxEPD_WHITE);
+		
+   			display.fillRect(titleX-15, titleY-8, 15, 9, GxEPD_WHITE);
 			display.drawInvertedBitmap(titleX-15, titleY-8, grtext, 15, 9, GxEPD_BLACK); //finesse/glade ratio
 			break;
+			
 		case DISPLAY_OBJECT_TREND :
-//			display.drawInvertedBitmap(132, 85, grtext, 21, 11, GxEPD_BLACK); //finesse/glade ratio
-   			display.fillRect(titleX-15, titleY-8, 40, 11, GxEPD_WHITE);
-			display.drawInvertedBitmap(titleX-15, titleY-8, trtext, 15, 9, GxEPD_BLACK); //finesse/glade ratio
+//			
+   			display.fillRect(titleX-15, titleY-8, 15, 9, GxEPD_WHITE);
+			display.drawInvertedBitmap(titleX-15, titleY-8, trtext, 13, 9, GxEPD_BLACK); //rate of fall
 			break;
 			
     case DISPLAY_OBJECT_HEIGHT :
@@ -836,6 +840,11 @@ void ScreenDigit::show() {
 	}
 
 }
+
+
+
+
+
 
 /*
 // ****************************************************************************************************************************

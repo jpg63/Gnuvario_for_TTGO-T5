@@ -371,8 +371,8 @@ char NmeaParser::getLongDir() {
 	return longDir;
 }
 
-String NmeaParser::getLongitude(void) {
-  parserState_unset(HAVE_LONG);
+String NmeaParser::getLongitude(boolean majState) {
+	if (majState) parserState_unset(HAVE_LONG);
 	double f_val = ((double)longitude)/NMEA_RMC_LONG_PRECISION;
 	char outstr[15];
 	dtostrf(f_val,7, 3, outstr);
@@ -400,8 +400,8 @@ char NmeaParser::getLatDir(void) {
 	return latDir;
 }
 
-String NmeaParser::getLatitude(void) {
-  parserState_unset(HAVE_LAT);
+String NmeaParser::getLatitude(boolean majState) {
+  if (majState) parserState_unset(HAVE_LAT);
 	double f_val = ((double)latitude)/NMEA_RMC_LAT_PRECISION;
 	char outstr[15];
 	dtostrf(f_val,7, 3, outstr);

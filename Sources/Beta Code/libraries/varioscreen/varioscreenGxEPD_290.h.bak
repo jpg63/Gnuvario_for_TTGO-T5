@@ -266,7 +266,6 @@ class VarioScreen {
    static uint8_t volatile status;
    static TaskHandle_t screenTaskHandler;
    static void screenTask(void* param);
-	 int    viewSound;
 
 //  uint8_t clearingStep;
 };

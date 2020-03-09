@@ -65,6 +65,9 @@
 
 
 
+
+
+
 /*
  *********************************************************************************
  *                    conversion image to cpp code                               *
@@ -105,7 +108,7 @@
 
 #include <VarioButton.h>
 
-#include <GxEPD2_BWU.h>
+#include <GxEPD2_BW.h>
 #include <GxEPD2_3C.h>
 
 #include "GxEPD2_boards.h"
@@ -477,6 +480,15 @@ ScreenDigit::ScreenDigit(uint16_t anchorX, uint16_t anchorY, uint16_t width, uin
 #endif	
 			MaxHeight  = Zheight;
 			break;
+
+		case DISPLAY_OBJECT_TREND :
+#if defined (MAXW_OBJECT_TREND)		
+		  MaxWidth   = MAXW_OBJECT_TREND;
+#else
+		  MaxWidth   = Zwidth;
+#endif	
+			MaxHeight  = Zheight;
+			break;
 			
 		case DISPLAY_OBJECT_RATIO :
 #if defined (MAXW_OBJECT_RATION)		
@@ -746,11 +758,13 @@ void ScreenDigit::show() {
 			SerialPort.println("left align");
 #endif //SCREEN_DEBUG
 	
-		if ((anchorX+w+2) > display.width()) w = display.width()-anchorX+2; //if ((anchorX+w+2) > display.width()) w = display.width()-anchorX+2
+//		if ((anchorX+w+2) > display.width()) w = display.width()-anchorX+2; //if ((anchorX+w+2) > display.width()) w = display.width()-anchorX+2
 
-		display.fillRect(anchorX, anchorY-Zheight-3, w+6, Zheight+3, GxEPD_WHITE);; //display.fillRect(anchorX, anchorY-Zheight-3, w+6, Zheight+4, GxEPD_BLACK);
+//		display.fillRect(anchorX, anchorY-Zheight-3, w+6, Zheight+3, GxEPD_WHITE);; //display.fillRect(anchorX, anchorY-Zheight-3, w+6, Zheight+4, GxEPD_BLACK);
 	
 //		display.drawRect(anchorX, anchorY-Zheight-3, w+5, Zheight+4, GxEPD_BLACK);
+
+		display.fillRect(anchorX-1, anchorY-MaxHeight-3, MaxWidth+5, MaxHeight+6, GxEPD_WHITE);
   
     display.setCursor(anchorX, anchorY-1); //display.setCursor(anchorX, anchorY-1);
 		titleX = anchorX + 4;
@@ -774,7 +788,9 @@ void ScreenDigit::show() {
 					
 
 
-		display.fillRect(anchorX-w-2, anchorY-Zheight-3, w+6, Zheight+4, GxEPD_WHITE);//display.fillRect(anchorX-w-2, anchorY-Zheight-3, w+6, Zheight+4, GxEPD_BLACK);
+//		display.fillRect(anchorX-w-2, anchorY-Zheight-3, w+6, Zheight+4, GxEPD_WHITE);//display.fillRect(anchorX-w-2, anchorY-Zheight-3, w+6, Zheight+4, GxEPD_BLACK);
+
+		display.fillRect(anchorX-MaxWidth-1, anchorY-MaxHeight-3, MaxWidth+5, MaxHeight+6, GxEPD_WHITE);
 
 //		display.drawRect(anchorX-MaxWidth-1, anchorY-MaxHeight-3, MaxWidth+3, MaxHeight+6, GxEPD_BLACK);
 		
@@ -809,12 +825,13 @@ void ScreenDigit::show() {
 			break;
 		case DISPLAY_OBJECT_RATIO :
 //			
+			display.fillRect(titleX-6, titleY-8, 14, 9, GxEPD_WHITE);
 			display.drawBitmap(titleX-6, titleY-8, grtext, 14, 7, GxEPD_BLACK); //finesse/glade ratio
 			break;
 		case DISPLAY_OBJECT_TREND :
-//			display.drawInvertedBitmap(132, 85, grtext, 21, 11, GxEPD_BLACK); //finesse/glade ratio
-   			display.fillRect(titleX+2, titleY-11, 40, 9, GxEPD_WHITE);
-			display.drawInvertedBitmap(titleX+2, titleY-11, trtext, 27, 9, GxEPD_BLACK); //finesse/glade ratio
+//			
+   			display.fillRect(titleX-6, titleY-9, 14, 9, GxEPD_WHITE);
+			display.drawInvertedBitmap(titleX-6, titleY-9, trtext, 13, 8, GxEPD_BLACK); //finesse/glade ratio
 			break;
     case DISPLAY_OBJECT_HEIGHT :
 //		  TRACE();
@@ -836,6 +853,10 @@ void ScreenDigit::show() {
 		}
 	}
 }
+
+
+
+
 
 /*
 // ****************************************************************************************************************************
@@ -1239,13 +1260,16 @@ void ScreenText::show() {
 //  char digitCharacters[MAX_CHAR_IN_LINE];
 //	char tmpChar[MAX_CHAR_IN_LINE];
    
-	
-	if (large) {display.setFont(&FreeSansBold18pt7b);
-	display.setTextSize(1);
+	if (large) 
+    {
+        display.setFont(&FreeSansBold18pt7b);
+	    display.setTextSize(1);
 	}
-	else {	display.setFont(&FreeSansBold12pt7b);   
+	else {	
+        display.setFont(&FreeSansBold12pt7b);   
 		display.setTextSize(1);	
 	}
+
 //  int16_t box_x = anchorX;
 //  int16_t box_y = anchorY;
 //  uint16_t w, h, w1, h1;
@@ -1253,6 +1277,7 @@ void ScreenText::show() {
 //  int16_t box_h, box_h1; 
 	int16_t titleX, titleY;
 //	int tmpWidth;
+
 
 /*	dtostrf2(999999.999,width,precision,tmpChar,zero);
   dtostrf2(value,width,precision,digitCharacters,zero);
@@ -1813,13 +1838,6 @@ b=0.386384
   
   reset();
 }
-
-
-
-
-
-
-
 
 //****************************************************************************************************************************
 void BATLevel::show(void) {
