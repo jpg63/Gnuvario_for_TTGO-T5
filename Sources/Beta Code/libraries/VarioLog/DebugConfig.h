@@ -58,7 +58,7 @@
 /* pour désactiver les messages   */
 /**********************************/
 
-#define ENABLE_DEBUG
+//#define ENABLE_DEBUG
 
 #if defined(ENABLE_DEBUG)
 
