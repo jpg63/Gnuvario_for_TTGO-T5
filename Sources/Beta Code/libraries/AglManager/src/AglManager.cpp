@@ -25,6 +25,8 @@
  *                                                                               *
  *  version    Date     Description                                              *
  *    1.0    07/03/20                                                            *
+ *    1.0.1  09/03/20   Ajout getGroundLevel                                     *
+ *    1.0.2  12/03/20   Ajout getAgl                                             *
  *                                                                               *
  *********************************************************************************
  */
@@ -85,6 +87,13 @@ void AglManager::setAlti(double dAlti)
 }
 
 //****************************************************************************************************************************
+void AglManager::setAltiGps(double dAlti)
+//****************************************************************************************************************************
+{
+	currentAltiGps = dAlti;
+}
+
+//****************************************************************************************************************************
 void AglManager::setLatitude(double dLatitude)
 //****************************************************************************************************************************
 {
@@ -124,7 +133,7 @@ void AglManager::computeHeight()
     {
         if (currentAlti != -1 && currentLat != -1 && currentLong != -1 && currentLat != 0 && currentLong != 0)
         {
-            int groundLevel = hgtReader->getGroundLevel(degMinToDeg(currentLat), degMinToDeg(currentLong));
+            groundLevel = hgtReader->getGroundLevel(degMinToDeg(currentLat), degMinToDeg(currentLong));
             if (groundLevel != NO_FILE_FOR_POS)
             {
                 currentHeight = currentAlti - groundLevel;
@@ -137,11 +146,13 @@ void AglManager::computeHeight()
         else
         {
             currentHeight = currentAlti;
+						groundLevel = -1;
         }
     }
     else
     {
         currentHeight = currentAlti;
+				groundLevel = 1;
     }
 #ifdef AGL_DEBUG
     SerialPort.print("AGL Height ");
@@ -153,7 +164,7 @@ void AglManager::computeHeight()
 int AglManager::getGroundLevel()
 //****************************************************************************************************************************
 {
-    int groundLevel = -1;
+    groundLevel = -1;
 
     if (IsOk())
     {
@@ -164,6 +175,14 @@ int AglManager::getGroundLevel()
     }
 
     return groundLevel;
+}
+
+//****************************************************************************************************************************
+int AglManager::getAgl()
+//****************************************************************************************************************************
+{
+    if (groundLevel == -1 || currentAltiGps == -1)  return -1;
+		else                                            return groundLevel-currentAltiGps;
 }
 
 //****************************************************************************************************************************

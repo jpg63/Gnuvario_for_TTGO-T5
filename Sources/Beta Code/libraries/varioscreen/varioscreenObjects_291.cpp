@@ -482,10 +482,12 @@ ScreenDigit::ScreenDigit(uint16_t anchorX, uint16_t anchorY, uint16_t width, uin
 			break;
 
 		case DISPLAY_OBJECT_TREND :
-#if defined (MAXW_OBJECT_TREND)		
+#if defined (MAXW_OBJECT_TREND)	
+	
 		  MaxWidth   = MAXW_OBJECT_TREND;
 #else
-		  MaxWidth   = Zwidth;
+		 
+			MaxWidth   = Zwidth;
 #endif	
 			MaxHeight  = Zheight;
 			break;
@@ -494,7 +496,7 @@ ScreenDigit::ScreenDigit(uint16_t anchorX, uint16_t anchorY, uint16_t width, uin
 #if defined (MAXW_OBJECT_RATION)		
 		  MaxWidth   = MAXW_OBJECT_RATION;
 #else
-		  MaxWidth   = Zwidth+5;
+		  MaxWidth   = Zwidth;
 #endif	
 			MaxHeight  = Zheight;	
 			break;
@@ -758,13 +760,13 @@ void ScreenDigit::show() {
 			SerialPort.println("left align");
 #endif //SCREEN_DEBUG
 	
-//		if ((anchorX+w+2) > display.width()) w = display.width()-anchorX+2; //if ((anchorX+w+2) > display.width()) w = display.width()-anchorX+2
+		if ((anchorX+w+2) > display.width()) w = display.width()-anchorX+2; //if ((anchorX+w+2) > display.width()) w = display.width()-anchorX+2
 
-//		display.fillRect(anchorX, anchorY-Zheight-3, w+6, Zheight+3, GxEPD_WHITE);; //display.fillRect(anchorX, anchorY-Zheight-3, w+6, Zheight+4, GxEPD_BLACK);
+		display.fillRect(anchorX, anchorY-Zheight-3, w+6, Zheight+3, GxEPD_WHITE); //display.fillRect(anchorX, anchorY-Zheight-3, w+6, Zheight+4, GxEPD_BLACK);
 	
 //		display.drawRect(anchorX, anchorY-Zheight-3, w+5, Zheight+4, GxEPD_BLACK);
 
-		display.fillRect(anchorX-1, anchorY-MaxHeight-3, MaxWidth+5, MaxHeight+6, GxEPD_WHITE);
+//		display.fillRect(anchorX-1, anchorY-MaxHeight-3, MaxWidth+5, MaxHeight+6, GxEPD_WHITE); //display.fillRect(anchorX-1, anchorY-MaxHeight-3, MaxWidth+5, MaxHeight+6, GxEPD_WHITE);
   
     display.setCursor(anchorX, anchorY-1); //display.setCursor(anchorX, anchorY-1);
 		titleX = anchorX + 4;
@@ -788,9 +790,9 @@ void ScreenDigit::show() {
 					
 
 
-//		display.fillRect(anchorX-w-2, anchorY-Zheight-3, w+6, Zheight+4, GxEPD_WHITE);//display.fillRect(anchorX-w-2, anchorY-Zheight-3, w+6, Zheight+4, GxEPD_BLACK);
+		display.fillRect(anchorX-w-2, anchorY-Zheight-3, w+6, Zheight+4, GxEPD_WHITE);//display.fillRect(anchorX-w-2, anchorY-Zheight-3, w+6, Zheight+4, GxEPD_BLACK);
 
-		display.fillRect(anchorX-MaxWidth-1, anchorY-MaxHeight-3, MaxWidth+5, MaxHeight+6, GxEPD_WHITE);
+//		display.fillRect(anchorX-MaxWidth-1, anchorY-MaxHeight-3, MaxWidth+5, MaxHeight+6, GxEPD_WHITE);//display.fillRect(anchorX-MaxWidth-1, anchorY-MaxHeight-3, MaxWidth+5, MaxHeight+6, GxEPD_WHITE);
 
 //		display.drawRect(anchorX-MaxWidth-1, anchorY-MaxHeight-3, MaxWidth+3, MaxHeight+6, GxEPD_BLACK);
 		
@@ -815,7 +817,7 @@ void ScreenDigit::show() {
 			break;
 		case DISPLAY_OBJECT_ALTI :
 //			
-   			display.fillRect(titleX-70, titleY-6, 22, 9, GxEPD_WHITE);
+   			display.fillRect(titleX-70, titleY-6, 30, 9, GxEPD_WHITE);
 			display.drawInvertedBitmap(titleX-68, titleY-6, altitext, 16, 9, GxEPD_BLACK);
 			break;
 		case DISPLAY_OBJECT_VARIO :

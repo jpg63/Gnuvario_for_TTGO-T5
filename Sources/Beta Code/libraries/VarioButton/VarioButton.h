@@ -142,6 +142,7 @@ extern AglManager aglManager;
 #endif
 
 extern uint8_t variometerState;
+extern void createSDCardTrackFile(void);
 
 #else
 #error “This library only supports boards with ESP32 processor.”

@@ -159,6 +159,13 @@ void VARIOButtonScheduleur::update()
 		if (groundLevel != -1)
 		{
 			kalmanvert.calibratePosition(groundLevel);
+			
+			int aglLevel = aglManager.getAgl();
+			GnuSettings.COMPENSATION_GPSALTI = aglLevel;
+			
+			char tmpchar[20] = "params.jso";
+			GnuSettings.saveConfigurationVario(tmpchar);
+
 			beeper.generateTone(523, 250);
 			beeper.generateTone(659, 250);
 			beeper.generateTone(784, 250);
@@ -290,7 +297,10 @@ void VARIOButtonScheduleur::treatmentBtnA(bool Debounce)
 		
 		if (variometerState == VARIOMETER_STATE_CALIBRATED) 
 		{     
-      GnuSettings.VARIOMETER_RECORD_WHEN_FLIGHT_START = false;
+			if (GnuSettings.VARIOMETER_RECORD_WHEN_FLIGHT_START) {
+        GnuSettings.VARIOMETER_RECORD_WHEN_FLIGHT_START = false;
+			  createSDCardTrackFile();
+			}
 		} else {
 			screen.schedulerScreen->previousPage();
 		}

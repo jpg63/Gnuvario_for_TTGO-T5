@@ -316,7 +316,8 @@ SimpleBLE ble;
 *                                    correction bug effacement GR / TR                                *
 *                                    correction Bug affichage titre GR/TR                             *
 *                                    Calibration manuel du baromètre via l'AGL                        *
-*                                    Déclenchement de l'enregistrement du vol                         *
+*                                    Déclenchement manuel de l'enregistrement du vol                  *
+*               14/03/20             Calibration de compensation du GPS via l'AGL                     *
 *******************************************************************************************************
 *                                                                                                     *
 *                                   Developpement a venir                                             *
@@ -327,16 +328,14 @@ SimpleBLE ble;
 * BUG   - DISPLAY_OBJECT_LINE object ligne ne fonctionne pas                                          *
 *                                                                                                     *
 * v0.7                                                                                                *
-* BUG   - Affichage barres GPS - problème de raffraichissement                                        *
 * BUG   - upload wifi - ne se termine pas  - bug espressif le buffer n'est pas vidé à la fin          *
 * BUG   - update manuelle - doit être lancée 2 fois                                                   *
 * BUG   - download à verifier                                                                         *
 * BUG   - stat affichage temps de vol                                                                 *
 * VERIF - Seuil déclenchement début du vol                                                            *
 * VERIF - Sensibilité du vario                                                                        *
-* AJOUT - déclenchement manuel de l'enregistrement                                                    *
 * BUG   - blocage du MPU                                                                              *
-* MODIF - Calibrage avec mesure AGL                                                                   *
+* AJOUT - effacement ecran 1 fois / min                                                               *
 *                                                                                                     *        
 * v0.8                                                                                                *       
 * MODIF - Réecrire loop                                                                               *
@@ -413,6 +412,8 @@ SimpleBLE ble;
  * - Calibration des accèlerometres                                     *
  * - AGL                                                                *
  * - Calibration manuel du baro via l'AGL                               *
+ * - Declenchement de vol manuellement                                  *
+ * - Compensation du GPS via l'AGL                                      *
  *                                                                      *
  ************************************************************************/
  
@@ -1913,6 +1914,7 @@ void loop() {
 
           compteurGpsFix++;
           double tmpGpsAlti = nmeaParser.getAlti();
+          aglManager.setAltiGps(tmpGpsAlti);
 
  //         DUMPLOG(LOG_TYPE_DEBUG,GPS_DEBUG_LOG,tmpGpsAlti);
 

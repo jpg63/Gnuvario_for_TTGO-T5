@@ -758,13 +758,13 @@ void ScreenDigit::show() {
 			SerialPort.println("left align");
 #endif //SCREEN_DEBUG
 	
-//		if ((anchorX+w+2) > display.width()) w = display.width()-anchorX+2; //if ((anchorX+w+2) > display.width()) w = display.width()-anchorX+2
+		if ((anchorX+w+2) > display.width()) w = display.width()-anchorX+2; //if ((anchorX+w+2) > display.width()) w = display.width()-anchorX+2
 
-//		display.fillRect(anchorX, anchorY-Zheight-3, w+4, Zheight+3, GxEPD_WHITE);; //display.fillRect(anchorX, anchorY-Zheight-3, w+6, Zheight+4, GxEPD_BLACK);
+		display.fillRect(anchorX, anchorY-Zheight-3, w+4, Zheight+3, GxEPD_WHITE);; //display.fillRect(anchorX, anchorY-Zheight-3, w+6, Zheight+4, GxEPD_BLACK);
 	
 //		display.drawRect(anchorX, anchorY-Zheight-3, w+5, Zheight+4, GxEPD_BLACK);
   
-		display.fillRect(anchorX-1, anchorY-MaxHeight-3, MaxWidth+5, MaxHeight+6, GxEPD_WHITE);
+//		display.fillRect(anchorX-1, anchorY-MaxHeight-3, MaxWidth+5, MaxHeight+6, GxEPD_WHITE);
 
     display.setCursor(anchorX, anchorY-1); //display.setCursor(anchorX, anchorY-1);
 		titleX = anchorX + 4;

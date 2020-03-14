@@ -26,6 +26,7 @@
  *  version    Date     Description                                              *
  *    1.0    07/03/20                                                            *
  *    1.0.1  09/03/20   Ajout getGroundLevel                                     *
+ *    1.0.2  12/03/20   Ajout getAgl                                             *
  *                                                                               *
  *********************************************************************************
  */
@@ -40,12 +41,14 @@ class AglManager
 public:
     AglManager();
     void setAlti(double dAlti);
+    void setAltiGps(double dAlti);
     void setLatitude(double dLatitude);
     void setLongitude(double dLongitude);
     double getHeight() { return currentHeight; }
 		boolean IsOk(void); 
 		void init(void);
     int getGroundLevel();
+		int getAgl();
 
 private:
     void computeHeight();
@@ -53,9 +56,11 @@ private:
 
     HGTReader *hgtReader;
     double currentAlti = -1;
+		double currentAltiGps = -1;
     double currentLong = -1;
     double currentLat = -1;
     double currentHeight;
+		int groundLevel = -1;
 		boolean Directory_AGL_Exists = false;
 };
 

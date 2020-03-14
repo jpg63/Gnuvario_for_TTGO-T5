@@ -1671,6 +1671,8 @@ boolean ScreenScheduler::displayStep(void) {
 			oldtimeAllDisplay  = millis();	
 			ShowDisplayAll = true;
 //		display.fillRect(0, 0, display.width(), display.height(), GxEPD_WHITE);
+//			display.clearScreen();
+//			display.writeScreenBuffer();
 		
 #ifdef SCREEN_DEBUG2
 			SerialPort.println("displaystep - showDisplayAll");
