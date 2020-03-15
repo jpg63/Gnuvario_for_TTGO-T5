@@ -4,7 +4,7 @@ Version 2.00
 
 Liste des composant :
 
-- une carte TTGO-T5 version 2.4 avec écran 1.54
+- une carte TTGO-T5 version 2.4 avec écran 1.54 ou 2.90''
 [AE] ttgo-T5 v2.4
 
 - CJMCU_117 MPU-9250+MS5611 Haute précision 9-Axes 10DOF
@@ -18,3 +18,5 @@ Liste des composant :
 - Batterie lipo 3.7V 1100mAH 30x70x4.3
 [AE] lipo 3.7V 1100mAH 4.3
 https://fr.aliexpress.com/item/32662685911.html?spm=a2g0s.9042311.0.0.e0e06c37J9dtAU
+
+ou batterie lipo 3.7V 2000mAh
