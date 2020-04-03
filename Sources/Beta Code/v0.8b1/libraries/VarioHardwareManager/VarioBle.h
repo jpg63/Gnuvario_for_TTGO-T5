@@ -21,6 +21,7 @@ class VarioBle
 public:
  //   VarioAlim();
     bool init();
+		bool update(double velocity, double position, double calibratedPosition);
 		
 		SimpleBLE ble;
 		boolean lastSentence  = false;

@@ -68,6 +68,8 @@
 
 #ifdef HAVE_SDCARD
 #include <sdcardHAL.h>
+#include <SdFat.h>
+SdFat SD;
 #endif
 
 #include <SPI.h>
@@ -686,7 +688,7 @@ void handleParams()
 
   File dataFile;
 
-  if (!dataFile.open((char *)path.c_str()), O_RDONLY)
+  if (!dataFile.open((char *)path.c_str(), O_RDONLY))
   {
 #ifdef WIFI_DEBUG
     SerialPort.println("params.jso introuvable");
@@ -726,13 +728,26 @@ void handleWebConfig()
 
   File dataFile;
 
-  if (!dataFile.open((char *)path.c_str()), O_RDONLY)
+  if (!dataFile.open((char *)path.c_str(), O_RDONLY))
   {
 #ifdef WIFI_DEBUG
     SerialPort.println("prefs.jso introuvable");
 #endif
     dataFile.close();
-    return returnFail("NO FILE named prefs.jso");
+
+    server.setContentLength(CONTENT_LENGTH_UNKNOWN);
+    server.sendHeader("Access-Control-Allow-Origin", "*");
+    server.send(200, "application/json", "");
+#ifdef WIFI_DEBUG
+    SerialPort.println("[");
+#endif
+    server.sendContent("{}");
+
+    //correction bug chunk transfer webserver
+    server.sendContent("");
+    server.client().stop();
+
+    return;
   }
 
   //gestion des CORS
@@ -1405,9 +1420,6 @@ void handleSaveWebConfig()
 
   String path = "/prefs.jso";
   String content = server.arg(0);
-
-  size_t n;
-  uint8_t buf[64];
 
   File dataFile;
 

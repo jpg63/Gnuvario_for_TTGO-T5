@@ -36,9 +36,24 @@
 
 #include "VarioHardwareManager.h"
 
+#include <VarioLog.h>
+
+#ifdef HARDWARE_DEBUG
+#define ARDUINOTRACE_ENABLE 1
+#else
+#define ARDUINOTRACE_ENABLE 0
+#endif
+
+#define ARDUINOTRACE_SERIAL SerialPort
+#include <ArduinoTrace.h>
+
+
 #include "VarioData.h"
 
 #include <VarioButton.h>
+#include <Utility.h>
+
+
 
 VarioHardwareManager varioHardwareManager;
 
@@ -56,12 +71,6 @@ VarioHardwareManager::VarioHardwareManager()
 #ifndef HAVE_GPS
 		lastVarioSentenceTimestamp = 0;
 #endif // !HAVE_GPS		
-		
-#ifdef HAVE_GPS
-		variometerState = VARIOMETER_STATE_INITIAL;
-#else
-		variometerState = VARIOMETER_STATE_CALIBRATED;
-#endif //HAVE_GPS
 		
 }
 
@@ -102,7 +111,7 @@ void VarioHardwareManager::initImu()
 void VarioHardwareManager::initButton()
 //**********************************
 {
-	#ifdef HAVE_BUTTON
+#ifdef HAVE_BUTTON
 #ifdef BUTTON_DEBUG
   SerialPort.println("initialization bouton");
   SerialPort.flush();
@@ -122,7 +131,7 @@ void VarioHardwareManager::initButton()
 void VarioHardwareManager::initGps()
 //**********************************
 {
-    this->varioGps->init();
+  this->varioGps->init();
 }
 
 //**********************************
@@ -139,9 +148,83 @@ double VarioHardwareManager::getAlti()
     return this->varioImu->getAlti();
 }
 
+//**********************************
+double VarioHardwareManager::getTemp()
+//**********************************
+{
+    return this->varioImu->getTemp();
+}
+
+//**********************************
+double VarioHardwareManager::getAccel()
+//**********************************
+{
+    return this->varioImu->getAccel();
+}
+
 //***********************************
 double VarioHardwareManager::firstAlti(void)
 //***********************************
 {
   return(this->varioImu->firstAlti());
+}
+
+//***********************************
+bool VarioHardwareManager::updateData(void)
+//***********************************
+{
+	return(this->varioImu->updateData());
+}
+
+//***********************************
+void VarioHardwareManager::testInactivity(double velocity)
+//***********************************
+{
+    if (abs(velocity) > GnuSettings.SLEEP_THRESHOLD_CPS)
+    {
+      // reset sleep timeout watchdog if there is significant vertical motion
+      sleepTimeoutSecs = millis();
+    }
+    else if ((GnuSettings.SLEEP_THRESHOLD_CPS != 0) && ((millis() - sleepTimeoutSecs) >= (GnuSettings.SLEEP_TIMEOUT_MINUTES * 60 * 1000)))
+    {
+#ifdef HARDWARE_DEBUG
+      SerialPort.println("Timed out with no significant climb/sink, put MPU9250 and ESP8266 to sleep to minimize current draw");
+      SerialPort.flush();
+#endif
+      indicatePowerDown();
+      //     TRACELOG(LOG_TYPE_DEBUG, DEEPSLEEP_DEBUG_LOG);
+      MESSLOG(LOG_TYPE_DEBUG, DEEPSLEEP_DEBUG_LOG, "Deep sleep - inactivite");
+      deep_sleep("Power off");
+    }
+}
+
+//***********************************
+bool VarioHardwareManager::updateBle(double velocity, double alti, double altiCalibrated)
+//***********************************
+{
+	return(varioBle->update(velocity, alti, altiCalibrated));
+}
+
+//***********************************
+bool VarioHardwareManager::updateGps(Kalmanvert kalmanvert)
+//***********************************
+{
+	if (varioGps->update(varioData.kalmanvert, &varioBle->lastSentence)) 
+	{
+	
+#ifdef HAVE_BLUETOOTH
+	//* if this is the last GPS sentence *
+	//* we can send our sentences *
+	if (varioBle->lastSentence)
+	{
+		varioBle->lastSentence = false;
+#ifdef VARIOMETER_BLUETOOTH_SEND_CALIBRATED_ALTITUDE
+    varioBle->bluetoothNMEA.begin(kalmanvert.getCalibratedPosition(), kalmanvert.getVelocity());
+#else
+    varioBle->bluetoothNMEA.begin(kalmanvert.getPosition(), kalmanvert.getVelocity());
+#endif
+    serialNmea.lock(); //will be writed at next loop
+  }
+#endif //HAVE_BLUETOOTH
+  }
 }

@@ -1,4 +1,4 @@
-/* VarioTwoWire -- 
+/* VarioImuTwoWire -- 
  *
  * Copyright 2020 MichelPa / Jpg63
  * 
@@ -21,17 +21,21 @@
 /* 
  *********************************************************************************
  *                                                                               *
- *                          VarioTwoWire                                         *
+ *                          VarioImuTwoWire                                      *
  *                                                                               *
  *  version    Date     Description                                              *
  *    1.0    22/03/20                                                            *
+ *    1.0.1  25/03/20   Ajout haveMeasure(void)																	 *
  *                                                                               *
  *********************************************************************************
  */
  
 #include <Arduino.h> 
 #include <HardwareConfig.h>
+#include <DebugConfig.h>
+
 #include "VarioImuTwoWire.h"
+#include "VarioData.h"
 
 #ifdef TWOWIRESCHEDULER
 
@@ -70,17 +74,105 @@ void VarioImuTwoWire::init()
 }
 
 //**********************************
-double VarioImuTwoWire::getAlti()
-//**********************************
-{
-    return twScheduler.getAlti();
-}
-
-//**********************************
 bool VarioImuTwoWire::havePressure(void)
 //**********************************
 {
 	return(twScheduler.havePressure());
 }
 
+
+//**********************************
+bool VarioImuTwoWire::updateData(void)
+//**********************************
+{
+#ifdef HAVE_ACCELEROMETER
+  if (twScheduler.havePressure() && twScheduler.haveAccel())
+  {
+    twScheduler.getTempAlti(Temp, Alti);
+    Temp += GnuSettings.COMPENSATION_TEMP; //MPU_COMP_TEMP;
+    Accel = twScheduler.getAccel(NULL);
+		
+#ifdef DATA_DEBUG
+    SerialPort.print("VarioImuTwoWire Update");
+    SerialPort.print("Alti : ");
+    SerialPort.println(Alti);
+    SerialPort.print("Temperature : ");
+    SerialPort.println(Temp);
+    SerialPort.print("Accel : ");
+    SerialPort.println(Accel);
+#endif //DATA_DEBUG
+				
+		return true;
+	}
+#else //HAVE_ACCELEROMETER
+	
+  if (twScheduler.havePressure())
+  {
+
+#ifdef MS5611_DEBUG
+//    SerialPort.println("havePressure");
+#endif //MS5611_DEBUG
+
+    twScheduler.getTempAlti(Temp, Alti);
+    Temp += GnuSettings.COMPENSATION_TEMP; //MPU_COMP_TEMP;
+		Accel = 0;
+		
+#ifdef DATA_DEBUG
+    SerialPort.print("Alti : ");
+    SerialPort.println(Alti);
+    SerialPort.print("Temperature : ");
+    SerialPort.println(Temp);
+    SerialPort.print("Accel : ");
+    SerialPort.println(Accel);
+#endif //DATA_DEBUG
+		
+		return true;
+	}
 #endif
+
+  Temp = 0;
+	Alti = 0;
+	Accel =0;
+	
+#ifdef DATA_DEBUG
+	SerialPort.println("ERREUR ACQUISITION MS5611/MPU");
+	SerialPort.print("Alti : ");
+	SerialPort.println(Alti);
+	SerialPort.print("Temperature : ");
+	SerialPort.println(Temp);
+	SerialPort.print("Accel : ");
+	SerialPort.println(Accel);
+#endif //DATA_DEBUG
+	
+	return false;
+}
+
+//**********************************
+void VarioImuTwoWire::updateAlti()
+//**********************************
+{
+  Alti = twScheduler.getAlti();
+}
+
+//**********************************
+double VarioImuTwoWire::getAlti()
+//**********************************
+{
+  return Alti; //twScheduler.getAlti();
+}
+
+//**********************************
+double VarioImuTwoWire::getTemp()
+//**********************************
+{
+  return Temp; //twScheduler.getAlti();
+}
+
+//**********************************
+double VarioImuTwoWire::getAccel()
+//**********************************
+{
+  return Accel; //twScheduler.getAlti();
+}
+
+#endif // TWOWIRESCHEDULER

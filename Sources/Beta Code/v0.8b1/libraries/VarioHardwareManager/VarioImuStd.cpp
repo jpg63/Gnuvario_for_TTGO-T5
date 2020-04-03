@@ -1,12 +1,50 @@
-#include "VarioImuStd.h"
-#include <HardwareConfig.h>
+/* VarioImuStd -- 
+ *
+ * Copyright 2020 MichelPa / Jpg63
+ * 
+ * This file is part of GnuVario-E.
+ *
+ * ToneHAL is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * ToneHAL is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+/* 
+ *********************************************************************************
+ *                                                                               *
+ *                          VarioImuStd                                         *
+ *                                                                               *
+ *  version    Date     Description                                              *
+ *    1.0    22/03/20                                                            *
+ *    1.0.1  25/03/20   Ajout haveMeasure(void)																	 *
+ *                                                                               *
+ *********************************************************************************
+ */
+ 
 #include <Arduino.h>
+#include <HardwareConfig.h>
+#include <DebugConfig.h>
+ 
+#include "VarioImuStd.h"
 
 #ifndef TWOWIRESCHEDULER
 
+//**********************************
 VarioImuStd::VarioImuStd() {}
+//**********************************
 
+//**********************************
 VarioImuStd::init()
+//**********************************
 {
 #ifdef MS5611_DEBUG
     SerialPort.println("Initialize MS5611 Sensor");
@@ -108,15 +146,140 @@ VarioImuStd::init()
 #endif //HAVE_ACCELEROMETER
 }
 
-double VarioImuStd::getAlti(){
-  return ms5611.readPressure();
-}
-
 //**********************************
 bool VarioImuTwoWire::havePressure(void)
 //**********************************
 {
 	return(true);
+}
+
+//**********************************
+bool VarioImuTwoWire::updateData(void)
+//**********************************
+{
+#ifdef HAVE_ACCELEROMETER
+	
+  if (imu.fifoAvailable())
+  {
+    int16_t rawAccel[3];
+    int32_t quat[4];
+
+    long realPressure = ms5611.readPressure();
+    Alti = ms5611.getAltitude(realPressure);
+    Temp = ms5611.readTemperature();
+    Temp += GnuSettings.COMPENSATION_TEMP; //MPU_COMP_TEMP;
+
+    // Use dmpUpdateFifo to update the ax, gx, mx, etc. values
+    if (imu.dmpUpdateFifo() == INV_SUCCESS)
+    {
+      // computeEulerAngles can be used -- after updating the
+      // quaternion values -- to estimate roll, pitch, and yaw
+      //      imu.computeEulerAngles();
+
+      quat[0] = imu.qw;
+      quat[1] = imu.qx;
+      quat[2] = imu.qy;
+      quat[3] = imu.qz;
+
+      rawAccel[0] = imu.ax;
+      rawAccel[1] = imu.ay;
+      rawAccel[2] = imu.az;
+
+      double tmpVertVector[3];
+      vertaccel.compute(rawAccel, quat, tmpVertVector, Accel);
+			
+#ifdef DATA_DEBUG
+			SerialPort.print("Alti : ");
+			SerialPort.println(Alti);
+			SerialPort.print("Temperature : ");
+			SerialPort.println(Temp);
+			SerialPort.print("Accel : ");
+			SerialPort.println(Accel);
+#endif //DATA_DEBUG
+
+			return true;
+    }
+		else //(imu.dmpUpdateFifo() == INV_SUCCESS)
+		{
+			Alti  = 0;
+			Temp  = 0;
+			Accel = 0;			
+			
+#ifdef DATA_DEBUG
+			SerialPort.println("ERREUR ACQUISITION MS5611/MPU");
+			SerialPort.print("Alti : ");
+			SerialPort.println(Alti);
+			SerialPort.print("Temperature : ");
+			SerialPort.println(Temp);
+			SerialPort.print("Accel : ");
+			SerialPort.println(Accel);
+#endif //DATA_DEBUG
+	
+			return false;			
+		}
+	}
+	else 
+	{
+		Alti  = 0;
+		Temp  = 0;
+		Accel = 0;
+#ifdef DATA_DEBUG
+		SerialPort.println("ERREUR ACQUISITION MS5611/MPU");
+		SerialPort.print("Alti : ");
+		SerialPort.println(Alti);
+		SerialPort.print("Temperature : ");
+		SerialPort.println(Temp);
+		SerialPort.print("Accel : ");
+		SerialPort.println(Accel);
+#endif //DATA_DEBUG
+	
+		return false;		
+	}
+#else //HAVE_ACCELEROMETER
+
+  long realPressure = ms5611.readPressure();
+  //    DUMPLOG(LOG_TYPE_DEBUG,MS5611_DEBUG_LOG,realPressure);
+  Alti = ms5611.getAltitude(realPressure);
+  //    DUMPLOG(LOG_TYPE_DEBUG,MS5611_DEBUG_LOG,tmpAlti);
+  Temp = ms5611.readTemperature();
+  //   DUMPLOG(LOG_TYPE_DEBUG,MS5611_DEBUG_LOG,tmpTemp);
+  Temp += GnuSettings.COMPENSATION_TEMP; //MPU_COMP_TEMP;
+  //    DUMPLOG(LOG_TYPE_DEBUG,MS5611_DEBUG_LOG,tmpTemp);
+	Accel = 0;
+
+#ifdef DATA_DEBUG
+    SerialPort.print("Alti : ");
+    SerialPort.println(Alti);
+    SerialPort.print("Temperature : ");
+    SerialPort.println(Temp);
+#endif //DATA_DEBUG
+
+		return true;
+#endif //HAVE_ACCELEROMETER
+}
+
+//**********************************
+void VarioImuStd::updateAlti()
+//**********************************
+{
+  Alti = ms5611.readPressure();
+}
+
+//**********************************
+double VarioImuStd::getAlti(){
+//**********************************
+  return Alti; //ms5611.readPressure();
+}
+
+//**********************************
+double VarioImuStd::getTemp(){
+//**********************************
+  return Temp;
+}
+//**********************************
+double VarioImuStd::getAccel(){
+//**********************************
+  return Accel;
 }
 
 #endif

@@ -181,6 +181,12 @@ int AglManager::getGroundLevel()
 int AglManager::getAgl()
 //****************************************************************************************************************************
 {
+		groundLevel = getGroundLevel();
+#ifdef AGL_DEBUG
+    SerialPort.print("AGL Directory exists : ");
+    SerialPort.println(Directory_AGL_Exists);
+#endif //AGL_DEBUG
+
     if (groundLevel == -1 || currentAltiGps == -1)  return -1;
 		else                                            return groundLevel-currentAltiGps;
 }

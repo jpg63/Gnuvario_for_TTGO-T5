@@ -25,6 +25,7 @@
  *                                                                               *
  *  version    Date     Description                                              *
  *    1.0    22/03/20                                                            *
+ *    1.0.1  25/03/20   ajout haveMeasure()																			 *
  *                                                                               *
  *********************************************************************************
  */
@@ -53,12 +54,6 @@ void VarioImu::init()
 }
 
 //*******************************
-double VarioImu::getAlti(){
-//*******************************
-    return this->imu->getAlti();
-}
-
-//*******************************
 double VarioImu::firstAlti() {
 //*******************************
 	
@@ -78,6 +73,7 @@ double VarioImu::firstAlti() {
   SerialPort.println("première mesure");
 #endif //MS5611_DEBUG
 
+	this->imu->updateAlti();
   double firstAlti = this->imu->getAlti();
 
   // #ifdef TWOWIRESCHEDULER
@@ -93,6 +89,7 @@ double VarioImu::firstAlti() {
     {
       delay(1000);
 
+			this->imu->updateAlti();
       firstAlti = this->imu->getAlti();
       // #ifdef TWOWIRESCHEDULER
       //       /* init kalman filter with 0.0 accel*/
@@ -120,4 +117,28 @@ double VarioImu::firstAlti() {
 #endif //MS5611_DEBUG		
 	
   return firstAlti;
+}
+
+//*******************************
+bool VarioImu::updateData() {
+//*******************************
+	return(this->imu->updateData());	
+}
+
+//*******************************
+double VarioImu::getAlti(){
+//*******************************
+    return this->imu->getAlti();
+}
+
+//*******************************
+double VarioImu::getTemp(){
+//*******************************
+    return this->imu->getTemp();
+}
+
+//*******************************
+double VarioImu::getAccel(){
+//*******************************
+    return this->imu->getAccel();
 }

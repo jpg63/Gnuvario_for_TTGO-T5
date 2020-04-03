@@ -158,21 +158,29 @@ void VARIOButtonScheduleur::update()
 		SerialPort.printf("pressedFor 2s A \r\n");
 #endif //BUTTON_DEBUG
 #if defined(HAVE_SDCARD) && defined(HAVE_GPS) && defined(AGL_MANAGER_H)
-		int groundLevel = varioData.aglManager.getGroundLevel();
-		if (groundLevel != -1)
-		{
-			varioData.kalmanvert.calibratePosition(groundLevel);
-			
-			int aglLevel = varioData.aglManager.getAgl();
-			GnuSettings.COMPENSATION_GPSALTI = aglLevel;
-			
-			char tmpchar[20] = "params.jso";
-			GnuSettings.saveConfigurationVario(tmpchar);
+		if (varioData.variometerState >= VARIOMETER_STATE_CALIBRATED) {
 
-			beeper.generateTone(523, 250);
-			beeper.generateTone(659, 250);
-			beeper.generateTone(784, 250);
-			beeper.generateTone(1046, 250);
+			int groundLevel = varioData.aglManager.getGroundLevel();
+			if (groundLevel != -1)
+			{
+				varioData.kalmanvert.calibratePosition(groundLevel);
+	
+				if (nmeaParser.haveNewAltiValue()) {
+					double tmpGpsAlti = nmeaParser.getAlti();
+					varioData.aglManager.setAltiGps(tmpGpsAlti);
+				}
+	
+				int aglLevel = varioData.aglManager.getAgl();
+				GnuSettings.COMPENSATION_GPSALTI = aglLevel;
+				
+				char tmpchar[20] = "params.jso";
+				GnuSettings.saveConfigurationVario(tmpchar);
+
+				beeper.generateTone(523, 250);
+				beeper.generateTone(659, 250);
+				beeper.generateTone(784, 250);
+				beeper.generateTone(1046, 250);
+			}
 		}
 #endif
 		_stateBA = false;
@@ -261,16 +269,14 @@ void VARIOButtonScheduleur::update()
 }
 
 /**********************************************************/
-void VARIOButtonScheduleur::Set_StatePage(uint8_t state)
-{
-	/**********************************************************/
+void VARIOButtonScheduleur::Set_StatePage(uint8_t state) {
+/**********************************************************/
 	StatePage = state;
 }
 
 /**********************************************************/
-uint8_t VARIOButtonScheduleur::Get_StatePage(void)
-{
-	/**********************************************************/
+uint8_t VARIOButtonScheduleur::Get_StatePage(void) {
+/**********************************************************/
 	return StatePage;
 }
 
@@ -283,8 +289,7 @@ File root;
 #endif
 
 /**********************************************************/
-void VARIOButtonScheduleur::treatmentBtnA(bool Debounce)
-{
+void VARIOButtonScheduleur::treatmentBtnA(bool Debounce) {
 /**********************************************************/
 #ifdef BUTTON_DEBUG
 	SerialPort.println("Bouton A");
@@ -298,11 +303,11 @@ void VARIOButtonScheduleur::treatmentBtnA(bool Debounce)
 	else if (StatePage == STATE_PAGE_VARIO)
 	{
 		
-		if (varioHardwareManager.variometerState == VARIOMETER_STATE_CALIBRATED) 
+		if (varioData.variometerState == VARIOMETER_STATE_CALIBRATED) 
 		{     
 			if (GnuSettings.VARIOMETER_RECORD_WHEN_FLIGHT_START) {
         GnuSettings.VARIOMETER_RECORD_WHEN_FLIGHT_START = false;
-			  createSDCardTrackFile();
+			  varioData.createSDCardTrackFile();
 			}
 		} else {
 			screen.schedulerScreen->previousPage();
@@ -351,9 +356,8 @@ void VARIOButtonScheduleur::treatmentBtnA(bool Debounce)
 }
 
 /**********************************************************/
-void VARIOButtonScheduleur::treatmentBtnB(bool Debounce)
-{
-	/***********************************************************/
+void VARIOButtonScheduleur::treatmentBtnB(bool Debounce) {
+/***********************************************************/
 
 	if (StatePage == STATE_PAGE_VARIO)
 	{
@@ -394,9 +398,8 @@ void VARIOButtonScheduleur::treatmentBtnB(bool Debounce)
 }
 
 /************************************************************/
-void VARIOButtonScheduleur::treatmentBtnC(bool Debounce)
-{
-	/************************************************************/
+void VARIOButtonScheduleur::treatmentBtnC(bool Debounce) {
+/************************************************************/
 
 	/*SerialPort.println("Read test.txt");
 
@@ -438,8 +441,9 @@ void VARIOButtonScheduleur::treatmentBtnC(bool Debounce)
 }
 
 #ifdef HAVE_WIFI
-void VARIOButtonScheduleur::WifiServeur(void)
-{
+/**********************************************************/
+void VARIOButtonScheduleur::WifiServeur(void) {
+/**********************************************************/
 #ifdef BUTTON_DEBUG
 	SerialPort.println("liste des fichiers");
 #endif //BUTTON_DEBUG
@@ -487,8 +491,9 @@ void VARIOButtonScheduleur::WifiServeur(void)
 
 #ifdef HAVE_SDCARD
 #ifdef SDFAT_LIB
-void VARIOButtonScheduleur::printDirectory(SdFile dir, int numTabs)
-{
+/**********************************************************/
+void VARIOButtonScheduleur::printDirectory(SdFile dir, int numTabs) {
+/**********************************************************/
 
 	char fBuffer[15];
 	SdFile entry;
@@ -526,8 +531,9 @@ void VARIOButtonScheduleur::printDirectory(SdFile dir, int numTabs)
 	//#endif //BUTTON_DEBUG
 }
 #else  //SDFAT_LIB
-void VARIOButtonScheduleur::printDirectory(File dir, int numTabs)
-{
+/**********************************************************/
+void VARIOButtonScheduleur::printDirectory(File dir, int numTabs) {
+/**********************************************************/
 
 	dir.rewindDirectory();
 	//#ifdef BUTTON_DEBUG
@@ -563,8 +569,9 @@ void VARIOButtonScheduleur::printDirectory(File dir, int numTabs)
 #endif //SDFATLIB
 #endif //HAVE_SDCARD
 
-void VARIOButtonScheduleur::treatmentBtnB3S(bool Debounce)
-{
+/**********************************************************/
+void VARIOButtonScheduleur::treatmentBtnB3S(bool Debounce) {
+/**********************************************************/
 
 	if (StatePage == STATE_PAGE_VARIO)
 	{

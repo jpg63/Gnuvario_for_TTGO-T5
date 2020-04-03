@@ -1,4 +1,4 @@
-/* VarioTwoWire -- 
+/* VarioImuTwoWire -- 
  *
  * Copyright 2020 MichelPa / Jpg63
  * 
@@ -21,10 +21,11 @@
 /* 
  *********************************************************************************
  *                                                                               *
- *                          VarioTwoWire                                         *
+ *                          VarioImuTwoWire                                         *
  *                                                                               *
  *  version    Date     Description                                              *
  *    1.0    22/03/20                                                            *
+ *    1.0.1  25/03/20   Ajout haveMeasure(void)																	 *
  *                                                                               *
  *********************************************************************************
  */
@@ -47,9 +48,18 @@ class VarioImuTwoWire
 
 public:
     VarioImuTwoWire();
-    void init();
+    void   init();
+		bool   havePressure(void);
+		bool   updateData();
+		void   updateAlti();
     double getAlti();
-		bool havePressure(void);
+    double getTemp();
+    double getAccel();
+		
+private:
+    double Alti;
+    double Temp;
+    double Accel;
 };
 
 #endif //TWOWIRESCHEDULER

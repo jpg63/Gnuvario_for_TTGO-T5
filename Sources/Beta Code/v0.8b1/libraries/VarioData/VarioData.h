@@ -25,6 +25,8 @@
  *                                                                               *
  *  version    Date     Description                                              *
  *    1.0    22/03/20                                                            *
+ *    1.0.1  25/03/20   Ajout dataAcquisition(void)                              *
+ *        							compteurErrorMPU																				 *
  *                                                                               *
  *********************************************************************************
  */
@@ -34,7 +36,7 @@
 
 #include <HardwareConfig.h>
 #include <kalmanvert.h>
-#include "VarioDataTwoWireScheduler.h"
+//#include "VarioDataTwoWireScheduler.h"
 #include <IntTW.h>
 #include <ms5611TW.h>
 #include <vertaccel.h>
@@ -63,19 +65,43 @@ class VarioData
 {
 public:
     VarioData();
-    void init(uint8_t version, uint8_t sub_version, uint8_t beta_code, String devname);
-		void intKalman(double firstAlti);
-		bool initSettings(bool Test_SD); 
-		bool initLog(void); 
-		bool initAGL(void);
-		void initTime(void);
+    void 		init(uint8_t version, uint8_t sub_version, uint8_t beta_code, String devname);
+		void 		intKalman(double firstAlti);
+		bool 		initSettings(bool Test_SD); 
+		bool 		initLog(void); 
+		bool 		initAGL(void);
+		void 		initTime(void);
 
-    void getData();
-    double getVelocity();
-    double getCalibratedPosition();
-		int compteurGpsFix = 0;
-		double gpsAlti = 0;
-		long MaxVoltage = 0;
+    void   	update();
+		bool   	updateBle();
+		void   	updateGps();
+		void    updateState();
+		bool 		updateSpeed(void);
+		void 		updateVoltage(void);
+
+    double 	getVelocity();
+    double 	getCalibratedAlti();
+		double 	getClimbRate();
+		double 	getTrend();
+		int    	getStateTrend();
+		
+		bool 	 	haveNewClimbRate();
+				
+		void 		createSDCardTrackFile(void);
+		void 		enableflightStartComponents(void);
+		
+		int 		compteurGpsFix = 0;
+		double 	gpsAlti = 0;
+		uint8_t gpsFix = 0;
+
+		double 	currentHeight = 0;
+		double 	currentSpeed  = 0;
+		double  ratio = 0;
+
+		long 		voltage = 0;
+		//double temprature = 0;
+		
+		uint8_t variometerState;
 		unsigned long lastDisplayTimestamp, lastDisplayTimestamp2;
 
     boolean displayLowUpdateState = true;
@@ -90,7 +116,7 @@ public:
 /*********************/
 
 #ifdef AGL_MANAGER_H
-AglManager aglManager;
+		AglManager aglManager;
 #endif
 
 /************************************/
@@ -105,47 +131,34 @@ AglManager aglManager;
 #endif
 
 private:
- //   const float POSITION_MEASURE_STANDARD_DEVIATION = 0.1;
+		int compteurErrorMPU = 0;
+		int compteurBoucle = 0;
+
+
+// DATA
+
 		uint8_t Version;
 		uint8_t Sub_Version;
 		uint8_t Beta_Code;
 		String  Devname;
-
-/*#ifdef HAVE_ACCELEROMETER
-    const float ACCELERATION_MEASURE_STANDARD_DEVIATION = 0.3;
-#else
-    const float ACCELERATION_MEASURE_STANDARD_DEVIATION = 0.6;
-#endif //HAVE_ACCELEROMETER*/
-
-#ifdef TWOWIRESCHEDULER
-    /* init kalman filter with 0.0 accel*/
-    double firstAlti; // = twScheduler.getAlti();
-    VarioDataTwoWireScheduler dataClass;
-#else //TWOWIRESCHEDULER
-    VarioDataNotTwoWireScheduler dataClass;
-    double firstAlti; // = ms5611.readPressure();
-#endif
-    double tmpAlti;
-    double tmpTemp;
-    double tmpAccel;		
+    double 	firstAlti; 
+		double 	velocity;				//KalmanVario
+		double 	alti;						//Alti baro
+		double 	calibratedAlti;	//KalmanAlti
+		double 	temperature;
+		double 	accel;
+		double 	climbRate;
+		bool   	haveNewClimbRateData;
+		double 	trend;
+		int 	 	stateTrend;		
 };
 
-//extern Kalmanvert kalmanvert;
 extern VarioData varioData;
 
 /**********************/
 /* SDCARD objects     */
 /**********************/
 extern int8_t sdcardState;
-//extern bool SD_present;
 extern VarioSettings GnuSettings;
-
-/*********************/
-/*  AGL              */
-/*********************/
-
-/*#ifdef AGL_MANAGER_H
-extern AglManager aglManager;
-#endif*/
 
 #endif //VARIO_DATA_H

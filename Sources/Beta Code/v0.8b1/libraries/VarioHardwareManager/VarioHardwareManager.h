@@ -57,18 +57,27 @@ private:
 
 public:
     VarioHardwareManager();
-    void init();
-    void initAlim();
-    void initSpeaker();
-		void initSound();
-    void initImu();
-		void initGps();
-		bool initBt();
-		void initButton();
-    double getAlti();
-		double firstAlti(void);
+    void 		init();
+    void 		initAlim();
+    void 		initSpeaker();
+		void 		initSound();
+    void 		initImu();
+		void 		initGps();
+		bool 		initBt();
+		void 		initButton();
 		
-		uint8_t variometerState;
+ 		double 	firstAlti(void);
+		bool   	updateData(void);
+		
+    double 	getAlti();
+    double 	getTemp();
+    double 	getAccel();
+		
+		void 		testInactivity(double velocity);
+		
+		bool    updateBle(double velocity, double alti, double altiCalibrated);
+		bool    updateGps(Kalmanvert kalmanvert);
+	
 		unsigned long time_deep_sleep, sleepTimeoutSecs;
 		
 		VarioBle *varioBle;
