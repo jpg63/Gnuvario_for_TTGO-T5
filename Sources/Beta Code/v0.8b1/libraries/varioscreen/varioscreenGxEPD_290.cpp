@@ -43,7 +43,9 @@
  *                      Ajout FONTLARGE / FONTNORMAL                             *
  *    1.0.11 25/02/20   Ajout ScreenBackground									 *	
  *    1.0.12 04/03/20   Réorganisation de l'affichage des variable               *  
- *																				 *
+ *    1.0.13 04/03/20   Ajout affichage alti agl                                 *
+ *    1.0.14 07/03/20   Correction xSemaphore                                    *
+ *    1.0.15 09/03/20   Modification ScreenViewSound                             * *																				 *
 *********************************************************************************/
  
  /*
@@ -53,8 +55,6 @@
  *      https://javl.github.io/image2cpp/                                        *
  *                                                                               *
  *********************************************************************************/
-
-
 
 #include <HardwareConfig.h>
 #include <DebugConfig.h>
@@ -87,6 +87,8 @@
 #include <Utility.h>
 
 #include <SysCall.h>
+
+#include <VarioData.h>
 
 #include <AglManager.h>
 
@@ -403,7 +405,7 @@ void VarioScreen::createScreenObjectsDisplayPage0(void) {
 
 /*detection dossier AGL et AGL enable*/
 
-		if (GnuSettings.VARIOMETER_ENABLE_AGL && aglManager.IsOk()) {
+		if (GnuSettings.VARIOMETER_ENABLE_AGL && varioData.aglManager.IsOk()) {
 			CreateObjectDisplay(DISPLAY_OBJECT_ALTI							, altiDigit					, 0, 1, true); 
 			CreateObjectDisplay(DISPLAY_OBJECT_HEIGHT						, heightDigit				, 0, 2, true);
 		} else {
@@ -1031,7 +1033,7 @@ void VarioScreen::ScreenViewStatPage(int PageStat)
 
 	uint8_t tmpDate[3];
 	int8_t  tmpTime[3];
-	flystat.GetDate(tmpDate);
+	varioData.flystat.GetDate(tmpDate);
 		
 #ifdef SCREEN_DEBUG
     for (int i=0; i< 3; i++) {
@@ -1049,7 +1051,7 @@ void VarioScreen::ScreenViewStatPage(int PageStat)
  		  SerialPort.println(tmpbuffer);
 #endif //SCREEN_DEBUG
 
-		flystat.GetTime(tmpTime);
+		varioData.flystat.GetTime(tmpTime);
 		sprintf(tmpbuffer,"heure : %02d:%02d",tmpTime[2],tmpTime[1]); 
 		display.setCursor(10, 65);
 		display.print(tmpbuffer);
@@ -1058,7 +1060,7 @@ void VarioScreen::ScreenViewStatPage(int PageStat)
  		  SerialPort.println(tmpbuffer);
 #endif //SCREEN_DEBUG
 
-		flystat.GetDuration(tmpTime);	
+		varioData.flystat.GetDuration(tmpTime);	
 		sprintf(tmpbuffer,"duree : %02d:%02d",tmpTime[2],tmpTime[1]); 
 		display.setCursor(10, 90);
 		display.print(tmpbuffer);
@@ -1067,22 +1069,22 @@ void VarioScreen::ScreenViewStatPage(int PageStat)
  		  SerialPort.println(tmpbuffer);
 #endif //SCREEN_DEBUG
 
-    double tmpAlti = flystat.GetAlti();
+    double tmpAlti = varioData.flystat.GetAlti();
 		sprintf(tmpbuffer,"Alti Max : %.0f",tmpAlti); 
 		display.setCursor(10, 115);
 		display.print(tmpbuffer);
 	 
-   double tmpVarioMin = flystat.GetVarioMin();
+   double tmpVarioMin = varioData.flystat.GetVarioMin();
 	 sprintf(tmpbuffer,"Vario Min : %2.1f",tmpVarioMin); 
 	 display.setCursor(155, 40);
 	 display.print(tmpbuffer);
 
-   double tmpVarioMax = flystat.GetVarioMax();
+   double tmpVarioMax = varioData.flystat.GetVarioMax();
 	 sprintf(tmpbuffer,"Vario Max : %2.1f",tmpVarioMax); 
 	 display.setCursor(155, 65);
 	 display.print(tmpbuffer);
 	 
-   double tmpSpeed = flystat.GetSpeed();
+   double tmpSpeed = varioData.flystat.GetSpeed();
 	 sprintf(tmpbuffer,"Vitesse : %.0f",tmpSpeed); //%02d.%02d.%02d", tmpDate[0],tmpDate[1],tmpDate[2]);
 	 display.setCursor(155, 90);
 	 display.print(tmpbuffer);
@@ -1672,6 +1674,8 @@ boolean ScreenScheduler::displayStep(void) {
 		ShowDisplayAll = true;
 //		display.fillRect(0, 0, display.width(), display.height(), GxEPD_WHITE);
 		
+
+
 #ifdef SCREEN_DEBUG2
 		SerialPort.println("displaystep - showDisplayAll");
 #endif //SCREEN_DEBUG
