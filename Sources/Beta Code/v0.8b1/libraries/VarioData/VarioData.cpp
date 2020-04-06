@@ -120,7 +120,7 @@ void VarioData::init(uint8_t version, uint8_t sub_version, uint8_t beta_code, St
 }
 
 //*******************************************
-void VarioData::intKalman(double firstAlti)
+void VarioData::initKalman(double firstAlti)
 //*******************************************
 {
 		DUMP(firstAlti);

@@ -58,13 +58,13 @@
 /* pour désactiver les messages   */
 /**********************************/
 
-//#define ENABLE_DEBUG
+#define ENABLE_DEBUG
 
 #if defined(ENABLE_DEBUG)
 
 
 // 							OUTPUT SERIALNMEA
-//#define SERIAL_NMEA_SERIAL_OUTPUT
+#define SERIAL_NMEA_SERIAL_OUTPUT
 //#define SERIAL_NMEA_BLUETOOTH_OUTPUT
 
 
@@ -76,7 +76,7 @@
 //#define DEBUG_SERIAL_NMEA_1
 //#define SCREEN_DEBUG
 #define SCREEN_DEBUG2
-//#define GPS_DEBUG
+#define GPS_DEBUG
 //#define BUTTON_DEBUG
 //#define TONEDAC_DEBUG
 //#define MS5611_DEBUG

@@ -61,15 +61,14 @@ VarioHardwareManager varioHardwareManager;
 VarioHardwareManager::VarioHardwareManager()
 //**********************************
 {
-    varioAlim 		= new VarioAlim();
-    varioSpeaker 	= new VarioSpeaker();
-    varioImu 			= new VarioImu();
-		varioGps 			= new VarioGps();
-		varioBle 			= new VarioBle();
+//	varioAlim 		= new VarioAlim();
+//	varioSpeaker 	= new VarioSpeaker();
+//	varioImu 			= new VarioImu();
+//	varioGps 			= new VarioGps();
+//	varioBle 			= new VarioBle();
 		
-
 #ifndef HAVE_GPS
-		lastVarioSentenceTimestamp = 0;
+	lastVarioSentenceTimestamp = 0;
 #endif // !HAVE_GPS		
 		
 }
@@ -83,28 +82,28 @@ void VarioHardwareManager::init()
 void VarioHardwareManager::initAlim()
 //**********************************
 {
-    this->varioAlim->init();
+	varioAlim.init();
 }
 
 //**********************************
 void VarioHardwareManager::initSpeaker()
 //**********************************
 {
-    this->varioSpeaker->init();
+  varioSpeaker.init();
 }
 
 //**********************************
 void VarioHardwareManager::initSound()
 //**********************************
 {
-    this->varioSpeaker->initSound();
+	varioSpeaker.initSound();
 }
 
 //**********************************
 void VarioHardwareManager::initImu()
 //**********************************
 {
-    this->varioImu->init();
+	varioImu.init();
 }
 
 //**********************************
@@ -131,49 +130,53 @@ void VarioHardwareManager::initButton()
 void VarioHardwareManager::initGps()
 //**********************************
 {
-  this->varioGps->init();
+#if defined(HAVE_GPS)
+  varioGps.init();
+#endif
 }
 
 //**********************************
 bool VarioHardwareManager::initBt()
 //**********************************
 {
-    return(this->varioBle->init());
+#ifdef HAVE_BLUETOOTH
+  return(varioBle.init());
+#endif
 }
 
 //**********************************
 double VarioHardwareManager::getAlti()
 //**********************************
 {
-    return this->varioImu->getAlti();
+  return varioImu.getAlti();
 }
 
 //**********************************
 double VarioHardwareManager::getTemp()
 //**********************************
 {
-    return this->varioImu->getTemp();
+  return varioImu.getTemp();
 }
 
 //**********************************
 double VarioHardwareManager::getAccel()
 //**********************************
 {
-    return this->varioImu->getAccel();
+	return varioImu.getAccel();
 }
 
 //***********************************
 double VarioHardwareManager::firstAlti(void)
 //***********************************
 {
-  return(this->varioImu->firstAlti());
+  return(varioImu.firstAlti());
 }
 
 //***********************************
 bool VarioHardwareManager::updateData(void)
 //***********************************
 {
-	return(this->varioImu->updateData());
+	return(varioImu.updateData());
 }
 
 //***********************************
@@ -202,29 +205,33 @@ void VarioHardwareManager::testInactivity(double velocity)
 bool VarioHardwareManager::updateBle(double velocity, double alti, double altiCalibrated)
 //***********************************
 {
-	return(varioBle->update(velocity, alti, altiCalibrated));
+#ifdef HAVE_BLUETOOTH
+	return(varioBle.update(velocity, alti, altiCalibrated));
+#endif
 }
 
 //***********************************
 bool VarioHardwareManager::updateGps(Kalmanvert kalmanvert)
 //***********************************
 {
-	if (varioGps->update(varioData.kalmanvert, &varioBle->lastSentence)) 
+#if defined(HAVE_GPS)
+	if (varioGps.update(varioData.kalmanvert, &varioBle.lastSentence)) 
 	{
 	
 #ifdef HAVE_BLUETOOTH
 	//* if this is the last GPS sentence *
 	//* we can send our sentences *
-	if (varioBle->lastSentence)
+	if (varioBle.lastSentence)
 	{
-		varioBle->lastSentence = false;
+		varioBle.lastSentence = false;
 #ifdef VARIOMETER_BLUETOOTH_SEND_CALIBRATED_ALTITUDE
-    varioBle->bluetoothNMEA.begin(kalmanvert.getCalibratedPosition(), kalmanvert.getVelocity());
+    varioBle.bluetoothNMEA.begin(kalmanvert.getCalibratedPosition(), kalmanvert.getVelocity());
 #else
-    varioBle->bluetoothNMEA.begin(kalmanvert.getPosition(), kalmanvert.getVelocity());
+    varioBle.bluetoothNMEA.begin(kalmanvert.getPosition(), kalmanvert.getVelocity());
 #endif
     serialNmea.lock(); //will be writed at next loop
   }
 #endif //HAVE_BLUETOOTH
   }
+#endif //HAVE_GPS
 }

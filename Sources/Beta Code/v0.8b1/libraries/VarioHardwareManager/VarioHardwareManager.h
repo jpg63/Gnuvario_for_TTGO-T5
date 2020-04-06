@@ -50,10 +50,11 @@
 class VarioHardwareManager
 {
 private:
-    VarioAlim *varioAlim;
-    VarioSpeaker *varioSpeaker;
-    VarioImu *varioImu;
-		VarioGps *varioGps;
+    VarioAlim varioAlim;
+    VarioSpeaker varioSpeaker;
+    VarioImu varioImu;
+		VarioGps varioGps;
+		VarioBle varioBle;
 
 public:
     VarioHardwareManager();
@@ -78,9 +79,7 @@ public:
 		bool    updateBle(double velocity, double alti, double altiCalibrated);
 		bool    updateGps(Kalmanvert kalmanvert);
 	
-		unsigned long time_deep_sleep, sleepTimeoutSecs;
-		
-		VarioBle *varioBle;
+		unsigned long time_deep_sleep, sleepTimeoutSecs;		
 };
 
 //**************************************************

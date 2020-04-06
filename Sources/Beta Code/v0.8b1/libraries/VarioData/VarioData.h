@@ -66,7 +66,7 @@ class VarioData
 public:
     VarioData();
     void 		init(uint8_t version, uint8_t sub_version, uint8_t beta_code, String devname);
-		void 		intKalman(double firstAlti);
+		void 		initKalman(double firstAlti);
 		bool 		initSettings(bool Test_SD); 
 		bool 		initLog(void); 
 		bool 		initAGL(void);
@@ -99,7 +99,6 @@ public:
 		double  ratio = 0;
 
 		long 		voltage = 0;
-		//double temprature = 0;
 		
 		uint8_t variometerState;
 		unsigned long lastDisplayTimestamp, lastDisplayTimestamp2;
