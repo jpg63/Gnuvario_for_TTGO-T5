@@ -57,6 +57,10 @@
 /*    1.3.2 17/01/20    Ajout DISPLAY_STAT_DURATION - passage en v1.1 					 */
 /*    1.3.3 19/01/20    Ajout DEEPSLEEP_DEBUG                                    */
 /*    1.3.4 04/02/20    Ajout URL_UPDATE passage en version 1.2 de params.json   */
+/*    1.3.5 05/03/20    Ajout DEFAULT_VARIOMETER_ENABLE_AGL											 */
+/*    1.3.6 07/04/20    Ajout ACCELERATION_MEASURE_STANDARD_DEVIATION            */
+/*                      Ajout LANGUAGE																					 */
+/*                      Ajout VARIOMETER_INTEGRATED_CLIMB_RATE                   */
 /*                                                                               */
 /*********************************************************************************/
 

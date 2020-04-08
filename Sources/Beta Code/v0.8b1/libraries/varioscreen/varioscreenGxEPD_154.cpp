@@ -42,6 +42,7 @@
  *    1.0.12 04/03/20   Ajout affichage alti agl                                 *
  *    1.0.13 07/03/20   Correction xSemaphore                                    *
  *    1.0.14 09/03/20   Modification ScreenViewSound                             *
+ *    1.0.15 08/04/20   Modification affichage des titres                        *
  *                                                                               *
  *********************************************************************************/
  
@@ -175,7 +176,7 @@ TaskHandle_t VarioScreen::screenTaskHandler;
 #define VARIOSCREEN_VARIO_UNIT_ANCHOR_Y   110
 #define VARIOSCREEN_SPEED_ANCHOR_X 49
 #define VARIOSCREEN_SPEED_ANCHOR_Y 190
-#define VARIOSCREEN_SPEED_UNIT_ANCHOR_X 52
+#define VARIOSCREEN_SPEED_UNIT_ANCHOR_X 51
 #define VARIOSCREEN_SPEED_UNIT_ANCHOR_Y 165
 #define VARIOSCREEN_GR_ANCHOR_X 130
 #define VARIOSCREEN_GR_ANCHOR_Y 135
@@ -387,12 +388,12 @@ void VarioScreen::createScreenObjectsPage1(void) {
 //****************************************************************************************************************************	
 //  gpsLatDir 					= new ScreenText(VARIOSCREEN_LATDIR_ANCHOR_X, VARIOSCREEN_LAT_ANCHOR_Y, 1, FONTLARGE, ALIGNLEFT, false, DISPLAY_OBJECT_LAT_DIR);
 //	gpsLongDir					= new ScreenText(VARIOSCREEN_LONGDIR_ANCHOR_X, VARIOSCREEN_LONG_ANCHOR_Y, 1, FONTLARGE, ALIGNLEFT, false, DISPLAY_OBJECT_LONG_DIR);
-	gpsBearingText			= new ScreenText(VARIOSCREEN_BEARING_TEXT_ANCHOR_X, VARIOSCREEN_BEARING_TEXT_ANCHOR_Y, 3, FONTNORMAL, ALIGNLEFT, false, DISPLAY_OBJECT_BEARING_TEXT);
-	gpsBearing 					= new ScreenDigit(VARIOSCREEN_BEARING_ANCHOR_X, VARIOSCREEN_BEARING_ANCHOR_Y, 3, 0, false, false, ALIGNRIGHT, false, DISPLAY_OBJECT_BEARING, FONTLARGE);
+	gpsBearingText			= new ScreenText(VARIOSCREEN_BEARING_TEXT_ANCHOR_X, VARIOSCREEN_BEARING_TEXT_ANCHOR_Y, 3, FONTNORMAL, ALIGNLEFT, true, DISPLAY_OBJECT_BEARING_TEXT);
+	gpsBearing 					= new ScreenDigit(VARIOSCREEN_BEARING_ANCHOR_X, VARIOSCREEN_BEARING_ANCHOR_Y, 3, 0, false, false, ALIGNRIGHT, true, DISPLAY_OBJECT_BEARING, FONTLARGE);
 //	gpsLat    					= new ScreenDigit(VARIOSCREEN_LAT_ANCHOR_X, VARIOSCREEN_LAT_ANCHOR_Y, 6, 3, false, false, ALIGNRIGHT, false, DISPLAY_OBJECT_LAT);
 //	gpsLong   					= new ScreenDigit(VARIOSCREEN_LONG_ANCHOR_X, VARIOSCREEN_LONG_ANCHOR_Y, 6, 3, false, false, ALIGNRIGHT, false, DISPLAY_OBJECT_LONG);
-  gpsLat 						  = new ScreenText(VARIOSCREEN_LAT_ANCHOR_X, VARIOSCREEN_LAT_ANCHOR_Y, 11, FONTNORMAL, ALIGNLEFT, false, DISPLAY_OBJECT_LAT);
-	gpsLong							= new ScreenText(VARIOSCREEN_LONG_ANCHOR_X, VARIOSCREEN_LONG_ANCHOR_Y, 11, FONTNORMAL, ALIGNLEFT, false, DISPLAY_OBJECT_LONG);
+  gpsLat 						  = new ScreenText(VARIOSCREEN_LAT_ANCHOR_X, VARIOSCREEN_LAT_ANCHOR_Y, 11, FONTNORMAL, ALIGNLEFT, true, DISPLAY_OBJECT_LAT);
+	gpsLong							= new ScreenText(VARIOSCREEN_LONG_ANCHOR_X, VARIOSCREEN_LONG_ANCHOR_Y, 11, FONTNORMAL, ALIGNLEFT, true, DISPLAY_OBJECT_LONG);
 
 //	tempDigit 					= new ScreenDigit(VARIOSCREEN_TEMP_ANCHOR_X, VARIOSCREEN_TEMP_ANCHOR_Y, 2, 0, false, false, ALIGNLEFT, false, DISPLAY_OBJECT_TEMPERATURE);
 //	tunit 							= new TUnit(VARIOSCREEN_TEMP_UNIT_ANCHOR_X, VARIOSCREEN_TEMP_ANCHOR_Y);
@@ -1029,8 +1030,8 @@ void VarioScreen::ScreenViewStatPage(int PageStat)
 	display.setTextColor(ColorText);
 	display.setTextSize(1);
 
-	display.setCursor(20, 30);
-	display.print("STATISTIQUE");
+	display.setCursor(10, 30);
+	display.print("STATISTIQUES");
 
 	uint8_t tmpDate[3];
 	int8_t  tmpTime[3];
@@ -1044,7 +1045,7 @@ void VarioScreen::ScreenViewStatPage(int PageStat)
     SerialPort.println("");		
 #endif //SCREEN_DEBUG
 		
-		sprintf(tmpbuffer,"Date : %02d.%02d.%02d", tmpDate[0],tmpDate[1],tmpDate[2]);
+		sprintf(tmpbuffer,"Date: %02d.%02d.%02d", tmpDate[0],tmpDate[1],tmpDate[2]);
 		display.setCursor(1, 60);
 		display.print(tmpbuffer);
 
@@ -1053,7 +1054,7 @@ void VarioScreen::ScreenViewStatPage(int PageStat)
 #endif //SCREEN_DEBUG
 
 		varioData.flystat.GetTime(tmpTime);
-		sprintf(tmpbuffer,"heure : %02d:%02d",tmpTime[2],tmpTime[1]); 
+		sprintf(tmpbuffer,"Heure: %02d:%02d",tmpTime[2],tmpTime[1]); 
 		display.setCursor(1, 80);
 		display.print(tmpbuffer);
 
@@ -1062,7 +1063,7 @@ void VarioScreen::ScreenViewStatPage(int PageStat)
 #endif //SCREEN_DEBUG
 
 		varioData.flystat.GetDuration(tmpTime);	
-		sprintf(tmpbuffer,"duree : %02d:%02d",tmpTime[2],tmpTime[1]); 
+		sprintf(tmpbuffer,"Duree: %02d:%02d",tmpTime[2],tmpTime[1]); 
 		display.setCursor(1, 100);
 		display.print(tmpbuffer);
 
@@ -1071,22 +1072,22 @@ void VarioScreen::ScreenViewStatPage(int PageStat)
 #endif //SCREEN_DEBUG
 
     double tmpAlti = varioData.flystat.GetAlti();
-		sprintf(tmpbuffer,"Alti Max : %.0f",tmpAlti); 
+		sprintf(tmpbuffer,"Alti Max: %.0f",tmpAlti); 
 		display.setCursor(1, 120);
 		display.print(tmpbuffer);
 	 
    double tmpVarioMin = varioData.flystat.GetVarioMin();
-	 sprintf(tmpbuffer,"Vario Min : %.02f",tmpVarioMin); 
+	 sprintf(tmpbuffer,"Vario Min: %.02f",tmpVarioMin); 
 	 display.setCursor(1, 140);
 	 display.print(tmpbuffer);
 
    double tmpVarioMax = varioData.flystat.GetVarioMax();
-	 sprintf(tmpbuffer,"Vario Max : %.02f",tmpVarioMax); 
+	 sprintf(tmpbuffer,"Vario Max: %.02f",tmpVarioMax); 
 	 display.setCursor(1, 160);
 	 display.print(tmpbuffer);
 	 
    double tmpSpeed = varioData.flystat.GetSpeed();
-	 sprintf(tmpbuffer,"Vitesse : %.0f",tmpSpeed); //%02d.%02d.%02d", tmpDate[0],tmpDate[1],tmpDate[2]);
+	 sprintf(tmpbuffer,"Vitesse: %.0f",tmpSpeed); //%02d.%02d.%02d", tmpDate[0],tmpDate[1],tmpDate[2]);
 	 display.setCursor(1, 180);
 	 display.print(tmpbuffer);
 }
@@ -1143,7 +1144,7 @@ void VarioScreen::ScreenViewWifi(String SSID, String IP)
 		updateScreen ();
 	} else {
 		display.setCursor(5, 180);
-		display.print("START");
+		display.print("Demarrage");
 		
 #ifdef SCREEN_DEBUG
 		SerialPort.println("ScreenViewWifi : start");	
@@ -1225,7 +1226,7 @@ void VarioScreen::ScreenViewMessage(String message, int delai)
 		display.print(tmpbuffer);*/
 
 		display.setCursor(20, 110);
-		display.print("GnueVario-E");
+		display.print("GNUVario-E");
 
 		display.setFont(&FreeSansBold12pt7b);
 		display.setTextSize(1);

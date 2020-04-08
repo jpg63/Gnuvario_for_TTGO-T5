@@ -65,6 +65,7 @@
  *    1.0.12 05/03/20   Ajout affichage AGL                                      *
  *    1.0.13 06/03/20   Ajout gestion icone DISPLAY_OBJECT_TREND                 *
  *    1.0.14 09/03/20   Modification de l'effacement digit left                  *
+ *    1.0.15 08/04/20   Modification affichage des titres                        *
  *                                                                               *
  *********************************************************************************/
  
@@ -446,6 +447,7 @@ ScreenDigit::ScreenDigit(uint16_t anchorX, uint16_t anchorY, uint16_t width, uin
 			break;
 			
 		case DISPLAY_OBJECT_TIME :
+		case DISPLAY_OBJECT_DURATION :
 #if defined (MAXW_OBJECT_TIME)		
 		  MaxWidth   = MAXW_OBJECT_TIME;
 #else
@@ -804,19 +806,22 @@ void ScreenDigit::show() {
 		
     switch (displayTypeID) {
 		case DISPLAY_OBJECT_SPEED :
-			display.drawInvertedBitmap(titleX+2, titleY-14, speedtext, 41, 14, GxEPD_BLACK);
+			display.drawInvertedBitmap(titleX+2, titleY-16, vitessetext, 47, 12, GxEPD_BLACK);
 //			display.drawInvertedBitmap(0, 141, speedtext, 41, 14, GxEPD_BLACK);
 			break;
-		case DISPLAY_OBJECT_TIME :
+/*		case DISPLAY_OBJECT_TIME :
 //			display.drawInvertedBitmap(85, 141, timetext, 29, 11, GxEPD_BLACK);
-			display.drawInvertedBitmap(titleX, titleY-14, timetext, 29, 11, GxEPD_BLACK);
+			display.drawInvertedBitmap(titleX, titleY-14, heuretext, 38, 12, GxEPD_BLACK);
 			break;
+		case DISPLAY_OBJECT_DURATION :
+			display.drawInvertedBitmap(titleX, titleY-14, tdvtext, 38, 12, GxEPD_BLACK);
+			break;*/
 		case DISPLAY_OBJECT_ALTI :
 //		  TRACE();
 //			display.drawInvertedBitmap(0, 31, altitext, 18, 11, GxEPD_BLACK);
 //			display.drawInvertedBitmap(titleX-95, titleY-14, altitext, 18, 11, GxEPD_BLACK);
-   		display.fillRect(titleX, titleY-12, 40, 14, GxEPD_WHITE);
-			display.drawInvertedBitmap(titleX+3, titleY-12, altitext, 18, 11, GxEPD_BLACK);
+   		display.fillRect(titleX, titleY-12, 45, 14, GxEPD_WHITE);
+			display.drawInvertedBitmap(titleX+3, titleY-12, altitext, 18, 12, GxEPD_BLACK);
 			break;
 		case DISPLAY_OBJECT_VARIO :
 //			display.drawInvertedBitmap(0, 85, variotext, 31, 11, GxEPD_BLACK);
@@ -824,25 +829,25 @@ void ScreenDigit::show() {
 			break;
 		case DISPLAY_OBJECT_RATIO :
 //			display.drawInvertedBitmap(132, 85, grtext, 21, 11, GxEPD_BLACK); //finesse/glade ratio
-   		display.fillRect(titleX, titleY-14, 21, 11, GxEPD_WHITE);
-			display.drawInvertedBitmap(titleX, titleY-14, grtext, 21, 11, GxEPD_BLACK); //finesse/glade ratio
+   		display.fillRect(titleX, titleY-14, 51, 12, GxEPD_WHITE);
+			display.drawInvertedBitmap(titleX, titleY-14, finessetext, 51, 12, GxEPD_BLACK); //finesse/glade ratio
 			break;
 		case DISPLAY_OBJECT_TREND :
-//			display.drawInvertedBitmap(132, 85, grtext, 21, 11, GxEPD_BLACK); //finesse/glade ratio
-   		display.fillRect(titleX, titleY-14, 22, 11, GxEPD_WHITE);
-			display.drawInvertedBitmap(titleX, titleY-14, trtext, 19, 11, GxEPD_BLACK); //finesse/glade ratio
+//			display.drawInvertedBitmap(132, 85, grtext, 21, 11, GxEPD_BLACK); //
+   		display.fillRect(titleX, titleY-14, 51, 12, GxEPD_WHITE);
+			display.drawInvertedBitmap(titleX, titleY-14, tdchutetext, 50, 12, GxEPD_BLACK); //taux de chute/sink rate
 			break;
     case DISPLAY_OBJECT_HEIGHT :
 //		  TRACE();
 //			display.drawInvertedBitmap(titleX, titleY-8, heighttext, 32, 14, GxEPD_BLACK);
-   		display.fillRect(titleX-30, titleY-12, 40, 14, GxEPD_WHITE);
-			display.drawInvertedBitmap(titleX-30, titleY-12, heighttext, 29, 11, GxEPD_BLACK);
+   		display.fillRect(titleX-30, titleY-12, 45, 14, GxEPD_WHITE);
+			display.drawInvertedBitmap(titleX-29, titleY-13, altisoltext, 41, 12, GxEPD_BLACK);
 			break;
 			
 			case DISPLAY_OBJECT_BEARING :
 
-   		display.fillRect(titleX+10, titleY-15, 58, 14, GxEPD_WHITE);
-			display.drawInvertedBitmap(titleX+10, titleY-15, beartext, 48, 14, GxEPD_BLACK);
+   		display.fillRect(titleX+10, titleY-15, 30, 16, GxEPD_WHITE);
+			display.drawInvertedBitmap(titleX+10, titleY-15, captext, 26, 15, GxEPD_BLACK);
 			break;
 
 		default :
@@ -1387,7 +1392,7 @@ void ScreenText::show() {
 			display.drawInvertedBitmap(titleX-10, titleY-16, longtext, 31, 14, GxEPD_BLACK);
 			break;
 		case DISPLAY_OBJECT_BEARING_TEXT :
-			display.drawInvertedBitmap(titleX-10, titleY-22, compasstext, 58, 14, GxEPD_BLACK);
+			display.drawInvertedBitmap(titleX-10, titleY-22, compastext, 55, 15, GxEPD_BLACK);
 			break;
 
 		default :
@@ -2453,7 +2458,18 @@ void ScreenTime::show(void) {
 
   minute.setValue(time[1]);
   minute.show();
- }
+
+  display.fillRect(posX-125, posY-17-36, 88, 19, GxEPD_WHITE);
+	
+  if (dot_or_h == false) {	
+//		case DISPLAY_OBJECT_TIME :
+			display.drawInvertedBitmap(posX-125, posY-14-36, heuretext, 38, 12, GxEPD_BLACK);
+	}
+	else  {
+//		case DISPLAY_OBJECT_DURATION :
+			display.drawInvertedBitmap(posX-125, posY-17-36, tdvtext, 88, 17, GxEPD_BLACK);
+	}	
+}
 
 //****************************************************************************************************************************
 //****************************************************************************************************************************

@@ -60,16 +60,19 @@
  *    1.0.12 19/02/20   Ajout variolog                                           *
  *    1.1.13 23/02/20   Ajout d'objets texte (compass, Lat, Long), changement    *
  *					    de taille de texte                                       *
+ *    1.0.14 05/03/20   Ajout affichage AGL                                      *
+ *    1.0.15 06/03/20   Ajout gestion icone DISPLAY_OBJECT_TREND                 *
+ *    1.0.16 09/03/20   Modification de l'effacement digit left                  *
+ *    1.0.17 08/04/20   Modification affichage des titres                        *
  *********************************************************************************/
+ 
+/*
  
 
 
 
 
-
-
-/*
- *********************************************************************************
+*********************************************************************************
  *                    conversion image to cpp code                               *
  *                                                                               *
  *      https://javl.github.io/image2cpp/                                        *
@@ -811,10 +814,10 @@ void ScreenDigit::show() {
 //		
 			display.drawInvertedBitmap(titleX+7, titleY-9, speedtext, 35, 11, GxEPD_BLACK);
 			break;		
-		case DISPLAY_OBJECT_TIME :
+/*		case DISPLAY_OBJECT_TIME :
 //			
 			display.drawInvertedBitmap(titleX+1, titleY-10, timetext, 27, 9, GxEPD_BLACK);
-			break;
+			break;*/
 		case DISPLAY_OBJECT_ALTI :
 //			
    			display.fillRect(titleX-70, titleY-6, 30, 9, GxEPD_WHITE);
@@ -2458,6 +2461,17 @@ void ScreenTime::show(void) {
 
   minute.setValue(time[1]);
   minute.show();
+
+  display.fillRect(posX-125, posY-10-27, 88, 9, GxEPD_WHITE);
+	
+  if (dot_or_h == false) {	
+//		case DISPLAY_OBJECT_TIME :
+			display.drawInvertedBitmap(posX-125, posY-10-27, timetext, 27, 9, GxEPD_BLACK);
+	}
+	else  {
+//		case DISPLAY_OBJECT_DURATION :
+//			display.drawInvertedBitmap(posX-125, posY-17-36, tdvtext, 88, 17, GxEPD_BLACK);
+	}
  }
 
 //****************************************************************************************************************************

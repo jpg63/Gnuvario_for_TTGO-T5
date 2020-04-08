@@ -59,9 +59,16 @@
  *    1.0.11 19/02/20   Ajout variolog                                           *
  *    1.1.12 21/02/20   Correction bug affichage batterie   					 *	
  *    1.0.13 04/03/20   Réorganisation de l'affichage des variable               *
- *********************************************************************************/ 
+ *    1.0.14 05/03/20   Ajout affichage AGL                                      *
+ *    1.0.15 06/03/20   Ajout gestion icone DISPLAY_OBJECT_TREND                 *
+ *    1.0.16 09/03/20   Modification de l'effacement digit left                  *
+ *    1.0.17 08/04/20   Modification affichage des titres                        *
+*********************************************************************************/ 
  
  
+
+
+
 
 
 
@@ -72,8 +79,6 @@
  *      https://javl.github.io/image2cpp/                                        *
  *                                                                               *
  *********************************************************************************/
-
-
 
 #include <Arduino.h>
 #include <HardwareConfig.h>
@@ -479,6 +484,15 @@ ScreenDigit::ScreenDigit(uint16_t anchorX, uint16_t anchorY, uint16_t width, uin
 #endif	
 			MaxHeight  = Zheight;
 			break;
+
+		case DISPLAY_OBJECT_TREND :
+#if defined (MAXW_OBJECT_TREND)		
+		  MaxWidth   = MAXW_OBJECT_TREND;
+#else
+		  MaxWidth   = Zwidth;
+#endif	
+			MaxHeight  = Zheight;
+			break;
 			
 		case DISPLAY_OBJECT_RATIO :
 #if defined (MAXW_OBJECT_RATION)		
@@ -754,6 +768,8 @@ void ScreenDigit::show() {
 	
 //		display.drawRect(anchorX, anchorY-Zheight-3, w+5, Zheight+4, GxEPD_BLACK);
   
+//		display.fillRect(anchorX-1, anchorY-MaxHeight-3, MaxWidth+5, MaxHeight+6, GxEPD_WHITE);
+
     display.setCursor(anchorX, anchorY-1); //display.setCursor(anchorX, anchorY-1);
 		titleX = anchorX + 4;
 		titleY = anchorY - MaxHeight - 5; 

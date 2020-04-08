@@ -27,6 +27,7 @@
  *    1.0    22/03/20                                                            *
  *    1.0.1  25/03/20   Ajout dataAcquisition(void)                              *
  *        							compteurErrorMPU																				 *
+ *    1.0.2  07/04/20   ajout updateBeeper(void)                                 *
  *                                                                               *
  *********************************************************************************
  */
@@ -78,6 +79,7 @@ public:
 		void    updateState();
 		bool 		updateSpeed(void);
 		void 		updateVoltage(void);
+		void 		updateBeeper(void);
 
     double 	getVelocity();
     double 	getCalibratedAlti();

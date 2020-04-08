@@ -65,6 +65,7 @@
  *    1.0.12 05/03/20   Ajout affichage AGL                                      *
  *    1.0.13 06/03/20   Ajout gestion icone DISPLAY_OBJECT_TREND                 *
  *    1.0.14 09/03/20   Modification de l'effacement digit left                  *
+ *    1.0.15 08/04/20   Modification affichage des titres                        *
  *                                                                               *
  *********************************************************************************/
 

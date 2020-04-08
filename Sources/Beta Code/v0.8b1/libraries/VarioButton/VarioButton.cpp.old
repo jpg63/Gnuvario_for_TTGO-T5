@@ -576,7 +576,7 @@ void VARIOButtonScheduleur::treatmentBtnB3S(bool Debounce) {
 	if (StatePage == STATE_PAGE_VARIO)
 	{
 		StatePage = STATE_PAGE_DEEP_SLEEP;
-		screen.ScreenViewMessage("En veille", 5);
+		screen.ScreenViewMessage("ARRET", 5);
 		StatePage = STATE_PAGE_VARIO;
 		screen.ScreenViewPage(screen.schedulerScreen->getPage(), true);
 		screen.updateScreen();

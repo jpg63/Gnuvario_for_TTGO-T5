@@ -127,7 +127,7 @@ void VarioData::initKalman(double firstAlti)
     kalmanvert.init(firstAlti,
                     0.0,
                     POSITION_MEASURE_STANDARD_DEVIATION,
-                    ACCELERATION_MEASURE_STANDARD_DEVIATION,
+                    GnuSettings.ACCELERATION_MEASURE_STANDARD_DEVIATION,
                     millis());
 										
 #ifdef DATA_DEBUG
@@ -389,9 +389,9 @@ void VarioData::update(void)
     //  UPDATE BEEPER
     //**********************************************************
 
-#ifdef HAVE_SPEAKER
+/*#ifdef HAVE_SPEAKER
     beeper.setVelocity(velocity);
-#endif //HAVE_SPEAKER
+#endif //HAVE_SPEAKER*/
 
 
     //**********************************************************
@@ -710,6 +710,12 @@ void VarioData::update(void)
           screen.varioDigit->setValue(currentvario);
       }
 #endif //HAVE_SCREEN*/
+
+
+#ifdef HAVE_SPEAKER
+		updateBeeper();
+#endif //HAVE_SPEAKER
+
   }
   else
   {
@@ -768,6 +774,21 @@ void VarioData::update(void)
 		}	
 	}
 }
+
+
+//*******************************************
+void VarioData::updateBeeper(void)
+//*******************************************
+{
+	if (GnuSettings.VARIOMETER_INTEGRATED_CLIMB_RATE)
+	{
+		if (haveNewClimbRateData) beeper.setVelocity(climbRate);
+	}
+	else
+	{
+		beeper.setVelocity(velocity);
+	}
+}	
 
 //*******************************************
 double VarioData::getVelocity()

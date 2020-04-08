@@ -55,6 +55,7 @@
  *********************************************************************************/
 
 
+
 #include <HardwareConfig.h>
 #include <DebugConfig.h>
 
@@ -653,7 +654,6 @@ void VarioScreen::updateScreen (void)
 #ifdef SCREEN_DEBUG2
 		SerialPort.println("updateScreen : wake");	
 #endif //SCREEN_DEBUG
-	 
 	}
 }
 
@@ -805,7 +805,6 @@ void VarioScreen::ScreenViewInit(uint8_t Version, uint8_t Sub_Version, String Au
 	unsigned long TmplastDisplayTimestamp = millis();
 	int compteur = 0;
 	while (compteur < 3) {
-
 
 		ButtonScheduleur.update();
 
@@ -1489,7 +1488,7 @@ const unsigned char volume75_4_icons[] = {
 
 
 //****************************************************************************************************************************
-void VarioScreen::ScreenViewSound(int volume)
+boolean VarioScreen::ScreenViewSound(void)
 //****************************************************************************************************************************
 {
 	
@@ -1500,6 +1499,7 @@ void VarioScreen::ScreenViewSound(int volume)
 // 	  display.fillScreen(ColorScreen);
 //		display.clearScreen(ColorScreen);
 
+	int volume = viewSound;
 #ifdef SCREEN_DEBUG
 		SerialPort.println("Show : VolLevel");
 #endif //SCREEN_DEBUG
@@ -1509,6 +1509,12 @@ void VarioScreen::ScreenViewSound(int volume)
 		SerialPort.println(volume);
 #endif //SCREEN_DEBUG
 		
+	if( xSemaphoreTake( screen.screenMutex, ( TickType_t ) 0 )  == pdTRUE) {
+
+#ifdef SCREEN_DEBUG2
+		SerialPort.println("ScreenViewSound : Take");	
+#endif //SCREEN_DEBUG
+
 		display.fillRect(35, 50, 30+75, 24+75, GxEPD_WHITE);
 		
 		if (volume == 0) display.drawInvertedBitmap(35, 50, volume75_4_icons, 75, 75, GxEPD_BLACK);
@@ -1534,9 +1540,24 @@ void VarioScreen::ScreenViewSound(int volume)
 			display.fillTriangle(18,163,5,186,18,213,GxEPD_BLACK);
 			display.fillTriangle(110,163,123,186,110,213,GxEPD_BLACK); //display.fillTriangle(45,130,25,145,45,160,GxEPD_BLACK);
 		}
-		
+
+    xSemaphoreGive(screen.screenMutex);
+#ifdef SCREEN_DEBUG2
+		SerialPort.println("ScreenViewSound : Give");	
+#endif //SCREEN_DEBUG
+		return true;
+	}
+	else {
+		return false;
+	}				
  /* }
   while (display.nextPage());*/
+}
+
+//****************************************************************************************************************************
+void VarioScreen::SetViewSound(int volume) {
+//****************************************************************************************************************************
+	viewSound = volume;
 }
 
 /************************/
@@ -1616,7 +1637,8 @@ boolean ScreenScheduler::displayStep(void) {
 	SerialPort.println("displayStep");	
 #endif //SCREEN_DEBUG
 
-	if (currentPage == endPage+1) return false;
+	if (currentPage == endPage+1) 
+		return(screen.ScreenViewSound());
 
 #ifndef TIMER_DISPLAY
 
@@ -1773,7 +1795,8 @@ void ScreenScheduler::setPage(int8_t page, boolean forceUpdate)  {
 
 	if (currentPage == endPage+1) {
 		displayStat = true;
-		screen.ScreenViewSound(toneHAL.getVolume());
+		screen.SetViewSound(toneHAL.getVolume());
+
 	} else if ((currentPage == endPage+2) && (displayStat)) {
 		displayStat = false;
 		screen.ScreenViewStatPage(0);
