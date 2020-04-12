@@ -67,6 +67,29 @@
 #define SCREEN_CORE 1
 #define SCREEN_PRIORITY 10
 
+#define MAX_CAR_TITRE_TIME 					15
+#define MAX_CAR_TITRE_TDV 					15 
+#define MAX_CAR_TITRE_ALTI 					8 
+#define MAX_CAR_TITRE_AGL 					8 
+#define MAX_CAR_TITRE_VARIO 				5
+#define MAX_CAR_TITRE_SPEED					7
+#define MAX_CAR_TITRE_FINESSE   		7
+#define MAX_CAR_TITRE_TCHUTE				7 
+#define MAX_CAR_TITRE_CAP						3
+#define MAX_CAR_TITRE_LAT						3
+#define MAX_CAR_TITRE_LONG 					4
+#define MAX_CAR_TITRE_COMPAS 				6
+#define MAX_CAR_TITRE_STATISTIQUE  	11
+#define MAX_CAR_TITRE_DATE 					4
+#define MAX_CAR_TITRE_HEURE					5
+#define MAX_CAR_TITRE_DUREE 				5
+#define MAX_CAR_TITRE_VITESSE 			7
+#define MAX_CAR_TITRE_CONNECTION 		10
+#define MAX_CAR_TITRE_CONNECTIONA		13
+#define MAX_CAR_TITRE_DEMARRAGE 		9
+#define MAX_CAR_TITRE_REDEMARRAGE 	11
+#define MAX_CAR_TITRE_ENCOURS 			8				
+
 /************************/
 /* The screen scheduler */
 /************************/

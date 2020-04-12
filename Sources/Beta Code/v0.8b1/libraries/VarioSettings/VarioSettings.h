@@ -75,7 +75,7 @@
 #endif
 
 
-#define PARAMS_VERSION "1.3"
+#define PARAMS_VERSION "1.4"
 
 /*----------------------------*/
 /*          DEFAULT           */
@@ -179,6 +179,7 @@
 #define DEFAULT_LANGUAGE																	0
 
 #define DEFAULT_VARIOMETER_INTEGRATED_CLIMB_RATE					false
+#define DEFAULT_SETTINGS_VARIO_PERIOD_COUNT  							5
   
 /*----------------------------*/
 /*          SOFTWARE          */
@@ -435,6 +436,8 @@ class VarioSettings {
 		uint8_t	 LANGUAGE																		= DEFAULT_LANGUAGE;
 		
 		boolean  VARIOMETER_INTEGRATED_CLIMB_RATE						= DEFAULT_VARIOMETER_INTEGRATED_CLIMB_RATE;
+		
+		uint8_t	 SETTINGS_VARIO_PERIOD_COUNT	 							= DEFAULT_SETTINGS_VARIO_PERIOD_COUNT;
 		
  protected:
 #ifdef HAVE_SDCARD

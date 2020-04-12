@@ -34,7 +34,7 @@
 #include <HardwareConfig.h>
 #include <DebugConfig.h>
 
-#include "VarioHardwareManager.h"
+#include <VarioHardwareManager.h>
 
 #include <VarioLog.h>
 
@@ -48,7 +48,7 @@
 #include <ArduinoTrace.h>
 
 
-#include "VarioData.h"
+#include <VarioData.h>
 
 #include <VarioButton.h>
 #include <Utility.h>

@@ -366,8 +366,8 @@ ScreenDigit::ScreenDigit(uint16_t anchorX, uint16_t anchorY, uint16_t width, uin
 //****************************************************************************************************************************
   lastDisplayWidth = 0; 
 
-  display.setFont(&FreeSansBold12pt7b);
-  if (large) 	display.setTextSize(2);
+  display.setFont(&Audimat26pt7b);
+  if (large) 	display.setTextSize(1);
 	else 				display.setTextSize(1);
 
   int16_t box_x = anchorX;
@@ -703,8 +703,8 @@ void ScreenDigit::show() {
   char digitCharacters[MAX_CHAR_IN_LINE];
 	char tmpChar[MAX_CHAR_IN_LINE];
 
-	display.setFont(&FreeSansBold12pt7b);
-  if (large) 	display.setTextSize(2);
+	display.setFont(&Audimat26pt7b);
+  if (large) 	display.setTextSize(1);
 	else 				display.setTextSize(1);
 
 //  int16_t box_x = anchorX;
@@ -1118,8 +1118,8 @@ ScreenText::ScreenText(uint16_t anchorX, uint16_t anchorY, uint16_t width, bool 
 //****************************************************************************************************************************
   lastDisplayWidth = 0; 
 
-  display.setFont(&FreeSansBold12pt7b);
-	if (large) display.setTextSize(2);
+  display.setFont(&Audimat24pt7b);
+	if (large) display.setTextSize(1);
 	else 			 display.setTextSize(1);	
 	
 //  int16_t box_x = anchorX;
@@ -1267,12 +1267,12 @@ void ScreenText::show() {
    
 	if (large) 
 	{
-		display.setFont(&FreeSansBold12pt7b);
-		display.setTextSize(2);
+		display.setFont(&Audimat24pt7b);
+		display.setTextSize(1);
 	}
 	else 			 
 	{
-		display.setFont(&FreeSerifBold18pt7b);
+		display.setFont(&Audimat24pt7b);
 		display.setTextSize(1);	
 	}
 

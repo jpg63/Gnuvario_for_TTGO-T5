@@ -89,8 +89,18 @@
 #include <Fonts/FreeSansBold12pt7b.h>
 #include <Fonts/FreeSansBold18pt7b.h>
 #include <Fonts/FreeSansBold24pt7b.h>
-
+#include <Fonts/SpaceMonoBold12pt7b.h>
 #include <Fonts/FreeSerifBold18pt7b.h>
+#include <Fonts/FreeMonoBold9pt7b.h>
+#include <Fonts/FreeMonoBold24pt7b.h>
+#include <Fonts/FreeMonoBold22pt7b.h>
+#include <Fonts/FreeMonoBold18pt7b.h>
+#include <Fonts/FreeMonoBold12pt7b.h>
+#include <Fonts/jersey22pt7b.h>
+#include <Fonts/digital22pt7b.h>
+#include <Fonts/MONOFONT22pt7b.h>
+#include <Fonts/Audimat24pt7b.h>
+#include <Fonts/Audimat26pt7b.h>
 
 /* minimum drift to update digit */
 #define VARIOSCREEN_DIGIT_DISPLAY_THRESHOLD 0.65

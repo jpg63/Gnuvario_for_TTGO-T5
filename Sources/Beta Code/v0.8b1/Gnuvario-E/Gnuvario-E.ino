@@ -229,6 +229,11 @@
 *               23/03/20             Maj lib json et arduinotrace                                     *
 *               05/04/20             Correction problème maj compensation alti via AGL                *
 *                                    Correction blocage du MPU                                        *
+*               08/04/20             Maj titre en français                                            *                     
+*               09/04/20             Maj aduinoJson                                                   *
+*                                    Ajout parametre language, sensibilité vario                      *
+*               11/04/20             Nouvelle classe Language                                         *
+*                                    Nouvelle font                                                    *
 *******************************************************************************************************
 *                                                                                                     *
 *                                   Developpement a venir                                             *
@@ -264,7 +269,6 @@
 *     10 zones d'eeprom - reduit le nombre d'écriture et économise la mémoire flash                   *
 * verifier fonctionnement BT                                                                          *
 * Recupération vol via USB                                                                            *                                                                                        
-* Gestion multi-langue                                                                                *
 *******************************************************************************************************/
 
 /************************************************************************
@@ -325,6 +329,11 @@
  * - Calibration manuel du baro via l'AGL                               *
  * - Declenchement de vol manuellement                                  *
  * - Compensation du GPS via l'AGL                                      *
+ *                                                                      *
+ * Version 0.8                                                          *
+ *  - Gestion Multilangue                                               *
+ *  - Nouvelle font d'affichage                                         *
+ *  - Sensibilité du vario réglable                                     *
  *                                                                      *
  ************************************************************************/
 
@@ -517,6 +526,7 @@
 VarioData varioData;
 
 #include <VarioSettings.h>
+#include <VarioLanguage.h>
 
 /*#if defined(HAVE_SDCARD) && defined(HAVE_GPS)
 #include <AglManager.h>
@@ -638,6 +648,19 @@ void setup()
   varioData.initSettings(true);
 #endif //TEST_SD
 
+//**********************************************
+// Charge le fichier de langue
+//**********************************************
+  varioLanguage.init(GnuSettings.LANGUAGE);
+
+#ifdef HAVE_SDCARD
+  SerialPort.print("TITRE_TIME : ");
+  SerialPort.println(varioLanguage.getText(TITRE_TIME));
+#endif
+
+// *********************************************
+// Bip de démarrage 
+//**********************************************
 #ifdef HAVE_SPEAKER
   if (GnuSettings.ALARM_VARIOBEGIN) beeper.generateTone(2000, 300);
 #endif //HAVE_SPEAKER

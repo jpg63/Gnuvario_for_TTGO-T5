@@ -34,7 +34,7 @@
 
 #include <HardwareConfig.h>
 #include <VarioAlim.h>		
-#include "VarioSpeaker.h"
+#include <VarioSpeaker.h>
 #include <VarioImu.h>
 #include <VarioGps.h>
 #include <VarioBle.h>
