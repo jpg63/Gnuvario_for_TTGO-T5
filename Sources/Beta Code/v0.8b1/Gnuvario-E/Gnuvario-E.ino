@@ -256,6 +256,7 @@
 * AJOUT - Récupération du cap depuis le capteur baromètrique                                          *
 * AJOUT - Espaces aeriens                                                                             *
 * AJOUT - Réglage sensibilité filtre kalman                                                           *                                         
+* BUG   - Logo enregistrement du vol
 *                                                                                                     *
 * VX.X                                                                                                *
 * Paramètrage des écrans                                                                              *

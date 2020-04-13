@@ -96,6 +96,7 @@
 #include <Fonts/FreeMonoBold22pt7b.h>
 #include <Fonts/FreeMonoBold18pt7b.h>
 #include <Fonts/FreeMonoBold12pt7b.h>
+#include <Fonts/FreeSans9pt7b.h>
 #include <Fonts/jersey22pt7b.h>
 #include <Fonts/digital22pt7b.h>
 #include <Fonts/MONOFONT22pt7b.h>

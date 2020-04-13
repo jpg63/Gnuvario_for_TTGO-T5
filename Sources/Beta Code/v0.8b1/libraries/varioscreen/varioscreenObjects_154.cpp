@@ -66,6 +66,7 @@
  *    1.0.13 06/03/20   Ajout gestion icone DISPLAY_OBJECT_TREND                 *
  *    1.0.14 09/03/20   Modification de l'effacement digit left                  *
  *    1.0.15 08/04/20   Modification affichage des titres                        *
+ *    1.0.16 13/04/20   Titre en mode texte                                      *
  *                                                                               *
  *********************************************************************************/
  
@@ -123,6 +124,8 @@
 #include <toneHAL.h>
 
 #include <Utility.h>
+
+#include <VarioLanguage.h>
 
 #ifdef __AVR__
   #include <avr/pgmspace.h>
@@ -804,9 +807,17 @@ void ScreenDigit::show() {
  
   if (showtitle) {
 		
+		display.setFont(&FreeSans9pt7b);
+		display.setTextColor(ColorText);
+		display.setTextSize(1);
+		
     switch (displayTypeID) {
 		case DISPLAY_OBJECT_SPEED :
-			display.drawInvertedBitmap(titleX+2, titleY-16, vitessetext, 47, 12, GxEPD_BLACK);
+//			display.drawInvertedBitmap(titleX+2, titleY-16, vitessetext, 47, 12, GxEPD_BLACK);
+			
+			display.setCursor(1, 150); //titleX+2, titleY);
+			display.print(varioLanguage.getText(TITRE_SPEED));
+
 //			display.drawInvertedBitmap(0, 141, speedtext, 41, 14, GxEPD_BLACK);
 			break;
 /*		case DISPLAY_OBJECT_TIME :
@@ -821,7 +832,9 @@ void ScreenDigit::show() {
 //			display.drawInvertedBitmap(0, 31, altitext, 18, 11, GxEPD_BLACK);
 //			display.drawInvertedBitmap(titleX-95, titleY-14, altitext, 18, 11, GxEPD_BLACK);
    		display.fillRect(titleX, titleY-12, 45, 14, GxEPD_WHITE);
-			display.drawInvertedBitmap(titleX+3, titleY-12, altitext, 18, 12, GxEPD_BLACK);
+//			display.drawInvertedBitmap(titleX+3, titleY-12, altitext, 18, 12, GxEPD_BLACK);
+			display.setCursor(titleX, titleY); //titleX+2, titleY);
+			display.println(varioLanguage.getText(TITRE_ALTI));
 			break;
 		case DISPLAY_OBJECT_VARIO :
 //			display.drawInvertedBitmap(0, 85, variotext, 31, 11, GxEPD_BLACK);
@@ -841,7 +854,9 @@ void ScreenDigit::show() {
 //		  TRACE();
 //			display.drawInvertedBitmap(titleX, titleY-8, heighttext, 32, 14, GxEPD_BLACK);
    		display.fillRect(titleX-30, titleY-12, 45, 14, GxEPD_WHITE);
-			display.drawInvertedBitmap(titleX-29, titleY-13, altisoltext, 41, 12, GxEPD_BLACK);
+//			display.drawInvertedBitmap(titleX-29, titleY-13, altisoltext, 41, 12, GxEPD_BLACK);
+			display.setCursor(titleX-30, titleY); //titleX+2, titleY);
+			display.println(varioLanguage.getText(TITRE_AGL));
 			break;
 			
 			case DISPLAY_OBJECT_BEARING :
@@ -2461,13 +2476,22 @@ void ScreenTime::show(void) {
 
   display.fillRect(posX-125, posY-17-36, 88, 19, GxEPD_WHITE);
 	
+	display.setFont(&FreeSans9pt7b);
+	display.setTextColor(ColorText);
+	display.setTextSize(1);
+			
   if (dot_or_h == false) {	
 //		case DISPLAY_OBJECT_TIME :
-			display.drawInvertedBitmap(posX-125, posY-14-36, heuretext, 38, 12, GxEPD_BLACK);
+//			display.drawInvertedBitmap(posX-125, posY-14-36, heuretext, 38, 12, GxEPD_BLACK);
+
+			display.setCursor(posX-120, posY-36-2); //titleX+2, titleY);
+			display.print(varioLanguage.getText(TITRE_TIME));
 	}
 	else  {
 //		case DISPLAY_OBJECT_DURATION :
-			display.drawInvertedBitmap(posX-125, posY-17-36, tdvtext, 88, 17, GxEPD_BLACK);
+//			display.drawInvertedBitmap(posX-125, posY-17-36, tdvtext, 88, 17, GxEPD_BLACK);
+			display.setCursor(posX-120, posY-36-2); //titleX+2, titleY);
+			display.print(varioLanguage.getText(TITRE_TDV));
 	}	
 }
 

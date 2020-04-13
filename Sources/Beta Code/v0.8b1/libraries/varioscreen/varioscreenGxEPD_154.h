@@ -79,15 +79,15 @@
 #define MAX_CAR_TITRE_LAT						3
 #define MAX_CAR_TITRE_LONG 					4
 #define MAX_CAR_TITRE_COMPAS 				6
-#define MAX_CAR_TITRE_STATISTIQUE  	11
+#define MAX_CAR_TITRE_STAT        	11
 #define MAX_CAR_TITRE_DATE 					4
 #define MAX_CAR_TITRE_HEURE					5
 #define MAX_CAR_TITRE_DUREE 				5
 #define MAX_CAR_TITRE_VITESSE 			7
-#define MAX_CAR_TITRE_CONNECTION 		10
-#define MAX_CAR_TITRE_CONNECTIONA		13
-#define MAX_CAR_TITRE_DEMARRAGE 		9
-#define MAX_CAR_TITRE_REDEMARRAGE 	11
+#define MAX_CAR_TITRE_CONNECT   		10
+#define MAX_CAR_TITRE_CONNECTA	  	13
+#define MAX_CAR_TITRE_DEMAR     		9
+#define MAX_CAR_TITRE_REDEMAR     	11
 #define MAX_CAR_TITRE_ENCOURS 			8				
 
 /************************/

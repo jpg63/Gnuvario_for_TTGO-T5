@@ -94,6 +94,8 @@
 
 #include "varioData.h"
 
+#include <VarioLanguage.h>
+
 #include "freertos/FreeRTOS.h"
 #include "freertos/semphr.h"
 
@@ -1030,7 +1032,7 @@ void VarioScreen::ScreenViewStatPage(int PageStat)
 	display.setTextSize(1);
 
 	display.setCursor(10, 30);
-	display.print("STATISTIQUES");
+	display.print(varioLanguage.getText(TITRE_STAT));   //"STATISTIQUES");
 
 	uint8_t tmpDate[3];
 	int8_t  tmpTime[3];
@@ -1117,7 +1119,7 @@ void VarioScreen::ScreenViewWifi(String SSID, String IP)
 
 			display.setTextSize(1);
 			display.setCursor(5, 80);
-			display.print("Connection ...");
+			display.print(varioLanguage.getText(TITRE_CONNECT));   //"Connection ...");
 		}
 		while (display.nextPage());
 		

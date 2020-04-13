@@ -21,15 +21,15 @@
 				"COMPAS": "Compas"
     },
     "message": {
-				"STATISTIQUE":  "Statistique",
+				"STAT": "Statistique",
 				"DATE": "Date",
 				"HEURE":"Heure",
 				"DUREE": "Duree",
 				"VITESSE": "Vitesse",
-				"CONNECTION": "Connection",
-				"CONNECTIONA": "Connection a ",
-				"DEMARRAGE": "Demarrage",
-				"REDEMARRAGE": "Redemarrage",
+				"CONNECT": "Connection",
+				"CONNECTA": "Connection a ",
+				"DEMAR": "Demarrage",
+				"REDEMAR": "Redemarrage",
 				"ENCOURS": "en cours"				
 		}
 }

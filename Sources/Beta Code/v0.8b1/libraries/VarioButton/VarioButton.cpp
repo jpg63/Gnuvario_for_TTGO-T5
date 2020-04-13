@@ -91,6 +91,8 @@
 #include <VarioData.h>
 #include "VarioHardwareManager.h"
 
+#include <VarioLanguage.h>
+
 uint8_t RegVolume;
 
 /*#define VARIOMETER_STATE_INITIAL 0
@@ -392,7 +394,7 @@ void VARIOButtonScheduleur::treatmentBtnB(bool Debounce) {
 	{
 		//lancement de la calibration
 		StatePage = STATE_PAGE_CALIBRATE;
-		screen.ScreenViewMessage("en cours", 0);
+		screen.ScreenViewMessage(varioLanguage.getText(TITRE_ENCOURS), 0);     //"en cours", 0);
 		Calibration.Begin();
 	}
 }

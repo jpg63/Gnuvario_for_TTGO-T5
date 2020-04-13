@@ -49,15 +49,15 @@
 #define TITRE_LAT							9
 #define TITRE_LONG 						10
 #define TITRE_COMPAS 					11
-#define TITRE_STATISTIQUE  		12
+#define TITRE_STAT        		12
 #define TITRE_DATE 						13
 #define TITRE_HEURE						14
 #define TITRE_DUREE 					15
 #define TITRE_VITESSE 				16
-#define TITRE_CONNECTION 			17
-#define TITRE_CONNECTIONA			18
-#define TITRE_DEMARRAGE 			19
-#define TITRE_REDEMARRAGE 		20
+#define TITRE_CONNECT   			17
+#define TITRE_CONNECTA	  		18
+#define TITRE_DEMAR     			19
+#define TITRE_REDEMAR     		20
 #define TITRE_ENCOURS 				21				
 
 class VarioLanguage
