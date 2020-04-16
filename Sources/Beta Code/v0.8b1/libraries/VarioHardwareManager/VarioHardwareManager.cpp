@@ -53,7 +53,7 @@
 #include <VarioButton.h>
 #include <Utility.h>
 
-
+#include <VarioLanguage.h>
 
 VarioHardwareManager varioHardwareManager;
 
@@ -197,7 +197,7 @@ void VarioHardwareManager::testInactivity(double velocity)
       indicatePowerDown();
       //     TRACELOG(LOG_TYPE_DEBUG, DEEPSLEEP_DEBUG_LOG);
       MESSLOG(LOG_TYPE_DEBUG, DEEPSLEEP_DEBUG_LOG, "Deep sleep - inactivite");
-      deep_sleep("En veille");
+      deep_sleep(varioLanguage.getText(TITRE_VEILLE)); //"En veille");
     }
 }
 

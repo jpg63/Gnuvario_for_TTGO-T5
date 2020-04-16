@@ -89,6 +89,8 @@
 #define MAX_CAR_TITRE_DEMAR     		9
 #define MAX_CAR_TITRE_REDEMAR     	11
 #define MAX_CAR_TITRE_ENCOURS 			8				
+#define MAX_CAR_TITRE_CALIBR   			12
+#define MAX_CAR_TITRE_VEILLE				14			
 
 /************************/
 /* The screen scheduler */

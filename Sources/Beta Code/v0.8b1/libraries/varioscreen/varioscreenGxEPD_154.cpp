@@ -170,7 +170,7 @@ TaskHandle_t VarioScreen::screenTaskHandler;
 
 #define VARIOSCREEN_ALTI_ANCHOR_X 110
 #define VARIOSCREEN_ALTI_ANCHOR_Y 80
-#define VARIOSCREEN_ALTI_UNIT_ANCHOR_X    120
+#define VARIOSCREEN_ALTI_UNIT_ANCHOR_X    110
 #define VARIOSCREEN_VARIO_ANCHOR_X 98//#define VARIOSCREEN_VARIO_ANCHOR_X 5
 #define VARIOSCREEN_VARIO_ANCHOR_Y 135
 #define VARIOSCREEN_VARIO_UNIT_ANCHOR_X   100
@@ -200,7 +200,7 @@ TaskHandle_t VarioScreen::screenTaskHandler;
 #define VARIOSCREEN_BT_ANCHOR_X 0
 #define VARIOSCREEN_BT_ANCHOR_Y 4
 #define VARIOSCREEN_TREND_ANCHOR_X 157 //120
-#define VARIOSCREEN_TREND_ANCHOR_Y 57  //111
+#define VARIOSCREEN_TREND_ANCHOR_Y 52  //111
 #define VARIOSCREEN_WIND_ANCHOR_X 200
 #define VARIOSCREEN_WIND_ANCHOR_Y 33
 
@@ -1055,7 +1055,7 @@ void VarioScreen::ScreenViewStatPage(int PageStat)
 #endif //SCREEN_DEBUG
 
 		varioData.flystat.GetTime(tmpTime);
-		sprintf(tmpbuffer,"Heure: %02d:%02d",tmpTime[2],tmpTime[1]); 
+		sprintf(tmpbuffer,"%s: %02d:%02d",varioLanguage.getText(TITRE_TIME),tmpTime[2],tmpTime[1]); 
 		display.setCursor(1, 80);
 		display.print(tmpbuffer);
 
@@ -1088,7 +1088,7 @@ void VarioScreen::ScreenViewStatPage(int PageStat)
 	 display.print(tmpbuffer);
 	 
    double tmpSpeed = varioData.flystat.GetSpeed();
-	 sprintf(tmpbuffer,"Vitesse: %.0f",tmpSpeed); //%02d.%02d.%02d", tmpDate[0],tmpDate[1],tmpDate[2]);
+	 sprintf(tmpbuffer,"%s: %.0f",varioLanguage.getText(TITRE_SPEED),tmpSpeed); //%02d.%02d.%02d", tmpDate[0],tmpDate[1],tmpDate[2]);
 	 display.setCursor(1, 180);
 	 display.print(tmpbuffer);
 }
@@ -1130,7 +1130,7 @@ void VarioScreen::ScreenViewWifi(String SSID, String IP)
 
 	} else if ((SSID != "") && (IP != "")) {
 		display.setCursor(5, 120);
-		display.print("Connection a ");
+		display.print(varioLanguage.getText(TITRE_CONNECTA)); //"Connection a ");
 
 		display.setCursor(5, 140);
 		display.print(SSID);
@@ -1145,7 +1145,7 @@ void VarioScreen::ScreenViewWifi(String SSID, String IP)
 		updateScreen ();
 	} else {
 		display.setCursor(5, 180);
-		display.print("Demarrage");
+		display.print(varioLanguage.getText(TITRE_DEMAR)); //"Demarrage");
 		
 #ifdef SCREEN_DEBUG
 		SerialPort.println("ScreenViewWifi : start");	
@@ -1182,12 +1182,12 @@ void VarioScreen::ScreenViewReboot(String message)
 		display.setTextSize(1);
 		display.setCursor(20, 140);
 		if (message == "")
-			display.print("Redemarrage");
+			display.print(varioLanguage.getText(TITRE_REDEMAR)); //"Redemarrage");
 		else 
 			display.print(message);
 			
  		display.setCursor(40, 170);
-		display.print("en cours");
+		display.print(varioLanguage.getText(TITRE_ENCOURS)); //"en cours");
   }
   while (display.nextPage());
 }

@@ -344,7 +344,7 @@ void VARIOButtonScheduleur::treatmentBtnA(bool Debounce) {
 		indicatePowerDown();
 		//    TRACELOG(LOG_TYPE_DEBUG, DEEPSLEEP_DEBUG_LOG);
 		MESSLOG(LOG_TYPE_DEBUG, DEEPSLEEP_DEBUG_LOG, "Deep sleep - Bouton");
-		deep_sleep("En veille");
+		deep_sleep(varioLanguage.getText(TITRE_VEILLE)); //"En veille");
 	}
 	else if (StatePage == STATE_PAGE_CALIBRATE)
 	{
@@ -578,7 +578,7 @@ void VARIOButtonScheduleur::treatmentBtnB3S(bool Debounce) {
 	if (StatePage == STATE_PAGE_VARIO)
 	{
 		StatePage = STATE_PAGE_DEEP_SLEEP;
-		screen.ScreenViewMessage("En veille", 5);
+		screen.ScreenViewMessage(varioLanguage.getText(TITRE_VEILLE), 5); //"En veille", 5);
 		StatePage = STATE_PAGE_VARIO;
 		screen.ScreenViewPage(screen.schedulerScreen->getPage(), true);
 		screen.updateScreen();

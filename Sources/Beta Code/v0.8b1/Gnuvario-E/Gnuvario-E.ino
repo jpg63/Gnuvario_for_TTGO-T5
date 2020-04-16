@@ -1,4 +1,4 @@
-  #include <Arduino.h>
+#include <Arduino.h>
 
 /*******************/
 /* Version         */
@@ -256,7 +256,11 @@
 * AJOUT - Récupération du cap depuis le capteur baromètrique                                          *
 * AJOUT - Espaces aeriens                                                                             *
 * AJOUT - Réglage sensibilité filtre kalman                                                           *                                         
-* BUG   - Logo enregistrement du vol
+* BUG   - Logo enregistrement du vol / déclenchement de vol                                           *
+* BUG   - champs trop grand dans statistique                                                          *
+* BUG   - décalage affichage Heure et durée décalage                                                  *
+* MODIF - Nettoyage du code varioscreen / suppréssion bipmap - refaire taille du texte                * 
+* BUG   - Problème d'effacement des titres alti/alti sol                                              *
 *                                                                                                     *
 * VX.X                                                                                                *
 * Paramètrage des écrans                                                                              *

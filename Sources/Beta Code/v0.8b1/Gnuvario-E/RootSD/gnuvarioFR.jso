@@ -30,6 +30,8 @@
 				"CONNECTA": "Connection a ",
 				"DEMAR": "Demarrage",
 				"REDEMAR": "Redemarrage",
-				"ENCOURS": "en cours"				
+				"ENCOURS": "en cours",		
+				"CALIBR": "Calibration",
+				"VEILLE": "en veille"
 		}
 }

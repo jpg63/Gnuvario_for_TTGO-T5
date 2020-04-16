@@ -807,19 +807,18 @@ void ScreenDigit::show() {
  
   if (showtitle) {
 		
-		display.setFont(&FreeSans9pt7b);
+		display.setFont(&FreeSansBold8pt7b);
 		display.setTextColor(ColorText);
 		display.setTextSize(1);
 		
     switch (displayTypeID) {
 		case DISPLAY_OBJECT_SPEED :
-//			display.drawInvertedBitmap(titleX+2, titleY-16, vitessetext, 47, 12, GxEPD_BLACK);
-			
-			display.setCursor(1, 150); //titleX+2, titleY);
-			display.print(varioLanguage.getText(TITRE_SPEED));
-
+//			display.drawInvertedBitmap(titleX+2, titleY-16, vitessetext, 47, 12, GxEPD_BLACK);		
+			display.setCursor(titleX+2, titleY-3); //titleX+2, titleY);
+			display.println(varioLanguage.getText(TITRE_SPEED));
 //			display.drawInvertedBitmap(0, 141, speedtext, 41, 14, GxEPD_BLACK);
 			break;
+			
 /*		case DISPLAY_OBJECT_TIME :
 //			display.drawInvertedBitmap(85, 141, timetext, 29, 11, GxEPD_BLACK);
 			display.drawInvertedBitmap(titleX, titleY-14, heuretext, 38, 12, GxEPD_BLACK);
@@ -827,42 +826,57 @@ void ScreenDigit::show() {
 		case DISPLAY_OBJECT_DURATION :
 			display.drawInvertedBitmap(titleX, titleY-14, tdvtext, 38, 12, GxEPD_BLACK);
 			break;*/
+			
 		case DISPLAY_OBJECT_ALTI :
 //		  TRACE();
 //			display.drawInvertedBitmap(0, 31, altitext, 18, 11, GxEPD_BLACK);
 //			display.drawInvertedBitmap(titleX-95, titleY-14, altitext, 18, 11, GxEPD_BLACK);
-   		display.fillRect(titleX, titleY-12, 45, 14, GxEPD_WHITE);
+// 		display.fillRect(titleX, titleY-12, 45, 14, GxEPD_WHITE);
 //			display.drawInvertedBitmap(titleX+3, titleY-12, altitext, 18, 12, GxEPD_BLACK);
-			display.setCursor(titleX, titleY); //titleX+2, titleY);
+			display.setCursor(titleX+3, titleY-3); //titleX+2, titleY);
 			display.println(varioLanguage.getText(TITRE_ALTI));
 			break;
+			
 		case DISPLAY_OBJECT_VARIO :
 //			display.drawInvertedBitmap(0, 85, variotext, 31, 11, GxEPD_BLACK);
-			display.drawInvertedBitmap(titleX, titleY-14, variotext, 31, 11, GxEPD_BLACK);
+//			display.drawInvertedBitmap(titleX, titleY-14, variotext, 31, 11, GxEPD_BLACK);
+			display.setCursor(titleX-7, titleY-3); //titleX+2, titleY);
+			display.println(varioLanguage.getText(TITRE_VARIO));
 			break;
+			
 		case DISPLAY_OBJECT_RATIO :
 //			display.drawInvertedBitmap(132, 85, grtext, 21, 11, GxEPD_BLACK); //finesse/glade ratio
-   		display.fillRect(titleX, titleY-14, 51, 12, GxEPD_WHITE);
-			display.drawInvertedBitmap(titleX, titleY-14, finessetext, 51, 12, GxEPD_BLACK); //finesse/glade ratio
+//  		display.fillRect(titleX, titleY-14, 51, 12, GxEPD_WHITE);
+//			display.drawInvertedBitmap(titleX, titleY-14, finessetext, 51, 12, GxEPD_BLACK); //finesse/glade ratio
+			display.setCursor(titleX, titleY-3); //titleX+2, titleY);
+			display.println(varioLanguage.getText(TITRE_FINESSE));
+
 			break;
+			
 		case DISPLAY_OBJECT_TREND :
 //			display.drawInvertedBitmap(132, 85, grtext, 21, 11, GxEPD_BLACK); //
-   		display.fillRect(titleX, titleY-14, 51, 12, GxEPD_WHITE);
-			display.drawInvertedBitmap(titleX, titleY-14, tdchutetext, 50, 12, GxEPD_BLACK); //taux de chute/sink rate
+//   		display.fillRect(titleX, titleY-14, 51, 12, GxEPD_WHITE);
+//			display.drawInvertedBitmap(titleX, titleY-14, tdchutetext, 50, 12, GxEPD_BLACK); //taux de chute/sink rate
+			display.setCursor(titleX, titleY-3); //titleX+2, titleY);
+			display.println(varioLanguage.getText(TITRE_TCHUTE));
+
 			break;
+			
     case DISPLAY_OBJECT_HEIGHT :
 //		  TRACE();
 //			display.drawInvertedBitmap(titleX, titleY-8, heighttext, 32, 14, GxEPD_BLACK);
-   		display.fillRect(titleX-30, titleY-12, 45, 14, GxEPD_WHITE);
+//   		display.fillRect(titleX-30, titleY-12, 45, 14, GxEPD_WHITE);
 //			display.drawInvertedBitmap(titleX-29, titleY-13, altisoltext, 41, 12, GxEPD_BLACK);
-			display.setCursor(titleX-30, titleY); //titleX+2, titleY);
+			display.setCursor(titleX-30, titleY-3); //titleX+2, titleY);
 			display.println(varioLanguage.getText(TITRE_AGL));
 			break;
 			
 			case DISPLAY_OBJECT_BEARING :
+//  		display.fillRect(titleX+10, titleY-15, 30, 16, GxEPD_WHITE);
+//			display.drawInvertedBitmap(titleX+10, titleY-15, captext, 26, 15, GxEPD_BLACK);
+			display.setCursor(titleX, titleY-3); //titleX+2, titleY);
+			display.println(varioLanguage.getText(TITRE_CAP));
 
-   		display.fillRect(titleX+10, titleY-15, 30, 16, GxEPD_WHITE);
-			display.drawInvertedBitmap(titleX+10, titleY-15, captext, 26, 15, GxEPD_BLACK);
 			break;
 
 		default :
@@ -871,7 +885,6 @@ void ScreenDigit::show() {
 	}
 
 }
-
 
 
 
@@ -1282,12 +1295,12 @@ void ScreenText::show() {
    
 	if (large) 
 	{
-		display.setFont(&Audimat24pt7b);
+		display.setFont(&jersey18pt7b);
 		display.setTextSize(1);
 	}
 	else 			 
 	{
-		display.setFont(&Audimat24pt7b);
+		display.setFont(&jersey18pt7b);
 		display.setTextSize(1);	
 	}
 
@@ -1397,17 +1410,27 @@ void ScreenText::show() {
 		
  /*  Affiche titre */
  
+ display.setFont(&FreeSansBold8pt7b);
+		display.setTextColor(ColorText);
+		display.setTextSize(1);
+ 
   if (showtitle) {
 		
     switch (displayTypeID) {
 		case DISPLAY_OBJECT_LAT :
-			display.drawInvertedBitmap(titleX-10, titleY-16, lattext, 20, 11, GxEPD_BLACK);
+			display.setCursor(titleX-8, titleY-7); //titleX+2, titleY);
+			display.println(varioLanguage.getText(TITRE_LAT));
+//			display.drawInvertedBitmap(titleX-10, titleY-16, lattext, 20, 11, GxEPD_BLACK);
 			break;
 		case DISPLAY_OBJECT_LONG :
-			display.drawInvertedBitmap(titleX-10, titleY-16, longtext, 31, 14, GxEPD_BLACK);
+			display.setCursor(titleX-8, titleY-7); //titleX+2, titleY);
+			display.println(varioLanguage.getText(TITRE_LONG));
+//			display.drawInvertedBitmap(titleX-10, titleY-16, longtext, 31, 14, GxEPD_BLACK);
 			break;
 		case DISPLAY_OBJECT_BEARING_TEXT :
-			display.drawInvertedBitmap(titleX-10, titleY-22, compastext, 55, 15, GxEPD_BLACK);
+			display.setCursor(titleX-8, titleY-7); //titleX+2, titleY);
+			display.println(varioLanguage.getText(TITRE_COMPAS));
+//			display.drawInvertedBitmap(titleX-10, titleY-22, compastext, 55, 15, GxEPD_BLACK);
 			break;
 
 		default :
@@ -1416,7 +1439,6 @@ void ScreenText::show() {
 	}
 
 }
-
 
 
 //****************************************************************************************************************************
@@ -1435,7 +1457,7 @@ void MUnit::show() {
 
   display.setFont(&FreeSansBold9pt7b);
   display.setTextSize(2);
-  display.setCursor(posX, posY);
+  display.setCursor(posX+5, posY-4);
   display.print('m');
 }
 
@@ -2474,9 +2496,9 @@ void ScreenTime::show(void) {
   minute.setValue(time[1]);
   minute.show();
 
-  display.fillRect(posX-125, posY-17-36, 88, 19, GxEPD_WHITE);
+  display.fillRect(posX-125, posY-17-36, 125, 19, GxEPD_WHITE);
 	
-	display.setFont(&FreeSans9pt7b);
+	display.setFont(&FreeSansBold8pt7b);
 	display.setTextColor(ColorText);
 	display.setTextSize(1);
 			
@@ -2484,13 +2506,13 @@ void ScreenTime::show(void) {
 //		case DISPLAY_OBJECT_TIME :
 //			display.drawInvertedBitmap(posX-125, posY-14-36, heuretext, 38, 12, GxEPD_BLACK);
 
-			display.setCursor(posX-120, posY-36-2); //titleX+2, titleY);
+			display.setCursor(posX-120, posY-36-3); //titleX+2, titleY);
 			display.print(varioLanguage.getText(TITRE_TIME));
 	}
 	else  {
 //		case DISPLAY_OBJECT_DURATION :
 //			display.drawInvertedBitmap(posX-125, posY-17-36, tdvtext, 88, 17, GxEPD_BLACK);
-			display.setCursor(posX-120, posY-36-2); //titleX+2, titleY);
+			display.setCursor(posX-120, posY-36-3); //titleX+2, titleY);
 			display.print(varioLanguage.getText(TITRE_TDV));
 	}	
 }

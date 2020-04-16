@@ -58,7 +58,9 @@
 #define TITRE_CONNECTA	  		18
 #define TITRE_DEMAR     			19
 #define TITRE_REDEMAR     		20
-#define TITRE_ENCOURS 				21				
+#define TITRE_ENCOURS 				21	
+#define TITRE_CALIBR          22
+#define TITRE_VEILLE          23			
 
 class VarioLanguage
 {
