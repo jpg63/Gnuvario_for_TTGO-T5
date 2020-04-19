@@ -1198,7 +1198,6 @@ void VarioSettings::loadConfigurationVario(char *filename) {
 
 	if (Systeme.containsKey("LANGUAGE")) {
 		     tmpValue = Systeme["LANGUAGE"]; 
-				 //valeur entre 3.00 et 6.00
 		SerialPort.print("Json Recup - ");
 	} else {
 		tmpValue = DEFAULT_LANGUAGE;
@@ -1484,7 +1483,6 @@ void VarioSettings::loadConfigurationVario(char *filename) {
   SerialPort.println(ACCELERATION_MEASURE_STANDARD_DEVIATION);
 
 	if (Vario.containsKey("VARIOMETER_INTEGRATED_CLIMB_RATE")) {
-				//valeur comprise entre 0 et 40 soit 0 à 2s avec un pas de 50ms
 		     tmpValue = Vario["VARIOMETER_INTEGRATED_CLIMB_RATE"]; 
 		SerialPort.print("Json Recup - ");
 	} else {
@@ -1498,6 +1496,7 @@ void VarioSettings::loadConfigurationVario(char *filename) {
   SerialPort.println(VARIOMETER_INTEGRATED_CLIMB_RATE);
 
 	if (Vario.containsKey("SETTINGS_VARIO_PERIOD_COUNT")) {
+				//valeur comprise entre 0 et 40 soit 0 à 2s avec un pas de 50ms
 		     tmpValue = Vario["SETTINGS_VARIO_PERIOD_COUNT"]; 
 		SerialPort.print("Json Recup - ");
 	} else {

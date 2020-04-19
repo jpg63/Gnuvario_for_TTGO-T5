@@ -234,6 +234,7 @@
 *                                    Ajout parametre language, sensibilité vario                      *
 *               11/04/20             Nouvelle classe Language                                         *
 *                                    Nouvelle font                                                    *
+*               18/04/20             Ajout reglage de la sensibilité du vario - reglage kalman        *
 *******************************************************************************************************
 *                                                                                                     *
 *                                   Developpement a venir                                             *
@@ -249,18 +250,18 @@
 * BUG   - download à verifier                                                                         *
 * BUG   - stat affichage temps de vol                                                                 *
 * VERIF - Seuil déclenchement début du vol                                                            *
-* VERIF - Sensibilité du vario                                                                        *
 * AJOUT - effacement ecran 1 fois / min                                                               *
 *                                                                                                     *        
 * v0.8                                                                                                *       
 * AJOUT - Récupération du cap depuis le capteur baromètrique                                          *
 * AJOUT - Espaces aeriens                                                                             *
-* AJOUT - Réglage sensibilité filtre kalman                                                           *                                         
+* AJOUT - Réglage sensibilité filtre kalman et vario                                                          *                                         
 * BUG   - Logo enregistrement du vol / déclenchement de vol                                           *
 * BUG   - champs trop grand dans statistique                                                          *
 * BUG   - décalage affichage Heure et durée décalage                                                  *
 * MODIF - Nettoyage du code varioscreen / suppréssion bipmap - refaire taille du texte                * 
 * BUG   - Problème d'effacement des titres alti/alti sol                                              *
+* BUG   - Grésillement Buzzer                                                                         * 
 *                                                                                                     *
 * VX.X                                                                                                *
 * Paramètrage des écrans                                                                              *
@@ -2020,7 +2021,7 @@ void loop()
   //*****************************************
 
 #ifdef HAVE_AUDIO_AMPLI
-  toneHAL.enableAmpli();
+//  toneHAL.enableAmpli();
 #endif
 
   /*******************************/

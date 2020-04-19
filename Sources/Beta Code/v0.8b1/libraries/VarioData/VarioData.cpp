@@ -25,6 +25,11 @@
  *                                                                               *
  *  version    Date     Description                                              *
  *    1.0    22/03/20                                                            *
+ *    1.0.1  25/03/20   Ajout dataAcquisition(void)                              *
+ *        							compteurErrorMPU																				 *
+ *    1.0.2  07/04/20   ajout updateBeeper(void)                                 *
+ *    1.0.3  18/04/20   Ajour reglage du kalman                                  *
+ *                      Ajout intégration vario                                  *
  *                                                                               *
  *********************************************************************************
  */
@@ -402,6 +407,9 @@ void VarioData::update(void)
     if ((GnuSettings.VARIOMETER_DISPLAY_INTEGRATED_CLIMB_RATE) || (GnuSettings.RATIO_CLIMB_RATE > 1))
       history.setAlti(calibratedAlti, millis());
 
+    if ((GnuSettings.VARIOMETER_INTEGRATED_CLIMB_RATE) || (GnuSettings.RATIO_CLIMB_RATE > 1))
+      buzzerHistory.setAlti(calibratedAlti, millis());
+
 #ifdef DATA_DEBUG
     SerialPort.print("Baro Alti : ");
     SerialPort.println(alti);
@@ -466,6 +474,16 @@ void VarioData::update(void)
 		 stateTrend 	= 0;
 		}
 
+    if (buzzerHistory.haveNewClimbRate())
+		{
+			haveNewClimbRateDataBuzzer = true;
+			climbRateBuzzer = buzzerHistory.getClimbRate(GnuSettings.SETTINGS_VARIO_PERIOD_COUNT);
+		}
+		else
+		{
+		 haveNewClimbRateDataBuzzer = false;
+		 climbRateBuzzer	= 0;
+		}
 /*
 #ifdef HAVE_ACCELEROMETER
 #ifdef TWOWIRESCHEDULER
@@ -782,7 +800,7 @@ void VarioData::updateBeeper(void)
 {
 	if (GnuSettings.VARIOMETER_INTEGRATED_CLIMB_RATE)
 	{
-		if (haveNewClimbRateData) beeper.setVelocity(climbRate);
+		if (haveNewClimbRateDataBuzzer) beeper.setVelocity(climbRateBuzzer);
 	}
 	else
 	{
@@ -955,6 +973,9 @@ void VarioData::updateState(){
 					if (GnuSettings.VARIOMETER_DISPLAY_INTEGRATED_CLIMB_RATE)
 						history.init(varioData.gpsAlti, millis());
 #endif //defined(HAVE_GPS)
+
+					if (GnuSettings.VARIOMETER_INTEGRATED_CLIMB_RATE)
+						buzzerHistory.init(varioData.gpsAlti, millis());
 
           variometerState = VARIOMETER_STATE_CALIBRATED;
 
@@ -1273,3 +1294,37 @@ void VarioData::updateVoltage(void) {
 
 #endif //HAVE_VOLTAGE_DIVISOR
 }
+
+
+/*
+
+> > > Pour la cap magnetique, je pense que tu as compris le principe de base :
+> > > 1) Tu testes si tu as une valeur d'accélération (haveAccel)
+> > > 2) Si oui tu lis l'accélération. (getAccel) en lisant en même temps le
+> > > vecteur vertical :
+> > > double vertVector[3];
+> > > double vertAccel = twScheduler.getaccel(vertVector);
+> > >
+> > > 3) Ensuite tu testes si tu as une valeur du magnetomètre (haveMag)
+> > > 4) Si oui tu recupères le vecteur pointant vers le nord en redonnant
+> > > le vecteur vectical :
+> > > double northVector[2];
+> > > twScheduler.getNorthVector(vertVector,  northVector)
+> > >
+> > > Tu obtient alors un vecteur (x,y) qui pointe vers le nord sur un plan
+> > > horiaontal. Normalement il est à peu près normalisé. Mais tu peux le
+> > > normaliiser à nouveau si tu veux par sécurité :
+> > > norm = sqrt(x*x+y*y)
+> > > x = x/norm
+> > > y = y/norm
+> > >
+> > > Je pense que dans un premier temps il faut juste que tu essayes
+> > > d'afficher ce vecteur à l'écran  ;
+> > > -> Tu réserves un carré sur l'écran de 2 par 2. (à toi de voir la
+> > > taille de l'unité)
+> > > -> Tu met un point au centre du carré (c'est ta coordonnée (0,0) )
+> > > -> Tu trace une ligne à partir de ce point jusqu'au point donné par le
+> > > nortvector(il ne peut pas faire plus de 1 de long)
+> > > Normalement tu aura alors une flèche qui pointe vers le nord.
+
+*/

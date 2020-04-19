@@ -28,6 +28,8 @@
  *    1.0.1  25/03/20   Ajout dataAcquisition(void)                              *
  *        							compteurErrorMPU																				 *
  *    1.0.2  07/04/20   ajout updateBeeper(void)                                 *
+ *    1.0.3  18/04/20   Ajour reglage du kalman                                  *
+ *                      Ajout intégration vario                                  *
  *                                                                               *
  *********************************************************************************
  */
@@ -131,6 +133,8 @@ public:
 		FlightHistory<500, 120> history;
 #endif
 
+		FlightHistory<50, 40> buzzerHistory;
+
 private:
 		int compteurErrorMPU = 0;
 		int compteurBoucle = 0;
@@ -149,9 +153,11 @@ private:
 		double 	temperature;
 		double 	accel;
 		double 	climbRate;
-		bool   	haveNewClimbRateData;
+		bool   	haveNewClimbRateData = false;
 		double 	trend;
 		int 	 	stateTrend;		
+		double 	climbRateBuzzer;
+		bool   	haveNewClimbRateDataBuzzer = false;
 };
 
 extern VarioData varioData;
