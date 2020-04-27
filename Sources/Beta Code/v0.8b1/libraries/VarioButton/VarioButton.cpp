@@ -160,7 +160,7 @@ void VARIOButtonScheduleur::update()
 		SerialPort.printf("pressedFor 2s A \r\n");
 #endif //BUTTON_DEBUG
 #if defined(HAVE_SDCARD) && defined(HAVE_GPS) && defined(AGL_MANAGER_H)
-		if (varioData.variometerState >= VARIOMETER_STATE_CALIBRATED) {
+		if (varioData.getVariometerState() >= VARIOMETER_STATE_CALIBRATED) {
 
 			int groundLevel = varioData.aglManager.getGroundLevel();
 			if (groundLevel != -1)
@@ -305,7 +305,7 @@ void VARIOButtonScheduleur::treatmentBtnA(bool Debounce) {
 	else if (StatePage == STATE_PAGE_VARIO)
 	{
 		
-		if (varioData.variometerState == VARIOMETER_STATE_CALIBRATED) 
+		if (varioData.getVariometerState() == VARIOMETER_STATE_CALIBRATED) 
 		{     
 			if (GnuSettings.VARIOMETER_RECORD_WHEN_FLIGHT_START) {
         GnuSettings.VARIOMETER_RECORD_WHEN_FLIGHT_START = false;

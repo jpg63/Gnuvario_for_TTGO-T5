@@ -361,17 +361,18 @@ void VarioScreenObject::reset(void) {
 
 /* digit */
 #define MAX_CHAR_IN_LINE 20
-
+#define FONT_SIZE_WIDTH  22
+#define FONT_SIZE_HEIGHT  7
 
 //****************************************************************************************************************************
-ScreenDigit::ScreenDigit(uint16_t anchorX, uint16_t anchorY, uint16_t width, uint16_t precision, boolean plusDisplay, boolean zero, int8_t Align, boolean showtitle, int8_t displayTypeID, bool large) 
-   : VarioScreenObject(0), anchorX(anchorX), anchorY(anchorY), width(width), precision(precision), plusDisplay(plusDisplay), zero(zero), Align(Align), showtitle(showtitle), displayTypeID(displayTypeID), large(large) { 
+ScreenDigit::ScreenDigit(uint16_t anchorX, uint16_t anchorY, uint16_t width, uint16_t precision, boolean plusDisplay, boolean zero, int8_t Align, boolean showtitle, int8_t displayTypeID, bool large, int nbCarTitle) 
+   : VarioScreenObject(0), anchorX(anchorX), anchorY(anchorY), width(width), precision(precision), plusDisplay(plusDisplay), zero(zero), Align(Align), showtitle(showtitle), displayTypeID(displayTypeID), large(large), nbCarTitle(nbCarTitle) { 
 //****************************************************************************************************************************
   lastDisplayWidth = 0; 
 
-  display.setFont(&Audimat26pt7b);
+  display.setFont(&gnuvarioe23pt7b); //Audimat26pt7b);
   if (large) 	display.setTextSize(1);
-	else 				display.setTextSize(1);
+  else 			display.setTextSize(1);
 
   int16_t box_x = anchorX;
   int16_t box_y = anchorY;
@@ -379,25 +380,76 @@ ScreenDigit::ScreenDigit(uint16_t anchorX, uint16_t anchorY, uint16_t width, uin
   int16_t box_w, box_h; 
 
 #if defined(ESP32)
-	ESP_LOGI(TAG, "ScreenDigit constructeur");
+	ESP_LOGI(TAG, "ScreenDigit constructeur\n");
 //  ESP_LOGE(TAG, "Failed to initialize the card (%d). Make sure SD card lines have pull-up resistors in place.", ret);
 
 #endif //ESP32
 
 
 #ifdef SCREEN_DEBUG	  
-  SerialPort.print("Constructeur ScreenDigit : ");
-  SerialPort.print("-- X : ");
+  SerialPort.println("");
+  SerialPort.println("Constructeur ScreenDigit : ");
+  SerialPort.print("Type :  ");
+  SerialPort.println(displayTypeID);
+  SerialPort.print("X : ");
   SerialPort.print(box_x);
-  SerialPort.print("-- Y: ");
-  SerialPort.print(box_y);
-  SerialPort.print("-- width : ");
+  SerialPort.print("    Y: ");
+  SerialPort.println(box_y);
+  SerialPort.print("width : ");
   SerialPort.print(width);
-  SerialPort.print("-- precision :  ");
+  SerialPort.print("    precision :  ");
   SerialPort.println(precision);
+  SerialPort.print("Alignement :  ");
+  SerialPort.print(Align);
+  SerialPort.print("    plus  :  ");
+  SerialPort.println(plusDisplay);
+	
 #endif //SCREEN_DEBUG
   
+	display.getTextBounds("0", 0, 100, &box_w, &box_h, &w, &h);
 
+#ifdef SCREEN_DEBUG	  
+  SerialPort.print("Max X : ");
+  SerialPort.print(box_w);
+  SerialPort.print(" -- Max Y : ");
+  SerialPort.print(box_h);
+  SerialPort.print(" -- width : ");
+  SerialPort.print(w);
+  SerialPort.print(" -- height :  ");
+  SerialPort.println(h);
+#endif //SCREEN_DEBUG
+	
+	int nbcar  = width;
+		
+	if (plusDisplay) nbcar++;
+	
+	MaxWidth   = (nbcar * w) + 6;	
+	MaxHeight  = h + 3;
+
+	if (precision > 0) {
+		display.getTextBounds(".", 0, 100, &box_w, &box_h, &w, &h);
+		MaxWidth += w;
+	}
+
+  if (large) {
+		MaxWidth   = MaxWidth *2;	
+		MaxHeight  = MaxHeight * 2;
+	}
+
+#ifdef SCREEN_DEBUG	  
+  SerialPort.print("MaxWidth : ");
+  SerialPort.print(MaxWidth);
+  SerialPort.print("    MaxHeight : ");
+  SerialPort.println(MaxHeight);
+#endif
+
+
+	display.setFont(&FreeSansBold8pt7b);
+	display.getTextBounds("A", 0, 100, &box_w, &box_h, &w, &h);
+	MaxTitleWidth   = (nbCarTitle * w);	
+	MaxTitleHeight  = h;
+
+/*
 	char TmpChar[MAX_CHAR_IN_LINE];
 
 /*  int i,j,plus=0;
@@ -419,7 +471,7 @@ ScreenDigit::ScreenDigit(uint16_t anchorX, uint16_t anchorY, uint16_t width, uin
 		for (i=0; i < width;i++) TmpChar[i+plus] = '0';			
 	}
 
-  TmpChar[width+plus+1] = '\0';		*/
+  TmpChar[width+plus+1] = '\0';		*
 	dtostrf2(999999.999,width,precision,TmpChar,zero);
 
 	
@@ -475,7 +527,7 @@ ScreenDigit::ScreenDigit(uint16_t anchorX, uint16_t anchorY, uint16_t width, uin
 		  MaxWidth   = Zwidth;
 #endif	
 			MaxHeight  = Zheight;
-			break;*/
+			break;*
 			
 		case DISPLAY_OBJECT_VARIO :
 #if defined (MAXW_OBJECT_VARIO)		
@@ -535,7 +587,7 @@ ScreenDigit::ScreenDigit(uint16_t anchorX, uint16_t anchorY, uint16_t width, uin
 		  MaxWidth   = Zwidth;
 			MaxHeight  = Zheight;
 			break;
-		}
+		}  */
 }
 
 //****************************************************************************************************************************
@@ -706,9 +758,10 @@ void ScreenDigit::show() {
   char digitCharacters[MAX_CHAR_IN_LINE];
 	char tmpChar[MAX_CHAR_IN_LINE];
 
-	display.setFont(&Audimat26pt7b);
-  if (large) 	display.setTextSize(1);
+	display.setFont(&gnuvarioe23pt7b); //Audimat26pt7b);
+  if (large) 	display.setTextSize(2);
 	else 				display.setTextSize(1);
+
 
 //  int16_t box_x = anchorX;
   int16_t box_y = anchorY;
@@ -718,8 +771,9 @@ void ScreenDigit::show() {
 	int16_t titleX, titleY;
 //	int tmpWidth;
 
-	dtostrf2(999999.999,width,precision,tmpChar,zero);
+//	dtostrf2(999999.999,width,precision,tmpChar,zero);
   dtostrf2(value,width,precision,digitCharacters,zero);
+
 
 #ifdef SCREEN_DEBUG
   SerialPort.print("digit value : ");
@@ -733,27 +787,27 @@ void ScreenDigit::show() {
 	  
   SerialPort.print(digitCharacters);
   SerialPort.print("-- X : ");
-  SerialPort.print(box_x);
-  SerialPort.print("-- Y: ");
-  SerialPort.print(box_y);
-  SerialPort.print("-- width : ");
+  SerialPort.print(anchorX);
+  SerialPort.print("  -- Y: ");
+  SerialPort.print(anchorY);
+  SerialPort.print("  -- width : ");
   SerialPort.print(width);
-  SerialPort.print("-- precision :  ");
+  SerialPort.print("  -- precision :  ");
   SerialPort.println(precision);
-	SerialPort.print("Zwidth : ");
-	SerialPort.println(Zwidth);
-	SerialPort.print("Zheight : ");
-	SerialPort.println(Zheight);
+	SerialPort.print("MaxWidth : ");
+	SerialPort.println(MaxWidth);
+	SerialPort.print("MaxHeight : ");
+	SerialPort.println(MaxHeight);
 #endif //SCREEN_DEBUG
   
-  display.getTextBounds(tmpChar, 0, box_y, &box_w, &box_h, &w, &h);
+//  display.getTextBounds(tmpChar, 0, box_y, &box_w, &box_h, &w, &h);
   display.getTextBounds(digitCharacters, 0, box_y, &box_w1, &box_h1, &w1, &h1);
     
 #ifdef SCREEN_DEBUG
   SerialPort.print("W : ");
-  SerialPort.println(w);
+  SerialPort.println(w1);
   SerialPort.print("H : ");
-  SerialPort.println(h);
+  SerialPort.println(h1);
 #endif //SCREEN_DEBUG
 
 	
@@ -772,8 +826,8 @@ void ScreenDigit::show() {
 		display.fillRect(anchorX-1, anchorY-MaxHeight-3, MaxWidth+5, MaxHeight+6, GxEPD_WHITE);
 	  
     display.setCursor(anchorX, anchorY-1);
-		titleX = anchorX + 4;
-		titleY = anchorY - MaxHeight - 5; 
+		titleX = anchorX + 2;
+		titleY = anchorY - MaxHeight - 1; 
     display.print(digitCharacters);
 				
 	} else {
@@ -782,13 +836,13 @@ void ScreenDigit::show() {
 			SerialPort.println("right align");
 #endif //SCREEN_DEBUG
 			
-		if ((anchorX-w+2) < 0) w = anchorX - 2;
+//		if ((anchorX-w+2) < 0) w = anchorX - 2;
 
 #ifdef SCREEN_DEBUG
 		SerialPort.print("anchorX : ");
 		SerialPort.println(anchorX);
-		SerialPort.print("W : ");
-		SerialPort.println(w);
+//		SerialPort.print("W : ");
+//		SerialPort.println(w);
 #endif //SCREEN_DEBUG
 	
 //		display.fillRect(anchorX-w-2, anchorY-Zheight-3, w+6, Zheight+4, GxEPD_WHITE);
@@ -797,9 +851,10 @@ void ScreenDigit::show() {
 
 //		display.drawRect(anchorX-MaxWidth-1, anchorY-MaxHeight-3, MaxWidth+3, MaxHeight+6, GxEPD_BLACK);
 
-    display.setCursor(anchorX-w1-2, anchorY-1);
-		titleX = anchorX - MaxWidth;
-		titleY = anchorY - MaxHeight - 5; 		
+    display.setCursor(anchorX-w1, anchorY-1);  //MaxWidth, anchorY-1);
+		titleX = anchorX - MaxWidth+2;
+		if (titleX < 0) titleX = 2;
+		titleY = anchorY - MaxHeight - 1; 		
     display.print(digitCharacters);
 	}
  
@@ -807,15 +862,17 @@ void ScreenDigit::show() {
  
   if (showtitle) {
 		
+		display.fillRect(titleX-1, titleY-MaxTitleHeight-1, MaxTitleWidth+2, MaxTitleHeight+2, GxEPD_WHITE);
 		display.setFont(&FreeSansBold8pt7b);
 		display.setTextColor(ColorText);
 		display.setTextSize(1);
+		display.setCursor(titleX, titleY); 
 		
     switch (displayTypeID) {
 		case DISPLAY_OBJECT_SPEED :
 //			display.drawInvertedBitmap(titleX+2, titleY-16, vitessetext, 47, 12, GxEPD_BLACK);		
-			display.setCursor(titleX+2, titleY-3); //titleX+2, titleY);
-			display.println(varioLanguage.getText(TITRE_SPEED));
+//			display.setCursor(titleX, titleY); //titleX+2, titleY);
+			display.print(varioLanguage.getText(TITRE_SPEED));
 //			display.drawInvertedBitmap(0, 141, speedtext, 41, 14, GxEPD_BLACK);
 			break;
 			
@@ -833,23 +890,23 @@ void ScreenDigit::show() {
 //			display.drawInvertedBitmap(titleX-95, titleY-14, altitext, 18, 11, GxEPD_BLACK);
 // 		display.fillRect(titleX, titleY-12, 45, 14, GxEPD_WHITE);
 //			display.drawInvertedBitmap(titleX+3, titleY-12, altitext, 18, 12, GxEPD_BLACK);
-			display.setCursor(titleX+3, titleY-3); //titleX+2, titleY);
-			display.println(varioLanguage.getText(TITRE_ALTI));
+//			display.setCursor(titleX+3, titleY-3); //titleX+2, titleY);
+			display.print(varioLanguage.getText(TITRE_ALTI));
 			break;
 			
 		case DISPLAY_OBJECT_VARIO :
 //			display.drawInvertedBitmap(0, 85, variotext, 31, 11, GxEPD_BLACK);
 //			display.drawInvertedBitmap(titleX, titleY-14, variotext, 31, 11, GxEPD_BLACK);
-			display.setCursor(titleX-7, titleY-3); //titleX+2, titleY);
-			display.println(varioLanguage.getText(TITRE_VARIO));
+//			display.setCursor(titleX-7, titleY-3); //titleX+2, titleY);
+			display.print(varioLanguage.getText(TITRE_VARIO));
 			break;
 			
 		case DISPLAY_OBJECT_RATIO :
 //			display.drawInvertedBitmap(132, 85, grtext, 21, 11, GxEPD_BLACK); //finesse/glade ratio
 //  		display.fillRect(titleX, titleY-14, 51, 12, GxEPD_WHITE);
 //			display.drawInvertedBitmap(titleX, titleY-14, finessetext, 51, 12, GxEPD_BLACK); //finesse/glade ratio
-			display.setCursor(titleX, titleY-3); //titleX+2, titleY);
-			display.println(varioLanguage.getText(TITRE_FINESSE));
+//			display.setCursor(titleX, titleY-3); //titleX+2, titleY);
+			display.print(varioLanguage.getText(TITRE_FINESSE));
 
 			break;
 			
@@ -857,8 +914,8 @@ void ScreenDigit::show() {
 //			display.drawInvertedBitmap(132, 85, grtext, 21, 11, GxEPD_BLACK); //
 //   		display.fillRect(titleX, titleY-14, 51, 12, GxEPD_WHITE);
 //			display.drawInvertedBitmap(titleX, titleY-14, tdchutetext, 50, 12, GxEPD_BLACK); //taux de chute/sink rate
-			display.setCursor(titleX, titleY-3); //titleX+2, titleY);
-			display.println(varioLanguage.getText(TITRE_TCHUTE));
+//			display.setCursor(titleX, titleY-3); //titleX+2, titleY);
+			display.print(varioLanguage.getText(TITRE_TCHUTE));
 
 			break;
 			
@@ -867,15 +924,15 @@ void ScreenDigit::show() {
 //			display.drawInvertedBitmap(titleX, titleY-8, heighttext, 32, 14, GxEPD_BLACK);
 //   		display.fillRect(titleX-30, titleY-12, 45, 14, GxEPD_WHITE);
 //			display.drawInvertedBitmap(titleX-29, titleY-13, altisoltext, 41, 12, GxEPD_BLACK);
-			display.setCursor(titleX-30, titleY-3); //titleX+2, titleY);
-			display.println(varioLanguage.getText(TITRE_AGL));
+//			display.setCursor(titleX-30, titleY-3); //titleX+2, titleY);
+			display.print(varioLanguage.getText(TITRE_AGL));
 			break;
 			
 			case DISPLAY_OBJECT_BEARING :
 //  		display.fillRect(titleX+10, titleY-15, 30, 16, GxEPD_WHITE);
 //			display.drawInvertedBitmap(titleX+10, titleY-15, captext, 26, 15, GxEPD_BLACK);
-			display.setCursor(titleX, titleY-3); //titleX+2, titleY);
-			display.println(varioLanguage.getText(TITRE_CAP));
+//			display.setCursor(titleX, titleY-3); //titleX+2, titleY);
+			display.print(varioLanguage.getText(TITRE_CAP));
 
 			break;
 
@@ -1146,7 +1203,7 @@ ScreenText::ScreenText(uint16_t anchorX, uint16_t anchorY, uint16_t width, bool 
 //****************************************************************************************************************************
   lastDisplayWidth = 0; 
 
-  display.setFont(&Audimat24pt7b);
+  display.setFont(&gnuvarioe18pt7b); //Audimat24pt7b);
 	if (large) display.setTextSize(1);
 	else 			 display.setTextSize(1);	
 	
@@ -1164,9 +1221,9 @@ ScreenText::ScreenText(uint16_t anchorX, uint16_t anchorY, uint16_t width, bool 
 #ifdef SCREEN_DEBUG	  
   SerialPort.print("Constructeur ScreenText : ");
   SerialPort.print("-- X : ");
-  SerialPort.print(box_x);
+  SerialPort.print(anchorX);
   SerialPort.print("-- Y: ");
-  SerialPort.print(box_y);
+  SerialPort.print(anchorY);
   SerialPort.print("-- width : ");
   SerialPort.print(width);
 #endif //SCREEN_DEBUG
@@ -1295,12 +1352,12 @@ void ScreenText::show() {
    
 	if (large) 
 	{
-		display.setFont(&jersey18pt7b);
+		display.setFont(&gnuvarioe18pt7b); //jersey18pt7b);
 		display.setTextSize(1);
 	}
 	else 			 
 	{
-		display.setFont(&jersey18pt7b);
+		display.setFont(&gnuvarioe18pt7b); //jersey18pt7b);
 		display.setTextSize(1);	
 	}
 

@@ -846,6 +846,12 @@ int VarioData::getStateTrend(){
 }
 
 //*******************************************
+uint8_t VarioData::getVariometerState(){
+//*******************************************
+	return variometerState;
+}
+
+//*******************************************
 bool VarioData::updateBle(){
 //*******************************************
   return(varioHardwareManager.updateBle(kalmanvert.getVelocity(), kalmanvert.getPosition(), kalmanvert.getCalibratedPosition()));
@@ -896,7 +902,7 @@ void VarioData::updateState(){
 #endif //GPS_DEBUG
 
 			/* we need a good quality value */
-			if (nmeaParser.haveNewAltiValue() && nmeaParser.precision < VARIOMETER_GPS_ALTI_CALIBRATION_PRECISION_THRESHOLD)
+			if (nmeaParser.haveNewAltiValue() && (nmeaParser.precision < VARIOMETER_GPS_ALTI_CALIBRATION_PRECISION_THRESHOLD))
 			{
 
 				compteurGpsFix++;
@@ -906,10 +912,12 @@ void VarioData::updateState(){
 				//         DUMPLOG(LOG_TYPE_DEBUG,GPS_DEBUG_LOG,tmpGpsAlti);
 
 				//Moyenne alti gps
-				if (compteurGpsFix > 5)
+/*				if (compteurGpsFix > 5)
 					gpsAlti = (gpsAlti + tmpGpsAlti) / 2;
 				else
-					gpsAlti = tmpGpsAlti;
+					gpsAlti = tmpGpsAlti;*/
+
+				gpsAlti = tmpGpsAlti;
 
 #ifdef GPS_DEBUG
 				SerialPort.print("CompteurGpsFix : ");

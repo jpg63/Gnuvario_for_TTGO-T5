@@ -235,6 +235,7 @@
 *               11/04/20             Nouvelle classe Language                                         *
 *                                    Nouvelle font                                                    *
 *               18/04/20             Ajout reglage de la sensibilité du vario - reglage kalman        *
+*               27/04/20             Correction écran 1.54''                                          *
 *******************************************************************************************************
 *                                                                                                     *
 *                                   Developpement a venir                                             *
@@ -1900,7 +1901,7 @@ void loop()
 #ifdef PROG_DEBUG
     //    SerialPort.println("Record Indicator : staterecord ");
     SerialPort.print("VarioState : ");
-    SerialPort.println(varioData.variometerState);
+    SerialPort.println(varioData.getVariometerState());
 #endif //PROG_DEBUG
   }
 

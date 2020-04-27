@@ -88,6 +88,7 @@ public:
 		double 	getClimbRate();
 		double 	getTrend();
 		int    	getStateTrend();
+		uint8_t getVariometerState();
 		
 		bool 	 	haveNewClimbRate();
 				
@@ -104,7 +105,6 @@ public:
 
 		long 		voltage = 0;
 		
-		uint8_t variometerState;
 		unsigned long lastDisplayTimestamp, lastDisplayTimestamp2;
 
     boolean displayLowUpdateState = true;
@@ -158,6 +158,7 @@ private:
 		int 	 	stateTrend;		
 		double 	climbRateBuzzer;
 		bool   	haveNewClimbRateDataBuzzer = false;
+		uint8_t variometerState;
 };
 
 extern VarioData varioData;

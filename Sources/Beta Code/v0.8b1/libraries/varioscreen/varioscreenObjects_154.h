@@ -87,23 +87,25 @@
 // FreeFonts from Adafruit_GFX
 #include <Fonts/FreeSansBold9pt7b.h>
 #include <Fonts/FreeSansBold12pt7b.h>
-#include <Fonts/FreeSansBold18pt7b.h>
-#include <Fonts/FreeSansBold24pt7b.h>
-#include <Fonts/SpaceMonoBold12pt7b.h>
-#include <Fonts/FreeSerifBold18pt7b.h>
-#include <Fonts/FreeMonoBold9pt7b.h>
-#include <Fonts/FreeMonoBold24pt7b.h>
-#include <Fonts/FreeMonoBold22pt7b.h>
-#include <Fonts/FreeMonoBold18pt7b.h>
-#include <Fonts/FreeMonoBold12pt7b.h>
-#include <Fonts/FreeSans9pt7b.h>
-#include <Fonts/jersey22pt7b.h>
-#include <Fonts/digital22pt7b.h>
-#include <Fonts/MONOFONT22pt7b.h>
-#include <Fonts/Audimat24pt7b.h>
-#include <Fonts/Audimat26pt7b.h>
+//#include <Fonts/FreeSansBold18pt7b.h>
+//#include <Fonts/FreeSansBold24pt7b.h>
+//#include <Fonts/SpaceMonoBold12pt7b.h>
+//#include <Fonts/FreeSerifBold18pt7b.h>
+//#include <Fonts/FreeMonoBold9pt7b.h>
+//#include <Fonts/FreeMonoBold24pt7b.h>
+//#include <Fonts/FreeMonoBold22pt7b.h>
+//#include <Fonts/FreeMonoBold18pt7b.h>
+//#include <Fonts/FreeMonoBold12pt7b.h>
+//#include <Fonts/FreeSans9pt7b.h>
+//#include <Fonts/jersey22pt7b.h>
+//#include <Fonts/digital22pt7b.h>
+//#include <Fonts/MONOFONT22pt7b.h>
+//#include <Fonts/Audimat24pt7b.h>
+//#include <Fonts/Audimat26pt7b.h>
 #include <Fonts/FreeSansBold8pt7b.h>
-#include <Fonts/jersey18pt7b.h>
+//#include <Fonts/jersey18pt7b.h>
+#include <Fonts/gnuvarioe18pt7b.h>
+#include <Fonts/gnuvarioe23pt7b.h>
 
 /* minimum drift to update digit */
 #define VARIOSCREEN_DIGIT_DISPLAY_THRESHOLD 0.65
@@ -247,7 +249,7 @@ class ScreenDigit: public VarioScreenObject {
 // TitleY       Position du titre en Y
 
  public :
-   ScreenDigit(uint16_t anchorX, uint16_t anchorY, uint16_t width, uint16_t precision, boolean plusDisplay = false, boolean zero = false, int8_t Align = ALIGNLEFT, boolean showtitle = true, 	int8_t displayTypeID = 0, bool large = FONTLARGE);
+   ScreenDigit(uint16_t anchorX, uint16_t anchorY, uint16_t width, uint16_t precision, boolean plusDisplay = false, boolean zero = false, int8_t Align = ALIGNLEFT, boolean showtitle = true, 	int8_t displayTypeID = 0, bool large = FONTLARGE, int nbCarTitle = 0);
  //  : VarioScreenObject(0), anchorX(anchorX), anchorY(anchorY), width(width), precision(precision), plusDisplay(plusDisplay), zero(zero), leftAlign(leftAlign), showtitle(showtitle)
  // { lastDisplayWidth = 0; }
   void show(void);
@@ -268,6 +270,8 @@ class ScreenDigit: public VarioScreenObject {
 	uint16_t MaxWidth, MaxHeight;
 	int8_t displayTypeID;
   boolean large;
+	int nbCarTitle;
+	int MaxTitleWidth, MaxTitleHeight;
 };
 
 class ScreenText: public VarioScreenObject {
