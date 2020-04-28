@@ -54,7 +54,9 @@ private:
     VarioSpeaker varioSpeaker;
     VarioImu varioImu;
 		VarioGps varioGps;
+#ifdef HAVE_BLUETOOTH
 		VarioBle varioBle;
+#endif
 
 public:
     VarioHardwareManager();

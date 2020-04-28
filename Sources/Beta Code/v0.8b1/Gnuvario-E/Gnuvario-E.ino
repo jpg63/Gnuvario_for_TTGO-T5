@@ -504,13 +504,14 @@
 #include <beeper.h>
 #endif //HAVE_SPEAKER
 
+#include <GPSSentence.h>
+
 /*#ifdef HAVE_GPS
 #include <SerialNmea.h>
-#include <NmeaParser.h>
 #include <LxnavSentence.h>
 #include <LK8Sentence.h>
 #include <IGCSentence.h>
-#include <GPSSentence.h>
+#include <NmeaParser.h>
 #endif //HAVE_GPS*/
 
 #include <VarioButton.h>

@@ -215,22 +215,24 @@ bool VarioHardwareManager::updateGps(Kalmanvert kalmanvert)
 //***********************************
 {
 #if defined(HAVE_GPS)
-	if (varioGps.update(varioData.kalmanvert, &varioBle.lastSentence)) 
+	boolean lastSentencetmp;
+	if (varioGps.update(varioData.kalmanvert, &lastSentencetmp)) 
 	{
 	
 #ifdef HAVE_BLUETOOTH
+		varioBle.lastSentence = lastSentencetmp;
 	//* if this is the last GPS sentence *
 	//* we can send our sentences *
-	if (varioBle.lastSentence)
-	{
-		varioBle.lastSentence = false;
+		if (varioBle.lastSentence)
+		{
+			varioBle.lastSentence = false;
 #ifdef VARIOMETER_BLUETOOTH_SEND_CALIBRATED_ALTITUDE
-    varioBle.bluetoothNMEA.begin(kalmanvert.getCalibratedPosition(), kalmanvert.getVelocity());
+			varioBle.bluetoothNMEA.begin(kalmanvert.getCalibratedPosition(), kalmanvert.getVelocity());
 #else
-    varioBle.bluetoothNMEA.begin(kalmanvert.getPosition(), kalmanvert.getVelocity());
+			varioBle.bluetoothNMEA.begin(kalmanvert.getPosition(), kalmanvert.getVelocity());
 #endif
-    serialNmea.lock(); //will be writed at next loop
-  }
+			serialNmea.lock(); //will be writed at next loop
+		}
 #endif //HAVE_BLUETOOTH
   }
 #endif //HAVE_GPS

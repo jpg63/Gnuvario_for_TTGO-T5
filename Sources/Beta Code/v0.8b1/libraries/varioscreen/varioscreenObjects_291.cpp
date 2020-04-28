@@ -732,13 +732,13 @@ void ScreenDigit::show() {
   else 			 			SerialPort.println("rightAlign");
 	  
   SerialPort.print(digitCharacters);
-  SerialPort.print("-- X : ");
-  SerialPort.print(box_x);
-  SerialPort.print("-- Y: ");
-  SerialPort.print(box_y);
-  SerialPort.print("-- width : ");
+  SerialPort.print("  -- X : ");
+  SerialPort.print(anchorX);
+  SerialPort.print("  -- Y: ");
+  SerialPort.println(anchorY);
+  SerialPort.print("width : ");
   SerialPort.print(width);
-  SerialPort.print("-- precision :  ");
+  SerialPort.print("  -- precision :  ");
   SerialPort.println(precision);
 	SerialPort.print("Zwidth : ");
 	SerialPort.println(Zwidth);
@@ -1135,11 +1135,11 @@ ScreenText::ScreenText(uint16_t anchorX, uint16_t anchorY, uint16_t width, bool 
 
 #ifdef SCREEN_DEBUG	  
   SerialPort.print("Constructeur ScreenText : ");
-  SerialPort.print("-- X : ");
-  SerialPort.print(box_x);
-  SerialPort.print("-- Y: ");
-  SerialPort.print(box_y);
-  SerialPort.print("-- width : ");
+  SerialPort.print("  -- X : ");
+  SerialPort.print(anchorX);
+  SerialPort.print("  -- Y: ");
+  SerialPort.print(anchorY);
+  SerialPort.print("  -- width : ");
   SerialPort.print(width);
 #endif //SCREEN_DEBUG
   

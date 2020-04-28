@@ -56,6 +56,8 @@
 
 #include <VarioLog.h>
 
+#include <SerialNmea.h>
+
 #ifdef HAVE_WIFI
 #include <VarioWifiServer.h>
 #endif //HAVE_WIFI

@@ -91,6 +91,8 @@
 #include <VarioData.h>
 #include "VarioHardwareManager.h"
 
+#include <GPSSentence.h>
+
 #include <VarioLanguage.h>
 
 uint8_t RegVolume;
