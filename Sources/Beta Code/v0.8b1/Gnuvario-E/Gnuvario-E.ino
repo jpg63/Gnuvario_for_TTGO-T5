@@ -236,6 +236,8 @@
 *                                    Nouvelle font                                                    *
 *               18/04/20             Ajout reglage de la sensibilité du vario - reglage kalman        *
 *               27/04/20             Correction écran 1.54''                                          *
+*               29/04/20             Changement de font - modification screenDigit                    *
+*               03/05/20             Correction bug d'affichage                                       *
 *******************************************************************************************************
 *                                                                                                     *
 *                                   Developpement a venir                                             *
@@ -254,15 +256,13 @@
 * AJOUT - effacement ecran 1 fois / min                                                               *
 *                                                                                                     *        
 * v0.8                                                                                                *       
-* AJOUT - Récupération du cap depuis le capteur baromètrique                                          *
+* AJOUT - Récupération du cap depuis le capteur baromètrique  - compas magnétique                     *
 * AJOUT - Espaces aeriens                                                                             *
-* AJOUT - Réglage sensibilité filtre kalman et vario                                                          *                                         
-* BUG   - Logo enregistrement du vol / déclenchement de vol                                           *
+* AJOUT - Réglage sensibilité filtre kalman et vario                                                  *                                         
 * BUG   - champs trop grand dans statistique                                                          *
-* BUG   - décalage affichage Heure et durée décalage                                                  *
-* MODIF - Nettoyage du code varioscreen / suppréssion bipmap - refaire taille du texte                * 
-* BUG   - Problème d'effacement des titres alti/alti sol                                              *
 * BUG   - Grésillement Buzzer                                                                         * 
+* BUG   - Affichage Heure                                                                             *
+* BUG   - Effacement logo montre                                                                      *                                                                                                    *
 *                                                                                                     *
 * VX.X                                                                                                *
 * Paramètrage des écrans                                                                              *
@@ -1638,7 +1638,7 @@ void loop()
 #endif //HAVE_BLUETOOTH
 
 #ifdef HAVE_SCREEN
-        if (varioData.gpsFix > 0)  screen.recordIndicator->setActifGPSFIX();
+        if ((varioData.gpsFix > 0) && (varioData.gpsFix < 3))  screen.setActifGPSFIX();
         if (varioData.gpsFix == 2) screen.fixgpsinfo->setFixGps();
         
 #endif //HAVE_SCREEN
@@ -1709,9 +1709,12 @@ void loop()
 
       screen.screenTime->setTime(nmeaParser.time);
       screen.screenTime->correctTimeZone(GnuSettings.VARIOMETER_TIME_ZONE);
-      screen.screenElapsedTime->setCurrentTime(screen.screenTime->getTime());
-      varioData.flystat.SetTime(screen.screenTime->getTime());
-      varioData.flystat.SetDuration(screen.screenElapsedTime->getTime());
+      if (varioData.getVariometerState() == VARIOMETER_STATE_FLIGHT_STARTED)
+      { 
+        screen.screenElapsedTime->setCurrentTime(screen.screenTime->getTime());
+        varioData.flystat.SetTime(screen.screenTime->getTime());
+        varioData.flystat.SetDuration(screen.screenElapsedTime->getTime());
+      }
     }
 
     /* update satelite count */

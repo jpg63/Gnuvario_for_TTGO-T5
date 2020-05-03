@@ -998,7 +998,7 @@ void VarioData::updateState(){
 					{
 
 #ifdef SDCARD_DEBUG
-            SerialPort.println("createSDCardTrackFile");
+            SerialPort.println("createSDCardTrackFile when GPS Fix");
 #endif //SDCARD_DEBUG
 
 						createSDCardTrackFile();
@@ -1009,7 +1009,7 @@ void VarioData::updateState(){
 		}
 
 		/* else check if the flight have started */
-		else
+		else if (variometerState == VARIOMETER_STATE_CALIBRATED)
 		{ //variometerState == VARIOMETER_STATE_CALIBRATED
 
 			/* check flight start condition */
@@ -1018,43 +1018,67 @@ void VarioData::updateState(){
 			DUMP(GnuSettings.FLIGHT_START_VARIO_LOW_THRESHOLD);
 			DUMP(GnuSettings.FLIGHT_START_VARIO_HIGH_THRESHOLD);
 
-			if ((millis() > GnuSettings.FLIGHT_START_MIN_TIMESTAMP) &&
-				 ((GnuSettings.VARIOMETER_RECORD_WHEN_FLIGHT_START) &&
-				 ((kalmanvert.getVelocity() < GnuSettings.FLIGHT_START_VARIO_LOW_THRESHOLD) || (kalmanvert.getVelocity() > GnuSettings.FLIGHT_START_VARIO_HIGH_THRESHOLD))
-#ifdef HAVE_GPS
-         && (nmeaParser.getSpeed() > GnuSettings.FLIGHT_START_MIN_SPEED)
-#endif //HAVE_GPS
-
-          ) ||
-          (!GnuSettings.VARIOMETER_RECORD_WHEN_FLIGHT_START)
-
-            //        && (kalmanvert.getVelocity() < FLIGHT_START_VARIO_LOW_THRESHOLD || kalmanvert.getVelocity() > FLIGHT_START_VARIO_HIGH_THRESHOLD) &&
-          )
+			if (millis() > GnuSettings.FLIGHT_START_MIN_TIMESTAMP) 
 			{
-				//          variometerState = VARIOMETER_STATE_FLIGHT_STARTED;
-				enableflightStartComponents();
+				if (!GnuSettings.VARIOMETER_RECORD_WHEN_FLIGHT_START)
+				{
+					DUMP(GnuSettings.VARIOMETER_RECORD_WHEN_FLIGHT_START);
+					enableflightStartComponents();
+				}
+				else
+				{
+					if (((kalmanvert.getVelocity() < GnuSettings.FLIGHT_START_VARIO_LOW_THRESHOLD) || (kalmanvert.getVelocity() > GnuSettings.FLIGHT_START_VARIO_HIGH_THRESHOLD)) &&
+						 (!CompteurStartFlyEnable))
+					{
+						//pré-declenchement du début du vol
+						CompteurStartFlyEnable 	= true;
+						TimeStartFly       			= millis();
+						CompteurStartFly       	= 0;
+					}
+
+          if (CompteurStartFlyEnable) 
+					{
+						if (nmeaParser.getSpeed() < GnuSettings.FLIGHT_START_MIN_SPEED)
+						{
+							// si la vitesse n'est pas atteinte 
+							CompteurStartFly++;
+					
+							if (CompteurStartFly > 10) CompteurStartFlyEnable 	= false;
+						}
+						else
+						{
+							CompteurStartFly = 0;
+							if ((millis()-TimeStartFly) > 3000) 
+							{
+								//          variometerState = VARIOMETER_STATE_FLIGHT_STARTED;
+								TRACE();
+								enableflightStartComponents();
+							}
+						}
+					}
+				}
 			}
-    }
-  }
+		}
 #else // HAVE_GPS
   // * if no GPS, we can't calibrate, and we have juste to check flight start *
-  if (variometerState == VARIOMETER_STATE_CALIBRATED)
-  { //already calibrated at start
-    /*    if( (millis() > GnuSettings.FLIGHT_START_MIN_TIMESTAMP) &&
-        (kalmanvert.getVelocity() < GnuSettings.FLIGHT_START_VARIO_LOW_THRESHOLD || kalmanvert.getVelocity() > GnuSettings.FLIGHT_START_VARIO_HIGH_THRESHOLD) ) {
-      variometerState = VARIOMETER_STATE_FLIGHT_STARTED;
-      enableflightStartComponents();*/
+		if (variometerState == VARIOMETER_STATE_CALIBRATED)
+		{ //already calibrated at start
+			/*    if( (millis() > GnuSettings.FLIGHT_START_MIN_TIMESTAMP) &&
+					(kalmanvert.getVelocity() < GnuSettings.FLIGHT_START_VARIO_LOW_THRESHOLD || kalmanvert.getVelocity() > GnuSettings.FLIGHT_START_VARIO_HIGH_THRESHOLD) ) {
+				variometerState = VARIOMETER_STATE_FLIGHT_STARTED;
+				enableflightStartComponents();*/
 
-    if ((millis() > GnuSettings.FLIGHT_START_MIN_TIMESTAMP) &&
-        (((GnuSettings.VARIOMETER_RECORD_WHEN_FLIGHT_START) &&
-          ((kalmanvert.getVelocity() < GnuSettings.FLIGHT_START_VARIO_LOW_THRESHOLD) || (kalmanvert.getVelocity() > GnuSettings.FLIGHT_START_VARIO_HIGH_THRESHOLD))) ||
-         (!GnuSettings.VARIOMETER_RECORD_WHEN_FLIGHT_START)))
-    {
-      //        variometerState = VARIOMETER_STATE_FLIGHT_STARTED;
-      enableflightStartComponents();
-    }
-  }
+			if ((millis() > GnuSettings.FLIGHT_START_MIN_TIMESTAMP) &&
+					(((GnuSettings.VARIOMETER_RECORD_WHEN_FLIGHT_START) &&
+						((kalmanvert.getVelocity() < GnuSettings.FLIGHT_START_VARIO_LOW_THRESHOLD) || (kalmanvert.getVelocity() > GnuSettings.FLIGHT_START_VARIO_HIGH_THRESHOLD))) ||
+					 (!GnuSettings.VARIOMETER_RECORD_WHEN_FLIGHT_START)))
+			{
+				//        variometerState = VARIOMETER_STATE_FLIGHT_STARTED;
+				enableflightStartComponents();
+			}
+		}
 #endif //HAVE_GPS
+	}
 }
 
 /**************************************************/
@@ -1187,11 +1211,13 @@ void VarioData::enableflightStartComponents(void)
     SerialPort.println("Record Start");
 #endif //SDCARD_DEBUG
 
+		gpsFix = 3;
     screen.recordIndicator->setActifRECORD();
     screen.recordIndicator->stateRECORD();
   }
   else
   {
+		gpsFix = 4;
     screen.recordIndicator->setNoRECORD();
     screen.recordIndicator->stateRECORD();
   }

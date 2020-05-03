@@ -59,14 +59,15 @@
  *                      Ajout ALIGNCENTER                                        *
  *                      Ajout Objet ScreenText                                   *
  *    1.1.8  09/02/20   Modif font screenText                                    *
- *    1.0.9  17/02/20   Ajout large (font) varioscreenDigit                      *
- *    1.0.10 19/02/20   Ajout variolog                                           *
- *    1.0.11 21/02/20   Correction Bug d'affichage batterie                      *
- *    1.0.12 05/03/20   Ajout affichage AGL                                      *
- *    1.0.13 06/03/20   Ajout gestion icone DISPLAY_OBJECT_TREND                 *
- *    1.0.14 09/03/20   Modification de l'effacement digit left                  *
- *    1.0.15 08/04/20   Modification affichage des titres                        *
- *    1.0.16 13/04/20   Titre en mode texte                                      *
+ *    1.1.9  17/02/20   Ajout large (font) varioscreenDigit                      *
+ *    1.1.10 19/02/20   Ajout variolog                                           *
+ *    1.1.11 21/02/20   Correction Bug d'affichage batterie                      *
+ *    1.1.12 05/03/20   Ajout affichage AGL                                      *
+ *    1.1.13 06/03/20   Ajout gestion icone DISPLAY_OBJECT_TREND                 *
+ *    1.1.14 09/03/20   Modification de l'effacement digit left                  *
+ *    1.1.15 08/04/20   Modification affichage des titres                        *
+ *    1.1.16 13/04/20   Titre en mode texte                                      *
+ *    1.2.0  29/04/20   Modification font screedigit                             *
  *                                                                               *
  *********************************************************************************/
  
@@ -371,7 +372,7 @@ ScreenDigit::ScreenDigit(uint16_t anchorX, uint16_t anchorY, uint16_t width, uin
   lastDisplayWidth = 0; 
 
   display.setFont(&gnuvarioe23pt7b); //Audimat26pt7b);
-  if (large) 	display.setTextSize(1);
+  if (large) 	display.setTextSize(2);
   else 			display.setTextSize(1);
 
   int16_t box_x = anchorX;
@@ -772,7 +773,28 @@ void ScreenDigit::show() {
 //	int tmpWidth;
 
 //	dtostrf2(999999.999,width,precision,tmpChar,zero);
-  dtostrf2(value,width,precision,digitCharacters,zero);
+	if (precision > 0) {
+		dtostrf2(value,width,precision,digitCharacters,zero);
+		strcpy(tmpChar,digitCharacters);
+	}
+	else {
+		int num = value;
+		itoa(num, digitCharacters, 10);
+		
+		strcpy(tmpChar, "");
+		for (int i=0; i < strlen(digitCharacters); i++) strcat(tmpChar,"0");
+		
+		if (zero) {
+		  while (strlen(digitCharacters) < width) {
+				char tmpchar[10];
+				strcpy(tmpchar, digitCharacters);
+				strcpy(digitCharacters, "0");
+				strcat(digitCharacters, tmpchar);
+				
+				strcat(tmpChar,"0");
+			}
+		}
+	}
 
 
 #ifdef SCREEN_DEBUG
@@ -800,14 +822,16 @@ void ScreenDigit::show() {
 	SerialPort.println(MaxHeight);
 #endif //SCREEN_DEBUG
   
-//  display.getTextBounds(tmpChar, 0, box_y, &box_w, &box_h, &w, &h);
-  display.getTextBounds(digitCharacters, 0, box_y, &box_w1, &box_h1, &w1, &h1);
+  display.getTextBounds(tmpChar, 0, box_y, &box_w, &box_h, &w, &h);
+//  display.getTextBounds(digitCharacters, 0, box_y, &box_w1, &box_h1, &w1, &h1);
     
 #ifdef SCREEN_DEBUG
+  SerialPort.print("tmpChar : ");
+  SerialPort.println(tmpChar);
   SerialPort.print("W : ");
-  SerialPort.println(w1);
+  SerialPort.println(w);
   SerialPort.print("H : ");
-  SerialPort.println(h1);
+  SerialPort.println(h);
 #endif //SCREEN_DEBUG
 
 	
@@ -851,7 +875,7 @@ void ScreenDigit::show() {
 
 //		display.drawRect(anchorX-MaxWidth-1, anchorY-MaxHeight-3, MaxWidth+3, MaxHeight+6, GxEPD_BLACK);
 
-    display.setCursor(anchorX-w1, anchorY-1);  //MaxWidth, anchorY-1);
+    display.setCursor(anchorX-w, anchorY-1);  //MaxWidth, anchorY-1);
 		titleX = anchorX - MaxWidth+2;
 		if (titleX < 0) titleX = 2;
 		titleY = anchorY - MaxHeight - 1; 		
@@ -1204,7 +1228,7 @@ ScreenText::ScreenText(uint16_t anchorX, uint16_t anchorY, uint16_t width, bool 
   lastDisplayWidth = 0; 
 
   display.setFont(&gnuvarioe18pt7b); //Audimat24pt7b);
-	if (large) display.setTextSize(1);
+	if (large) display.setTextSize(2);
 	else 			 display.setTextSize(1);	
 	
 //  int16_t box_x = anchorX;

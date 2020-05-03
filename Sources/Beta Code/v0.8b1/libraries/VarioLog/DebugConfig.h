@@ -70,7 +70,7 @@
 
 //              DEBUGING MODE
 #define PROG_DEBUG			  //debug principal program
-#define HARDWARE_DEBUG
+//#define HARDWARE_DEBUG
 //#define IMU_DEBUG			  //debug IMU
 //#define I2CDEV_SERIAL_DEBUG   //debug I2Cdev
 //#define DEBUG_SERIAL_NMEA_1

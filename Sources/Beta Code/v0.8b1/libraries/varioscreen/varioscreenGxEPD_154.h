@@ -41,6 +41,8 @@
  *    1.0.12 04/03/20   Ajout affichage alti agl                                 *
  *    1.0.13 07/03/20   Correction xSemaphore                                    *
  *    1.0.14 09/03/20   Modification ScreenViewSound                             *
+ *    1.0.15 08/04/20   Modification affichage des titres                        *
+ *    1.1.0  29/04/20   Changement de font - repositionnement                    *
  *                                                                               *
  *********************************************************************************/
 

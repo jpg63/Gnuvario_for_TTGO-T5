@@ -59,13 +59,15 @@
  *                      Ajout ALIGNCENTER                                        *
  *                      Ajout Objet ScreenText                                   *
  *    1.1.8  09/02/20   Modif font screenText                                    *
- *    1.0.9  17/02/20   Ajout large (font) varioscreenDigit                      *
- *    1.0.10 19/02/20   Ajout variolog                                           *
- *    1.0.11 21/02/20   Correction Bug d'affichage batterie                      *
- *    1.0.12 05/03/20   Ajout affichage AGL                                      *
- *    1.0.13 06/03/20   Ajout gestion icone DISPLAY_OBJECT_TREND                 *
- *    1.0.14 09/03/20   Modification de l'effacement digit left                  *
- *    1.0.15 08/04/20   Modification affichage des titres                        *
+ *    1.1.9  17/02/20   Ajout large (font) varioscreenDigit                      *
+ *    1.1.10 19/02/20   Ajout variolog                                           *
+ *    1.1.11 21/02/20   Correction Bug d'affichage batterie                      *
+ *    1.1.12 05/03/20   Ajout affichage AGL                                      *
+ *    1.1.13 06/03/20   Ajout gestion icone DISPLAY_OBJECT_TREND                 *
+ *    1.1.14 09/03/20   Modification de l'effacement digit left                  *
+ *    1.1.15 08/04/20   Modification affichage des titres                        *
+ *    1.1.16 13/04/20   Titre en mode texte                                      *
+ *    1.2.0  29/04/20   Modification font screedigit                             *
  *                                                                               *
  *********************************************************************************/
 

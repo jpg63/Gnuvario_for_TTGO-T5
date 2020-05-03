@@ -43,6 +43,7 @@
  *    1.0.13 07/03/20   Correction xSemaphore                                    *
  *    1.0.14 09/03/20   Modification ScreenViewSound                             *
  *    1.0.15 08/04/20   Modification affichage des titres                        *
+ *    1.1.0  29/04/20   Changement de font - repositionnement                    *
  *                                                                               *
  *********************************************************************************/
  
@@ -166,9 +167,9 @@ TaskHandle_t VarioScreen::screenTaskHandler;
 /* screen objets Page 0                  */
 /*****************************************/
 
-#define VARIOSCREEN_ALTI_ANCHOR_X 90  //110
+#define VARIOSCREEN_ALTI_ANCHOR_X 100  //110
 #define VARIOSCREEN_ALTI_ANCHOR_Y 80
-#define VARIOSCREEN_ALTI_UNIT_ANCHOR_X    90 //110
+#define VARIOSCREEN_ALTI_UNIT_ANCHOR_X    100 //110
 #define VARIOSCREEN_VARIO_ANCHOR_X 90 //98//#define VARIOSCREEN_VARIO_ANCHOR_X 5
 #define VARIOSCREEN_VARIO_ANCHOR_Y 135
 #define VARIOSCREEN_VARIO_UNIT_ANCHOR_X   92 //100
@@ -197,7 +198,7 @@ TaskHandle_t VarioScreen::screenTaskHandler;
 #define VARIOSCREEN_ELAPSED_TIME_ANCHOR_Y 190
 #define VARIOSCREEN_BT_ANCHOR_X 0
 #define VARIOSCREEN_BT_ANCHOR_Y 4
-#define VARIOSCREEN_TREND_ANCHOR_X 157 //120
+#define VARIOSCREEN_TREND_ANCHOR_X 147 //57 //120
 #define VARIOSCREEN_TREND_ANCHOR_Y 52  //111
 #define VARIOSCREEN_WIND_ANCHOR_X 200
 #define VARIOSCREEN_WIND_ANCHOR_Y 33

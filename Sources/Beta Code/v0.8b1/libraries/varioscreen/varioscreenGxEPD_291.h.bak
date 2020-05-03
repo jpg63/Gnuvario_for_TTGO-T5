@@ -65,6 +65,31 @@
 #define SCREEN_CORE 1
 #define SCREEN_PRIORITY 10
 
+#define MAX_CAR_TITRE_TIME 					15
+#define MAX_CAR_TITRE_TDV 					15 
+#define MAX_CAR_TITRE_ALTI 					8 
+#define MAX_CAR_TITRE_AGL 					8 
+#define MAX_CAR_TITRE_VARIO 				5
+#define MAX_CAR_TITRE_SPEED					7
+#define MAX_CAR_TITRE_FINESSE   		7
+#define MAX_CAR_TITRE_TCHUTE				7 
+#define MAX_CAR_TITRE_CAP						3
+#define MAX_CAR_TITRE_LAT						3
+#define MAX_CAR_TITRE_LONG 					4
+#define MAX_CAR_TITRE_COMPAS 				6
+#define MAX_CAR_TITRE_STAT        	11
+#define MAX_CAR_TITRE_DATE 					4
+#define MAX_CAR_TITRE_HEURE					5
+#define MAX_CAR_TITRE_DUREE 				5
+#define MAX_CAR_TITRE_VITESSE 			7
+#define MAX_CAR_TITRE_CONNECT   		10
+#define MAX_CAR_TITRE_CONNECTA	  	13
+#define MAX_CAR_TITRE_DEMAR     		9
+#define MAX_CAR_TITRE_REDEMAR     	11
+#define MAX_CAR_TITRE_ENCOURS 			8				
+#define MAX_CAR_TITRE_CALIBR   			12
+#define MAX_CAR_TITRE_VEILLE				14			
+
 /************************/
 /* The screen scheduler */
 /************************/
@@ -248,7 +273,8 @@ class VarioScreen {
 	void ScreenViewPage(int8_t page, boolean clear, boolean refresh = false);
 	void ScreenViewWifi(String SSID, String IP);
 	void ScreenViewReboot(String message = "");
-  void ScreenViewSound(int volume);	
+  boolean ScreenViewSound(void);	
+	void SetViewSound(int volume);	
 	void ScreenViewMessage(String message, int delai);
 	void ScreenBackground(int8_t page);
 		
@@ -265,6 +291,7 @@ class VarioScreen {
    static uint8_t volatile status;
    static TaskHandle_t screenTaskHandler;
    static void screenTask(void* param);
+	 int    viewSound;
 
 //  uint8_t clearingStep;
 };

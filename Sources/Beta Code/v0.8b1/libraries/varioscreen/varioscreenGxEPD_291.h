@@ -39,8 +39,13 @@
  *    1.0.9  03/02/20   changement de nom passage de 29 à 290                    *
  *    1.0.10 09/02/20   Modif écran 1 - font normal / coordonné GPS en degrés    *
  *    1.0.11 17/02/20   Ajout 2.90 et 2.91                                       *
+ *                      Ajout FONTLARGE / FONTNORMAL                             *
  *    1.0.12 25/02/20   Ajout ScreenBackground                                   *
  *    1.0.13 05/03/20   Ajout affichage alti agl                                 *
+ *    1.0.14 07/03/20   Correction xSemaphore                                    *
+ *    1.0.15 09/03/20   Modification ScreenViewSound                             *
+ *    1.0.16 08/04/20   Modification affichage des titres                        *
+ *    1.1.0  29/04/20   Changement de font - repositionnement                    *
  *                                                                               *
  *********************************************************************************/
 

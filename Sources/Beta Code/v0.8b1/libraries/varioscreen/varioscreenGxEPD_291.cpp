@@ -31,21 +31,23 @@
  *    1.0.2  06/10/19   Mise à jour ratamuse                                     *
  *    1.0.3  13/10/19   Integration au GnuVario                                  *
  *                      Ajout wind                                               *
- *    1.0.4  16/11/19   Modif updateScreen										 *    
- *	  1.0.5	 11/01/20		Modif ScreenViewPage						     	 *
+ *    1.0.4  16/11/19   Modif updateScreen										 									 *    
+ *	  1.0.5	 11/01/20		Modif ScreenViewPage						     	 									 *
  *                      VARIOSCREEN_SIZE == 290                                  *
- *    1.0.6  17/01/20   Desactivation effacement ligne 1534						 *
+ *    1.0.6  17/01/20   Desactivation effacement ligne 1534						 					 *
  *    1.0.7  18/01/20   Modif  ScreenViewMessage                                 *
  *    1.0.8  28/01/20   Modification écran 1 - ajout info gps                    *
  *    1.0.9  03/02/20   changement de nom passage de 29 à 290                    *
  *    1.0.10 09/02/20   Modif écran 1 - font normal / coordonné GPS en degrés    *
- *	  1.0.11 16/02/20	Adaptation écran 2.9" mode portrait						 *
- *	                    VARIOSCREEN_SIZE == 291									 *
+ *	  1.0.11 16/02/20		Adaptation écran 2.9" mode portrait						 					 *
+ *	                    VARIOSCREEN_SIZE == 291									 								 *
  *    1.0.12 23/02/20   Ajout d'objets texte (compass, Lat, Long), changement    *
- *					    de taille de texte                                       *
+ *					    				de taille de texte                                       *
  *    1.0.13 25/02/20   Ajout ScreenBackground                                   *
  *    1.0.14 05/03/20   Ajout affichage alti agl                                 *
-*********************************************************************************/
+ *    1.0.15 08/04/20   Modification affichage des titres                        *
+ *    1.1.0  29/04/20   Changement de font - repositionnement                    *
+ *********************************************************************************/
  /*
  *********************************************************************************
  *                    conversion image to cpp code                               *
@@ -90,6 +92,8 @@
 
 #include <VarioData.h>
 #include <AglManager.h>
+
+#include <VarioLanguage.h>
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/semphr.h"
@@ -320,22 +324,24 @@ void VarioScreen::createScreenObjects(void)
 	createScreenObjectsDisplayPage1();
 //	createScreenObjectsDisplayPage10();
 }	
+
+#define TAILLE_FONT FONTNORMAL
 	
 //****************************************************************************************************************************
 void VarioScreen::createScreenObjectsPage0(void) {
 //****************************************************************************************************************************
-	altiDigit = new ScreenDigit(VARIOSCREEN_ALTI_ANCHOR_X, VARIOSCREEN_ALTI_ANCHOR_Y, 4, 0, false, false, ALIGNRIGHT, true, DISPLAY_OBJECT_ALTI, FONTLARGE);
-	heightDigit = new ScreenDigit(VARIOSCREEN_ALTI_ANCHOR_X, VARIOSCREEN_ALTI_ANCHOR_Y, 4, 0, false, false, ALIGNRIGHT, true, DISPLAY_OBJECT_HEIGHT, FONTLARGE);
+	altiDigit = new ScreenDigit(VARIOSCREEN_ALTI_ANCHOR_X, VARIOSCREEN_ALTI_ANCHOR_Y, 4, 0, false, false, ALIGNRIGHT, true, DISPLAY_OBJECT_ALTI, TAILLE_FONT, MAX_CAR_TITRE_ALTI);
+	heightDigit = new ScreenDigit(VARIOSCREEN_ALTI_ANCHOR_X, VARIOSCREEN_ALTI_ANCHOR_Y, 4, 0, false, false, ALIGNRIGHT, true, DISPLAY_OBJECT_HEIGHT, TAILLE_FONT, MAX_CAR_TITRE_AGL);
 
 	munit = new MUnit(VARIOSCREEN_ALTI_UNIT_ANCHOR_X, VARIOSCREEN_ALTI_ANCHOR_Y-2);
-	varioDigit = new ScreenDigit(VARIOSCREEN_VARIO_ANCHOR_X, VARIOSCREEN_VARIO_ANCHOR_Y, 4, 1, true, false,  ALIGNRIGHT, true, DISPLAY_OBJECT_VARIO, FONTLARGE);
+	varioDigit = new ScreenDigit(VARIOSCREEN_VARIO_ANCHOR_X, VARIOSCREEN_VARIO_ANCHOR_Y, 4, 1, true, false,  ALIGNRIGHT, true, DISPLAY_OBJECT_VARIO, TAILLE_FONT, MAX_CAR_TITRE_VARIO);
  
 	msunit = new MSUnit(VARIOSCREEN_VARIO_UNIT_ANCHOR_X, VARIOSCREEN_VARIO_UNIT_ANCHOR_Y);
 	kmhunit = new KMHUnit(VARIOSCREEN_SPEED_UNIT_ANCHOR_X, VARIOSCREEN_SPEED_UNIT_ANCHOR_Y);
 	kmhunit = new KMHUnit(VARIOSCREEN_SPEED_UNIT_ANCHOR_X, VARIOSCREEN_SPEED_UNIT_ANCHOR_Y);
-	speedDigit = new ScreenDigit(VARIOSCREEN_SPEED_ANCHOR_X, VARIOSCREEN_SPEED_ANCHOR_Y, 2, 0, false, false, ALIGNRIGHT, true, DISPLAY_OBJECT_SPEED, FONTLARGE);
-	ratioDigit = new ScreenDigit(VARIOSCREEN_GR_ANCHOR_X, VARIOSCREEN_GR_ANCHOR_Y, 2, 0, false, true, ALIGNLEFT, true, DISPLAY_OBJECT_RATIO, FONTLARGE);
-	trendDigit = new ScreenDigit(VARIOSCREEN_GR_ANCHOR_X, VARIOSCREEN_GR_ANCHOR_Y, 3, 1, false, true, ALIGNLEFT, true, DISPLAY_OBJECT_TREND, FONTLARGE);
+	speedDigit = new ScreenDigit(VARIOSCREEN_SPEED_ANCHOR_X, VARIOSCREEN_SPEED_ANCHOR_Y, 2, 0, false, false, ALIGNRIGHT, true, DISPLAY_OBJECT_SPEED, TAILLE_FONT, MAX_CAR_TITRE_SPEED);
+	ratioDigit = new ScreenDigit(VARIOSCREEN_GR_ANCHOR_X, VARIOSCREEN_GR_ANCHOR_Y, 2, 0, false, true, ALIGNLEFT, true, DISPLAY_OBJECT_RATIO, TAILLE_FONT, MAX_CAR_TITRE_TCHUTE);
+	trendDigit = new ScreenDigit(VARIOSCREEN_GR_ANCHOR_X, VARIOSCREEN_GR_ANCHOR_Y, 3, 1, false, true, ALIGNLEFT, true, DISPLAY_OBJECT_TREND, TAILLE_FONT, MAX_CAR_TITRE_FINESSE);
 
 	infoLevel = new INFOLevel(VARIOSCREEN_INFO_ANCHOR_X, VARIOSCREEN_INFO_ANCHOR_Y);
 	volLevel = new VOLLevel(VARIOSCREEN_VOL_ANCHOR_X, VARIOSCREEN_VOL_ANCHOR_Y);
@@ -346,8 +352,8 @@ void VarioScreen::createScreenObjectsPage0(void) {
 
 	satLevel = new SATLevel(VARIOSCREEN_SAT_ANCHOR_X, VARIOSCREEN_SAT_ANCHOR_Y);
 
-	timeMDigit = new ScreenDigit (VARIOSCREEN_TIME_ANCHOR_X-55, VARIOSCREEN_TIME_ANCHOR_Y, 2, 0, false, true, ALIGNLEFT, false, DISPLAY_OBJECT_DURATION, FONTLARGE);
-	timeHDigit = new ScreenDigit (VARIOSCREEN_TIME_ANCHOR_X-73, VARIOSCREEN_TIME_ANCHOR_Y, 2, 0, false, true, ALIGNRIGHT, true, DISPLAY_OBJECT_TIME, FONTLARGE);
+	timeMDigit = new ScreenDigit (VARIOSCREEN_TIME_ANCHOR_X-55, VARIOSCREEN_TIME_ANCHOR_Y, 2, 0, false, true, ALIGNLEFT, false, DISPLAY_OBJECT_DURATION, TAILLE_FONT, MAX_CAR_TITRE_TIME);
+	timeHDigit = new ScreenDigit (VARIOSCREEN_TIME_ANCHOR_X-73, VARIOSCREEN_TIME_ANCHOR_Y, 2, 0, false, true, ALIGNRIGHT, true, DISPLAY_OBJECT_TIME, TAILLE_FONT, MAX_CAR_TITRE_TIME);
 
 	screenTime = new ScreenTime(VARIOSCREEN_TIME_ANCHOR_X, VARIOSCREEN_TIME_ANCHOR_Y, *timeHDigit, *timeMDigit,false);
 	screenElapsedTime = new ScreenElapsedTime(VARIOSCREEN_ELAPSED_TIME_ANCHOR_X, VARIOSCREEN_ELAPSED_TIME_ANCHOR_Y, *timeHDigit, *timeMDigit);
@@ -355,7 +361,7 @@ void VarioScreen::createScreenObjectsPage0(void) {
 	fixgpsinfo = new FIXGPSInfo(VARIOSCREEN_SAT_FIX_ANCHOR_X, VARIOSCREEN_SAT_FIX_ANCHOR_Y);
 	btinfo = new BTInfo(VARIOSCREEN_BT_ANCHOR_X, VARIOSCREEN_BT_ANCHOR_Y);
 	gpsBearingText = new ScreenText(VARIOSCREEN_BEARING_TEXT_ANCHOR_X, VARIOSCREEN_BEARING_TEXT_ANCHOR_Y, 3, FONTNORMAL, ALIGNLEFT, true, DISPLAY_OBJECT_BEARING_TEXT);
-	gpsBearing = new ScreenDigit(VARIOSCREEN_BEARING_ANCHOR_X, VARIOSCREEN_BEARING_ANCHOR_Y, 3, 0, false, false, ALIGNRIGHT, true, DISPLAY_OBJECT_BEARING, FONTLARGE);
+	gpsBearing = new ScreenDigit(VARIOSCREEN_BEARING_ANCHOR_X, VARIOSCREEN_BEARING_ANCHOR_Y, 3, 0, false, false, ALIGNRIGHT, true, DISPLAY_OBJECT_BEARING, TAILLE_FONT, MAX_CAR_TITRE_CAP);
 	
 	
 	//separationline = new SeparationLine(VARIOSCREEN_SEPARATIONLINE_ANCHOR_X, VARIOSCREEN_SEPARATIONLINE_ANCHOR_Y);
@@ -386,13 +392,13 @@ void VarioScreen::createScreenObjectsPage1(void) {
 //  gpsLatDir 					= new ScreenText(VARIOSCREEN_LATDIR_ANCHOR_X, VARIOSCREEN_LAT_ANCHOR_Y, 1, FONTLARGE, ALIGNLEFT, false, DISPLAY_OBJECT_LAT_DIR);
 //	gpsLongDir					= new ScreenText(VARIOSCREEN_LONGDIR_ANCHOR_X, VARIOSCREEN_LONG_ANCHOR_Y, 1, FONTLARGE, ALIGNLEFT, false, DISPLAY_OBJECT_LONG_DIR);
 //	gpsBearingText			    = new ScreenText(VARIOSCREEN_BEARING_TEXT_ANCHOR_X, VARIOSCREEN_BEARING_TEXT_ANCHOR_Y, 3, FONTNORMAL, ALIGNLEFT, false, DISPLAY_OBJECT_BEARING_TEXT);
-//	gpsBearing 					= new ScreenDigit(VARIOSCREEN_BEARING_ANCHOR_X, VARIOSCREEN_BEARING_ANCHOR_Y, 3, 0, false, false, ALIGNRIGHT, true, DISPLAY_OBJECT_BEARING, FONTNORMAL);
+//	gpsBearing 					= new ScreenDigit(VARIOSCREEN_BEARING_ANCHOR_X, VARIOSCREEN_BEARING_ANCHOR_Y, 3, 0, false, false, ALIGNRIGHT, true, DISPLAY_OBJECT_BEARING, FONTNORMAL, MAX_CAR_TITRE_CAP);
 //	gpsLat    					= new ScreenDigit(VARIOSCREEN_LAT_ANCHOR_X, VARIOSCREEN_LAT_ANCHOR_Y, 6, 3, false, false, ALIGNRIGHT, false, DISPLAY_OBJECT_LAT);
 //	gpsLong   					= new ScreenDigit(VARIOSCREEN_LONG_ANCHOR_X, VARIOSCREEN_LONG_ANCHOR_Y, 6, 3, false, false, ALIGNRIGHT, false, DISPLAY_OBJECT_LONG);
     gpsLat 						= new ScreenText(VARIOSCREEN_LAT_ANCHOR_X, VARIOSCREEN_LAT_ANCHOR_Y, 11, FONTNORMAL, ALIGNLEFT, true, DISPLAY_OBJECT_LAT);
 	gpsLong					    = new ScreenText(VARIOSCREEN_LONG_ANCHOR_X, VARIOSCREEN_LONG_ANCHOR_Y, 11, FONTNORMAL, ALIGNLEFT, true, DISPLAY_OBJECT_LONG);
 	kmhunit						= new KMHUnit(VARIOSCREEN_SPEED_UNIT_ANCHOR_X, VARIOSCREEN_SPEED_UNIT_ANCHOR_Y);	
-	speedDigit	 				= new ScreenDigit(VARIOSCREEN_SPEED_ANCHOR_X, VARIOSCREEN_SPEED_ANCHOR_Y, 2, 0, false, false, ALIGNRIGHT, true, DISPLAY_OBJECT_SPEED, FONTLARGE);
+	speedDigit	 				= new ScreenDigit(VARIOSCREEN_SPEED_ANCHOR_X, VARIOSCREEN_SPEED_ANCHOR_Y, 2, 0, false, false, ALIGNRIGHT, true, DISPLAY_OBJECT_SPEED, TAILLE_FONT, MAX_CAR_TITRE_SPEED);
 //	tempDigit 					= new ScreenDigit(VARIOSCREEN_TEMP_ANCHOR_X, VARIOSCREEN_TEMP_ANCHOR_Y, 2, 0, false, false, ALIGNLEFT, false, DISPLAY_OBJECT_TEMPERATURE);
 //	tunit 						= new TUnit(VARIOSCREEN_TEMP_UNIT_ANCHOR_X, VARIOSCREEN_TEMP_ANCHOR_Y);
 }
@@ -576,9 +582,9 @@ void VarioScreen::CreateObjectDisplay(int8_t ObjectDisplayTypeID, VarioScreenObj
 
 /*TaskHandle_t taskDisplay;
 
-//****************************************************************************************************************************
+// ****************************************************************************************************************************
 void genericTask( void * parameter ){
-//****************************************************************************************************************************
+// ****************************************************************************************************************************
   stateDisplay = STATE_BUSY;
 #ifdef SCREEN_DEBUG
     SerialPort.print("Created task: Executing on core ");
@@ -597,9 +603,9 @@ void genericTask( void * parameter ){
 
 */
 
-//****************************************************************************************************************************
+// ****************************************************************************************************************************
 void VarioScreen::screenTask( void * parameter ){
-//****************************************************************************************************************************
+// ****************************************************************************************************************************
 
   while( true ) {
 
@@ -638,9 +644,9 @@ void VarioScreen::screenTask( void * parameter ){
   }
 }
 
-//****************************************************************************************************************************
+// ****************************************************************************************************************************
 void VarioScreen::updateScreen (void)
-//****************************************************************************************************************************
+// ****************************************************************************************************************************
 {
 #ifdef SCREEN_DEBUG2
 	SerialPort.println("screen update");	
@@ -710,9 +716,9 @@ void VarioScreen::updateScreen (void)
 
 }*/
 
-//****************************************************************************************************************************
+// ****************************************************************************************************************************
 void VarioScreen::updateScreenNB (void)
-//****************************************************************************************************************************
+// ****************************************************************************************************************************
 {
 #ifdef SCREEN_DEBUG2
 	SerialPort.println("screen updateNB");	
@@ -722,9 +728,9 @@ void VarioScreen::updateScreenNB (void)
 
 }
 
-//****************************************************************************************************************************
+// ****************************************************************************************************************************
 void VarioScreen::updateData(int8_t ObjectDisplayTypeID, double data) {
-//****************************************************************************************************************************
+// ****************************************************************************************************************************
 	
 	#ifdef SCREEN_DEBUG
 	SerialPort.println("updateData");	
@@ -754,15 +760,15 @@ void VarioScreen::updateData(int8_t ObjectDisplayTypeID, double data) {
 	}
 }
 
-//****************************************************************************************************************************
+// ****************************************************************************************************************************
 void VarioScreen::clearScreen() {
-//****************************************************************************************************************************
+// ****************************************************************************************************************************
   display.clearScreen();
 }
 
-//****************************************************************************************************************************
+// ****************************************************************************************************************************
 void VarioScreen::ScreenViewInit(uint8_t Version, uint8_t Sub_Version, String Author, uint8_t Beta_Code)
-//****************************************************************************************************************************
+// ****************************************************************************************************************************
 {
   char tmpbuffer[100];
 	
@@ -844,9 +850,9 @@ void VarioScreen::ScreenViewInit(uint8_t Version, uint8_t Sub_Version, String Au
   }*/	
 }
 
-//****************************************************************************************************************************
+// ****************************************************************************************************************************
 void VarioScreen::ScreenViewPage(int8_t page, boolean clear, boolean refresh)
-//****************************************************************************************************************************
+// ****************************************************************************************************************************
 {
 	
 #ifdef SCREEN_DEBUG
@@ -1118,7 +1124,7 @@ void VarioScreen::ScreenViewWifi(String SSID, String IP)
 
 			display.setTextSize(1);
 			display.setCursor(5, 90);
-			display.print("Connection ...");
+			display.print(varioLanguage.getText(TITRE_CONNECT));  //"Connection ...");
 		}
 		while (display.nextPage());
 		
@@ -1129,7 +1135,7 @@ void VarioScreen::ScreenViewWifi(String SSID, String IP)
 
 	} else if ((SSID != "") && (IP != "")) {
 		display.setCursor(5, 120);
-		display.print("Connection a ");
+		display.print(varioLanguage.getText(TITRE_CONNECTA)); //"Connection a ");
 
 		display.setCursor(0, 150);
 		display.print(SSID);
@@ -1144,7 +1150,7 @@ void VarioScreen::ScreenViewWifi(String SSID, String IP)
 		updateScreen ();
 	} else {
 		display.setCursor(30, 200);
-		display.print("START");
+		display.print(varioLanguage.getText(TITRE_DEMAR)); //"START");
 		
 #ifdef SCREEN_DEBUG
 		SerialPort.println("ScreenViewWifi : start");	
@@ -1181,12 +1187,12 @@ void VarioScreen::ScreenViewReboot(String message)
 		display.setTextSize(1);
 		display.setCursor(5, 130);
 		if (message == "")
-			display.print("Redemarrage");
+			display.print(varioLanguage.getText(TITRE_REDEMAR)); //"Redemarrage");
 		else 
 			display.print(message);
 		
  		display.setCursor(5, 150);
-		display.print("en cours");
+		display.print(varioLanguage.getText(TITRE_ENCOURS)); //"en cours");
   }
   while (display.nextPage());
 }
@@ -1501,11 +1507,11 @@ boolean VarioScreen::ScreenViewSound(void)
 //		display.clearScreen(ColorScreen);
 
 	int volume = viewSound;
-#ifdef SCREEN_DEBUG
+#ifdef SCREEN_DEBUG2
 		SerialPort.println("Show : VolLevel");
 #endif //SCREEN_DEBUG
 
-#ifdef SCREEN_DEBUG
+#ifdef SCREEN_DEBUG2
 		SerialPort.print("Volume : ");
 		SerialPort.println(volume);
 #endif //SCREEN_DEBUG

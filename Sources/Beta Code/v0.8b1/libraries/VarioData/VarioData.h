@@ -64,6 +64,12 @@
 		constexpr int8_t historyGPSPeriodCount = (int8_t)(0.5 + historyGPSPeriodCountF);
 #endif
 
+#define	GPSFIX_NOGPS		0				//no gps
+#define GPSFIX_INIT			1				//time
+#define GPSFIX_FIX			2				//gps fix
+#define GPSFIX_RECORD 	3				//record data
+#define GPSFIX_NORECORD	4				//no record file
+
 class VarioData
 {
 public:
@@ -159,6 +165,11 @@ private:
 		double 	climbRateBuzzer;
 		bool   	haveNewClimbRateDataBuzzer = false;
 		uint8_t variometerState;
+		
+		bool 		CompteurStartFlyEnable 	= false;
+		unsigned long	TimeStartFly;
+		uint8_t	CompteurStartFly	= 0;
+
 };
 
 extern VarioData varioData;
