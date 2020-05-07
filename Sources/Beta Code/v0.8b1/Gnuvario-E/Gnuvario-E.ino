@@ -261,8 +261,9 @@
 * AJOUT - Réglage sensibilité filtre kalman et vario                                                  *                                         
 * BUG   - champs trop grand dans statistique                                                          *
 * BUG   - Grésillement Buzzer                                                                         * 
-* BUG   - Affichage Heure                                                                             *
-* BUG   - Effacement logo montre                                                                      *                                                                                                    *
+* BUG   - Affichage Heure ":"                                                                              *
+* BUG   - Effacement logo montre version 1.54                                                         *                                                                                                    
+* BUG   - Affichage vario dans version 1.54                                                           *
 *                                                                                                     *
 * VX.X                                                                                                *
 * Paramètrage des écrans                                                                              *
@@ -411,6 +412,8 @@
  *              Liens utiles                                                                                  *
  *                                                                                                            *
  * https://learn.sparkfun.com/tutorials/9dof-razor-imu-m0-hookup-guide/all#libraries-and-example-firmware     *        
+ *                                                                                                            *
+ * AGL : https://vps.skybean.eu/agl/                                                                          *
  *                                                                                                            *
  **************************************************************************************************************/
 
@@ -1638,7 +1641,7 @@ void loop()
 #endif //HAVE_BLUETOOTH
 
 #ifdef HAVE_SCREEN
-        if ((varioData.gpsFix > 0) && (varioData.gpsFix < 3))  screen.setActifGPSFIX();
+        if ((varioData.gpsFix > 0) && (varioData.gpsFix < 3))  screen.recordIndicator->setActifGPSFIX();
         if (varioData.gpsFix == 2) screen.fixgpsinfo->setFixGps();
         
 #endif //HAVE_SCREEN
@@ -1714,6 +1717,10 @@ void loop()
         screen.screenElapsedTime->setCurrentTime(screen.screenTime->getTime());
         varioData.flystat.SetTime(screen.screenTime->getTime());
         varioData.flystat.SetDuration(screen.screenElapsedTime->getTime());
+      }
+      else
+      {
+        screen.screenElapsedTime->setCurrentTime(screen.screenTime->getTime());       
       }
     }
 

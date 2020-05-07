@@ -2463,8 +2463,8 @@ void ScreenTime::show(void) {
   SerialPort.println("Show : ScreenTime");
 #endif //SCREEN_DEBUG
 
-  display.fillRect(posX-70, posY-32, 65, 34, GxEPD_WHITE);
-// 	display.drawRect(posX-70, posY-32, 65, 34, GxEPD_BLACK);
+  display.fillRect(posX-55, posY-32, 25, 34, GxEPD_WHITE);
+// 	display.drawRect(posX-55, posY-32, 25, 34, GxEPD_BLACK);
 
 
 
@@ -2480,7 +2480,7 @@ void ScreenTime::show(void) {
 		SerialPort.println("dot_or_h  : DOT");
 #endif //SCREEN_DEBUG
   
-    display.drawBitmap(posX-72, posY-25, doticons, 16, 24, GxEPD_BLACK);   //GxEPD_BLACK);
+    display.drawBitmap(posX-72, posY-20, doticons, 16, 24, GxEPD_BLACK);   //GxEPD_BLACK);
 	}
 
 #ifdef SCREEN_DEBUG
@@ -2497,7 +2497,7 @@ void ScreenTime::show(void) {
   minute.setValue(time[1]);
   minute.show();
 
-  display.fillRect(posX-125, posY-10-27, 88, 9, GxEPD_WHITE);
+  display.fillRect(posX-130, posY-10-28, 88, 10, GxEPD_WHITE);
 	
 	display.setFont(&NotoSans6pt7b); 
 	display.setTextColor(ColorText);
