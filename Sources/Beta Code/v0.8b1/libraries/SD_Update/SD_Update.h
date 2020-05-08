@@ -49,7 +49,10 @@
 #endif
 #endif
 
+#ifndef ARDUINOTRACE_SERIAL
 #define ARDUINOTRACE_SERIAL SerialPort
+#endif 
+
 #include <ArduinoTrace.h>
 
 
