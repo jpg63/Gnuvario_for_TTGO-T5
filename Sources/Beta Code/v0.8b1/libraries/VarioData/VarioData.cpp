@@ -70,6 +70,8 @@
 
 #include <varioscreenGxEPD.h>
 
+#include <math.h>
+
 /**********************/
 /* SDCARD objects     */
 /**********************/
@@ -324,6 +326,8 @@ bool VarioData::initLog(void)
 
   INFOLOG(tmpStr);
   TRACELOG(LOG_TYPE_DEBUG, MAIN_DEBUG_LOG);
+
+  return true;
 }
 
 
@@ -334,7 +338,7 @@ bool VarioData::initLog(void)
 bool VarioData::initAGL(void) 
 //*******************************************
 {
-  aglManager.init();
+  return (aglManager.init());
 }
 
 //***********************************************
@@ -592,9 +596,9 @@ void VarioData::update(void)
 	} */
 	
 	/*
-    //**********************************************************
+    // **********************************************************
     //  TEST INNACTIVITE
-    //**********************************************************
+    // **********************************************************
 
     if (abs(varioData.kalmanvert.getVelocity()) > GnuSettings.SLEEP_THRESHOLD_CPS)
     {
@@ -613,9 +617,9 @@ void VarioData::update(void)
       deep_sleep("Power off");
     }
 
-    //**********************************************************
+    // **********************************************************
     //  TRAITEMENT DES DONNEES
-    //**********************************************************
+    // **********************************************************
 
     // * set history *
 #if defined(HAVE_GPS)
@@ -637,18 +641,18 @@ void VarioData::update(void)
 
     // set screen *
 
-    //**********************************************************
+    // **********************************************************
     //  MAJ STATISTIQUE
-    //**********************************************************
+    // **********************************************************
 
     varioData.flystat.SetAlti(currentalti);
     varioData.flystat.SetVario(currentvario);
 
 #ifdef HAVE_SCREEN
 
-    //**********************************************************
+    // **********************************************************
     //  DISPLAY ALTI
-    //**********************************************************
+    // **********************************************************
 
 #ifdef DATA_DEBUG
     //   SerialPort.print("altitude : ");
@@ -663,9 +667,9 @@ void VarioData::update(void)
 #endif
     }
 
-    //**********************************************************
+    // **********************************************************
     //  DISPLAY VARIO
-    //**********************************************************
+    // **********************************************************
 
     if (GnuSettings.VARIOMETER_DISPLAY_INTEGRATED_CLIMB_RATE)
     {
@@ -681,9 +685,9 @@ void VarioData::update(void)
         screen.varioDigit->setValue(currentvario);
     }
 
-    //**********************************************************
+    // **********************************************************
     //  DISPLAY FINESSE / TAUX DE CHUTE MOYEN
-    //**********************************************************
+    // **********************************************************
 
     if (varioData.history.haveNewClimbRate())
     {
@@ -1331,9 +1335,11 @@ void VarioData::updateVoltage(void) {
 #endif //HAVE_VOLTAGE_DIVISOR
 }
 
+/*******************************************/
+int VarioData::getCap(void) {
+/*******************************************/
 
 /*
-
 > > > Pour la cap magnetique, je pense que tu as compris le principe de base :
 > > > 1) Tu testes si tu as une valeur d'accélération (haveAccel)
 > > > 2) Si oui tu lis l'accélération. (getAccel) en lisant en même temps le
@@ -1364,3 +1370,31 @@ void VarioData::updateVoltage(void) {
 > > > Normalement tu aura alors une flèche qui pointe vers le nord.
 
 */
+
+	int cap = -1;
+	if (twScheduler.haveAccel() ) {
+		double vertVector[3];
+		double vertAccel = twScheduler.getAccel(vertVector);
+		
+		if (twScheduler.haveMag() ) {
+			double northVector[2];
+			twScheduler.getNorthVector(vertVector,  northVector);
+			 
+			double norm = sqrt(northVector[0]*northVector[0]+northVector[1]*northVector[1]);
+			northVector[0] = northVector[0]/norm;
+			northVector[1] = northVector[1]/norm;
+			
+			DUMP(northVector[0]);
+			DUMP(northVector[1]);
+			
+			int tmpcap = 180 - atan2(northVector[1],northVector[0]) * 180/M_PI;
+			
+			tmpcap = 360 - tmpcap;
+			
+			DUMP(tmpcap);
+			return tmpcap;
+		}
+	}
+
+	return cap;
+}

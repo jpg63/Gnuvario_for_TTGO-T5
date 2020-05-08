@@ -285,7 +285,7 @@ class ScreenText: public VarioScreenObject {
 // TitleY       Position du titre en Y
 
  public :
-   ScreenText(uint16_t anchorX, uint16_t anchorY, uint16_t width, bool large = FONTLARGE, int8_t Align = ALIGNLEFT, boolean showtitle = true, 	int8_t displayTypeID = 0);
+   ScreenText(uint16_t anchorX, uint16_t anchorY, uint16_t width, bool large = FONTLARGE, int8_t Align = ALIGNLEFT, boolean showtitle = true, 	int8_t displayTypeID = 0, int nbCarTitle = 0);
  //  : VarioScreenObject(0), anchorX(anchorX), anchorY(anchorY), width(width), precision(precision), plusDisplay(plusDisplay), zero(zero), leftAlign(leftAlign), showtitle(showtitle)
  // { lastDisplayWidth = 0; }
   void show(void);
@@ -303,6 +303,8 @@ class ScreenText: public VarioScreenObject {
 	uint16_t Zwidth, Zheight;
 	uint16_t MaxWidth, MaxHeight;
 	int8_t displayTypeID;
+	int nbCarTitle;
+	int MaxTitleWidth, MaxTitleHeight;
 };
 
 /* meters unit */

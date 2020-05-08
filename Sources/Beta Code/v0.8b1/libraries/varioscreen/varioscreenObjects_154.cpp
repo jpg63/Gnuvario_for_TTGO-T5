@@ -453,7 +453,7 @@ ScreenDigit::ScreenDigit(uint16_t anchorX, uint16_t anchorY, uint16_t width, uin
 /*
 	char TmpChar[MAX_CHAR_IN_LINE];
 
-/*  int i,j,plus=0;
+    int i,j,plus=0;
 	
 	if (plusDisplay) {
 		TmpChar[width+1] = '+';
@@ -521,7 +521,7 @@ ScreenDigit::ScreenDigit(uint16_t anchorX, uint16_t anchorY, uint16_t width, uin
 			MaxHeight  = Zheight;
 			break;
 
-/*		case DISPLAY_OBJECT_HEIGHT :
+*		case DISPLAY_OBJECT_HEIGHT :
 #if defined (MAXW_OBJECT_ALTI)		
 		  MaxWidth   = MAXW_OBJECT_ALTI;
 #else

@@ -38,13 +38,18 @@
 
 #include <VarioLog.h>
 
+#ifndef ARDUINOTRACE_ENABLE
 #ifdef HARDWARE_DEBUG
 #define ARDUINOTRACE_ENABLE 1
 #else
 #define ARDUINOTRACE_ENABLE 0
 #endif
+#endif
 
+#ifndef ARDUINOTRACE_SERIAL
 #define ARDUINOTRACE_SERIAL SerialPort
+#endif
+
 #include <ArduinoTrace.h>
 
 
@@ -234,6 +239,13 @@ bool VarioHardwareManager::updateGps(Kalmanvert kalmanvert)
 			serialNmea.lock(); //will be writed at next loop
 		}
 #endif //HAVE_BLUETOOTH
+    return true;
   }
+  else 
+  {
+    return false;
+  }
+#else //HAVE_GPS
+  return false;
 #endif //HAVE_GPS
 }

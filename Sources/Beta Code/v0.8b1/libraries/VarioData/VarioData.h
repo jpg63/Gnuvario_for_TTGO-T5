@@ -70,6 +70,17 @@
 #define GPSFIX_RECORD 	3				//record data
 #define GPSFIX_NORECORD	4				//no record file
 
+#define STATE_PAGE_INIT 0
+#define STATE_PAGE_VARIO 1
+#define STATE_PAGE_CONFIG 2
+#define STATE_PAGE_STAT 3
+#define STATE_PAGE_GPSCAL 4
+#define STATE_PAGE_WEBSERV 5
+#define STATE_PAGE_CONFIG_SOUND 6
+#define STATE_PAGE_DEEP_SLEEP 7
+#define STATE_PAGE_CALIBRATION 8
+#define STATE_PAGE_CALIBRATE 9
+
 class VarioData
 {
 public:
@@ -95,6 +106,7 @@ public:
 		double 	getTrend();
 		int    	getStateTrend();
 		uint8_t getVariometerState();
+		int 		getCap();
 		
 		bool 	 	haveNewClimbRate();
 				

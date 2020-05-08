@@ -59,7 +59,7 @@ AglManager::AglManager()
 }
 
 //****************************************************************************************************************************
-void AglManager::init(void)
+bool AglManager::init(void)
 //****************************************************************************************************************************
 {
     char tmpFileName[15] = AGL_Directory;
@@ -73,6 +73,7 @@ void AglManager::init(void)
     SerialPort.print("INIT AGL : Directory exists : ");
     SerialPort.println(Directory_AGL_Exists);
 #endif //AGL_DEBUG
+  return Directory_AGL_Exists;
 }
 
 //****************************************************************************************************************************
@@ -213,7 +214,7 @@ boolean AglManager::IsOk(void)
 float AglManager::degMinToDeg(float value)
 //****************************************************************************************************************************
 {
-    float r = value;
+//    float r = value;
     int intValue = value;
     float min = value - intValue;
     float decimal = min / 0.6;

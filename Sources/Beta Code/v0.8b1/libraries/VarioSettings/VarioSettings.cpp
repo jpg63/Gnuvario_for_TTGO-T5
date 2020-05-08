@@ -931,7 +931,7 @@ uint8_t VarioSettings::soundSettingRead(void) {
     eepromTag <<= 8;
     eepromTag += EEPROMHAL.read(SOUND_EEPROM_ADDR + 0x01);
   
-    uint8_t TmpValue;
+//    uint8_t TmpValue;
     if( eepromTag != SOUND_EEPROM_TAG ) { 
 /*#ifdef HAVE_SDCARD
 	    if (!readFlashSDSettings()) {

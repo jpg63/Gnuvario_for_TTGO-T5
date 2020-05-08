@@ -458,7 +458,7 @@ ScreenDigit::ScreenDigit(uint16_t anchorX, uint16_t anchorY, uint16_t width, uin
 
 	char TmpChar[MAX_CHAR_IN_LINE];
 
-/*  int i,j,plus=0;
+    int i,j,plus=0;
 	
 	if (plusDisplay) {
 		TmpChar[width+1] = '+';

@@ -249,6 +249,9 @@ class VarioScreen {
 	ScreenText*   gpsLat;
 	ScreenText*   gpsLong;
 	
+	ScreenText*   bearingText;
+	ScreenDigit*  bearing;
+	
 //  ScreenSchedulerObject* displayList;
 	ScreenSchedulerObject displayList[40];  //17];
 	ScreenScheduler* schedulerScreen; 

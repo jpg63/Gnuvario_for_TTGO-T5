@@ -238,6 +238,7 @@
 *               27/04/20             Correction écran 1.54''                                          *
 *               29/04/20             Changement de font - modification screenDigit                    *
 *               03/05/20             Correction bug d'affichage                                       *
+*               08/05/20             Compas Magnetique
 *******************************************************************************************************
 *                                                                                                     *
 *                                   Developpement a venir                                             *
@@ -473,7 +474,10 @@
 #define ARDUINOTRACE_ENABLE 0
 #endif
 
+#ifndef ARDUINOTRACE_SERIAL
 #define ARDUINOTRACE_SERIAL SerialPort
+#endif
+
 #include <ArduinoTrace.h>
 //#include "myassert.h"
 
@@ -1074,17 +1078,17 @@ void loop()
       //      screen.tunit->toDisplay();
     }
 
-    //**********************************************************
+    // **********************************************************
     //  UPDATE BEEPER
-    //**********************************************************
+    // **********************************************************
 
 #ifdef HAVE_SPEAKER
     beeper.setVelocity(varioData.kalmanvert.getVelocity());
 #endif //HAVE_SPEAKER
 
-    //**********************************************************
+    // **********************************************************
     //  TEST INNACTIVITE
-    //**********************************************************
+    // **********************************************************
 
     if (abs(varioData.kalmanvert.getVelocity()) > GnuSettings.SLEEP_THRESHOLD_CPS)
     {
@@ -1103,9 +1107,9 @@ void loop()
       deep_sleep("Power off");
     }
 
-    //**********************************************************
+    // **********************************************************
     //  TRAITEMENT DES DONNEES
-    //**********************************************************
+    // **********************************************************
 
     // set history 
 #if defined(HAVE_GPS)
@@ -1127,18 +1131,18 @@ void loop()
 
     // set screen 
 
-    //**********************************************************
+    // **********************************************************
     //  MAJ STATISTIQUE
-    //**********************************************************
+    // **********************************************************
 
     varioData.flystat.SetAlti(currentalti);
     varioData.flystat.SetVario(currentvario);
 
 #ifdef HAVE_SCREEN
 
-    //**********************************************************
+    // **********************************************************
     //  DISPLAY ALTI
-    //**********************************************************
+    // **********************************************************
 
 #ifdef DATA_DEBUG
     //   SerialPort.print("altitude : ");
@@ -1153,9 +1157,9 @@ void loop()
 #endif
     }
 
-    //**********************************************************
+    // **********************************************************
     //  DISPLAY VARIO
-    //**********************************************************
+    // **********************************************************
 
     if (GnuSettings.VARIOMETER_DISPLAY_INTEGRATED_CLIMB_RATE)
     {
@@ -1171,9 +1175,9 @@ void loop()
         screen.varioDigit->setValue(currentvario);
     }
 
-    //**********************************************************
+    // **********************************************************
     //  DISPLAY FINESSE / TAUX DE CHUTE MOYEN
-    //**********************************************************
+    // **********************************************************
 
     if (varioData.history.haveNewClimbRate())
     {
@@ -1235,9 +1239,9 @@ void loop()
     {
       compteurErrorMPU = 20;
 
-      //**********************************************************
+      // **********************************************************
       //  DISABLE BEEPER
-      //**********************************************************
+      // **********************************************************
 
 #ifdef HAVE_SPEAKER
       beeper.setVelocity(0);
@@ -1347,7 +1351,7 @@ void loop()
     serialNmea.release();
   }
 #else //!HAVE_GPS
-  //* check the last vario nmea sentence *
+  // * check the last vario nmea sentence *
   if (millis() - lastVarioSentenceTimestamp > VARIOMETER_SENTENCE_DELAY)
   {
     lastVarioSentenceTimestamp = millis();
@@ -1398,13 +1402,13 @@ void loop()
       varioHardwareManager.varioBle->lastSentence = true;
 #endif //HAVE_BLUETOOTH
 #ifdef HAVE_SDCARD
-      //* start to write IGC B frames *
+      // * start to write IGC B frames *
       if (!GnuSettings.NO_RECORD)
         igcSD.writePosition(varioData.kalmanvert);
 #endif //HAVE_SDCARD
     }
 
-    //* parse if needed *
+    // * parse if needed *
     if (nmeaParser.isParsing())
     {
 
@@ -1420,7 +1424,7 @@ void loop()
       {
         uint8_t c = serialNmea.read();
 
-        //* parse sentence *
+        // * parse sentence *
         nmeaParser.feed(c);
 
 #ifdef NMEAPARSER_DEBUG
@@ -1429,7 +1433,7 @@ void loop()
 #endif //NMEAPARSER_DEBUG
 
 #ifdef HAVE_SDCARD
-        //* if GGA, convert to IGC and write to sdcard *
+        // * if GGA, convert to IGC and write to sdcard *
         if (sdcardState == SDCARD_STATE_READY && nmeaParser.isParsingGGA())
         {
           igc.feed(c);
@@ -1455,8 +1459,8 @@ void loop()
 #endif //SDCARD_DEBUG
 
 #ifdef HAVE_BLUETOOTH
-      //* if this is the last GPS sentence *
-      //* we can send our sentences *
+      // * if this is the last GPS sentence *
+      // * we can send our sentences *
       if (varioHardwareManager.varioBle->lastSentence)
       {
         varioHardwareManager.varioBle->lastSentence = false;
@@ -1480,14 +1484,14 @@ void loop()
      varioData.updateState();
 
 /*
-    //***************************
-    //* update variometer state *
-    //*    (after parsing)      *
-    //***************************
+    // ***************************
+    // * update variometer state *
+    // *    (after parsing)      *
+    // ***************************
     if (varioData.variometerState < VARIOMETER_STATE_FLIGHT_STARTED)
     {
 
-      //* if initial state check if date is recorded  *
+      // * if initial state check if date is recorded  *
       if (varioData.variometerState == VARIOMETER_STATE_INITIAL)
       {
         if (nmeaParser.haveDate())
@@ -1501,7 +1505,7 @@ void loop()
         }
       }
 
-      //* check if we need to calibrate the altimeter *
+      // * check if we need to calibrate the altimeter *
       else if (varioData.variometerState == VARIOMETER_STATE_DATE_RECORDED)
       {
 
@@ -1512,7 +1516,7 @@ void loop()
         SerialPort.println(VARIOMETER_GPS_ALTI_CALIBRATION_PRECISION_THRESHOLD);
 #endif //GPS_DEBUG
 
-        //* we need a good quality value *
+        // * we need a good quality value *
         if (nmeaParser.haveNewAltiValue() && nmeaParser.precision < VARIOMETER_GPS_ALTI_CALIBRATION_PRECISION_THRESHOLD)
         {
 
@@ -1549,7 +1553,7 @@ void loop()
             SerialPort.println("GPS FIX");
 #endif //GPS_DEBUG
 
-            //* calibrate *
+            // * calibrate *
 #ifdef HAVE_SPEAKER
             if (GnuSettings.ALARM_GPSFIX)
             {
@@ -1606,7 +1610,7 @@ void loop()
         }
       }
 
-      //* else check if the flight have started *
+      // * else check if the flight have started *
       else
       { //variometerState == VARIOMETER_STATE_CALIBRATED
 
@@ -1662,7 +1666,7 @@ void loop()
 #ifndef HAVE_GPS
   if (varioHardwareManager.variometerState == VARIOMETER_STATE_CALIBRATED)
   { //already calibrated at start
-    /*    if( (millis() > GnuSettings.FLIGHT_START_MIN_TIMESTAMP) &&
+    / *    if( (millis() > GnuSettings.FLIGHT_START_MIN_TIMESTAMP) &&
         (kalmanvert.getVelocity() < GnuSettings.FLIGHT_START_VARIO_LOW_THRESHOLD || kalmanvert.getVelocity() > GnuSettings.FLIGHT_START_VARIO_HIGH_THRESHOLD) ) {
       variometerState = VARIOMETER_STATE_FLIGHT_STARTED;
       enableflightStartComponents();*
@@ -1729,7 +1733,7 @@ void loop()
 #ifdef GPS_DEBUG
     SerialPort.print("Sat : ");
     SerialPort.println(nmeaParser.satelliteCount);
-#endif //GPS_DEBUG \
+#endif //GPS_DEBUG 
        //    DUMPLOG(LOG_TYPE_DEBUG,GPS_DEBUG_LOG,nmeaParser.satelliteCount);
   }
 #endif //HAVE_GPS
@@ -1850,7 +1854,7 @@ void loop()
     //  int tmpVoltage = analogRead(VOLTAGE_DIVISOR_PIN);
     //  if (maxVoltage < tmpVoltage) {maxVoltage = tmpVoltage;}
 
-    //* update battery level *
+    // * update battery level *
 
 #if defined(VOLTAGE_DIVISOR_DEBUG)
     int val = adc1_get_raw(ADC1_CHANNEL_7);
@@ -1937,7 +1941,25 @@ void loop()
   if (varioData.displayLowUpdateState)
   {
 
-    if (nmeaParser.haveBearing())
+    int tmpcap = varioData.getCap();
+    if (tmpcap > 0) {
+      String bearingStr = nmeaParser.Bearing_to_Ordinal(tmpcap);
+#ifdef DATA_DEBUG
+      SerialPort.print("Compas : ");
+      SerialPort.print(tmpcap);
+      SerialPort.print(" - ");
+      SerialPort.println(bearingStr);
+#endif //DATA_DEBUG
+      DUMPLOG(LOG_TYPE_DEBUG, DATA_DEBUG_LOG, tmpcap);
+      DUMPLOG(LOG_TYPE_DEBUG, DATA_DEBUG_LOG, bearingStr);
+
+      screen.gpsBearing->setValue(tmpcap);
+      screen.gpsBearingText->setValue(bearingStr);
+      screen.bearing->setValue(tmpcap);
+      screen.bearingText->setValue(bearingStr);
+    }
+
+/*    if (nmeaParser.haveBearing())
     {
 
       double bearing = nmeaParser.getBearing();
@@ -1953,7 +1975,7 @@ void loop()
 
       screen.gpsBearing->setValue(bearing);
       screen.gpsBearingText->setValue(bearingStr);
-    }
+    }*/
 
     if (nmeaParser.haveLongitude())
     {
@@ -2041,11 +2063,11 @@ void loop()
 }
 
 /*
-//**************************************************
+// **************************************************
 #if defined(HAVE_SDCARD) && defined(HAVE_GPS)
 void createSDCardTrackFile(void)
 {
-//**************************************************
+// **************************************************
   // * start the sdcard record *
 
 #ifdef SDCARD_DEBUG
@@ -2113,7 +2135,7 @@ void enableflightStartComponents(void)
 #endif //HAVE_SPEAKER
   }
 
-  //* set base time *
+  // * set base time *
 #if defined(HAVE_SCREEN) && defined(HAVE_GPS)
 #ifdef PROG_DEBUG
   SerialPort.println("screenElapsedTime");
@@ -2122,7 +2144,7 @@ void enableflightStartComponents(void)
   if (nmeaParser.haveDate())
   {
 
-    //* set time *
+    // * set time *
 #if defined(GPS_DEBUG) || defined(DATA_DEBUG)
     SerialPort.print("Time : ");
     SerialPort.println(nmeaParser.time);
@@ -2135,7 +2157,7 @@ void enableflightStartComponents(void)
 #endif //defined(HAVE_SCREEN) && defined(HAVE_GPS)
   }
 
-  //* enable near climbing *
+  // * enable near climbing *
 #ifdef HAVE_SPEAKER
   //#ifdef VARIOMETER_ENABLE_NEAR_CLIMBING_ALARM
   if (GnuSettings.VARIOMETER_ENABLE_NEAR_CLIMBING_ALARM)
