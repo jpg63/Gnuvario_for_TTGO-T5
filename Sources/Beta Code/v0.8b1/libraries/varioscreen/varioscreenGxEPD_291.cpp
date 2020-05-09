@@ -39,15 +39,18 @@
  *    1.0.8  28/01/20   Modification écran 1 - ajout info gps                    *
  *    1.0.9  03/02/20   changement de nom passage de 29 à 290                    *
  *    1.0.10 09/02/20   Modif écran 1 - font normal / coordonné GPS en degrés    *
- *	  1.0.11 16/02/20		Adaptation écran 2.9" mode portrait						 					 *
- *	                    VARIOSCREEN_SIZE == 291									 								 *
- *    1.0.12 23/02/20   Ajout d'objets texte (compass, Lat, Long), changement    *
- *					    				de taille de texte                                       *
- *    1.0.13 25/02/20   Ajout ScreenBackground                                   *
- *    1.0.14 05/03/20   Ajout affichage alti agl                                 *
- *    1.0.15 08/04/20   Modification affichage des titres                        *
+ *    1.0.11 17/02/20   Ajout 2.90 et 2.91                                       *
+ *                      Ajout FONTLARGE / FONTNORMAL                             *
+ *    1.0.11 25/02/20   Ajout ScreenBackground									 *	
+ *    1.0.12 04/03/20   Réorganisation de l'affichage des variable               *  
+ *    1.0.13 04/03/20   Ajout affichage alti agl                                 *
+ *    1.0.14 07/03/20   Correction xSemaphore                                    *
+ *    1.0.15 09/03/20   Modification ScreenViewSound                             *
+ *    1.0.16 08/04/20   Modification affichage des titres                        *
  *    1.1.0  29/04/20   Changement de font - repositionnement                    *
- *********************************************************************************/
+ *																				 *
+*********************************************************************************/
+ 
  /*
  *********************************************************************************
  *                    conversion image to cpp code                               *
@@ -399,14 +402,14 @@ void VarioScreen::createScreenObjectsPage1(void) {
 //	gpsBearing 					= new ScreenDigit(VARIOSCREEN_BEARING_ANCHOR_X, VARIOSCREEN_BEARING_ANCHOR_Y, 3, 0, false, false, ALIGNRIGHT, true, DISPLAY_OBJECT_BEARING, FONTNORMAL, MAX_CAR_TITRE_CAP);
 //	gpsLat    					= new ScreenDigit(VARIOSCREEN_LAT_ANCHOR_X, VARIOSCREEN_LAT_ANCHOR_Y, 6, 3, false, false, ALIGNRIGHT, false, DISPLAY_OBJECT_LAT);
 //	gpsLong   					= new ScreenDigit(VARIOSCREEN_LONG_ANCHOR_X, VARIOSCREEN_LONG_ANCHOR_Y, 6, 3, false, false, ALIGNRIGHT, false, DISPLAY_OBJECT_LONG);
-    gpsLat 						= new ScreenText(VARIOSCREEN_LAT_ANCHOR_X, VARIOSCREEN_LAT_ANCHOR_Y, 11, FONTNORMAL, ALIGNLEFT, true, DISPLAY_OBJECT_LAT, MAX_CAR_TITRE_LAT);
-	gpsLong					    = new ScreenText(VARIOSCREEN_LONG_ANCHOR_X, VARIOSCREEN_LONG_ANCHOR_Y, 11, FONTNORMAL, ALIGNLEFT, true, DISPLAY_OBJECT_LONG, MAX_CAR_TITRE_LONG);
-	kmhunit						= new KMHUnit(VARIOSCREEN_SPEED_UNIT_ANCHOR_X, VARIOSCREEN_SPEED_UNIT_ANCHOR_Y);	
-	speedDigit	 				= new ScreenDigit(VARIOSCREEN_SPEED_ANCHOR_X, VARIOSCREEN_SPEED_ANCHOR_Y, 2, 0, false, false, ALIGNRIGHT, true, DISPLAY_OBJECT_SPEED, TAILLE_FONT, MAX_CAR_TITRE_SPEED);
+  gpsLat 					= new ScreenText(VARIOSCREEN_LAT_ANCHOR_X, VARIOSCREEN_LAT_ANCHOR_Y, 11, FONTSMALL, ALIGNLEFT, true, DISPLAY_OBJECT_LAT, MAX_CAR_TITRE_LAT);
+	gpsLong					= new ScreenText(VARIOSCREEN_LONG_ANCHOR_X, VARIOSCREEN_LONG_ANCHOR_Y, 11, FONTSMALL, ALIGNLEFT, true, DISPLAY_OBJECT_LONG, MAX_CAR_TITRE_LONG);
+	kmhunit					= new KMHUnit(VARIOSCREEN_SPEED_UNIT_ANCHOR_X, VARIOSCREEN_SPEED_UNIT_ANCHOR_Y);	
+	speedDigit	 		= new ScreenDigit(VARIOSCREEN_SPEED_ANCHOR_X, VARIOSCREEN_SPEED_ANCHOR_Y, 2, 0, false, false, ALIGNRIGHT, true, DISPLAY_OBJECT_SPEED, TAILLE_FONT, MAX_CAR_TITRE_SPEED);
 //	tempDigit 					= new ScreenDigit(VARIOSCREEN_TEMP_ANCHOR_X, VARIOSCREEN_TEMP_ANCHOR_Y, 2, 0, false, false, ALIGNLEFT, false, DISPLAY_OBJECT_TEMPERATURE);
 //	tunit 						= new TUnit(VARIOSCREEN_TEMP_UNIT_ANCHOR_X, VARIOSCREEN_TEMP_ANCHOR_Y);
-	gpsBearingText = new ScreenText(VARIOSCREEN_GPS_BEARING_TEXT_ANCHOR_X, VARIOSCREEN_GPS_BEARING_TEXT_ANCHOR_Y, 3, FONTNORMAL, ALIGNLEFT, true, DISPLAY_OBJECT_BEARING_TEXT,MAX_CAR_TITRE_CAP);
-	gpsBearing = new ScreenDigit(VARIOSCREEN_GPS_BEARING_ANCHOR_X, VARIOSCREEN_GPS_BEARING_ANCHOR_Y, 3, 0, false, false, ALIGNRIGHT, true, DISPLAY_OBJECT_BEARING, TAILLE_FONT, MAX_CAR_TITRE_CAP);
+	gpsBearingText 	= new ScreenText(VARIOSCREEN_GPS_BEARING_TEXT_ANCHOR_X, VARIOSCREEN_GPS_BEARING_TEXT_ANCHOR_Y, 3, FONTNORMAL, ALIGNLEFT, true, DISPLAY_OBJECT_BEARING_TEXT,MAX_CAR_TITRE_CAP);
+	gpsBearing 			= new ScreenDigit(VARIOSCREEN_GPS_BEARING_ANCHOR_X, VARIOSCREEN_GPS_BEARING_ANCHOR_Y, 3, 0, false, false, ALIGNRIGHT, true, DISPLAY_OBJECT_BEARING, TAILLE_FONT, MAX_CAR_TITRE_CAP);
 }
 	
 //****************************************************************************************************************************
@@ -910,6 +913,8 @@ void VarioScreen::ScreenViewPage(int8_t page, boolean clear, boolean refresh)
 		gpsLong->update(true);
 		gpsBearing->update(true);
 		gpsBearingText->update(true);
+		bearing->update(true);
+		bearingText->update(true);
 		
 //		gpsLatDir->update(true);
 //		gpsLongDir->update(true);
@@ -948,6 +953,8 @@ void VarioScreen::ScreenViewPage(int8_t page, boolean clear, boolean refresh)
 		gpsLong->setValue("000*00'00'' X");
 		gpsBearingText->setValue("XXX");
 		gpsBearing->setValue(0);
+		bearingText->setValue("XXX");
+		bearing->setValue(0);
 	}
 	
 	munit->toDisplay();
@@ -1041,7 +1048,7 @@ void VarioScreen::ScreenViewStatPage(int PageStat)
 	display.setTextSize(1);
 
 	display.setCursor(0, 15);
-	display.print("STATISTIQUES");
+	display.print(varioLanguage.getText(TITRE_STAT));  //"STATISTIQUES");
 	display.setFont(&FreeSansBold9pt7b);
 	display.setTextColor(ColorText);
 	display.setTextSize(1);
@@ -1085,22 +1092,28 @@ void VarioScreen::ScreenViewStatPage(int PageStat)
 #endif //SCREEN_DEBUG
 
     double tmpAlti = varioData.flystat.GetAlti();
-		sprintf(tmpbuffer,"Alti Max : %.0f",tmpAlti); 
+		if (tmpAlti > 9999) tmpAlti = 9999;
+		sprintf(tmpbuffer,"Alti Max : %3.0f",tmpAlti); 
 		display.setCursor(0, 115);
 		display.print(tmpbuffer);
 	 
    double tmpVarioMin = varioData.flystat.GetVarioMin();
-	 sprintf(tmpbuffer,"Vario Min : %2.1f",tmpVarioMin); 
+	 sprintf(tmpbuffer,"Vario Min : %1.1f",tmpVarioMin); 
+	 if (tmpVarioMin > 10) tmpVarioMin = 9.9;
+	 if (tmpVarioMin < -10) tmpVarioMin = -9.9;
 	 display.setCursor(0, 140);
 	 display.print(tmpbuffer);
 
    double tmpVarioMax = varioData.flystat.GetVarioMax();
-	 sprintf(tmpbuffer,"Vario Max : %2.1f",tmpVarioMax); 
+	 sprintf(tmpbuffer,"Vario Max : %1.1f",tmpVarioMax); 
+	 if (tmpVarioMax > 10) tmpVarioMax = 9.9;
+	 if (tmpVarioMax < -10) tmpVarioMax = -9.9;
 	 display.setCursor(0, 165);
 	 display.print(tmpbuffer);
 	 
    double tmpSpeed = varioData.flystat.GetSpeed();
-	 sprintf(tmpbuffer,"Vitesse : %.0f",tmpSpeed); //%02d.%02d.%02d", tmpDate[0],tmpDate[1],tmpDate[2]);
+	 sprintf(tmpbuffer,"Vitesse : %3.0f",tmpSpeed); //%02d.%02d.%02d", tmpDate[0],tmpDate[1],tmpDate[2]);
+	 if (tmpSpeed > 1000) tmpSpeed = 999;
 	 display.setCursor(0, 190);
 	 display.print(tmpbuffer);
 	 display.drawLine(0, 20, 128, 20, GxEPD_BLACK);

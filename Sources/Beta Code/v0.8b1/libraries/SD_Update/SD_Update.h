@@ -41,10 +41,10 @@
 
 #include <varioscreenGxEPD.h>
 
+#ifndef ARDUINOTRACE_ENABLE
 #ifdef SDCARD_DEBUG
 #define ARDUINOTRACE_ENABLE 1
 #else
-#ifndef ARDUINOTRACE_ENABLE
 #define ARDUINOTRACE_ENABLE 0
 #endif
 #endif

@@ -75,6 +75,7 @@
 
 
 
+
 /*
  *********************************************************************************
  *                    conversion image to cpp code                               *
@@ -370,14 +371,18 @@ void VarioScreenObject::reset(void) {
 #define FONT_SIZE_HEIGHT  7
 
 //****************************************************************************************************************************
-ScreenDigit::ScreenDigit(uint16_t anchorX, uint16_t anchorY, uint16_t width, uint16_t precision, boolean plusDisplay, boolean zero, int8_t Align, boolean showtitle, int8_t displayTypeID, bool large, int nbCarTitle) 
+ScreenDigit::ScreenDigit(uint16_t anchorX, uint16_t anchorY, uint16_t width, uint16_t precision, boolean plusDisplay, boolean zero, int8_t Align, boolean showtitle, int8_t displayTypeID, int8_t large, int nbCarTitle) 
    : VarioScreenObject(0), anchorX(anchorX), anchorY(anchorY), width(width), precision(precision), plusDisplay(plusDisplay), zero(zero), Align(Align), showtitle(showtitle), displayTypeID(displayTypeID), large(large), nbCarTitle(nbCarTitle) { 
 //****************************************************************************************************************************
   lastDisplayWidth = 0; 
 
-  display.setFont(&gnuvarioe18pt7b);   //FreeSansBold15pt7b); //&FreeSansBold9pt7b);
-  if (large) 	display.setTextSize(2);
-	else 				display.setTextSize(1);
+  display.setFont(&gnuvarioe18pt7b);   //&FreeSansBold9pt7b);
+  if (large == FONTLARGE) display.setTextSize(2);
+  else if (large == FONTNORMAL) display.setTextSize(1);
+	else {
+		display.setFont(&gnuvarioe14pt7b);   //&FreeSansBold9pt7b);
+		display.setTextSize(1);
+	}
 
 
   int16_t box_x = anchorX;
@@ -436,7 +441,7 @@ ScreenDigit::ScreenDigit(uint16_t anchorX, uint16_t anchorY, uint16_t width, uin
 		MaxWidth += w;
 	}
 
-  if (large) {
+  if (large == FONTLARGE) {
 		MaxWidth   = MaxWidth *2;	
 		MaxHeight  = MaxHeight * 2;
 	}
@@ -449,8 +454,8 @@ ScreenDigit::ScreenDigit(uint16_t anchorX, uint16_t anchorY, uint16_t width, uin
 #endif
 
 
-	display.setFont(&FreeSansBold8pt7b);
-	display.getTextBounds("A", 0, 100, &box_w, &box_h, &w, &h);
+	display.setFont(&NotoSans6pt7b);
+	display.getTextBounds("W", 0, 100, &box_w, &box_h, &w, &h);
 	MaxTitleWidth   = (nbCarTitle * w);	
 	MaxTitleHeight  = h;
 
@@ -748,9 +753,9 @@ char * ScreenDigit::dtostrf2(double number, signed char width, unsigned char pre
 }
 
 
-//****************************************************************************************************************************
+// ****************************************************************************************************************************
 void ScreenDigit::show() {
-//****************************************************************************************************************************
+// ****************************************************************************************************************************
 
   /***************/
   /* build digit */
@@ -765,8 +770,15 @@ void ScreenDigit::show() {
 	char tmpChar[MAX_CHAR_IN_LINE];
    
   display.setFont(&gnuvarioe18pt7b); //&FreeSansBold18pt7b);
-  if (large) 	display.setTextSize(2);
-	else 				display.setTextSize(1);
+/*  if (large) 	display.setTextSize(2);
+	else 				display.setTextSize(1);*/
+  if (large == FONTLARGE) display.setTextSize(2);
+  else if (large == FONTNORMAL) display.setTextSize(1);
+	else {
+		display.setFont(&gnuvarioe14pt7b);   //&FreeSansBold9pt7b);
+		display.setTextSize(1);
+	}
+
 
 //  int16_t box_x = anchorX;
   int16_t box_y = anchorY;
@@ -1216,14 +1228,29 @@ void ScreenDigit::show() {
 
 
 //****************************************************************************************************************************
-ScreenText::ScreenText(uint16_t anchorX, uint16_t anchorY, uint16_t width, bool large, int8_t Align, boolean showtitle, int8_t displayTypeID) 
-   : VarioScreenObject(0), anchorX(anchorX), anchorY(anchorY), width(width), large(large), Align(Align), showtitle(showtitle), displayTypeID(displayTypeID) { 
+ScreenText::ScreenText(uint16_t anchorX, uint16_t anchorY, uint16_t width, int8_t large, int8_t Align, boolean showtitle, int8_t displayTypeID, int nbCarTitle) 
+   : VarioScreenObject(0), anchorX(anchorX), anchorY(anchorY), width(width), large(large), Align(Align), showtitle(showtitle), displayTypeID(displayTypeID), nbCarTitle(nbCarTitle) { 
 //****************************************************************************************************************************
+
+  int16_t box_x = anchorX;
+  int16_t box_y = anchorY;
+  uint16_t w, h;
+  int16_t box_w; 
+  int16_t box_h; 
+	int tmpWidth;
+
   lastDisplayWidth = 0; 
 
   display.setFont(&gnuvarioe18pt7b); //&FreeSansBold18pt7b);
-	if (large) display.setTextSize(2);
-	else 			 display.setTextSize(1);	
+/*	if (large) display.setTextSize(2);
+	else 			 display.setTextSize(1);	*/
+  if (large == FONTLARGE) display.setTextSize(2);
+  else if (large == FONTNORMAL) display.setTextSize(1);
+	else {
+		display.setFont(&gnuvarioe14pt7b);   //&FreeSansBold9pt7b);
+		display.setTextSize(1);
+	}
+
 
 //  int16_t box_x = anchorX;
 //  int16_t box_y = anchorY;
@@ -1246,7 +1273,38 @@ ScreenText::ScreenText(uint16_t anchorX, uint16_t anchorY, uint16_t width, bool 
   SerialPort.print(width);
 #endif //SCREEN_DEBUG
   
+	display.getTextBounds("W", 0, 100, &box_w, &box_h, &w, &h);
+
+#ifdef SCREEN_DEBUG	  
+  SerialPort.print("Max X : ");
+  SerialPort.print(box_w);
+  SerialPort.print(" -- Max Y : ");
+  SerialPort.print(box_h);
+  SerialPort.print(" -- width : ");
+  SerialPort.print(w);
+  SerialPort.print(" -- height :  ");
+  SerialPort.println(h);
+#endif //SCREEN_DEBUG
 	
+	int nbcar  = width;
+			
+	MaxWidth   = (nbcar * w) + 6;	
+	MaxHeight  = h + 3;
+
+  if (large == FONTLARGE) {
+		MaxWidth   = MaxWidth *2;	
+		MaxHeight  = MaxHeight * 2;
+	}
+
+#ifdef SCREEN_DEBUG	  
+  SerialPort.print("MaxWidth : ");
+  SerialPort.print(MaxWidth);
+  SerialPort.print("    MaxHeight : ");
+  SerialPort.println(MaxHeight);
+#endif
+	
+
+/*	
 //Calcul le nombre de caractère maximum affichable
 
 	int tmpwidth = 0 ;
@@ -1330,6 +1388,50 @@ ScreenText::ScreenText(uint16_t anchorX, uint16_t anchorY, uint16_t width, bool 
 			MaxHeight  = Zheight;
 			break;
 		}
+*/				
+/*		
+	display.getTextBounds("0", 0, 100, &box_w, &box_h, &w, &h);
+
+#ifdef SCREEN_DEBUG	  
+  SerialPort.print("Max X : ");
+  SerialPort.print(box_w);
+  SerialPort.print(" -- Max Y : ");
+  SerialPort.print(box_h);
+  SerialPort.print(" -- width : ");
+  SerialPort.print(w);
+  SerialPort.print(" -- height :  ");
+  SerialPort.println(h);
+#endif //SCREEN_DEBUG
+	
+	int nbcar  = width;
+		
+	if (plusDisplay) nbcar++;
+	
+	MaxWidth   = (nbcar * w) + 6;	
+	MaxHeight  = h + 3;
+
+	if (precision > 0) {
+		display.getTextBounds(".", 0, 100, &box_w, &box_h, &w, &h);
+		MaxWidth += w;
+	}
+
+  if (large) {
+		MaxWidth   = MaxWidth *2;	
+		MaxHeight  = MaxHeight * 2;
+	}
+
+#ifdef SCREEN_DEBUG	  
+  SerialPort.print("MaxWidth : ");
+  SerialPort.print(MaxWidth);
+  SerialPort.print("    MaxHeight : ");
+  SerialPort.println(MaxHeight);
+#endif
+*/
+
+	display.setFont(&NotoSans6pt7b);
+	display.getTextBounds("W", 0, 100, &box_w, &box_h, &w, &h);
+	MaxTitleWidth   = (nbCarTitle * w);	
+	MaxTitleHeight  = h;	
 }
 
 //****************************************************************************************************************************
@@ -1367,17 +1469,22 @@ void ScreenText::show() {
   //normalise value
 //  char digitCharacters[MAX_CHAR_IN_LINE];
 //	char tmpChar[MAX_CHAR_IN_LINE];
+
+  display.setFont(&gnuvarioe18pt7b);   //&FreeSansBold18pt7b);
    
-	if (large) 
-	{
-  		display.setFont(&gnuvarioe18pt7b);   //&FreeSansBold18pt7b);
-  		display.setTextSize(1);
+/*	if (large) {
+	  display.setTextSize(2);
 	}
-	else 			 
-	{
-		display.setFont(&gnuvarioe18pt7b);  //&FreeSansBold12pt7b);
+	else {	
 		display.setTextSize(1);	
-	}
+	}*/
+	
+  if (large == FONTLARGE) display.setTextSize(2);
+  else if (large == FONTNORMAL) display.setTextSize(1);
+	else {
+		display.setFont(&gnuvarioe14pt7b);   //&FreeSansBold9pt7b);
+		display.setTextSize(1);
+	}	
 
 //  int16_t box_x = anchorX;
 //  int16_t box_y = anchorY;
@@ -1475,7 +1582,7 @@ void ScreenText::show() {
 		//display.drawRect(anchorX-1, anchorY-MaxHeight-6, MaxWidth+4, MaxHeight+10, GxEPD_BLACK);
 		display.setCursor(anchorX, anchorY);
 		titleX = anchorX + 4;
-		titleY = anchorY - MaxHeight - 5; 
+		titleY = anchorY - MaxHeight; 
     display.print(value.substring(0,width));
 	}
 	else if (Align == ALIGNRIGHT) {
@@ -1485,25 +1592,32 @@ void ScreenText::show() {
 		
  /*  Affiche titre */
  
- display.setFont(&FreeSansBold8pt7b);
+/* display.setFont(&FreeSansBold8pt7b);
 		display.setTextColor(ColorText);
-		display.setTextSize(1);
+		display.setTextSize(1);*/
  
   if (showtitle) {
 		
+		display.fillRect(titleX-1, titleY-MaxTitleHeight-1, MaxTitleWidth+2, MaxTitleHeight+2, GxEPD_WHITE);
+		display.setFont(&NotoSans6pt7b);  //&FreeSansBold8pt7b);
+		display.setTextColor(ColorText);
+		display.setTextSize(1);
+		display.setCursor(titleX, titleY); 
+		
+		
     switch (displayTypeID) {
 		case DISPLAY_OBJECT_LAT :
-			display.setCursor(titleX-8, titleY-7); //titleX+2, titleY);
+//			display.setCursor(titleX-8, titleY-7); //titleX+2, titleY);
 			display.println(varioLanguage.getText(TITRE_LAT));
 //			display.drawInvertedBitmap(titleX-23, titleY-5, lattext, 15, 9, GxEPD_BLACK);
 			break;
 		case DISPLAY_OBJECT_LONG :
-			display.setCursor(titleX-8, titleY-7); //titleX+2, titleY);
+//			display.setCursor(titleX-8, titleY-7); //titleX+2, titleY);
 			display.println(varioLanguage.getText(TITRE_LONG));
 //			display.drawInvertedBitmap(titleX-23, titleY-5, longtext, 23, 11, GxEPD_BLACK);
 			break;
 		case DISPLAY_OBJECT_BEARING_TEXT :
-			display.setCursor(titleX-8, titleY-7); //titleX+2, titleY);
+//			display.setCursor(titleX-8, titleY-7); //titleX+2, titleY);
 			display.println(varioLanguage.getText(TITRE_COMPAS));
 //			display.drawInvertedBitmap(titleX-31, titleY-5, compasstext, 45, 11, GxEPD_BLACK);
 			break;			

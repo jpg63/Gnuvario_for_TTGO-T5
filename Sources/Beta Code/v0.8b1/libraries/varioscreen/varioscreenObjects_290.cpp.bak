@@ -458,7 +458,7 @@ ScreenDigit::ScreenDigit(uint16_t anchorX, uint16_t anchorY, uint16_t width, uin
 
 	char TmpChar[MAX_CHAR_IN_LINE];
 
-/*  int i,j,plus=0;
+    int i,j,plus=0;
 	
 	if (plusDisplay) {
 		TmpChar[width+1] = '+';
@@ -1238,11 +1238,11 @@ ScreenText::ScreenText(uint16_t anchorX, uint16_t anchorY, uint16_t width, bool 
 
 #ifdef SCREEN_DEBUG	  
   SerialPort.print("Constructeur ScreenText : ");
-  SerialPort.print("-- X : ");
+  SerialPort.print("  -- X : ");
   SerialPort.print(anchorX);
-  SerialPort.print("-- Y: ");
+  SerialPort.print("  -- Y: ");
   SerialPort.print(anchorY);
-  SerialPort.print("-- width : ");
+  SerialPort.print("  -- width : ");
   SerialPort.print(width);
 #endif //SCREEN_DEBUG
   

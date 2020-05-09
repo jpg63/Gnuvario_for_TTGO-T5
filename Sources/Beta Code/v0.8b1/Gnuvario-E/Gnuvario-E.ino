@@ -238,7 +238,10 @@
 *               27/04/20             Correction écran 1.54''                                          *
 *               29/04/20             Changement de font - modification screenDigit                    *
 *               03/05/20             Correction bug d'affichage                                       *
-*               08/05/20             Compas Magnetique
+*               06/05/20             Correction déclenchement du vol                                  *
+*               08/05/20             Compas Magnetique                                                *
+*                                    Correction affichage écran 2.91''                                *
+*                                    correction champs trop grand dans statistique                    *
 *******************************************************************************************************
 *                                                                                                     *
 *                                   Developpement a venir                                             *
@@ -252,19 +255,15 @@
 * BUG   - upload wifi - ne se termine pas  - bug espressif le buffer n'est pas vidé à la fin          *
 * BUG   - update manuelle - doit être lancée 2 fois                                                   *
 * BUG   - download à verifier                                                                         *
-* BUG   - stat affichage temps de vol                                                                 *
-* VERIF - Seuil déclenchement début du vol                                                            *
 * AJOUT - effacement ecran 1 fois / min                                                               *
 *                                                                                                     *        
 * v0.8                                                                                                *       
-* AJOUT - Récupération du cap depuis le capteur baromètrique  - compas magnétique                     *
 * AJOUT - Espaces aeriens                                                                             *
 * AJOUT - Réglage sensibilité filtre kalman et vario                                                  *                                         
-* BUG   - champs trop grand dans statistique                                                          *
 * BUG   - Grésillement Buzzer                                                                         * 
-* BUG   - Affichage Heure ":"                                                                              *
-* BUG   - Effacement logo montre version 1.54                                                         *                                                                                                    
+* BUG   - Affichage Heure ":" 291                                                                     *
 * BUG   - Affichage vario dans version 1.54                                                           *
+* BUG   - affichage alternatif finesse / taux de chute                                                *
 *                                                                                                     *
 * VX.X                                                                                                *
 * Paramètrage des écrans                                                                              *
@@ -343,6 +342,7 @@
  *  - Gestion Multilangue                                               *
  *  - Nouvelle font d'affichage                                         *
  *  - Sensibilité du vario réglable                                     *
+ *  - Compas Magnétique                                                 *
  *                                                                      *
  ************************************************************************/
 
@@ -394,11 +394,8 @@
 *               /                                                      *
 *               LOGS/                   - repertoire de log            *                                                       
 *                      GNUVARIO.LOG     - Fichier de log               *
-*               RECORD00.CAL            - fichier de calibration       *
-*               PARAMS.JSO              - fichier de configuration     *
-*               LOG.CFG                 - Paramètres de debug          *
-*               VARIOCAL.CFG            - Paramètres de calibration    *
-*               WIFI.CFG                - Paramètres Wifi              *
+*               AGL/                                                   *
+*                               ..      - Fichier topo                 *
 *               VOLS/                   - repertoire des traces        *
 *                       19101200.IGC                                   *
 *                       19101201.IGC                                   *
@@ -406,6 +403,11 @@
 *                       INDEX.HTM                                      *
 *                       INDEXB.JS                                      *
 *                       INDEXB~1.MAP                                   *
+*               RECORD00.CAL            - fichier de calibration       *
+*               PARAMS.JSO              - fichier de configuration     *
+*               LOG.CFG                 - Paramètres de debug          *
+*               VARIOCAL.CFG            - Paramètres de calibration    *
+*               WIFI.CFG                - Paramètres Wifi              *
 *                                                                      *
 ************************************************************************/
 
@@ -1955,8 +1957,10 @@ void loop()
 
       screen.gpsBearing->setValue(tmpcap);
       screen.gpsBearingText->setValue(bearingStr);
+#if (VARIOSCREEN_SIZE == 291)
       screen.bearing->setValue(tmpcap);
       screen.bearingText->setValue(bearingStr);
+#endif
     }
 
 /*    if (nmeaParser.haveBearing())

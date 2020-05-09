@@ -184,11 +184,11 @@ TaskHandle_t VarioScreen::screenTaskHandler;
 #define VARIOSCREEN_INFO_ANCHOR_Y 0
 #define VARIOSCREEN_VOL_ANCHOR_X 44
 #define VARIOSCREEN_VOL_ANCHOR_Y 0
-#define VARIOSCREEN_RECCORD_ANCHOR_X 84
+#define VARIOSCREEN_RECCORD_ANCHOR_X 164 //84
 #define VARIOSCREEN_RECCORD_ANCHOR_Y 0
-#define VARIOSCREEN_BAT_ANCHOR_X 124
+#define VARIOSCREEN_BAT_ANCHOR_X 84 //124
 #define VARIOSCREEN_BAT_ANCHOR_Y 0
-#define VARIOSCREEN_SAT_ANCHOR_X 164
+#define VARIOSCREEN_SAT_ANCHOR_X 124 //164
 #define VARIOSCREEN_SAT_ANCHOR_Y 0
 #define VARIOSCREEN_SAT_FIX_ANCHOR_X 176
 #define VARIOSCREEN_SAT_FIX_ANCHOR_Y 38    //32
@@ -390,12 +390,12 @@ void VarioScreen::createScreenObjectsPage1(void) {
 //****************************************************************************************************************************	
 //  gpsLatDir 					= new ScreenText(VARIOSCREEN_LATDIR_ANCHOR_X, VARIOSCREEN_LAT_ANCHOR_Y, 1, FONTLARGE, ALIGNLEFT, false, DISPLAY_OBJECT_LAT_DIR);
 //	gpsLongDir					= new ScreenText(VARIOSCREEN_LONGDIR_ANCHOR_X, VARIOSCREEN_LONG_ANCHOR_Y, 1, FONTLARGE, ALIGNLEFT, false, DISPLAY_OBJECT_LONG_DIR);
-	gpsBearingText			= new ScreenText(VARIOSCREEN_BEARING_TEXT_ANCHOR_X, VARIOSCREEN_BEARING_TEXT_ANCHOR_Y, 3, FONTNORMAL, ALIGNLEFT, true, DISPLAY_OBJECT_BEARING_TEXT);
+	gpsBearingText			= new ScreenText(VARIOSCREEN_BEARING_TEXT_ANCHOR_X, VARIOSCREEN_BEARING_TEXT_ANCHOR_Y, 3, FONTNORMAL, ALIGNLEFT, true, DISPLAY_OBJECT_BEARING_TEXT, MAX_CAR_TITRE_CAP);
 	gpsBearing 					= new ScreenDigit(VARIOSCREEN_BEARING_ANCHOR_X, VARIOSCREEN_BEARING_ANCHOR_Y, 3, 0, false, false, ALIGNRIGHT, true, DISPLAY_OBJECT_BEARING, TAILLE_FONT, MAX_CAR_TITRE_CAP);
 //	gpsLat    					= new ScreenDigit(VARIOSCREEN_LAT_ANCHOR_X, VARIOSCREEN_LAT_ANCHOR_Y, 6, 3, false, false, ALIGNRIGHT, false, DISPLAY_OBJECT_LAT);
 //	gpsLong   					= new ScreenDigit(VARIOSCREEN_LONG_ANCHOR_X, VARIOSCREEN_LONG_ANCHOR_Y, 6, 3, false, false, ALIGNRIGHT, false, DISPLAY_OBJECT_LONG);
-  gpsLat 						  = new ScreenText(VARIOSCREEN_LAT_ANCHOR_X, VARIOSCREEN_LAT_ANCHOR_Y, 11, FONTNORMAL, ALIGNLEFT, true, DISPLAY_OBJECT_LAT);
-	gpsLong							= new ScreenText(VARIOSCREEN_LONG_ANCHOR_X, VARIOSCREEN_LONG_ANCHOR_Y, 11, FONTNORMAL, ALIGNLEFT, true, DISPLAY_OBJECT_LONG);
+  gpsLat 						  = new ScreenText(VARIOSCREEN_LAT_ANCHOR_X, VARIOSCREEN_LAT_ANCHOR_Y, 11, FONTNORMAL, ALIGNLEFT, true, DISPLAY_OBJECT_LAT, MAX_CAR_TITRE_LAT);
+	gpsLong							= new ScreenText(VARIOSCREEN_LONG_ANCHOR_X, VARIOSCREEN_LONG_ANCHOR_Y, 11, FONTNORMAL, ALIGNLEFT, true, DISPLAY_OBJECT_LONG, MAX_CAR_TITRE_LONG);
 
 //	tempDigit 					= new ScreenDigit(VARIOSCREEN_TEMP_ANCHOR_X, VARIOSCREEN_TEMP_ANCHOR_Y, 2, 0, false, false, ALIGNLEFT, false, DISPLAY_OBJECT_TEMPERATURE);
 //	tunit 							= new TUnit(VARIOSCREEN_TEMP_UNIT_ANCHOR_X, VARIOSCREEN_TEMP_ANCHOR_Y);
@@ -1074,22 +1074,28 @@ void VarioScreen::ScreenViewStatPage(int PageStat)
 #endif //SCREEN_DEBUG
 
     double tmpAlti = varioData.flystat.GetAlti();
-		sprintf(tmpbuffer,"Alti Max: %.0f",tmpAlti); 
+		if (tmpAlti > 9999) tmpAlti = 9999;
+		sprintf(tmpbuffer,"Alti Max: %3.0f",tmpAlti); 
 		display.setCursor(1, 120);
 		display.print(tmpbuffer);
 	 
    double tmpVarioMin = varioData.flystat.GetVarioMin();
-	 sprintf(tmpbuffer,"Vario Min: %.02f",tmpVarioMin); 
+	 if (tmpVarioMin > 10) tmpVarioMin = 9.9;
+	 if (tmpVarioMin < -10) tmpVarioMin = -9.9;
+	 sprintf(tmpbuffer,"Vario Min: %1.1f",tmpVarioMin); 
 	 display.setCursor(1, 140);
 	 display.print(tmpbuffer);
 
    double tmpVarioMax = varioData.flystat.GetVarioMax();
-	 sprintf(tmpbuffer,"Vario Max: %.02f",tmpVarioMax); 
+	 if (tmpVarioMax > 10) tmpVarioMax = 9.9;
+	 if (tmpVarioMax < -10) tmpVarioMax = -9.9;
+	 sprintf(tmpbuffer,"Vario Max: %1.1f",tmpVarioMax); 
 	 display.setCursor(1, 160);
 	 display.print(tmpbuffer);
 	 
    double tmpSpeed = varioData.flystat.GetSpeed();
-	 sprintf(tmpbuffer,"%s: %.0f",varioLanguage.getText(TITRE_SPEED),tmpSpeed); //%02d.%02d.%02d", tmpDate[0],tmpDate[1],tmpDate[2]);
+	 if (tmpSpeed > 1000) tmpSpeed = 999;
+	 sprintf(tmpbuffer,"%s: %3.0f",varioLanguage.getText(TITRE_SPEED),tmpSpeed); //%02d.%02d.%02d", tmpDate[0],tmpDate[1],tmpDate[2]);
 	 display.setCursor(1, 180);
 	 display.print(tmpbuffer);
 }

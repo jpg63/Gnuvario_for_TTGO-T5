@@ -70,12 +70,7 @@
  *********************************************************************************/
  
 /*
- 
-
-
-
-
-*********************************************************************************
+ *********************************************************************************
  *                    conversion image to cpp code                               *
  *                                                                               *
  *      https://javl.github.io/image2cpp/                                        *
@@ -369,14 +364,18 @@ void VarioScreenObject::reset(void) {
 #define FONT_SIZE_HEIGHT  7
 
 //****************************************************************************************************************************
-ScreenDigit::ScreenDigit(uint16_t anchorX, uint16_t anchorY, uint16_t width, uint16_t precision, boolean plusDisplay, boolean zero, int8_t Align, boolean showtitle, int8_t displayTypeID, bool large, int nbCarTitle) 
+ScreenDigit::ScreenDigit(uint16_t anchorX, uint16_t anchorY, uint16_t width, uint16_t precision, boolean plusDisplay, boolean zero, int8_t Align, boolean showtitle, int8_t displayTypeID, int8_t large, int nbCarTitle) 
    : VarioScreenObject(0), anchorX(anchorX), anchorY(anchorY), width(width), precision(precision), plusDisplay(plusDisplay), zero(zero), Align(Align), showtitle(showtitle), displayTypeID(displayTypeID), large(large), nbCarTitle(nbCarTitle) { 
 //****************************************************************************************************************************
   lastDisplayWidth = 0; 
 
   display.setFont(&gnuvarioe18pt7b);   //&FreeSansBold9pt7b);
-  if (large) display.setTextSize(2);
-  else display.setTextSize(1);
+  if (large == FONTLARGE) display.setTextSize(2);
+  else if (large == FONTNORMAL) display.setTextSize(1);
+	else {
+		display.setFont(&gnuvarioe14pt7b);   //&FreeSansBold9pt7b);
+		display.setTextSize(1);
+	}
 
 //  int16_t box_x = anchorX;
 //  int16_t box_y = anchorY;
@@ -435,7 +434,7 @@ ScreenDigit::ScreenDigit(uint16_t anchorX, uint16_t anchorY, uint16_t width, uin
 		MaxWidth += w;
 	}
 
-  if (large) {
+  if (large == FONTLARGE) {
 		MaxWidth   = MaxWidth *2;	
 		MaxHeight  = MaxHeight * 2;
 	}
@@ -750,7 +749,7 @@ char * ScreenDigit::dtostrf2(double number, signed char width, unsigned char pre
 
 // ****************************************************************************************************************************
 void ScreenDigit::show() {
-//****************************************************************************************************************************
+// ****************************************************************************************************************************
 
   /***************/
   /* build digit */
@@ -765,8 +764,15 @@ void ScreenDigit::show() {
 	char tmpChar[MAX_CHAR_IN_LINE];
    
   display.setFont(&gnuvarioe18pt7b); //&FreeSansBold18pt7b);
-  if (large) 	display.setTextSize(2);
-	else 				display.setTextSize(1);
+/*  if (large) 	display.setTextSize(2);
+	else 				display.setTextSize(1);*/
+  if (large == FONTLARGE) display.setTextSize(2);
+  else if (large == FONTNORMAL) display.setTextSize(1);
+	else {
+		display.setFont(&gnuvarioe14pt7b);   //&FreeSansBold9pt7b);
+		display.setTextSize(1);
+	}
+
 
 //  int16_t box_x = anchorX;
   int16_t box_y = anchorY;
@@ -1217,7 +1223,7 @@ void ScreenDigit::show() {
 
 
 //****************************************************************************************************************************
-ScreenText::ScreenText(uint16_t anchorX, uint16_t anchorY, uint16_t width, bool large, int8_t Align, boolean showtitle, int8_t displayTypeID, int nbCarTitle) 
+ScreenText::ScreenText(uint16_t anchorX, uint16_t anchorY, uint16_t width, int8_t large, int8_t Align, boolean showtitle, int8_t displayTypeID, int nbCarTitle) 
    : VarioScreenObject(0), anchorX(anchorX), anchorY(anchorY), width(width), large(large), Align(Align), showtitle(showtitle), displayTypeID(displayTypeID), nbCarTitle(nbCarTitle) { 
 //****************************************************************************************************************************
 
@@ -1231,8 +1237,15 @@ ScreenText::ScreenText(uint16_t anchorX, uint16_t anchorY, uint16_t width, bool 
   lastDisplayWidth = 0; 
 
   display.setFont(&gnuvarioe18pt7b); //&FreeSansBold18pt7b);
-	if (large) display.setTextSize(2);
-	else 			 display.setTextSize(1);	
+/*	if (large) display.setTextSize(2);
+	else 			 display.setTextSize(1);	*/
+  if (large == FONTLARGE) display.setTextSize(2);
+  else if (large == FONTNORMAL) display.setTextSize(1);
+	else {
+		display.setFont(&gnuvarioe14pt7b);   //&FreeSansBold9pt7b);
+		display.setTextSize(1);
+	}
+
 
 //  int16_t box_x = anchorX;
 //  int16_t box_y = anchorY;
@@ -1273,7 +1286,7 @@ ScreenText::ScreenText(uint16_t anchorX, uint16_t anchorY, uint16_t width, bool 
 	MaxWidth   = (nbcar * w) + 6;	
 	MaxHeight  = h + 3;
 
-  if (large) {
+  if (large == FONTLARGE) {
 		MaxWidth   = MaxWidth *2;	
 		MaxHeight  = MaxHeight * 2;
 	}
@@ -1454,12 +1467,19 @@ void ScreenText::show() {
 
   display.setFont(&gnuvarioe18pt7b);   //&FreeSansBold18pt7b);
    
-	if (large) {
+/*	if (large) {
 	  display.setTextSize(2);
 	}
 	else {	
 		display.setTextSize(1);	
-	}
+	}*/
+	
+  if (large == FONTLARGE) display.setTextSize(2);
+  else if (large == FONTNORMAL) display.setTextSize(1);
+	else {
+		display.setFont(&gnuvarioe14pt7b);   //&FreeSansBold9pt7b);
+		display.setTextSize(1);
+	}	
 
 //  int16_t box_x = anchorX;
 //  int16_t box_y = anchorY;

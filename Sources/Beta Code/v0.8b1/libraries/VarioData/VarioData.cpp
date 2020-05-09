@@ -30,6 +30,7 @@
  *    1.0.2  07/04/20   ajout updateBeeper(void)                                 *
  *    1.0.3  18/04/20   Ajour reglage du kalman                                  *
  *                      Ajout intégration vario                                  *
+ *    1.0.4  08/05/20   Ajout getCap                                             *
  *                                                                               *
  *********************************************************************************
  */

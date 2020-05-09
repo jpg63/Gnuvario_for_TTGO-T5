@@ -233,8 +233,9 @@ class VarioScreenObject {
 #define ALIGNLEFT   	1
 #define ALIGNCENTER		2
 
-#define FONTLARGE			true
-#define FONTNORMAL    false
+#define FONTNORMAL    0
+#define FONTSMALL			1
+#define FONTLARGE			2
 
 class ScreenDigit: public VarioScreenObject {
 // anchorX			Position en X
@@ -251,7 +252,7 @@ class ScreenDigit: public VarioScreenObject {
 // TitleY       Position du titre en Y
 
  public :
-   ScreenDigit(uint16_t anchorX, uint16_t anchorY, uint16_t width, uint16_t precision, boolean plusDisplay = false, boolean zero = false, int8_t Align = ALIGNLEFT, boolean showtitle = true, 	int8_t displayTypeID = 0, bool large = FONTLARGE, int nbCarTitle = 0);
+   ScreenDigit(uint16_t anchorX, uint16_t anchorY, uint16_t width, uint16_t precision, boolean plusDisplay = false, boolean zero = false, int8_t Align = ALIGNLEFT, boolean showtitle = true, 	int8_t displayTypeID = 0, int8_t large = FONTLARGE, int nbCarTitle = 0);
  //  : VarioScreenObject(0), anchorX(anchorX), anchorY(anchorY), width(width), precision(precision), plusDisplay(plusDisplay), zero(zero), leftAlign(leftAlign), showtitle(showtitle)
  // { lastDisplayWidth = 0; }
   void show(void);
@@ -271,7 +272,7 @@ class ScreenDigit: public VarioScreenObject {
 	uint16_t Zwidth, Zheight;
 	uint16_t MaxWidth, MaxHeight;
 	int8_t displayTypeID;
-  boolean large;
+  int8_t large;
 	int nbCarTitle;
 	int MaxTitleWidth, MaxTitleHeight;
 };
@@ -288,7 +289,7 @@ class ScreenText: public VarioScreenObject {
 // TitleY       Position du titre en Y
 
  public :
-   ScreenText(uint16_t anchorX, uint16_t anchorY, uint16_t width, bool large = FONTLARGE, int8_t Align = ALIGNLEFT, boolean showtitle = true, 	int8_t displayTypeID = 0);
+   ScreenText(uint16_t anchorX, uint16_t anchorY, uint16_t width, int8_t large = FONTLARGE, int8_t Align = ALIGNLEFT, boolean showtitle = true, 	int8_t displayTypeID = 0, int nbCarTitle = 0);
  //  : VarioScreenObject(0), anchorX(anchorX), anchorY(anchorY), width(width), precision(precision), plusDisplay(plusDisplay), zero(zero), leftAlign(leftAlign), showtitle(showtitle)
  // { lastDisplayWidth = 0; }
   void show(void);
@@ -298,7 +299,7 @@ class ScreenText: public VarioScreenObject {
   String value;
   String oldvalue="";
   const uint16_t anchorX, anchorY, width;
-  boolean large;
+  int8_t large;
 	int8_t Align;
   boolean showtitle;
   uint8_t lastDisplayWidth;
@@ -306,6 +307,8 @@ class ScreenText: public VarioScreenObject {
 	uint16_t Zwidth, Zheight;
 	uint16_t MaxWidth, MaxHeight;
 	int8_t displayTypeID;
+	int nbCarTitle;
+	int MaxTitleWidth, MaxTitleHeight;
 };
 
 /* meters unit */

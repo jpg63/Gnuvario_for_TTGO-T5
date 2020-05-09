@@ -217,12 +217,12 @@ TaskHandle_t VarioScreen::screenTaskHandler;
 //#define VARIOSCREEN_TEMP_UNIT_ANCHOR_X 30
 #define VARIOSCREEN_LONG_ANCHOR_X 20
 //#define VARIOSCREEN_LONGDIR_ANCHOR_X 165
-#define VARIOSCREEN_LONG_ANCHOR_Y 118
+#define VARIOSCREEN_LONG_ANCHOR_Y 121 //118
 #define VARIOSCREEN_LAT_ANCHOR_X 20
 //#define VARIOSCREEN_LATDIR_ANCHOR_X 165
-#define VARIOSCREEN_LAT_ANCHOR_Y 73
+#define VARIOSCREEN_LAT_ANCHOR_Y 77 //73
 #define VARIOSCREEN_BEARING_TEXT_ANCHOR_X 220
-#define VARIOSCREEN_BEARING_TEXT_ANCHOR_Y 120
+#define VARIOSCREEN_BEARING_TEXT_ANCHOR_Y 126  //120
 #define VARIOSCREEN_BEARING_ANCHOR_X 270
 #define VARIOSCREEN_BEARING_ANCHOR_Y 80
 
@@ -398,8 +398,8 @@ void VarioScreen::createScreenObjectsPage1(void) {
 	gpsBearing 					= new ScreenDigit(VARIOSCREEN_BEARING_ANCHOR_X, VARIOSCREEN_BEARING_ANCHOR_Y, 3, 0, false, false, ALIGNRIGHT, true, DISPLAY_OBJECT_BEARING, TAILLE_FONT, MAX_CAR_TITRE_CAP);
 //	gpsLat    					= new ScreenDigit(VARIOSCREEN_LAT_ANCHOR_X, VARIOSCREEN_LAT_ANCHOR_Y, 6, 3, false, false, ALIGNRIGHT, false, DISPLAY_OBJECT_LAT);
 //	gpsLong   					= new ScreenDigit(VARIOSCREEN_LONG_ANCHOR_X, VARIOSCREEN_LONG_ANCHOR_Y, 6, 3, false, false, ALIGNRIGHT, false, DISPLAY_OBJECT_LONG);
-    gpsLat 						= new ScreenText(VARIOSCREEN_LAT_ANCHOR_X, VARIOSCREEN_LAT_ANCHOR_Y, 11, FONTNORMAL, ALIGNLEFT, true, DISPLAY_OBJECT_LAT);
-	gpsLong					    = new ScreenText(VARIOSCREEN_LONG_ANCHOR_X, VARIOSCREEN_LONG_ANCHOR_Y, 11, FONTNORMAL, ALIGNLEFT, true, DISPLAY_OBJECT_LONG);
+    gpsLat 						= new ScreenText(VARIOSCREEN_LAT_ANCHOR_X, VARIOSCREEN_LAT_ANCHOR_Y, 11, FONTSMALL, ALIGNLEFT, true, DISPLAY_OBJECT_LAT);
+	gpsLong					    = new ScreenText(VARIOSCREEN_LONG_ANCHOR_X, VARIOSCREEN_LONG_ANCHOR_Y, 11, FONTSMALL, ALIGNLEFT, true, DISPLAY_OBJECT_LONG);
 
 //	tempDigit 					= new ScreenDigit(VARIOSCREEN_TEMP_ANCHOR_X, VARIOSCREEN_TEMP_ANCHOR_Y, 2, 0, false, false, ALIGNLEFT, false, DISPLAY_OBJECT_TEMPERATURE);
 //	tunit 						= new TUnit(VARIOSCREEN_TEMP_UNIT_ANCHOR_X, VARIOSCREEN_TEMP_ANCHOR_Y);
@@ -1078,29 +1078,33 @@ void VarioScreen::ScreenViewStatPage(int PageStat)
 #endif //SCREEN_DEBUG
 
     double tmpAlti = varioData.flystat.GetAlti();
+		if (tmpAlti > 9999) tmpAlti = 9999;
 		sprintf(tmpbuffer,"Alti Max : %.0f",tmpAlti); 
 		display.setCursor(10, 115);
 		display.print(tmpbuffer);
 	 
    double tmpVarioMin = varioData.flystat.GetVarioMin();
-	 sprintf(tmpbuffer,"Vario Min : %2.1f",tmpVarioMin); 
+	 if (tmpVarioMin > 10) tmpVarioMin = 9.9;
+	 if (tmpVarioMin < -10) tmpVarioMin = -9.9;
+	 sprintf(tmpbuffer,"Vario Min : %1.1f",tmpVarioMin); 
 	 display.setCursor(155, 40);
 	 display.print(tmpbuffer);
 
    double tmpVarioMax = varioData.flystat.GetVarioMax();
+	 if (tmpVarioMax > 10) tmpVarioMax = 9.9;
+	 if (tmpVarioMax < -10) tmpVarioMax = -9.9;
 	 sprintf(tmpbuffer,"Vario Max : %2.1f",tmpVarioMax); 
 	 display.setCursor(155, 65);
 	 display.print(tmpbuffer);
 	 
    double tmpSpeed = varioData.flystat.GetSpeed();
+	 if (tmpSpeed > 1000) tmpSpeed = 999;
 	 sprintf(tmpbuffer,"Vitesse : %.0f",tmpSpeed); //%02d.%02d.%02d", tmpDate[0],tmpDate[1],tmpDate[2]);
 	 display.setCursor(155, 90);
 	 display.print(tmpbuffer);
 	 display.drawLine(0, 20, 295, 20, GxEPD_BLACK);
      display.drawLine(145, 20, 145, 128, GxEPD_BLACK);
 	 display.drawLine(146, 20, 146, 128, GxEPD_BLACK);
-	 
-	 
 }
 
 //****************************************************************************************************************************
