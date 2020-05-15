@@ -43,12 +43,13 @@
  *    1.0.13 07/03/20   Correction xSemaphore                                    *
  *    1.0.14 09/03/20   Modification ScreenViewSound                             *
  *    1.0.15 08/04/20   Modification affichage des titres                        *
+ *    1.0.16 08/04/20   Modification affichage des titres                        *
  *    1.1.0  29/04/20   Changement de font - repositionnement                    *
+ *    1.1.1  10/05/20   Correction affichage screenTime (:/h)                    *
+ *    1.1.2  11/05/20   Effacement zones multi                                   *
  *                                                                               *
  *********************************************************************************/
  
-
-
 
  /*
  *********************************************************************************
@@ -307,6 +308,16 @@ void VarioScreen::createScreenObjects(void)
 
 /*	tensionDigit = new ScreenDigit(VARIOSCREEN_TENSION_ANCHOR_X, VARIOSCREEN_TENSION_ANCHOR_Y, 5, 2, false, false, ALIGNRIGHT);	
 	tempratureDigit = new ScreenDigit(VARIOSCREEN_TENSION_ANCHOR_X, VARIOSCREEN_TENSION_ANCHOR_Y, 5, 2, false, false, ALIGNRIGHT);*/
+	
+	MaxZoneList = 0;
+	
+  MaxZoneList++;
+		
+	ZoneMultiList[MaxZoneList-1].x			= VARIOSCREEN_GR_ANCHOR_X-4;
+	ZoneMultiList[MaxZoneList-1].y   		= VARIOSCREEN_GR_ANCHOR_Y-42;
+	ZoneMultiList[MaxZoneList-1].width 	= 65;
+	ZoneMultiList[MaxZoneList-1].height	= 49;
+	ZoneMultiList[MaxZoneList-1].page   = 0;
 	
 	createScreenObjectsPage0();
 	createScreenObjectsPage1();
@@ -1569,6 +1580,25 @@ void VarioScreen::SetViewSound(int volume) {
 	viewSound = volume;
 }
 
+//****************************************************************************************************************************
+//****************************************************************************************************************************
+//                          VARIOSCREEMULTI
+//****************************************************************************************************************************
+//****************************************************************************************************************************
+
+//****************************************************************************************************************************
+void ScreenZoneMulti::update(void) {
+//****************************************************************************************************************************
+
+#ifdef SCREEN_DEBUG
+	SerialPort.print("VarioScreenMulti");	
+#endif //SCREEN_DEBUG
+  
+//	display.drawRect(x, y, width, height, GxEPD_BLACK);
+	display.fillRect(x, y, width, height, GxEPD_WHITE);
+}
+
+
 /************************/
 /* The screen scheduler */
 /************************/
@@ -1679,11 +1709,12 @@ boolean ScreenScheduler::displayStep(void) {
 
 		display.setFullWindow();
  	
-		if (millis() - oldtimeAllDisplay >= 30000)	{
+		if (millis() - oldtimeAllDisplay >= 900000)	{
+		// refresh toutes les 15min
 			oldtimeAllDisplay  = millis();	
 			ShowDisplayAll = true;
 //		display.fillRect(0, 0, display.width(), display.height(), GxEPD_WHITE);
-//			display.clearScreen();
+			display.clearScreen();
 //			display.writeScreenBuffer();
 		
 #ifdef SCREEN_DEBUG2
@@ -1691,6 +1722,10 @@ boolean ScreenScheduler::displayStep(void) {
 #endif //SCREEN_DEBUG
 		
 		}
+// Efface les zones multiScreen
+	for(int i=0; i<screen.MaxZoneList; i++) {
+		if (screen.ZoneMultiList[i].page == currentPage) screen.ZoneMultiList[i].update();
+	}
 
 		uint8_t n = 0;
 		while( n <= objectCount ) {

@@ -48,8 +48,10 @@
  *    1.0.15 09/03/20   Modification ScreenViewSound                             *
  *    1.0.16 08/04/20   Modification affichage des titres                        *
  *    1.1.0  29/04/20   Changement de font - repositionnement                    *
- *																				 *
-*********************************************************************************/
+ *    1.1.1  10/05/20   Correction affichage screenTime (:/h)                    *
+ *    1.1.2  11/05/20   Effacement zones multi                                   *
+ *																				 																			 *
+ *********************************************************************************/
  
  /*
  *********************************************************************************
@@ -307,7 +309,7 @@ void VarioScreen::createScreenObjects(void)
 #ifdef SCREEN_DEBUG
 	SerialPort.println("Create screen objects");	
 #endif //SCREEN_DEBUG
-	
+		
 	/* création des champs d'affichage */
 	
 	
@@ -315,6 +317,16 @@ void VarioScreen::createScreenObjects(void)
 
 /*	tensionDigit = new ScreenDigit(VARIOSCREEN_TENSION_ANCHOR_X, VARIOSCREEN_TENSION_ANCHOR_Y, 5, 2, false, false, ALIGNRIGHT);	
 	tempratureDigit = new ScreenDigit(VARIOSCREEN_TENSION_ANCHOR_X, VARIOSCREEN_TENSION_ANCHOR_Y, 5, 2, false, false, ALIGNRIGHT);*/
+	
+	MaxZoneList = 0;
+	
+  MaxZoneList++;
+		
+	ZoneMultiList[MaxZoneList-1].x			= VARIOSCREEN_GR_ANCHOR_X-4;
+	ZoneMultiList[MaxZoneList-1].y   		= VARIOSCREEN_GR_ANCHOR_Y-42;
+	ZoneMultiList[MaxZoneList-1].width 	= 65;
+	ZoneMultiList[MaxZoneList-1].height	= 49;
+	ZoneMultiList[MaxZoneList-1].page   = 0;
 	
 	createScreenObjectsPage0();
 	createScreenObjectsPage1();
@@ -360,9 +372,9 @@ void VarioScreen::createScreenObjectsPage0(void) {
 	satLevel = new SATLevel(VARIOSCREEN_SAT_ANCHOR_X, VARIOSCREEN_SAT_ANCHOR_Y);
 
 	timeMDigit = new ScreenDigit (VARIOSCREEN_TIME_ANCHOR_X-55, VARIOSCREEN_TIME_ANCHOR_Y, 2, 0, false, true, ALIGNLEFT, false, DISPLAY_OBJECT_DURATION, TAILLE_FONT, MAX_CAR_TITRE_TIME);
-	timeHDigit = new ScreenDigit (VARIOSCREEN_TIME_ANCHOR_X-73, VARIOSCREEN_TIME_ANCHOR_Y, 2, 0, false, true, ALIGNRIGHT, true, DISPLAY_OBJECT_TIME, TAILLE_FONT, MAX_CAR_TITRE_TIME);
+	timeHDigit = new ScreenDigit (VARIOSCREEN_TIME_ANCHOR_X-73, VARIOSCREEN_TIME_ANCHOR_Y, 2, 0, false, true, ALIGNRIGHT, false, DISPLAY_OBJECT_TIME, TAILLE_FONT, MAX_CAR_TITRE_TIME);
 
-	screenTime = new ScreenTime(VARIOSCREEN_TIME_ANCHOR_X, VARIOSCREEN_TIME_ANCHOR_Y, *timeHDigit, *timeMDigit,false);
+	screenTime = new ScreenTime(VARIOSCREEN_TIME_ANCHOR_X, VARIOSCREEN_TIME_ANCHOR_Y, *timeHDigit, *timeMDigit, false);
 	screenElapsedTime = new ScreenElapsedTime(VARIOSCREEN_ELAPSED_TIME_ANCHOR_X, VARIOSCREEN_ELAPSED_TIME_ANCHOR_Y, *timeHDigit, *timeMDigit);
 
 	fixgpsinfo = new FIXGPSInfo(VARIOSCREEN_SAT_FIX_ANCHOR_X, VARIOSCREEN_SAT_FIX_ANCHOR_Y);
@@ -1074,7 +1086,7 @@ void VarioScreen::ScreenViewStatPage(int PageStat)
 #endif //SCREEN_DEBUG
 
 		varioData.flystat.GetTime(tmpTime);
-		sprintf(tmpbuffer,"heure : %02d:%02d",tmpTime[2],tmpTime[1]); 
+		sprintf(tmpbuffer,"%s: %02d:%02d",varioLanguage.getText(TITRE_TIME),tmpTime[2],tmpTime[1]); 
 		display.setCursor(0, 65);
 		display.print(tmpbuffer);
 
@@ -1587,6 +1599,25 @@ void VarioScreen::SetViewSound(int volume) {
 	viewSound = volume;
 }
 
+//****************************************************************************************************************************
+//****************************************************************************************************************************
+//                          VARIOSCREEMULTI
+//****************************************************************************************************************************
+//****************************************************************************************************************************
+
+//****************************************************************************************************************************
+void ScreenZoneMulti::update(void) {
+//****************************************************************************************************************************
+
+#ifdef SCREEN_DEBUG
+	SerialPort.print("VarioScreenMulti");	
+#endif //SCREEN_DEBUG
+  
+//	display.drawRect(x, y, width, height, GxEPD_BLACK);
+	display.fillRect(x, y, width, height, GxEPD_WHITE);
+}
+
+
 /************************/
 /* The screen scheduler */
 /************************/
@@ -1697,15 +1728,22 @@ boolean ScreenScheduler::displayStep(void) {
 
   display.setFullWindow();
  	
-	if (millis() - oldtimeAllDisplay >= 30000)	{
+	if (millis() - oldtimeAllDisplay >= 900000)	{
+		// refresh toutes les 15min
 		oldtimeAllDisplay  = millis();	
 		ShowDisplayAll = true;
 //		display.fillRect(0, 0, display.width(), display.height(), GxEPD_WHITE);
+		display.clearScreen();
 		
 #ifdef SCREEN_DEBUG2
 		SerialPort.println("displaystep - showDisplayAll");
 #endif //SCREEN_DEBUG
 		
+	}
+
+// Efface les zones multiScreen
+	for(int i=0; i<screen.MaxZoneList; i++) {
+		if (screen.ZoneMultiList[i].page == currentPage) screen.ZoneMultiList[i].update();
 	}
 
 	uint8_t n = 0;
@@ -1920,6 +1958,5 @@ void MultiDisplay::displayStep(void) {
 		}
 	}
 }
-
 
 #endif //VARIOSCREEN_SIZE

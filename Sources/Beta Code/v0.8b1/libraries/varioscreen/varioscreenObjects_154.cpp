@@ -1235,6 +1235,7 @@ ScreenText::ScreenText(uint16_t anchorX, uint16_t anchorY, uint16_t width, int8_
   int16_t box_y = anchorY;
   uint16_t w, h;
   int16_t box_w, box_h; 
+	int tmpWidth;
 
 #if defined(ESP32)
 	ESP_LOGI(TAG, "ScreenText constructeur");
@@ -1448,6 +1449,7 @@ void ScreenText::show() {
   //normalise value
 //  char digitCharacters[MAX_CHAR_IN_LINE];
 //	char tmpChar[MAX_CHAR_IN_LINE];
+
 	display.setFont(&gnuvarioe18pt7b); //jersey18pt7b);
    
 /*	if (large) 

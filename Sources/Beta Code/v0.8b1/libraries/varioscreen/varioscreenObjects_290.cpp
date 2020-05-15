@@ -2648,31 +2648,11 @@ int8_t* ScreenTime::getTime(void) {
 void ScreenTime::show(void) {
 //****************************************************************************************************************************
 
-#ifdef SCREEN_DEBUG
+#ifdef SCREEN_DEBUG2
   SerialPort.println("Show : ScreenTime");
 #endif //SCREEN_DEBUG
 
-  display.fillRect(posX-70, posY-32, 65, 34, GxEPD_WHITE);
-// 	display.drawRect(posX-70, posY-32, 65, 34, GxEPD_BLACK);
-
-
-
-  if (dot_or_h == false) {
-#ifdef SCREEN_DEBUG
-		SerialPort.println("dot_or_h  : H");
-#endif //SCREEN_DEBUG
-
-    display.drawBitmap(posX-72, posY-20,hicons,  16, 24, GxEPD_BLACK);   //GxEPD_BLACK);
-	}
-  else {	
-#ifdef SCREEN_DEBUG
-		SerialPort.println("dot_or_h  : DOT");
-#endif //SCREEN_DEBUG
-  
-    display.drawBitmap(posX-72, posY-25, doticons, 16, 24, GxEPD_BLACK);   //GxEPD_BLACK);
-	}
-
-#ifdef SCREEN_DEBUG
+#ifdef SCREEN_DEBUG2
   SerialPort.print("time : ");
   SerialPort.print(time[2]);
   SerialPort.print(" : ");
@@ -2686,23 +2666,52 @@ void ScreenTime::show(void) {
   minute.setValue(time[1]);
   minute.show();
 
-  display.fillRect(posX-125, posY-30-6-1, 41, 8, GxEPD_WHITE);
+  if (!dot_or_h) {	
+#ifdef SCREEN_DEBUG2
+		SerialPort.println("dot_or_h  : H");
+#endif //SCREEN_DEBUG
+
+//  display.fillRect(posX-125, posY-30-6-1, 41, 8, GxEPD_WHITE);
+//  display.fillRect(posX-70, posY-32, 65, 34, GxEPD_WHITE);
+// 	display.drawRect(posX-70, posY-32, 65, 34, GxEPD_BLACK);
+
+	display.fillRect(posX-69, posY-25, 14, 24, GxEPD_WHITE);
+    display.drawBitmap(posX-70, posY-20,hicons,  16, 24, GxEPD_BLACK);   //GxEPD_BLACK);
+  }
+  else {	
+
+
+
+#ifdef SCREEN_DEBUG2
+		SerialPort.println("dot_or_h  : DOT");
+#endif //SCREEN_DEBUG
+  
+ //   display.drawBitmap(posX-72, posY-25, doticons, 16, 24, GxEPD_BLACK);   //GxEPD_BLACK);
+//		display.fillRect(posX-54, posY-25, 14, 24, GxEPD_WHITE);
+//    	display.drawBitmap(posX-55, posY-25, doticons, 16, 24, GxEPD_BLACK);   //GxEPD_BLACK);
+	display.fillRect(posX-69, posY-25, 14, 24, GxEPD_WHITE);
+    display.drawBitmap(posX-70, posY-25,doticons,  16, 24, GxEPD_BLACK);   //GxEPD_BLACK);
+	}
+  display.fillRect(posX-121, posY-10-28, 88, 10, GxEPD_WHITE);
 	
 	display.setFont(&NotoSans6pt7b); 
 	display.setTextColor(ColorText);
 	display.setTextSize(1);
+	display.setCursor(posX-100, posY-30); //titleX+2, titleY);
 			
-  if (dot_or_h == false) {	
+  if (!dot_or_h) {	
 //		case DISPLAY_OBJECT_TIME :
 //			display.drawInvertedBitmap(posX-125, posY-14-36, heuretext, 38, 12, GxEPD_BLACK);
 
-			display.setCursor(posX-120, posY-30); //titleX+2, titleY);
-			display.print(varioLanguage.getText(TITRE_TIME));
+//			display.setCursor(posX-120, posY-30); //titleX+2, titleY);
+//			display.print(varioLanguage.getText(TITRE_TIME));
+		display.print(varioLanguage.getText(TITRE_TIME));
 	}
 	else  {
 //		case DISPLAY_OBJECT_DURATION :
 //			display.drawInvertedBitmap(posX-125, posY-17-36, tdvtext, 88, 17, GxEPD_BLACK);
-			display.setCursor(posX-120, posY-30); //titleX+2, titleY);
+//			display.setCursor(posX-120, posY-30); //titleX+2, titleY);
+
 			display.print(varioLanguage.getText(TITRE_TDV));
 	}	
 }

@@ -35,12 +35,12 @@
  *    1.0.6  12/08/19   Ajout gestion écran de config GPS                        *
  *    1.0.7  15/08/19   Ajout gestion bouton dans screeninit                     *
  *    1.0.8  15/09/19   Ajout écran connection Wifi - ScreenViewWifi             *
- *    1.0.9  22/08/19   Ajout ScreenViewReboot									 *
+ *    1.0.9  22/08/19   Ajout ScreenViewReboot									 								 *
  *    1.0.10 22/08/19   Ajout Page1                                              *
  *    1.0.11 23/08/19   Correction bug previousPage                              *
  *                      Ajout TUnit                                              *
  *    1.0.12 24/08/19   Ajout ScreenViewSound(int volume)                        *
- *		1.0.13 25/08/19		Gestion de l'écran de config du son					 *	
+ *		1.0.13 25/08/19		Gestion de l'écran de config du son					 						 *	
  *    1.0.14 23/09/19   Modification page stat                                   *
  *                      Modification de l'affichage de la charge de la betterie  *
  *                      Ajout d'un deep-sleep en cas de batterie trop faible     *
@@ -50,16 +50,16 @@
  *    1.1.3  13/10/19   Integration au Gnuvario                                  *
  *    1.1.4  14/10/19   Modification affichage titre champs screendigit          *
  *    1.1.5  15/10/19   Modification affichage des satellites                    *
- *    1.1.6  20/10/19   Suppression classe GxEPD2_BW_U							 *
+ *    1.1.6  20/10/19   Suppression classe GxEPD2_BW_U							 						 *
  *    1.1.7  16/11/19   Ajout classe GxEPD2_BW_U                                 *
  *    1.1.8  11/01/20   Modif VARIOSCREEN_SIZE == 290                            *
- *    1.1.9  03/02/20   Changement de nom passage de 29 à 290  					 *
- *    1.1.10 16/02/20   Adaptation écran 2.9" mode portrait						 *
- *						VARIOSCREEN_SIZE == 291              					 *	
+ *    1.1.9  03/02/20   Changement de nom passage de 29 à 290  					 				 *
+ *    1.1.10 16/02/20   Adaptation écran 2.9" mode portrait						 					 *
+ *						VARIOSCREEN_SIZE == 291              					 										 *	
  *    1.1.11 21/02/20   Correction bug affichage batterie                        *
  *    1.0.12 19/02/20   Ajout variolog                                           *
  *    1.1.13 23/02/20   Ajout d'objets texte (compass, Lat, Long), changement    *
- *					    de taille de texte                                       *
+ *					    de taille de texte                                       				 *
  *    1.0.14 05/03/20   Ajout affichage AGL                                      *
  *    1.0.15 06/03/20   Ajout gestion icone DISPLAY_OBJECT_TREND                 *
  *    1.0.16 09/03/20   Modification de l'effacement digit left                  *
@@ -383,7 +383,7 @@ ScreenDigit::ScreenDigit(uint16_t anchorX, uint16_t anchorY, uint16_t width, uin
   int16_t box_w, box_h; 
 
 #if defined(ESP32)
-	ESP_LOGI(TAG, "ScreenDigit constructeur");
+	ESP_LOGI(TAG, "ScreenDigit constructeur\n");
 //  ESP_LOGE(TAG, "Failed to initialize the card (%d). Make sure SD card lines have pull-up resistors in place.", ret);
 
 #endif //ESP32
@@ -2568,31 +2568,11 @@ int8_t* ScreenTime::getTime(void) {
 void ScreenTime::show(void) {
 //****************************************************************************************************************************
 
-#ifdef SCREEN_DEBUG
+#ifdef SCREEN_DEBUG2
   SerialPort.println("Show : ScreenTime");
 #endif //SCREEN_DEBUG
 
-  display.fillRect(posX-55, posY-32, 25, 34, GxEPD_WHITE);
-// 	display.drawRect(posX-55, posY-32, 25, 34, GxEPD_BLACK);
-
-
-
-  if (dot_or_h == false) {
-#ifdef SCREEN_DEBUG
-		SerialPort.println("dot_or_h  : H");
-#endif //SCREEN_DEBUG
-
-    display.drawBitmap(posX-72, posY-20,hicons,  16, 24, GxEPD_BLACK);   //GxEPD_BLACK);
-	}
-  else {	
-#ifdef SCREEN_DEBUG
-		SerialPort.println("dot_or_h  : DOT");
-#endif //SCREEN_DEBUG
-  
-    display.drawBitmap(posX-72, posY-20, doticons, 16, 24, GxEPD_BLACK);   //GxEPD_BLACK);
-	}
-
-#ifdef SCREEN_DEBUG
+#ifdef SCREEN_DEBUG2
   SerialPort.print("time : ");
   SerialPort.print(time[2]);
   SerialPort.print(" : ");
@@ -2606,24 +2586,52 @@ void ScreenTime::show(void) {
   minute.setValue(time[1]);
   minute.show();
 
-  display.fillRect(posX-130, posY-10-28, 88, 10, GxEPD_WHITE);
-	
-	display.setFont(&NotoSans6pt7b); 
-	display.setTextColor(ColorText);
-	display.setTextSize(1);
-			
-  if (dot_or_h == false) {	
-//		case DISPLAY_OBJECT_TIME :
-//			display.drawInvertedBitmap(posX-125, posY-14-36, heuretext, 38, 12, GxEPD_BLACK);
+  if (!dot_or_h) {	
+#ifdef SCREEN_DEBUG2
+		SerialPort.println("dot_or_h  : H");
+#endif //SCREEN_DEBUG
 
-			display.setCursor(posX-100, posY-30); //titleX+2, titleY);
-			display.print(varioLanguage.getText(TITRE_TIME));
+//		display.drawRect(posX-70, posY-26, 16, 26, GxEPD_BLACK);
+		display.fillRect(posX-69, posY-25, 14, 24, GxEPD_WHITE);
+
+    display.drawBitmap(posX-70, posY-20,hicons,  16, 24, GxEPD_BLACK);   //GxEPD_BLACK);
+ //  	display.drawRect(posX-70, posY-27, 16, 26, GxEPD_BLACK);
 	}
 	else  {
 //		case DISPLAY_OBJECT_DURATION :
 //			display.drawInvertedBitmap(posX-125, posY-17-36, tdvtext, 88, 17, GxEPD_BLACK);
-			display.setCursor(posX-100, posY-30); //titleX+2, titleY);
-			display.print(varioLanguage.getText(TITRE_TDV));
+//		display.setCursor(posX-100, posY-30); //titleX+2, titleY);
+
+#ifdef SCREEN_DEBUG2
+		SerialPort.println("dot_or_h  : DOT");
+#endif //SCREEN_DEBUG
+  
+//		display.drawRect(posX-55, posY-26, 16, 26, GxEPD_BLACK);
+		display.fillRect(posX-54, posY-25, 14, 24, GxEPD_WHITE);
+    display.drawBitmap(posX-55, posY-25, doticons, 16, 24, GxEPD_BLACK);   //GxEPD_BLACK);
+	}
+
+  display.fillRect(posX-121, posY-10-28, 88, 10, GxEPD_WHITE);
+	
+	display.setFont(&NotoSans6pt7b); 
+	display.setTextColor(ColorText);
+	display.setTextSize(1);
+	display.setCursor(posX-100, posY-30); //titleX+2, titleY);
+			
+  if (!dot_or_h) {	
+//		case DISPLAY_OBJECT_TIME :
+//			display.drawInvertedBitmap(posX-125, posY-14-36, heuretext, 38, 12, GxEPD_BLACK);
+
+//		display.setCursor(posX-100, posY-30); //titleX+2, titleY);
+
+		display.print(varioLanguage.getText(TITRE_TIME));
+	}
+	else  {
+//		case DISPLAY_OBJECT_DURATION :
+//			display.drawInvertedBitmap(posX-125, posY-17-36, tdvtext, 88, 17, GxEPD_BLACK);
+//		display.setCursor(posX-100, posY-30); //titleX+2, titleY);
+
+		display.print(varioLanguage.getText(TITRE_TDV));
 	}
  }
 
@@ -2898,7 +2906,6 @@ void SeparationLine::toDisplay() {
    reset();
 }
 */
-
 
 /**************************************************************************/
 /*!
