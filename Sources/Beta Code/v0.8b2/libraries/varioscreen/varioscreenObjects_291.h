@@ -64,6 +64,7 @@
  *    1.1.16 08/04/20   Modification affichage des titres                        *
  *    1.1.17 13/04/20   Titre en mode texte                                      *
  *    1.2.0  29/04/20   Modification font screedigit                             *
+ *    1.2.1  15/05/20   Modification screentime                                  *
  *                                                                               *
  *********************************************************************************/
 #ifndef VARIOSCREENOBJECTS_291_H

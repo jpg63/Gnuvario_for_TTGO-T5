@@ -242,6 +242,9 @@
 *               08/05/20             Compas Magnetique                                                *
 *                                    Correction affichage écran 2.91''                                *
 *                                    correction champs trop grand dans statistique                    *
+* v0.8 beta 2   15/05/20             Changement de librairie pour sdcard                              *
+*               16/05/20             Maj lib arduinojson                                              *
+*               16/05/20             Ajout raffraichissement écran toutes les 15min                   *
 *******************************************************************************************************
 *                                                                                                     *
 *                                   Developpement a venir                                             *
@@ -343,6 +346,7 @@
  *  - Nouvelle font d'affichage                                         *
  *  - Sensibilité du vario réglable                                     *
  *  - Compas Magnétique                                                 *
+ *  - Raffraichissement écran toutes les 15min                          *
  *                                                                      *
  ************************************************************************/
 
