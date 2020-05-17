@@ -245,6 +245,8 @@
 * v0.8 beta 2   15/05/20             Changement de librairie pour sdcard                              *
 *               16/05/20             Maj lib arduinojson                                              *
 *               16/05/20             Ajout raffraichissement écran toutes les 15min                   *
+*               17/05/20             Maj lib Adafruit_GFX_Library                                     *
+*                                    Nettoyage lib BLE                                                *
 *******************************************************************************************************
 *                                                                                                     *
 *                                   Developpement a venir                                             *
