@@ -14,6 +14,7 @@
 
 #include "VarioIgcParser.h"
 #include <MD5Builder.h>
+#include <ArduinoJson.h>
 
 VarioIgcParser::VarioIgcParser()
 {
@@ -33,12 +34,20 @@ boolean VarioIgcParser::parseFile(String path)
     {
         return false;
     }
+    String tmpFullName = dataFile.name();
+    filename = tmpFullName.substring(tmpFullName.lastIndexOf("/") + 1);
+
     MD5Builder md5b;
     md5b.begin();
     md5b.addStream(dataFile, dataFile.size());
     md5b.calculate();
     md5 = md5b.toString();
+#ifdef WIFI_DEBUG
     SerialPort.println(md5);
+#endif //WIFI_DEBUG
+
+    //retour au debut du fichier
+    dataFile.seek(0);
 
     while (dataFile.available())
     {
@@ -49,6 +58,8 @@ boolean VarioIgcParser::parseFile(String path)
             // date de la trace
             flightDate = buffer.substring(5);
             flightDate.trim();
+            //inversion pour format americain
+            flightDate = "20" + flightDate.substring(4, 6) + "-" + flightDate.substring(2, 4) + "-" + flightDate.substring(0, 2);
 #ifdef WIFI_DEBUG
             SerialPort.print("buffer : ");
             SerialPort.println(buffer);
@@ -85,7 +96,7 @@ boolean VarioIgcParser::parseFile(String path)
             //trame trace
             // B1243314503488N00351234EA0088400927
             // B 12 43 31 4503488N 00351234E A 00884 00927
-            String hms = buffer.substring(2, 8);
+            String hms = buffer.substring(1, 7);
             int16_t nPos = buffer.indexOf("N");
             int16_t ePos = buffer.indexOf("E");
             uint8_t aPos = buffer.indexOf("A");
@@ -103,6 +114,7 @@ boolean VarioIgcParser::parseFile(String path)
                 startFlightTimeSet = true;
                 startFlightTime = hms;
             }
+            endFlightTime = hms;
             minHeight = min(height, minHeight);
             maxHeight = max(height, maxHeight);
             endHeight = height;
@@ -111,6 +123,10 @@ boolean VarioIgcParser::parseFile(String path)
 
     dataFile.close();
 #ifdef WIFI_DEBUG
+    SerialPort.print("startFlightTime : ");
+    SerialPort.println(startFlightTime);
+    SerialPort.print("endFlightTime : ");
+    SerialPort.println(endFlightTime);
     SerialPort.print("startHeight : ");
     SerialPort.println(startHeight);
     SerialPort.print("minHeight : ");
@@ -120,6 +136,7 @@ boolean VarioIgcParser::parseFile(String path)
     SerialPort.print("endHeight : ");
     SerialPort.println(endHeight);
 #endif //WIFI_DEBUG
+
     isParsed = true;
 
     return true;
@@ -233,18 +250,6 @@ int16_t VarioIgcParser::getMaxHeight()
     }
 }
 
-String VarioIgcParser::getJson()
-{
-    if (isParsed)
-    {
-        return "{\"md5\": \"" + md5 + "\",  \"pilot\": \"" + pilot + "\", \"wing\": \"" + wing + "\", \"flightDate\": \"" + flightDate + "\", \"startFlightTime\": \"" + startFlightTime + "\", \"endFlightTime\": \"" + endFlightTime + "\", \"startHeight\": \"" + String(startHeight) + "\", \"endHeight\": \"" + String(endHeight) + "\", \"minHeight\": \"" + String(minHeight) + "\", \"maxHeight\": \"" + String(maxHeight) + "\"}";
-    }
-    else
-    {
-        return "{}";
-    }
-}
-
 String VarioIgcParser::getMD5()
 {
     if (isParsed)
@@ -255,4 +260,43 @@ String VarioIgcParser::getMD5()
     {
         return "";
     }
+}
+
+String VarioIgcParser::getFilename()
+{
+    if (isParsed)
+    {
+        return filename;
+    }
+    else
+    {
+        return "";
+    }
+}
+
+String VarioIgcParser::getJson()
+{
+    String output;
+    DynamicJsonDocument doc(4096);
+
+    if (isParsed)
+    {
+        doc["md5"] = md5;
+        doc["pilot"] = pilot;
+        doc["wing"] = wing;
+        doc["flightDate"] = flightDate;
+        doc["startFlightTime"] = startFlightTime;
+        doc["endFlightTime"] = endFlightTime;
+        doc["startHeight"] = startHeight;
+        doc["endHeight"] = endHeight;
+        doc["minHeight"] = minHeight;
+        doc["maxHeight"] = maxHeight;
+        doc["filename"] = filename;
+    }
+    else
+    {
+        doc.to<JsonObject>();
+    }
+    serializeJson(doc, output);
+    return output;
 }

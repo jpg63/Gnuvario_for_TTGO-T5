@@ -2,6 +2,22 @@
 #include <HardwareConfig.h>
 #include <DebugConfig.h>
 
+#include <VarioLog.h>
+
+#ifndef ARDUINOTRACE_ENABLE
+#ifdef HARDWARE_DEBUG
+#define ARDUINOTRACE_ENABLE 1
+#else
+#define ARDUINOTRACE_ENABLE 0
+#endif
+#endif
+
+#ifndef ARDUINOTRACE_SERIAL
+#define ARDUINOTRACE_SERIAL SerialPort
+#endif
+
+#include <ArduinoTrace.h>
+
 #ifdef HAVE_BLUETOOTH
 
 #include "VarioBle.h"
@@ -17,7 +33,14 @@
 bool VarioBle::init()
 // ******************************
 {
-  return true;
+	if (GnuSettings.VARIOMETER_ENABLE_BT) {
+		TRACE();
+		return true;
+	}
+	else {
+		TRACE();
+		return false;
+	}
 }
 
 

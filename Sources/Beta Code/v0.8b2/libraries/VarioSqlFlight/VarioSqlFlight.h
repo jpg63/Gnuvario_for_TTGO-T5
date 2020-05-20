@@ -14,7 +14,10 @@ class VarioSqlFlight
 
 private:
     String dbPath;
+    sqlite3 *myDb;
+    boolean isOpened;
     int openDb(const char *filename, sqlite3 **db);
+    void closeDb();
     char *zErrMsg = 0;
     int db_exec(sqlite3 *db, const char *sql);
     const char *data = "Callback function called";
@@ -22,5 +25,7 @@ private:
 
 public:
     VarioSqlFlight();
+    ~VarioSqlFlight();
+    bool insertFlight(String data);
 };
 #endif

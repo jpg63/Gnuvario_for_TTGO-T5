@@ -84,9 +84,9 @@ extern VarioSettings GnuSettings;
 
 #include <VarioIgcParser.h>
 
-#if !defined(HAVE_BLUETOOTH)
+// #if !defined(HAVE_BLUETOOTH)
 #include <VarioSqlFlight.h>
-#endif // HAVE_BLUETOOTH
+// #endif // HAVE_BLUETOOTH
 
 #define TAG "server"
 
@@ -661,9 +661,9 @@ void handleListFlights()
     output += "\",\"size\":\"";
     output += fsize;
     output += "\"";
-    VarioIgcParser varioIgcParser;
+    //VarioIgcParser varioIgcParser;
     // varioIgcParser.parseFile("/vols/" + String(entry.name()));
-    output += ", \"info\": " + varioIgcParser.getJson();
+    //output += ", \"info\": " + varioIgcParser.getJson();
     output += "}";
     server.sendContent(output);
     entry.close();
@@ -1524,9 +1524,10 @@ void handleParseIgc()
   VarioIgcParser varioIgcParser;
   varioIgcParser.parseFile(path);
 
-#if !defined(HAVE_BLUETOOTH)
+// #if !defined(HAVE_BLUETOOTH)
   VarioSqlFlight varioSqlFlight;
-#endif // HAVE_BLUETOOTH
+  varioSqlFlight.insertFlight(varioIgcParser.getJson());
+// #endif // HAVE_BLUETOOTH
 
   return returnOK();
 }

@@ -50,6 +50,7 @@
  *    1.1.0  29/04/20   Changement de font - repositionnement                    *
  *    1.1.1  10/05/20   Correction affichage screenTime (:/h)                    *
  *    1.1.2  11/05/20   Effacement zones multi                                   *
+ *    1.1.3  17/05/20   Ajout position titre avac setPositionTitle               *
  *																				 *
 *********************************************************************************/
  
@@ -211,6 +212,18 @@ TaskHandle_t VarioScreen::screenTaskHandler;
 #define VARIOSCREEN_WIND_ANCHOR_X 200
 #define VARIOSCREEN_WIND_ANCHOR_Y 33
 
+#define VARIOSCREEN_ALTI_TITLE_X 5  
+#define VARIOSCREEN_ALTI_TITLE_Y 7
+#define VARIOSCREEN_VARIO_TITLE_X 5
+#define VARIOSCREEN_VARIO_TITLE_Y 50
+#define VARIOSCREEN_SPEED_TITLE_X 220
+#define VARIOSCREEN_SPEED_TITLE_Y 95
+#define VARIOSCREEN_GR_TITLE_X 120
+#define VARIOSCREEN_GR_TITLE_Y 50
+#define VARIOSCREEN_TIME_TITLE_X 50
+#define VARIOSCREEN_TIME_TITLE_Y 95
+#define VARIOSCREEN_ELAPSED_TIME_TITLE_X 50
+#define VARIOSCREEN_ELAPSED_TIME_TITLE_Y 95
 /*****************************************/
 /* screen objets Page 1                  */
 /*****************************************/
@@ -227,6 +240,14 @@ TaskHandle_t VarioScreen::screenTaskHandler;
 #define VARIOSCREEN_BEARING_TEXT_ANCHOR_Y 126  //120
 #define VARIOSCREEN_BEARING_ANCHOR_X 270
 #define VARIOSCREEN_BEARING_ANCHOR_Y 80
+#define VARIOSCREEN_LAT_TITLE_X 5
+#define VARIOSCREEN_LAT_TITLE_Y 52
+#define VARIOSCREEN_LONG_TITLE_X 5
+#define VARIOSCREEN_LONG_TITLE_Y 95
+#define VARIOSCREEN_BEARING_TEXT_TITLE_X 220
+#define VARIOSCREEN_BEARING_TEXT_TITLE_Y 95
+#define VARIOSCREEN_BEARING_TITLE_X 220
+#define VARIOSCREEN_BEARING_TITLE_Y 50
 
 /*****************************************/
 /* screen objets Page 10 - Calibrate GPS */
@@ -346,17 +367,24 @@ void VarioScreen::createScreenObjects(void)
 void VarioScreen::createScreenObjectsPage0(void) {
 //****************************************************************************************************************************
 	altiDigit = new ScreenDigit(VARIOSCREEN_ALTI_ANCHOR_X, VARIOSCREEN_ALTI_ANCHOR_Y, 4, 0, false, false, ALIGNRIGHT, true, DISPLAY_OBJECT_ALTI, TAILLE_FONT, MAX_CAR_TITRE_ALTI);
+  altiDigit->setPositionTitle(VARIOSCREEN_ALTI_TITLE_X,VARIOSCREEN_ALTI_TITLE_Y);
 	heightDigit = new ScreenDigit(VARIOSCREEN_ALTI_ANCHOR_X, VARIOSCREEN_ALTI_ANCHOR_Y, 4, 0, false, false, ALIGNRIGHT, true, DISPLAY_OBJECT_HEIGHT, TAILLE_FONT, MAX_CAR_TITRE_AGL);
+  heightDigit->setPositionTitle(VARIOSCREEN_ALTI_TITLE_X,VARIOSCREEN_ALTI_TITLE_Y);
 
 	munit = new MUnit(VARIOSCREEN_ALTI_UNIT_ANCHOR_X, VARIOSCREEN_ALTI_ANCHOR_Y);
 	varioDigit = new ScreenDigit(VARIOSCREEN_VARIO_ANCHOR_X, VARIOSCREEN_VARIO_ANCHOR_Y, 4, 1, true, false,  ALIGNRIGHT, true, DISPLAY_OBJECT_VARIO, TAILLE_FONT, MAX_CAR_TITRE_VARIO);
+  varioDigit->setPositionTitle(VARIOSCREEN_VARIO_TITLE_X,VARIOSCREEN_VARIO_TITLE_Y);
 
 	msunit = new MSUnit(VARIOSCREEN_VARIO_UNIT_ANCHOR_X, VARIOSCREEN_VARIO_UNIT_ANCHOR_Y);
 	kmhunit = new KMHUnit(VARIOSCREEN_SPEED_UNIT_ANCHOR_X, VARIOSCREEN_SPEED_UNIT_ANCHOR_Y);
 	speedDigit = new ScreenDigit(VARIOSCREEN_SPEED_ANCHOR_X, VARIOSCREEN_SPEED_ANCHOR_Y, 2, 0, false, false, ALIGNRIGHT, true, DISPLAY_OBJECT_SPEED, TAILLE_FONT, MAX_CAR_TITRE_SPEED);
+	speedDigit->setPositionTitle(VARIOSCREEN_SPEED_TITLE_X,VARIOSCREEN_SPEED_TITLE_Y);
 	ratioDigit = new ScreenDigit(VARIOSCREEN_GR_ANCHOR_X, VARIOSCREEN_GR_ANCHOR_Y, 2, 0, false, true, ALIGNLEFT, true, DISPLAY_OBJECT_RATIO, TAILLE_FONT, MAX_CAR_TITRE_TCHUTE);
+	ratioDigit->setPositionTitle(VARIOSCREEN_GR_TITLE_X,VARIOSCREEN_GR_TITLE_Y);
 	trendDigit = new ScreenDigit(VARIOSCREEN_GR_ANCHOR_X, VARIOSCREEN_GR_ANCHOR_Y, 3, 1, false, true, ALIGNLEFT, true, DISPLAY_OBJECT_TREND, TAILLE_FONT, MAX_CAR_TITRE_FINESSE);
+	trendDigit->setPositionTitle(VARIOSCREEN_GR_TITLE_X,VARIOSCREEN_GR_TITLE_Y);
 	gpsBearing 	= new ScreenDigit(VARIOSCREEN_BEARING_ANCHOR_X, VARIOSCREEN_BEARING_ANCHOR_Y, 3, 0, false, false, ALIGNRIGHT, true, DISPLAY_OBJECT_BEARING, TAILLE_FONT, MAX_CAR_TITRE_CAP);
+	gpsBearing->setPositionTitle(VARIOSCREEN_BEARING_TITLE_X,VARIOSCREEN_BEARING_TITLE_Y);
 	infoLevel = new INFOLevel(VARIOSCREEN_INFO_ANCHOR_X, VARIOSCREEN_INFO_ANCHOR_Y);
 	volLevel = new VOLLevel(VARIOSCREEN_VOL_ANCHOR_X, VARIOSCREEN_VOL_ANCHOR_Y);
 	recordIndicator = new RECORDIndicator(VARIOSCREEN_RECCORD_ANCHOR_X, VARIOSCREEN_RECCORD_ANCHOR_Y);
@@ -370,7 +398,9 @@ void VarioScreen::createScreenObjectsPage0(void) {
 	timeHDigit = new ScreenDigit (VARIOSCREEN_TIME_ANCHOR_X-73, VARIOSCREEN_TIME_ANCHOR_Y, 2, 0, false, true, ALIGNRIGHT, true, DISPLAY_OBJECT_TIME, TAILLE_FONT, MAX_CAR_TITRE_TIME);
 
 	screenTime = new ScreenTime(VARIOSCREEN_TIME_ANCHOR_X, VARIOSCREEN_TIME_ANCHOR_Y, *timeHDigit, *timeMDigit,false);
+	screenTime->setPositionTitle(VARIOSCREEN_TIME_TITLE_X,VARIOSCREEN_TIME_TITLE_Y);
 	screenElapsedTime = new ScreenElapsedTime(VARIOSCREEN_ELAPSED_TIME_ANCHOR_X, VARIOSCREEN_ELAPSED_TIME_ANCHOR_Y, *timeHDigit, *timeMDigit);
+	screenElapsedTime->setPositionTitle(VARIOSCREEN_ELAPSED_TIME_TITLE_X,VARIOSCREEN_ELAPSED_TIME_TITLE_Y);
 
 	fixgpsinfo = new FIXGPSInfo(VARIOSCREEN_SAT_FIX_ANCHOR_X, VARIOSCREEN_SAT_FIX_ANCHOR_Y);
 	btinfo = new BTInfo(VARIOSCREEN_BT_ANCHOR_X, VARIOSCREEN_BT_ANCHOR_Y);
@@ -407,11 +437,15 @@ void VarioScreen::createScreenObjectsPage1(void) {
 //  gpsLatDir 					= new ScreenText(VARIOSCREEN_LATDIR_ANCHOR_X, VARIOSCREEN_LAT_ANCHOR_Y, 1, FONTLARGE, ALIGNLEFT, false, DISPLAY_OBJECT_LAT_DIR);
 //	gpsLongDir					= new ScreenText(VARIOSCREEN_LONGDIR_ANCHOR_X, VARIOSCREEN_LONG_ANCHOR_Y, 1, FONTLARGE, ALIGNLEFT, false, DISPLAY_OBJECT_LONG_DIR);
 	gpsBearingText			    = new ScreenText(VARIOSCREEN_BEARING_TEXT_ANCHOR_X, VARIOSCREEN_BEARING_TEXT_ANCHOR_Y, 3, FONTNORMAL, ALIGNLEFT, true, DISPLAY_OBJECT_BEARING_TEXT);
+	gpsBearingText->setPositionTitle(VARIOSCREEN_BEARING_TEXT_TITLE_X,VARIOSCREEN_BEARING_TEXT_TITLE_Y);
 	gpsBearing 					= new ScreenDigit(VARIOSCREEN_BEARING_ANCHOR_X, VARIOSCREEN_BEARING_ANCHOR_Y, 3, 0, false, false, ALIGNRIGHT, true, DISPLAY_OBJECT_BEARING, TAILLE_FONT, MAX_CAR_TITRE_CAP);
+	gpsBearing->setPositionTitle(VARIOSCREEN_BEARING_TITLE_X,VARIOSCREEN_BEARING_TITLE_Y);
 //	gpsLat    					= new ScreenDigit(VARIOSCREEN_LAT_ANCHOR_X, VARIOSCREEN_LAT_ANCHOR_Y, 6, 3, false, false, ALIGNRIGHT, false, DISPLAY_OBJECT_LAT);
 //	gpsLong   					= new ScreenDigit(VARIOSCREEN_LONG_ANCHOR_X, VARIOSCREEN_LONG_ANCHOR_Y, 6, 3, false, false, ALIGNRIGHT, false, DISPLAY_OBJECT_LONG);
     gpsLat 						= new ScreenText(VARIOSCREEN_LAT_ANCHOR_X, VARIOSCREEN_LAT_ANCHOR_Y, 11, FONTSMALL, ALIGNLEFT, true, DISPLAY_OBJECT_LAT);
+  gpsLat->setPositionTitle(VARIOSCREEN_LAT_TITLE_X,VARIOSCREEN_LAT_TITLE_Y);
 	gpsLong					    = new ScreenText(VARIOSCREEN_LONG_ANCHOR_X, VARIOSCREEN_LONG_ANCHOR_Y, 11, FONTSMALL, ALIGNLEFT, true, DISPLAY_OBJECT_LONG);
+	gpsLong->setPositionTitle(VARIOSCREEN_LONG_TITLE_X,VARIOSCREEN_LONG_TITLE_Y);
 
 //	tempDigit 					= new ScreenDigit(VARIOSCREEN_TEMP_ANCHOR_X, VARIOSCREEN_TEMP_ANCHOR_Y, 2, 0, false, false, ALIGNLEFT, false, DISPLAY_OBJECT_TEMPERATURE);
 //	tunit 						= new TUnit(VARIOSCREEN_TEMP_UNIT_ANCHOR_X, VARIOSCREEN_TEMP_ANCHOR_Y);
@@ -1111,7 +1145,7 @@ void VarioScreen::ScreenViewStatPage(int PageStat)
 	 
    double tmpSpeed = varioData.flystat.GetSpeed();
 	 if (tmpSpeed > 1000) tmpSpeed = 999;
-	 sprintf(tmpbuffer,"Vitesse : %3.0f",tmpSpeed); //%02d.%02d.%02d", tmpDate[0],tmpDate[1],tmpDate[2]);
+	 sprintf(tmpbuffer,"%s: %3.0f",varioLanguage.getText(TITRE_SPEED),tmpSpeed); //%02d.%02d.%02d", tmpDate[0],tmpDate[1],tmpDate[2]);
 	 display.setCursor(155, 90);
 	 display.print(tmpbuffer);
 	 display.drawLine(0, 20, 295, 20, GxEPD_BLACK);

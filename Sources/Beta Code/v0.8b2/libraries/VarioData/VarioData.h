@@ -182,6 +182,7 @@ private:
 		bool 		CompteurStartFlyEnable 	= false;
 		unsigned long	TimeStartFly;
 		uint8_t	CompteurStartFly	= 0;
+		bool		SpeedAvalable = false;
 
 };
 

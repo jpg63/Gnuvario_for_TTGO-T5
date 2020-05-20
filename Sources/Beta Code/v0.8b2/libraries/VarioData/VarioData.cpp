@@ -1264,10 +1264,12 @@ bool VarioData::updateSpeed(void) {
 			ratio = 0.0;
 //      screen.ratioDigit->setValue(0.0);
     }
+		SpeedAvalable = true;
 		return true;
   }
 	else 
 	{
+		SpeedAvalable = false;
 		return false;
 	}
 #endif //HAVE_GPS
@@ -1372,6 +1374,20 @@ int VarioData::getCap(void) {
 
 */
 
+	if ((variometerState > VARIOMETER_STATE_CALIBRATED) && (SpeedAvalable) && (currentSpeed > 5)) {
+    if (nmeaParser.haveBearing())
+    {
+
+      int bearing = nmeaParser.getBearing();
+#ifdef DATA_DEBUG
+      SerialPort.print("Compas GPS : ");
+      SerialPort.println(bearing);
+#endif //DATA_DEBUG
+//      DUMPLOG(LOG_TYPE_DEBUG, DATA_DEBUG_LOG, bearing);
+			return bearing;
+    }
+	}	
+
 	int cap = -1;
 	if (twScheduler.haveAccel() ) {
 		double vertVector[3];
@@ -1393,9 +1409,14 @@ int VarioData::getCap(void) {
 			tmpcap = 360 - tmpcap;
 			
 			DUMP(tmpcap);
+			
+#ifdef DATA_DEBUG
+      SerialPort.print("Compas magnetique : ");
+      SerialPort.println(tmpcap);
+#endif //DATA_DEBUG
+			
 			return tmpcap;
 		}
 	}
-
 	return cap;
 }

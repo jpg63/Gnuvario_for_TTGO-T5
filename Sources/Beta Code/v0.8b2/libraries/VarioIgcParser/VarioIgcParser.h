@@ -17,11 +17,12 @@ private:
     String flightDate;
     String startFlightTime;
     String endFlightTime;
-    String md5;
     int16_t startHeight;
     int16_t endHeight;
     int16_t minHeight;
     int16_t maxHeight;
+    String md5;
+    String filename;
 
 public:
     VarioIgcParser();
@@ -37,6 +38,7 @@ public:
     int16_t getMinHeight();
     int16_t getMaxHeight();
     String getJson();
+    String getFilename();
 };
 
 #endif

@@ -46,6 +46,7 @@
  *    1.0.15 09/03/20   Modification ScreenViewSound                             *
  *    1.0.16 08/04/20   Modification affichage des titres                        *
  *    1.1.0  29/04/20   Changement de font - repositionnement                    *
+ *    1.1.3  17/05/20   Ajout position titre avac setPositionTitle               *
  *                                                                               *
  *********************************************************************************/
 
