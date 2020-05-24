@@ -68,6 +68,7 @@
  *    1.2.0  29/04/20   Modification font screedigit                             *
  *    1.2.1  15/05/20   Modification screentime                                  *
  *    1.2.2  17/05/20   Ajout setPositionTitle                                   *
+ *    1.2.3  25/05/20   Modification screendigit.setvalue                        *
  *                                                                               *
  *********************************************************************************/
  
@@ -615,6 +616,20 @@ void ScreenDigit::setValue(double Value) {
 	SerialPort.print("Value = ");	
 	SerialPort.println(Value);	
 #endif //SCREEN_DEBUG
+
+	int tmpInt;
+	tmpInt = width - precision;
+	if (precision > 0) tmpInt--;
+	if (plusDisplay)   tmpInt--;
+	double valueMax = 1;
+	for (int i=0;i<tmpInt;i++) valueMax *= 10;
+	double tmpPrecision = 1;
+	for (int i=0;i<precision;i++) tmpPrecision /= 10;
+	valueMax = valueMax - tmpPrecision;
+	
+	DUMP(valueMax);
+	
+	if (value > valueMax) value = valueMax;
 
   if (Value != oldvalue) {
     /* build digit and check changes */
@@ -1251,18 +1266,17 @@ ScreenText::ScreenText(uint16_t anchorX, uint16_t anchorY, uint16_t width, int8_
   int16_t box_h; 
 	int tmpWidth;
 
-/*  lastDisplayWidth = 0; 
+  lastDisplayWidth = 0; 
 
   display.setFont(&gnuvarioe18pt7b); //&FreeSansBold18pt7b);
-// *	if (large) display.setTextSize(2);
-	else 			 display.setTextSize(1);	* //
+/*	if (large) display.setTextSize(2);
+	else 			 display.setTextSize(1);	*/
   if (large == FONTLARGE) display.setTextSize(2);
   else if (large == FONTNORMAL) display.setTextSize(1);
 	else {
 		display.setFont(&gnuvarioe14pt7b);   //&FreeSansBold9pt7b);
 		display.setTextSize(1);
 	}
-*/
 
 //  int16_t box_x = anchorX;
 //  int16_t box_y = anchorY;

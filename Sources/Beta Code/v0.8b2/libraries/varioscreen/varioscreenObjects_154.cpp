@@ -69,6 +69,7 @@
  *    1.1.16 13/04/20   Titre en mode texte                                      *
  *    1.2.0  29/04/20   Modification font screedigit                             *
  *    1.2.1  17/05/20   Ajout setPositionTitle                                   *
+ *    1.2.2  25/05/20   Modification screendigit.setvalue                        *
  *                                                                               *
  *********************************************************************************/
  
@@ -612,10 +613,26 @@ void ScreenDigit::setValue(double Value) {
 	SerialPort.println(Value);	
 #endif //SCREEN_DEBUG
 
+	int tmpInt;
+	tmpInt = width - precision;
+	if (precision > 0) tmpInt--;
+	if (plusDisplay)   tmpInt--;
+	double valueMax = 1;
+	for (int i=0;i<tmpInt;i++) valueMax *= 10;
+	double tmpPrecision = 1;
+	for (int i=0;i<precision;i++) tmpPrecision /= 10;
+	valueMax = valueMax - tmpPrecision;
+	
+	DUMP(valueMax);
+	
+	if (value > valueMax) value = valueMax;
+
   if (Value != oldvalue) {
     /* build digit and check changes */
     oldvalue=value;
     value=Value;
+		
+		DUMP(value);
 //    reset();
 	}
   reset();

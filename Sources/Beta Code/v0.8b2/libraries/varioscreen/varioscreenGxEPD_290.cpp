@@ -31,17 +31,17 @@
  *    1.0.2  06/10/19   Mise à jour ratamuse                                     *
  *    1.0.3  13/10/19   Integration au GnuVario                                  *
  *                      Ajout wind                                               *
- *    1.0.4  16/11/19   Modif updateScreen										 *    
- *		1.0.5	 11/01/20		Modif ScreenViewPage							 *
+ *    1.0.4  16/11/19   Modif updateScreen										 									 *    
+ *		1.0.5	 11/01/20		Modif ScreenViewPage							 											 *
  *                      VARIOSCREEN_SIZE == 290                                  *
- *    1.0.6  17/01/20   Desactivation effacement ligne 1534						 *
+ *    1.0.6  17/01/20   Desactivation effacement ligne 1534						 					 *
  *    1.0.7  18/01/20   Modif  ScreenViewMessage                                 *
  *    1.0.8  28/01/20   Modification écran 1 - ajout info gps                    *
  *    1.0.9  03/02/20   changement de nom passage de 29 à 290                    *
  *    1.0.10 09/02/20   Modif écran 1 - font normal / coordonné GPS en degrés    *
  *    1.0.11 17/02/20   Ajout 2.90 et 2.91                                       *
  *                      Ajout FONTLARGE / FONTNORMAL                             *
- *    1.0.11 25/02/20   Ajout ScreenBackground									 *	
+ *    1.0.11 25/02/20   Ajout ScreenBackground									 								 *	
  *    1.0.12 04/03/20   Réorganisation de l'affichage des variable               *  
  *    1.0.13 04/03/20   Ajout affichage alti agl                                 *
  *    1.0.14 07/03/20   Correction xSemaphore                                    *
@@ -51,8 +51,9 @@
  *    1.1.1  10/05/20   Correction affichage screenTime (:/h)                    *
  *    1.1.2  11/05/20   Effacement zones multi                                   *
  *    1.1.3  17/05/20   Ajout position titre avac setPositionTitle               *
- *																				 *
-*********************************************************************************/
+ *		1.1.4  23/05/20   Passage vario en -XX.X								  								 *
+ *																				                                       *
+ *********************************************************************************/
  
  /*
  *********************************************************************************
@@ -372,7 +373,7 @@ void VarioScreen::createScreenObjectsPage0(void) {
   heightDigit->setPositionTitle(VARIOSCREEN_ALTI_TITLE_X,VARIOSCREEN_ALTI_TITLE_Y);
 
 	munit = new MUnit(VARIOSCREEN_ALTI_UNIT_ANCHOR_X, VARIOSCREEN_ALTI_ANCHOR_Y);
-	varioDigit = new ScreenDigit(VARIOSCREEN_VARIO_ANCHOR_X, VARIOSCREEN_VARIO_ANCHOR_Y, 4, 1, true, false,  ALIGNRIGHT, true, DISPLAY_OBJECT_VARIO, TAILLE_FONT, MAX_CAR_TITRE_VARIO);
+	varioDigit = new ScreenDigit(VARIOSCREEN_VARIO_ANCHOR_X, VARIOSCREEN_VARIO_ANCHOR_Y, 5, 1, true, false,  ALIGNRIGHT, true, DISPLAY_OBJECT_VARIO, TAILLE_FONT, MAX_CAR_TITRE_VARIO);
   varioDigit->setPositionTitle(VARIOSCREEN_VARIO_TITLE_X,VARIOSCREEN_VARIO_TITLE_Y);
 
 	msunit = new MSUnit(VARIOSCREEN_VARIO_UNIT_ANCHOR_X, VARIOSCREEN_VARIO_UNIT_ANCHOR_Y);

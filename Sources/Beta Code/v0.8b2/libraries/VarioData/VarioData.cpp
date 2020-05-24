@@ -1378,7 +1378,11 @@ int VarioData::getCap(void) {
     if (nmeaParser.haveBearing())
     {
 
-      int bearing = nmeaParser.getBearing();
+      bearing = nmeaParser.getBearing();
+			
+			GpsAvalable = true;
+			TimeCapMesure = millis();		
+			
 #ifdef DATA_DEBUG
       SerialPort.print("Compas GPS : ");
       SerialPort.println(bearing);
@@ -1387,8 +1391,15 @@ int VarioData::getCap(void) {
 			return bearing;
     }
 	}	
+	
+	TRACE();
+	if ((GpsAvalable) && ((millis() - TimeCapMesure) < 1500)) {
+		return bearing;	 
+	} else {
+		GpsAvalable = false;
+	}
 
-	int cap = -1;
+	TRACE();
 	if (twScheduler.haveAccel() ) {
 		double vertVector[3];
 		double vertAccel = twScheduler.getAccel(vertVector);
@@ -1415,8 +1426,36 @@ int VarioData::getCap(void) {
       SerialPort.println(tmpcap);
 #endif //DATA_DEBUG
 			
-			return tmpcap;
+//Moyenne
+			
+			if (nbMesureCap < 10) {
+				if (moyCap == -1) moyCap = 0;
+				moyCap += tmpcap;
+				nbMesureCap++;
+				DUMP(nbMesureCap);
+			}
+			else {
+				moyCap += tmpcap;
+				DUMP(moyCap);
+				bearing = moyCap / 10;
+				moyCap = 0;
+				nbMesureCap = 0;				
+			}
+			 
+			DUMP(bearing); 
+			return bearing;
 		}
+		else {
+/*		bearing = -1;
+		nbMesureCap = 0;
+		TRACE();*/
+		}
+	} 
+	else {
+		bearing = -1;
+		nbMesureCap = 0;
+		TRACE();
 	}
-	return cap;
+	
+	return bearing;
 }

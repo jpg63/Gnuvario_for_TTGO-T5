@@ -1,6 +1,9 @@
 #include <Arduino.h>
 
 #include <HardwareConfig.h>
+
+#ifdef HAVE_BDD
+
 #include <DebugConfig.h>
 
 #ifdef WIFI_DEBUG
@@ -192,3 +195,5 @@ bool VarioSqlFlight::insertFlight(String data)
 
     return true;
 }
+
+#endif

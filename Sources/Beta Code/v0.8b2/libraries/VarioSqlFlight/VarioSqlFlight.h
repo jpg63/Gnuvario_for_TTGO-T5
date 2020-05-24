@@ -3,6 +3,8 @@
 
 #include <HardwareConfig.h>
 
+#ifdef HAVE_BDD
+
 #ifdef HAVE_SDCARD
 #include <sdcardHAL.h>
 #endif
@@ -28,4 +30,6 @@ public:
     ~VarioSqlFlight();
     bool insertFlight(String data);
 };
+#endif
+
 #endif

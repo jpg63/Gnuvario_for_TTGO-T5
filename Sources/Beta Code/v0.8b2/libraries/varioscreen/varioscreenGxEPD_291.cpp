@@ -52,7 +52,8 @@
  *    1.1.2  11/05/20   Effacement zones multi                                   *
  *    1.1.3  14/05/20   Raffraichissement de l'écran toutes les 15min            *
  *    1.1.4  17/05/20   Ajout position titre avac setPositionTitle               *
- *																				 *																			 *
+ *		1.1.5  23/05/20   Passage vario en -XX.X								  								 *
+ *                                                                               *
  *********************************************************************************/
  
  /*
@@ -178,7 +179,7 @@ TaskHandle_t VarioScreen::screenTaskHandler;
 /* screen objets Page 0                  */
 /*****************************************/
 
-#define VARIOSCREEN_ALTI_ANCHOR_X 80				//Altidude
+#define VARIOSCREEN_ALTI_ANCHOR_X 78				//Altidude
 #define VARIOSCREEN_ALTI_ANCHOR_Y 86
 #define VARIOSCREEN_ALTI_UNIT_ANCHOR_X  83
 #define VARIOSCREEN_VARIO_ANCHOR_X 85
@@ -389,7 +390,7 @@ void VarioScreen::createScreenObjectsPage0(void) {
     heightDigit->setPositionTitle(VARIOSCREEN_ALTI_TITLE_X,VARIOSCREEN_ALTI_TITLE_Y);
 
 	munit = new MUnit(VARIOSCREEN_ALTI_UNIT_ANCHOR_X, VARIOSCREEN_ALTI_ANCHOR_Y-2);
-	varioDigit = new ScreenDigit(VARIOSCREEN_VARIO_ANCHOR_X, VARIOSCREEN_VARIO_ANCHOR_Y, 4, 1, true, false,  ALIGNRIGHT, true, DISPLAY_OBJECT_VARIO, TAILLE_FONT, MAX_CAR_TITRE_VARIO);
+	varioDigit = new ScreenDigit(VARIOSCREEN_VARIO_ANCHOR_X, VARIOSCREEN_VARIO_ANCHOR_Y, 5, 1, true, false,  ALIGNRIGHT, true, DISPLAY_OBJECT_VARIO, TAILLE_FONT, MAX_CAR_TITRE_VARIO);
     varioDigit->setPositionTitle(VARIOSCREEN_VARIO_TITLE_X,VARIOSCREEN_VARIO_TITLE_Y); 
 	msunit = new MSUnit(VARIOSCREEN_VARIO_UNIT_ANCHOR_X, VARIOSCREEN_VARIO_UNIT_ANCHOR_Y);
 
