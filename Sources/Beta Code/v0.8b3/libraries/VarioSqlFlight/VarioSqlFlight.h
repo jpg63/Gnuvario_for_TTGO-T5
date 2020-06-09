@@ -3,8 +3,6 @@
 
 #include <HardwareConfig.h>
 
-#ifdef HAVE_BDD
-
 #ifdef HAVE_SDCARD
 #include <sdcardHAL.h>
 #endif
@@ -29,7 +27,13 @@ public:
     VarioSqlFlight();
     ~VarioSqlFlight();
     bool insertFlight(String data);
+    bool updateFlight(uint8_t id, String data);
+    bool delFlight(uint8_t id);
+    bool updateFlightMap(uint8_t id, String data);
+    String getSites();
+    bool insertSite(String data);
+    bool updateSite(uint8_t id, String data);
+    bool deleteSite(uint8_t id);
+    String getFlights(uint8_t offset);
 };
-#endif
-
 #endif

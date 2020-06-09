@@ -257,6 +257,8 @@
 *                                      pas concluant                                                  *
 * 0.8 Beta 3    26/05/20             Correction gestion d'erreur MPU                                  *
 *                                    Amélioration du son - test cosine                                *
+*                                    Ajout carnet de vol                                              *
+*                                    Maj lib GFX                                                      *
 *******************************************************************************************************
 *                                                                                                     *
 *                                   Developpement a venir                                             *
@@ -278,6 +280,8 @@
 * Ajout - Indication charge batterie                                                                  *
 * BUG   - altitude enregistré non compensé                                                            *
 * AJOUT - écran charge batterie au démarrage                                                          *
+* AJOUT - alti GPS                                                                                    *
+* BUG   - derive alti                                                                                 *                                                                                
 *                                                                                                     *
 * VX.X                                                                                                *
 * Paramètrage des écrans                                                                              *

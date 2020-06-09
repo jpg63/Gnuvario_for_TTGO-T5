@@ -116,6 +116,12 @@ void handleUpgradeWeb();
 void handleWebConfig();
 void handleSaveWebConfig();
 void handleParseIgc();
+void handleGetSites();
+void handleSetSite();
+void handleDelSite();
+void handleGetFlights();
+void handleSetFlight();
+void handleDelFlight();
 
 //////////////////////////////////////
 //              HELPERS            //
