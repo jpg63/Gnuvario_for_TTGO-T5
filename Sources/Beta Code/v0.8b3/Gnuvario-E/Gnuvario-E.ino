@@ -259,6 +259,10 @@
 *                                    Amélioration du son - test cosine                                *
 *                                    Ajout carnet de vol                                              *
 *                                    Maj lib GFX                                                      *
+*                16/06/20            Changement lib BT  - NimBLE                                      *
+*                                    Ajout paramètre calibrated_gps pour IGC et BT                    *
+*                                    Correction paramètre trame BT                                    *
+*                                    Ajout fichier langue "anglais"                                   *
 *******************************************************************************************************
 *                                                                                                     *
 *                                   Developpement a venir                                             *
@@ -282,6 +286,7 @@
 * AJOUT - écran charge batterie au démarrage                                                          *
 * AJOUT - alti GPS                                                                                    *
 * BUG   - derive alti                                                                                 *                                                                                
+* BUG   - trame BT                                                                                    *
 *                                                                                                     *
 * VX.X                                                                                                *
 * Paramètrage des écrans                                                                              *
@@ -291,8 +296,6 @@
 * Boussole graphique                                                                                  *                                                                       
 * Création dynamique des objets screen                                                                *
 * Sens et vitesse du vent                                                                             *
-* Carnet de vol (10 derniers vols)                                                                    *
-*     10 zones d'eeprom - reduit le nombre d'écriture et économise la mémoire flash                   *
 * verifier fonctionnement BT - trame non complete                                                     *
 * Espace aérien                                                                                       *
 * 2 Altitudes                                                                                         *
@@ -362,8 +365,9 @@
  *  - Gestion Multilangue                                               *
  *  - Nouvelle font d'affichage                                         *
  *  - Sensibilité du vario réglable                                     *
- *  - Compas Magnétique + compas GPS                                                *
+ *  - Compas Magnétique + compas GPS                                    *
  *  - Raffraichissement écran toutes les 15min                          *
+ *  - Carnet de vol                                                     *
  *                                                                      *
  ************************************************************************/
 
@@ -432,6 +436,15 @@
 *                                                                      *
 ************************************************************************/
 
+/***********************************************************************
+*                                                                      *
+*                           Mise à jour Manuel                         *
+*                                                                      *
+* Mise à jour via la carte SD, nom du fichier : update.bin             *                                                                                                           
+* Mise à jour site web embarqué               : dossier wwwnew         *
+*                                                                      *
+************************************************************************/
+
 /**************************************************************************************************************
  *              Liens utiles                                                                                  *
  *                                                                                                            *
@@ -466,10 +479,6 @@
   *                                                                                                           *
   *   Calibration   Centre      Démarre la calibration                                                        *                                                                                                        
   *   Calibration   Gauche      Sort du mode calibration (reboot)                                             *
-  *                                                                                                           *
-  *************************************************************************************************************
-  *                                                                                                           *
-  * Mise à jour via la carte SD, nom du fichier : update.bin                                                  *                                                                                                           
   *                                                                                                           *
   *************************************************************************************************************
   *                                                                                                           *
@@ -600,6 +609,9 @@ WiFiMulti wifiMulti;
 #ifdef ESP32WEBSERVEUR
 VarioESP32WebServer server(80);
 #elif defined(ESPASYNCWEBSERVER)
+#include <WiFi.h>
+#include <AsyncTCP.h>
+#include <ESPAsyncWebServer.h>
 AsyncWebServer server(80);
 #elif defined(ETHERNETWEBSERVER)
 EthernetServer server(80);
@@ -948,6 +960,12 @@ void loop()
   }
 
   //**********************************************************
+  //  TRAITEMENT DU SON
+  //**********************************************************
+
+  toneHAL.update();
+  
+  //**********************************************************
   //  TRAITEMENT DES BOUTONS
   //**********************************************************
 
@@ -984,20 +1002,33 @@ void loop()
     if (GnuSettings.VARIOMETER_DISPLAY_INTEGRATED_CLIMB_RATE)
     {
       if (varioData.haveNewClimbRate()) {
-/*        double tmpvalue = varioData.getClimbRate();
+        double tmpvalue = varioData.getClimbRate();
 #if (VARIOSCREEN_SIZE == 154)
-        if (tmpvalue > 9.9) tmpvalue = 9.9;
+        if (tmpvalue > 9.9)  tmpvalue = 9.9;
+        if (tmpvalue < -9.9) tmpvalue = -9.9;
 #else
         if (tmpvalue > 99.9) tmpvalue = 99.9;
+        if (tmpvalue < -99.9) tmpvalue = -99.9;
 #endif
-        screen.varioDigit->setValue(tmpvalue);*/
+        screen.varioDigit->setValue(tmpvalue);
 
-        screen.varioDigit->setValue(varioData.getClimbRate());
+ //       screen.varioDigit->setValue(varioData.getClimbRate());
       }
     }
     else
     {
-      screen.varioDigit->setValue(varioData.getVelocity());
+
+        double tmpvalue = varioData.getVelocity();
+#if (VARIOSCREEN_SIZE == 154)
+        if (tmpvalue > 9.9) tmpvalue = 9.9;
+        if (tmpvalue < -9.9) tmpvalue = -9.9;
+#else
+        if (tmpvalue > 99.9) tmpvalue = 99.9;
+        if (tmpvalue < -99.9) tmpvalue = -99.9;
+#endif
+        screen.varioDigit->setValue(tmpvalue);
+      
+//      screen.varioDigit->setValue(varioData.getVelocity());
     }
 
   //**********************************************************

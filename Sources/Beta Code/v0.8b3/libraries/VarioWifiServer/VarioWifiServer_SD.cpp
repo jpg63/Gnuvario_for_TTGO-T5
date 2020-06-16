@@ -311,6 +311,8 @@ void VarioWifiServer::connect(void)
     SerialPort.println(F("Error setting up MDNS responder!"));
     ESP.restart();
   }
+
+  checkDbVersion();
 }
 
 //Démarrage du serveur Web
@@ -1838,6 +1840,79 @@ String getFileSizeStringFromBytes(int bytes)
   return fsize;
 }
 
+bool checkDbVersion()
+{
+#ifdef WIFI_DEBUG
+  SerialPort.println("checkDbVersion");
+#endif
+
+  if (!SDHAL_SD.exists("/db"))
+  {
+    SDHAL_SD.mkdir("/db");
+    File myOrigFile;
+    File myDestFile;
+
+    if (SDHAL_SD.exists("/www/db/vol.db") && !SDHAL_SD.exists("/db/vol.db"))
+    {
+      myDestFile = SDHAL_SD.open("/db/vol.db", FILE_WRITE);
+      myOrigFile = SDHAL_SD.open("/www/db/vol.db", FILE_READ);
+      if (myDestFile && myOrigFile)
+      {
+        int data;
+        while ((data = myOrigFile.read()) >= 0)
+        {
+          myDestFile.write(data);
+        }
+        myDestFile.close();
+        myOrigFile.close();
+      }
+      else
+      {
+        return false;
+      }
+    }
+  }
+  String path;
+  path = "/www/sql";
+
+  File dir;
+  dir = SDHAL_SD.open((char *)path.c_str(), FILE_READ);
+
+  path = String();
+  if (!dir.isDirectory())
+  {
+    dir.close();
+    return false;
+  }
+  dir.rewindDirectory();
+  VarioSqlFlight varioSqlFlight;
+
+  for (int cnt = 0; true; ++cnt)
+  {
+    File entry;
+    entry = dir.openNextFile(FILE_READ);
+    if (!entry)
+    {
+      TRACE();
+      break;
+    }
+
+    TRACE();
+    String output;
+    String tmpFullName = entry.name();
+    String version = tmpFullName.substring(tmpFullName.lastIndexOf("/") + 1);
+    version = version.substring(0, version.lastIndexOf("."));
+    varioSqlFlight.executeMigration(version, entry.readString());
+
+#ifdef WIFI_DEBUG
+    SerialPort.println(version);
+#endif
+  }
+
+  dir.close();
+  TRACE();
+  return true;
+}
 /***********************************
 void handleCreate() {
 // ***********************************

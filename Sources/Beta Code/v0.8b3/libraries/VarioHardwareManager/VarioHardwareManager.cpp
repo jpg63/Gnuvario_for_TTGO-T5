@@ -25,6 +25,7 @@
  *                                                                               *
  *  version    Date     Description                                              *
  *    1.0    22/03/20                                                            *
+ *    1.0.1  09/06/20   Ajout GnuSettings.BLUETOOTH_SEND_CALIBRATED_ALTITUDE     *
  *                                                                               *
  *********************************************************************************
  */
@@ -59,6 +60,8 @@
 #include <Utility.h>
 
 #include <VarioLanguage.h>
+
+#include <VarioSettings.h>
 
 VarioHardwareManager varioHardwareManager;
 
@@ -144,9 +147,9 @@ void VarioHardwareManager::initGps()
 bool VarioHardwareManager::initBt()
 //**********************************
 {
-#ifdef HAVE_BLUETOOTH
-  return(varioBle.init());
-#endif
+#if defined(HAVE_BLUETOOTH) || defined(HAVE_BLE)
+  return (varioBT.init());
+#endif //HAVE_BLUETOOTH || HAVE_BLE
 }
 
 //**********************************
@@ -207,12 +210,12 @@ void VarioHardwareManager::testInactivity(double velocity)
 }
 
 //***********************************
-bool VarioHardwareManager::updateBle(double velocity, double alti, double altiCalibrated)
+bool VarioHardwareManager::updateBluetooth(double velocity, double alti, double altiCalibrated)
 //***********************************
 {
-#ifdef HAVE_BLUETOOTH
-	return(varioBle.update(velocity, alti, altiCalibrated));
-#endif
+#if defined(HAVE_BLUETOOTH) || defined(HAVE_BLE)
+  return (varioBT.update(velocity, alti, altiCalibrated));
+#endif //HAVE_BLUETOOTH || HAVE_BLE
 }
 
 //***********************************
@@ -220,25 +223,34 @@ bool VarioHardwareManager::updateGps(Kalmanvert kalmanvert)
 //***********************************
 {
 #if defined(HAVE_GPS)
-	boolean lastSentencetmp;
-	if (varioGps.update(varioData.kalmanvert, &lastSentencetmp)) 
-	{
-	
-#ifdef HAVE_BLUETOOTH
-		varioBle.lastSentence = lastSentencetmp;
-	//* if this is the last GPS sentence *
-	//* we can send our sentences *
-		if (varioBle.lastSentence)
-		{
-			varioBle.lastSentence = false;
+  boolean lastSentencetmp;
+  if (varioGps.update(varioData.kalmanvert, &lastSentencetmp))
+  {
+
+#if defined(HAVE_BLUETOOTH) || defined(HAVE_BLE)
+    varioBT.lastSentence = lastSentencetmp;
+    //* if this is the last GPS sentence *
+    //* we can send our sentences *
+    if (varioBT.lastSentence)
+    {
+      varioBT.lastSentence = false;
 #ifdef VARIOMETER_BLUETOOTH_SEND_CALIBRATED_ALTITUDE
-			varioBle.bluetoothNMEA.begin(kalmanvert.getCalibratedPosition(), kalmanvert.getVelocity());
+			if (GnuSettings.VARIOMETER_SENT_LXNAV_SENTENCE == LK8000_SENTENCE) 
+				varioBT.bluetoothNMEA_Lk.begin(kalmanvert.getCalibratedPosition(), kalmanvert.getVelocity());
+			else
+				varioBT.bluetoothNMEA_Lx.begin(kalmanvert.getCalibratedPosition(), kalmanvert.getVelocity());
 #else
-			varioBle.bluetoothNMEA.begin(kalmanvert.getPosition(), kalmanvert.getVelocity());
+			if (GnuSettings.VARIOMETER_SENT_LXNAV_SENTENCE == LK8000_SENTENCE) 
+				varioBT.bluetoothNMEA_Lk.begin(kalmanvert.getPosition(), kalmanvert.getVelocity());
+			else
+				varioBT.bluetoothNMEA_Lx.begin(kalmanvert.getPosition(), kalmanvert.getVelocity());
 #endif
-			serialNmea.lock(); //will be writed at next loop
-		}
-#endif //HAVE_BLUETOOTH
+#ifdef HAVE_BLUETOOTH
+      serialNmea.lock(); //will be writed at next loop
+#endif                   //HAVE_BLUETOOTH
+    }
+#endif //HAVE_BLUETOOTH || HAVE_BLE
+
     return true;
   }
   else 

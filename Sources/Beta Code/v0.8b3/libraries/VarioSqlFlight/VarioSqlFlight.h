@@ -35,5 +35,6 @@ public:
     bool updateSite(uint8_t id, String data);
     bool deleteSite(uint8_t id);
     String getFlights(uint8_t offset);
+    void executeMigration(String version, String sql);
 };
 #endif

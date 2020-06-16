@@ -165,35 +165,21 @@ bool VarioSqlFlight::insertFlight(String data)
         sqlite3_bind_text(res, 1, doc["filename"], strlen(doc["filename"]), SQLITE_STATIC);
         sqlite3_bind_text(res, 2, doc["md5"], strlen(doc["md5"]), SQLITE_STATIC);
 
-#ifdef SQL_DEBUG
-        Serial.printf("Début step");
-#endif //SQL_DEBUG
-
         if (sqlite3_step(res) != SQLITE_DONE)
         {
-#ifdef SQL_DEBUG
-            Serial.printf("ERROR executing stmt: %s\n", sqlite3_errmsg(myDb));
-#endif //SQL_DEBUG
             closeDb();
             return false;
         }
 
-#ifdef SQL_DEBUG
-        Serial.printf("sqlite3_clear_bindings");
-#endif //SQL_DEBUG
         sqlite3_clear_bindings(res);
+
         rc = sqlite3_reset(res);
         if (rc != SQLITE_OK)
         {
-#ifdef SQL_DEBUG
-            Serial.printf("reset failed");
-#endif //SQL_DEBUG
             closeDb();
             return false;
         }
-#ifdef SQL_DEBUG
-        Serial.printf("sqlite3_finalize");
-#endif //SQL_DEBUG
+
         sqlite3_finalize(res);
     }
 
@@ -390,7 +376,14 @@ bool VarioSqlFlight::updateFlight(uint8_t id, String data)
         }
     }
 
-    String sql = "UPDATE flight SET site_id = ?, comment = ? WHERE id = ?";
+    String sql = "UPDATE flight SET site_id = ?, comment = ? ";
+
+    if (doc.containsKey("pilot"))
+    {
+        sql = sql + ", pilot = ?, wing = ?, flight_date = ?, start_flight_time = ?, end_flight_time = ?, start_height = ?, end_height = ?, min_height = ?, max_height = ?, start_lat = ?, start_lon = ?, end_lat = ?, end_lon = ? ";
+    }
+
+    sql = sql + " WHERE id = ?";
 
     rc = sqlite3_prepare_v2(myDb, (char *)sql.c_str(), sql.length(), &res, &tail);
     if (rc != SQLITE_OK)
@@ -408,7 +401,28 @@ bool VarioSqlFlight::updateFlight(uint8_t id, String data)
 
     sqlite3_bind_int(res, 1, doc["site_id"]);
     sqlite3_bind_text(res, 2, doc["comment"], strlen(doc["comment"]), SQLITE_STATIC);
-    sqlite3_bind_int(res, 3, id);
+
+    if (doc.containsKey("pilot"))
+    {
+        sqlite3_bind_text(res, 3, doc["pilot"], strlen(doc["pilot"]), SQLITE_STATIC);
+        sqlite3_bind_text(res, 4, doc["wing"], strlen(doc["wing"]), SQLITE_STATIC);
+        sqlite3_bind_text(res, 5, doc["flightDate"], strlen(doc["flightDate"]), SQLITE_STATIC);
+        sqlite3_bind_text(res, 6, doc["startFlightTime"], strlen(doc["startFlightTime"]), SQLITE_STATIC);
+        sqlite3_bind_text(res, 7, doc["endFlightTime"], strlen(doc["endFlightTime"]), SQLITE_STATIC);
+        sqlite3_bind_int(res, 8, doc["startHeight"]);
+        sqlite3_bind_int(res, 9, doc["endHeight"]);
+        sqlite3_bind_int(res, 10, doc["minHeight"]);
+        sqlite3_bind_int(res, 11, doc["maxHeight"]);
+        sqlite3_bind_double(res, 12, doc["startLat"]);
+        sqlite3_bind_double(res, 13, doc["startLon"]);
+        sqlite3_bind_double(res, 14, doc["endLat"]);
+        sqlite3_bind_double(res, 15, doc["endLon"]);
+        sqlite3_bind_int(res, 16, id);
+    }
+    else
+    {
+        sqlite3_bind_int(res, 3, id);
+    }
 
 #ifdef SQL_DEBUG
     Serial.printf("Début step");
@@ -891,8 +905,146 @@ String VarioSqlFlight::getFlights(uint8_t offset)
 //     // memcpy(map, blob, blob_bytes);             \
 //     // obj1["minimap"] = ""; //String((char *)map);
     }
-    serializeJson(doc, output);
+
+    if (doc.isNull())
+    {
+        output = "[]";
+    }
+    else
+    {
+        serializeJson(doc, output);
+    }
+
     sqlite3_finalize(res);
 
     return output;
+}
+
+void VarioSqlFlight::executeMigration(String version, String sql)
+{
+    int rc;
+    sqlite3_stmt *res;
+    const char *tail;
+
+    if (!isOpened)
+    {
+        if (openDb((char *)dbPath.c_str(), &myDb))
+        {
+            return;
+        }
+    }
+
+    String sqlSelect = "SELECT COUNT(version) AS NB FROM version WHERE version = ?";
+
+    rc = sqlite3_prepare_v2(myDb, sqlSelect.c_str(), 1000, &res, &tail);
+    if (rc != SQLITE_OK)
+    {
+        closeDb();
+        return;
+    }
+    sqlite3_bind_text(res, 1, (char *)version.c_str(), version.length(), SQLITE_STATIC);
+
+    while (sqlite3_step(res) == SQLITE_ROW)
+    {
+#ifdef SQL_DEBUG
+        Serial.printf("sqlite3_clear_bindings");
+#endif //SQL_DEBUG
+        if (sqlite3_column_int(res, 0) == 1)
+        {
+#ifdef SQL_DEBUG
+            Serial.printf("sqlite3_clear_bindings");
+#endif //SQL_DEBUG
+            sqlite3_clear_bindings(res);
+            rc = sqlite3_reset(res);
+            if (rc != SQLITE_OK)
+            {
+                closeDb();
+            }
+            sqlite3_finalize(res);
+            return;
+        }
+    }
+
+    sqlite3_clear_bindings(res);
+
+    rc = sqlite3_reset(res);
+    if (rc != SQLITE_OK)
+    {
+        closeDb();
+        return;
+    }
+
+    sqlite3_finalize(res);
+
+    rc = sqlite3_prepare_v2(myDb, sql.c_str(), 1000, &res, &tail);
+    if (rc != SQLITE_OK)
+    {
+        closeDb();
+        return;
+    }
+
+#ifdef SQL_DEBUG
+    Serial.printf("sqlite3_clear_bindings");
+#endif //SQL_DEBUG
+
+    if (sqlite3_step(res) != SQLITE_DONE)
+    {
+#ifdef SQL_DEBUG
+        Serial.printf("ERROR executing stmt: %s\n", sqlite3_errmsg(myDb));
+#endif //SQL_DEBUG
+        closeDb();
+        return;
+    }
+
+    sqlite3_finalize(res);
+
+    //insertion de l'enregistrement de version
+    String sql2 = "INSERT INTO version (version) VALUES (?)";
+
+    rc = sqlite3_prepare_v2(myDb, (char *)sql2.c_str(), sql2.length(), &res, &tail);
+    if (rc != SQLITE_OK)
+    {
+#ifdef SQL_DEBUG
+        Serial.printf("ERROR preparing sql: %s\n", sqlite3_errmsg(myDb));
+#endif //SQL_DEBUG
+        closeDb();
+        return;
+    }
+
+#ifdef SQL_DEBUG
+    SerialPort.println("Début binding");
+#endif //SQL_DEBUG
+
+    sqlite3_bind_text(res, 1, (char *)version.c_str(), version.length(), SQLITE_STATIC);
+
+#ifdef SQL_DEBUG
+    Serial.printf("Début step");
+#endif //SQL_DEBUG
+
+    if (sqlite3_step(res) != SQLITE_DONE)
+    {
+#ifdef SQL_DEBUG
+        Serial.printf("ERROR executing stmt: %s\n", sqlite3_errmsg(myDb));
+#endif //SQL_DEBUG
+        closeDb();
+        return;
+    }
+
+#ifdef SQL_DEBUG
+    Serial.printf("sqlite3_clear_bindings");
+#endif //SQL_DEBUG
+    sqlite3_clear_bindings(res);
+    rc = sqlite3_reset(res);
+    if (rc != SQLITE_OK)
+    {
+#ifdef SQL_DEBUG
+        Serial.printf("reset failed");
+#endif //SQL_DEBUG
+        closeDb();
+        return;
+    }
+#ifdef SQL_DEBUG
+    Serial.printf("sqlite3_finalize");
+#endif //SQL_DEBUG
+    sqlite3_finalize(res);
 }

@@ -37,8 +37,14 @@
 #include <VarioSpeaker.h>
 #include <VarioImu.h>
 #include <VarioGps.h>
-#include <VarioBle.h>
 
+#ifdef HAVE_BLUETOOTH
+#include <VarioBluetooth.h>
+#endif
+
+#ifdef HAVE_BLE
+#include <VarioBle.h>
+#endif
 /*******************/
 /* General objects */
 /*******************/
@@ -50,12 +56,15 @@
 class VarioHardwareManager
 {
 private:
-    VarioAlim varioAlim;
-    VarioSpeaker varioSpeaker;
-    VarioImu varioImu;
-		VarioGps varioGps;
+	VarioAlim varioAlim;
+	VarioSpeaker varioSpeaker;
+	VarioImu varioImu;
+	VarioGps varioGps;
 #ifdef HAVE_BLUETOOTH
-		VarioBle varioBle;
+	VarioBluetooth varioBT;
+#endif
+#ifdef HAVE_BLE
+	VarioBle varioBT;
 #endif
 
 public:
@@ -78,7 +87,7 @@ public:
 		
 		void 		testInactivity(double velocity);
 		
-		bool    updateBle(double velocity, double alti, double altiCalibrated);
+		bool    updateBluetooth(double velocity, double alti, double altiCalibrated);
 		bool    updateGps(Kalmanvert kalmanvert);
 	
 		unsigned long time_deep_sleep, sleepTimeoutSecs;		

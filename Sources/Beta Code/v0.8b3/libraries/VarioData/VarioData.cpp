@@ -857,9 +857,9 @@ uint8_t VarioData::getVariometerState(){
 }
 
 //*******************************************
-bool VarioData::updateBle(){
+bool VarioData::updateBluetooth(){
 //*******************************************
-  return(varioHardwareManager.updateBle(kalmanvert.getVelocity(), kalmanvert.getPosition(), kalmanvert.getCalibratedPosition()));
+  return(varioHardwareManager.updateBluetooth(kalmanvert.getVelocity(), kalmanvert.getPosition(), kalmanvert.getCalibratedPosition()));
 }
 
 //*******************************************

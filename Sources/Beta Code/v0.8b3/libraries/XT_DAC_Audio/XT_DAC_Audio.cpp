@@ -27,7 +27,7 @@
 
 #include <DebugConfig.h>
 
-#ifdef SOUND_DEBUG4
+#ifdef SOUND_DEBUG
 #define ARDUINOTRACE_ENABLE 1
 #else
 #define ARDUINOTRACE_ENABLE 0

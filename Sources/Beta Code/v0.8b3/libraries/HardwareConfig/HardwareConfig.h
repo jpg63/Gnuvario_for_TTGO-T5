@@ -210,7 +210,7 @@
 /* Possible values are :                                  */
 /*  - VARIOMETER_SENT_LXNAV_SENTENCE                      */
 /*  - VARIOMETER_SENT_LK8000_SENTENCE                     */
-#define VARIOMETER_SENT_LXNAV_SENTENCE
+//#define VARIOMETER_SENT_LXNAV_SENTENCE
 
 /* When there is no GPS to sync variometer bluetooth sentences */
 /* set the delay between sendings in milliseconds.             */ 
@@ -319,6 +319,16 @@
 #define HAVE_BUTTON
 #define HAVE_WIFI
 //#define HAVE_BLUETOOTH
+#define HAVE_BLE
 #define HAVE_BDD
+
+
+#if defined(HAVE_WIFI) && defined(HAVE_BLUETOOTH)
+#undef HAVE_BLUETOOTH
+#endif
+
+#if defined(HAVE_BLUETOOTH) && defined(HAVE_BLE)
+#undef HAVE_BLUETOOTH
+#endif
 
 #endif

@@ -94,7 +94,7 @@ public:
 		void 		initTime(void);
 
     void   	update();
-		bool   	updateBle();
+		bool   	updateBluetooth();
 		void   	updateGps();
 		void    updateState();
 		bool 		updateSpeed(void);
