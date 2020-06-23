@@ -92,6 +92,6 @@
 //#define WIFI_DEBUG
 #define SOUND_DEBUG
 //#define AGL_DEBUG
-
+#define SQL_DEBUG
 #endif //ENABLE_DEBUG
 #endif

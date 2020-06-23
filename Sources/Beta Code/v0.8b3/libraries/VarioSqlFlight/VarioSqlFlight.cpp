@@ -34,6 +34,8 @@ VarioSqlFlight::VarioSqlFlight()
 #endif //SQL_DEBUG
 
     sqlite3_initialize();
+
+    haveNextFlight = false;
 }
 
 VarioSqlFlight::~VarioSqlFlight()
@@ -833,13 +835,13 @@ bool VarioSqlFlight::deleteSite(uint8_t id)
     return true;
 }
 
-String VarioSqlFlight::getFlights(uint8_t offset)
+bool VarioSqlFlight::initGetFlightsQuery(uint8_t limit, uint8_t offset)
 {
-    String output = "";
-    DynamicJsonDocument doc(8192);
+    Serial.println(ESP.getFreeHeap());
+    haveNextFlight = false;
 
     int rc;
-    sqlite3_stmt *res;
+    // sqlite3_stmt *res;
     const char *tail;
 
 #ifdef SQL_DEBUG
@@ -850,74 +852,100 @@ String VarioSqlFlight::getFlights(uint8_t offset)
     {
         if (openDb((char *)dbPath.c_str(), &myDb))
         {
-            return output;
+            return false;
         }
     }
 
-    String sql = "SELECT f.id, f.site_id, f.filename, f.md5, f.pilot, f.wing, f.flight_date, f.start_flight_time, f.end_flight_time, f.start_height, f.end_height, f.min_height, f.max_height, f.start_lat, f.start_lon, f.end_lat, f.end_lon, f.comment, f.minimap, s.lib FROM flight f LEFT JOIN site s ON(s.id = f.site_id) ORDER BY f.flight_date DESC, f.start_flight_time ASC LIMIT 10 OFFSET " + String(offset);
+    String sql = "SELECT f.id, f.site_id, f.filename, f.md5, f.pilot, f.wing, f.flight_date, f.start_flight_time, f.end_flight_time, f.start_height, f.end_height, f.min_height, f.max_height, f.start_lat, f.start_lon, f.end_lat, f.end_lon, f.comment, f.minimap, s.lib FROM flight f LEFT JOIN site s ON(s.id = f.site_id) ORDER BY f.flight_date DESC, f.start_flight_time ASC LIMIT " + String(limit) + " OFFSET " + String(offset);
 
-    rc = sqlite3_prepare_v2(myDb, sql.c_str(), 1000, &res, &tail);
+#ifdef SQL_DEBUG
+    SerialPort.println(sql);
+#endif //SQL_DEBUG
+
+    rc = sqlite3_prepare_v2(myDb, sql.c_str(), sql.length(), &nextFlightRes, &tail);
     if (rc != SQLITE_OK)
     {
         closeDb();
-        return output;
+        return false;
     }
 
-    while (sqlite3_step(res) == SQLITE_ROW)
-    {
-        // rec_count = sqlite3_column_int(res, 0);
-        // if (rec_count > 5000)
-        // {
-        //     sqlite3_finalize(res);
-        //     return;
-        // }
-        //doc.add(i);
-        JsonObject obj1 = doc.createNestedObject();
-        obj1["id"] = sqlite3_column_int(res, 0);
-        obj1["site_id"] = sqlite3_column_int(res, 1);
-        obj1["filename"] = String((char *)sqlite3_column_text(res, 2));
-        obj1["md5"] = String((char *)sqlite3_column_text(res, 3));
-        obj1["pilot"] = String((char *)sqlite3_column_text(res, 4));
-        obj1["wing"] = String((char *)sqlite3_column_text(res, 5));
-        obj1["flight_date"] = String((char *)sqlite3_column_text(res, 6));
-        obj1["start_flight_time"] = String((char *)sqlite3_column_text(res, 7));
-        obj1["end_flight_time"] = String((char *)sqlite3_column_text(res, 8));
-        obj1["start_height"] = sqlite3_column_double(res, 9);
-        obj1["end_height"] = sqlite3_column_double(res, 10);
-        obj1["min_height"] = sqlite3_column_double(res, 11);
-        obj1["max_height"] = sqlite3_column_double(res, 12);
-        obj1["start_lat"] = sqlite3_column_double(res, 13);
-        obj1["start_lon"] = sqlite3_column_double(res, 14);
-        obj1["end_lat"] = sqlite3_column_double(res, 15);
-        obj1["end_lon"] = sqlite3_column_double(res, 16);
-        obj1["comment"] = String((char *)sqlite3_column_text(res, 17));
-        obj1["minimap"] = String((char *)sqlite3_column_text(res, 18));
-        obj1["site_lib"] = String((char *)sqlite3_column_text(res, 19));
+    haveNextFlight = true;
 
-        //         const void *blob = sqlite3_column_blob(res, 18);
-        //         uint16_t blob_bytes = sqlite3_column_bytes(res, 18);
-        // #ifdef SQL_DEBUG
-        //         SerialPort.print("blob_bytes");
-        //         SerialPort.println(blob_bytes);
-        // #endif //SQL_DEBUG                                \
-//     // memcpy(obj1["minimap"], blob, blob_bytes); \
-//     // char map[blob_bytes + 1];                  \
-//     // memcpy(map, blob, blob_bytes);             \
-//     // obj1["minimap"] = ""; //String((char *)map);
-    }
+    return true;
+}
 
-    if (doc.isNull())
+String VarioSqlFlight::getNextFlight()
+{
+    DynamicJsonDocument doc(4196);
+
+    // create an object
+    JsonObject obj1 = doc.to<JsonObject>();
+
+    int step_res;
+
+    if (haveNextFlight)
     {
-        output = "[]";
+        step_res = sqlite3_step(nextFlightRes);
+
+        if (step_res == SQLITE_ROW)
+        {
+
+            //JsonObject obj1 = doc.createNestedObject();
+            obj1["id"] = sqlite3_column_int(nextFlightRes, 0);
+            obj1["site_id"] = sqlite3_column_int(nextFlightRes, 1);
+            obj1["filename"] = String((char *)sqlite3_column_text(nextFlightRes, 2));
+            obj1["md5"] = String((char *)sqlite3_column_text(nextFlightRes, 3));
+            obj1["pilot"] = String((char *)sqlite3_column_text(nextFlightRes, 4));
+            obj1["wing"] = String((char *)sqlite3_column_text(nextFlightRes, 5));
+            obj1["flight_date"] = String((char *)sqlite3_column_text(nextFlightRes, 6));
+            obj1["start_flight_time"] = String((char *)sqlite3_column_text(nextFlightRes, 7));
+            obj1["end_flight_time"] = String((char *)sqlite3_column_text(nextFlightRes, 8));
+            obj1["start_height"] = sqlite3_column_double(nextFlightRes, 9);
+            obj1["end_height"] = sqlite3_column_double(nextFlightRes, 10);
+            obj1["min_height"] = sqlite3_column_double(nextFlightRes, 11);
+            obj1["max_height"] = sqlite3_column_double(nextFlightRes, 12);
+            obj1["start_lat"] = sqlite3_column_double(nextFlightRes, 13);
+            obj1["start_lon"] = sqlite3_column_double(nextFlightRes, 14);
+            obj1["end_lat"] = sqlite3_column_double(nextFlightRes, 15);
+            obj1["end_lon"] = sqlite3_column_double(nextFlightRes, 16);
+            obj1["comment"] = String((char *)sqlite3_column_text(nextFlightRes, 17));
+            obj1["minimap"] = String((char *)sqlite3_column_text(nextFlightRes, 18));
+            obj1["site_lib"] = String((char *)sqlite3_column_text(nextFlightRes, 19));
+
+            String unvol;
+            serializeJson(obj1, unvol);
+
+#ifdef SQL_DEBUG
+            Serial.println(unvol);
+#endif //SQL_DEBUG
+            return unvol;
+        }
+        else if (step_res == SQLITE_ERROR)
+        {
+#ifdef SQL_DEBUG
+            Serial.println("ERROR ICI");
+#endif //SQL_DEBUG
+            haveNextFlight = false;
+            sqlite3_finalize(nextFlightRes);
+            return "";
+        }
+        else
+        {
+#ifdef SQL_DEBUG
+            Serial.println("Plus aucun vol" + String(step_res));
+#endif //SQL_DEBUG
+            haveNextFlight = false;
+            sqlite3_finalize(nextFlightRes);
+            return "";
+        }
     }
     else
     {
-        serializeJson(doc, output);
+#ifdef SQL_DEBUG
+        Serial.println("Aucun vol");
+#endif //SQL_DEBUG
+        return "";
     }
-
-    sqlite3_finalize(res);
-
-    return output;
 }
 
 void VarioSqlFlight::executeMigration(String version, String sql)

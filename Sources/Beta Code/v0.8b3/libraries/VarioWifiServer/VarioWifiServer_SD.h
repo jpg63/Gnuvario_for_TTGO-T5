@@ -21,7 +21,6 @@
 /*    1.2.12 25/01/20   Correction Upload                                        */
 /*                      Ajout HandleFirmwareVersion / handleUpgradeWeb           */
 /*    1.2.13 16/02/20   refactoring variowifiserver                              */
-/*    1.2.14 16/06/20   Correction multi-classe																	 */
 /*                                                                               */
 /*********************************************************************************/
 
@@ -66,23 +65,7 @@ extern char ssid_4[50];
 extern char password_4[50];
 
 extern WiFiMulti wifiMulti;
-
-#ifdef ESP32WEBSERVEUR
-extern VarioESP32WebServer server;
-#elif defined(ESPASYNCWEBSERVER)
-#include <WiFi.h>
-#include <AsyncTCP.h>
-#include <ESPAsyncWebServer.h>
-extern AsyncWebServer server;
-#elif defined(ETHERNETWEBSERVER)
-extern EthernetServer server;
-#elif defined(ESPRESSIFWEBSERVEUR)
-extern WebServer server;
-#else  //ESP32WEBSERVEUR
 extern VarioWebServer server;
-#endif //ESP32WEBSERVEUR
-
-//extern VarioWebServer server;
 
 //////////////////////////////////////
 //          CLASS WIFISERVER        //
@@ -123,6 +106,7 @@ void printDirectoryRecurse(String path, boolean isRecursive);
 void handleFileDownload();
 void handleFileUpload();
 void handleFileDelete();
+void handleFileCreate();
 void deleteRecursive(String path);
 void handleNotFound();
 void handleFileUpdate();
@@ -139,7 +123,6 @@ void handleDelSite();
 void handleGetFlights();
 void handleSetFlight();
 void handleDelFlight();
-
 
 //////////////////////////////////////
 //              HELPERS            //

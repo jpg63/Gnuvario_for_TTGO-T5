@@ -49,30 +49,16 @@
 #include <GPSSentence.h>
 #endif //HAVE_GPS
 
-
-
-
 class VarioBluetooth
 {
 public:
- //   VarioAlim();
-    bool init();
-		bool update(double velocity, double position, double calibratedPosition);
-		
-//		SimpleBLE ble;
-		boolean lastSentence  = false;
+	bool init();
+	bool update(double velocity, double position, double calibratedPosition);
 
+	boolean lastSentence = false;
 
-/*#if defined(VARIOMETER_SENT_LXNAV_SENTENCE)
-		LxnavSentence bluetoothNMEA;
-#elif defined(VARIOMETER_SENT_LK8000_SENTENCE)
-		LK8Sentence bluetoothNMEA;
-#else
-#error No bluetooth sentence type specified !
-#endif*/
-		
-		LxnavSentence bluetoothNMEA_Lx;
-		LK8Sentence   bluetoothNMEA_Lk;		
+	LxnavSentence bluetoothNMEA_Lx;
+	LK8Sentence bluetoothNMEA_Lk;
 };
 
 #endif //HAVE_BLUETOOTH

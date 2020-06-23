@@ -65,27 +65,29 @@
 bool VarioBluetooth::init()
 // ******************************
 {
-	if (GnuSettings.VARIOMETER_ENABLE_BT) {
+	if (GnuSettings.VARIOMETER_ENABLE_BT)
+	{
 		TRACE();
 		return true;
 	}
-	else {
+	else
+	{
 		TRACE();
 		return false;
 	}
 }
 
-
 // ******************************
 bool VarioBluetooth::update(double velocity, double position, double calibratedPosition)
 // ******************************
 {
-  // ********************
-  // * update bluetooth *
-  // ********************
+	// ********************
+	// * update bluetooth *
+	// ********************
 #ifdef HAVE_GPS
-  /* in priority send vario nmea sentence */
-	if (GnuSettings.VARIOMETER_SENT_LXNAV_SENTENCE == LK8000_SENTENCE) {
+	/* in priority send vario nmea sentence */
+	if (GnuSettings.VARIOMETER_SENT_LXNAV_SENTENCE == LK8000_SENTENCE)
+	{
 		if (bluetoothNMEA_Lk.available())
 		{
 			while (bluetoothNMEA_Lk.available())
@@ -94,9 +96,10 @@ bool VarioBluetooth::update(double velocity, double position, double calibratedP
 			}
 			serialNmea.release();
 			return true;
-		}				
+		}
 	}
-	else {
+	else
+	{
 		if (bluetoothNMEA_Lx.available())
 		{
 			while (bluetoothNMEA_Lx.available())
@@ -107,42 +110,45 @@ bool VarioBluetooth::update(double velocity, double position, double calibratedP
 			return true;
 		}
 	}
-#else //!HAVE_GPS
-  /* check the last vario nmea sentence */
-  if (millis() - lastVarioSentenceTimestamp > VARIOMETER_SENTENCE_DELAY)
-  {
-    lastVarioSentenceTimestamp = millis();
-		
-		if (GnuSettings.VARIOMETER_SENT_LXNAV_SENTENCE == LK8000_SENTENCE) {
-//#ifdef VARIOMETER_BLUETOOTH_SEND_CALIBRATED_ALTITUDE
-			if (GnuSettings.BLUETOOTH_SEND_CALIBRATED_ALTITUDE) 
-			  bluetoothNMEA_Lk.begin(calibratedPosition, velocity);
-//#else
+#else  //!HAVE_GPS
+	/* check the last vario nmea sentence */
+	if (millis() - lastVarioSentenceTimestamp > VARIOMETER_SENTENCE_DELAY)
+	{
+		lastVarioSentenceTimestamp = millis();
+
+		if (GnuSettings.VARIOMETER_SENT_LXNAV_SENTENCE == LK8000_SENTENCE)
+		{
+			//#ifdef VARIOMETER_BLUETOOTH_SEND_CALIBRATED_ALTITUDE
+			if (GnuSettings.BLUETOOTH_SEND_CALIBRATED_ALTITUDE)
+				bluetoothNMEA_Lk.begin(calibratedPosition, velocity);
+			//#else
 			else
-			  bluetoothNMEA_Lk.begin(position, velocity);
-//#endif
+				bluetoothNMEA_Lk.begin(position, velocity);
+			//#endif
 			while (bluetoothNMEA_Lk.available())
 			{
 				serialNmea.write(bluetoothNMEA_Lk.get());
 			}
-		} else {
-//#ifdef VARIOMETER_BLUETOOTH_SEND_CALIBRATED_ALTITUDE
-			if (GnuSettings.BLUETOOTH_SEND_CALIBRATED_ALTITUDE) 
+		}
+		else
+		{
+			//#ifdef VARIOMETER_BLUETOOTH_SEND_CALIBRATED_ALTITUDE
+			if (GnuSettings.BLUETOOTH_SEND_CALIBRATED_ALTITUDE)
 				bluetoothNMEA_Lx.begin(calibratedPosition, velocity);
-//#else
+			//#else
 			else
 				bluetoothNMEA_Lx.begin(position, velocity);
-//#endif
+			//#endif
 			while (bluetoothNMEA_Lx.available())
 			{
 				serialNmea.write(bluetoothNMEA_Lx.get());
 			}
 		}
-	  return true;
+		return true;
 	}
-  }
+}
 #endif //!HAVE_GPS
-  return false;
+	return false;
 }
 
 #endif //HAVE_BLUETOOTH

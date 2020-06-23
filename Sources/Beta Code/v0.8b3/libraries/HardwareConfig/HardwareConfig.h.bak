@@ -319,6 +319,16 @@
 #define HAVE_BUTTON
 #define HAVE_WIFI
 #define HAVE_BLUETOOTH
+//#define HAVE_BLE
 #define HAVE_BDD
+
+
+#if defined(HAVE_WIFI) && defined(HAVE_BLUETOOTH)
+#undef HAVE_BLUETOOTH
+#endif
+
+#if defined(HAVE_BLUETOOTH) && defined(HAVE_BLE)
+#undef HAVE_BLUETOOTH
+#endif
 
 #endif
