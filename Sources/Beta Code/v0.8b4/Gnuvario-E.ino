@@ -456,66 +456,57 @@
 *                                                                      *
 ************************************************************************/
 
-/**************************************************************************************************************
- *              Liens utiles                                                                                  *
- *                                                                                                            *
- * https://learn.sparkfun.com/tutorials/9dof-razor-imu-m0-hookup-guide/all#libraries-and-example-firmware     *        
- *                                                                                                            *
- * AGL : https://vps.skybean.eu/agl/                                                                          *
- *                                                                                                            *
- **************************************************************************************************************/
-
 /*************************************************************************************************************
-  *                                                                                                           *
-  *                                            UTILISATION DES TOUCHES                                        *                                                                                       
-  *   Ecran         Touche      Fonction                                                                      *
-  *                                                                                                           *
-  *   Init          Gauche      passage en mode Wifi                                                          *                                                                                                              
-  *   Init          Droite      Calibration                                                                   *
-  *                                                                                                           *
-  *   Vario         Centre      Coupe et remet le son (Mute)                                                  *
-  *   Vario         Centre 3s   Mode veille                                                                   *
-  *   Vario         Gauche      écran précédent                                                               *
-  *   Vario         Droite      écran suivant                                                                 *
-  *   Vario         Gauche 2s   Calibrarion manuel du baro via l'AGL                                          *
-  *   Vario         Gauche 0    Déclenchement de l'enregistrement du vol si en attente                        *
-  *                                                                                                           *
-  *   Wifi          Gauche      Sort du mode Wifi                                                             *
-  *                                                                                                           *
-  *   Sound         Gauche      baisse le volume                                                              *
-  *   Sound         Droit       Monte le volume                                                               *
-  *   Sound         Centre      Entre dans la configuration / Valide la configuration                         *
-  *                                                                                                           *
-  *   Sleep         Gauche      Valide la mise en veille                                                      * 
-  *                                                                                                           *
-  *   Calibration   Centre      Démarre la calibration                                                        *                                                                                                        
-  *   Calibration   Gauche      Sort du mode calibration (reboot)                                             *
-  *                                                                                                           *
-  *************************************************************************************************************
-  *                                                                                                           *
-  * Debbug                                                                                                    *
-  *                                                                                                           *
-  * TRACE();                  Affiche sur le moniteur serie le numero de ligne, le nom du fichier             *
-  * DUMP(someValue);          Affcihe sur le moniteur serie la variable ainsi que le fichier et la ligne      *
-  * SDUMP(someText);          Affiche sur le moniteur serie le texte ainsi que le fichier et la ligne         *
-  *                                                                                                           *
-  * TRACELOG(type, module)           Enregistre dans le fichier de log le fichier et la ligne                 *
-  * DUMPLOG(type, module, variable)  Enregistre dans le fichier de log la variable, le fichier et la ligne    * 
-  * MESSLOG(type, module, Text)      Enregistre dans le fichier de log un message avac la fichier et la ligne *
-  * INFOLOG(Text)                    Enregistre dans le fichier de log un texte                               *                                                                                                     
-  *************************************************************************************************************
-  *                                                                                                           *
-  * Téléchargement AGL : https://vps.skybean.eu/agl/                                                          *                                                                                                          
-  *                                                                                                           * 
-  *************************************************************************************************************
-  *                                                                                                           *
-  * Timer                                                                                                     *
-  *          0 :                                                                                              *
-  *          1 : screen                                                                                       *
-  *          2 : XT_DAC_Audio / ToneDACTimer / I2S                                                                *
-  *          3 : TwoWireScheduler                                                                             *
-  *                                                                                                           *
-  *************************************************************************************************************/
+*                                                                                                            *
+*                                            UTILISATION DES TOUCHES                                         *                                                                                       
+*   Ecran         Touche      Fonction                                                                       *
+*                                                                                                            *
+*   Init          Gauche      passage en mode Wifi                                                           *                                                                                                              
+*   Init          Droite      Calibration                                                                    * 
+*                                                                                                            *
+*   Vario         Centre      Coupe et remet le son (Mute)                                                   *
+*   Vario         Centre 3s   Mode veille                                                                    *
+*   Vario         Gauche      écran précédent                                                                *
+*   Vario         Droite      écran suivant                                                                  *
+*   Vario         Gauche 2s   Calibrarion manuel du baro via l'AGL                                           *
+*   Vario         Gauche 0    Déclenchement de l'enregistrement du vol si en attente                         *
+*                                                                                                            *
+*   Wifi          Gauche      Sort du mode Wifi                                                              *
+*                                                                                                            *
+*   Sound         Gauche      baisse le volume                                                               *
+*   Sound         Droit       Monte le volume                                                                *
+*   Sound         Centre      Entre dans la configuration / Valide la configuration                          *
+*                                                                                                            *
+*   Sleep         Gauche      Valide la mise en veille                                                       * 
+*                                                                                                            *
+*   Calibration   Centre      Démarre la calibration                                                         *                                                                                                        
+*   Calibration   Gauche      Sort du mode calibration (reboot)                                              *
+*                                                                                                            *
+**************************************************************************************************************
+*                                                                                                            *
+* Debbug                                                                                                     *
+*                                                                                                            *
+* TRACE();                  Affiche sur le moniteur serie le numero de ligne, le nom du fichier              *
+* DUMP(someValue);          Affcihe sur le moniteur serie la variable ainsi que le fichier et la ligne       *
+* SDUMP(someText);          Affiche sur le moniteur serie le texte ainsi que le fichier et la ligne          *
+*                                                                                                            *
+* TRACELOG(type, module)           Enregistre dans le fichier de log le fichier et la ligne                  *
+* DUMPLOG(type, module, variable)  Enregistre dans le fichier de log la variable, le fichier et la ligne     * 
+* MESSLOG(type, module, Text)      Enregistre dans le fichier de log un message avac la fichier et la ligne  *
+* INFOLOG(Text)                    Enregistre dans le fichier de log un texte                                *                                                                                                     
+**************************************************************************************************************
+*                                                                                                            *
+* Téléchargement AGL : https://vps.skybean.eu/agl/                                                           *                                                                                                          
+*                                                                                                            * 
+**************************************************************************************************************
+*                                                                                                            *
+* Timer                                                                                                      *
+*          0 :                                                                                               *
+*          1 : screen                                                                                        *
+*          2 : XT_DAC_Audio / ToneDACTimer / I2S                                                             *
+*          3 : TwoWireScheduler                                                                              *
+*                                                                                                            *
+**************************************************************************************************************/
 
 /**************************************************************************************************************
  *                                                                                                            *
@@ -530,8 +521,19 @@
  *                                                                                                            *
  *  xt_dac_audio                                                                                              *
  *     https://www.xtronical.com/the-dacaudio-library-download-and-installation/                              *                                                                            
- *                                                                                                            *
+ *                                                                                                            *    
  **************************************************************************************************************/
+
+ /*************************************************************************************************************
+  *      Literature                                                                                           *
+  *                                                                                                           *
+  *      MPU9250                                                                                              *                                                                                                     
+  *    https://learn.sparkfun.com/tutorials/9dof-razor-imu-m0-hookup-guide/all#libraries-and-example-firmware *        
+  *    https://www.enib.fr/~kerhoas/rescapt_cours_mpu9250.html                                                *
+  *    https://fr.wikiversity.org/wiki/Micro_contr%C3%B4leurs_AVR/Travail_pratique/Utilisation_du_MPU9250     *
+  *    https://www.instructables.com/id/Tilt-Compensated-Compass/                                             *
+  *                                                                                                           *
+  *************************************************************************************************************/
  
 //*****************************
 // DEBBUGAGE                  *

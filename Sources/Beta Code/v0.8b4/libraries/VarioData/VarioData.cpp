@@ -102,6 +102,8 @@
 #define MAX_SPEED 99
 #endif
 
+#define R2D 57.2958
+
 /**********************/
 /* SDCARD objects     */
 /**********************/
@@ -1532,6 +1534,15 @@ int VarioData::getCap(void) {
     ay /= a;
     az /= a;
 
+#ifdef BEARING_DEBUG
+    SerialPort.print("ax : ");
+    SerialPort.println(ax);
+    SerialPort.print("ay : ");
+    SerialPort.println(ay);
+    SerialPort.print("az : ");
+    SerialPort.println(az);
+#endif //DATA_DEBUG
+
 /*
 
   static void getRawAccel(int16_t* rawAccel, int32_t* quat);
@@ -1625,15 +1636,45 @@ float constrainAngle360(float dta) {
 			hx /= h;
 			hy /= h;
 			hz /= h;
+
+#ifdef BEARING_DEBUG
+      SerialPort.print("hx : ");
+      SerialPort.println(hx);
+      SerialPort.print("hy : ");
+      SerialPort.println(hy);
+      SerialPort.print("hz : ");
+      SerialPort.println(hz);
+#endif //DATA_DEBUG
+
+			// Compute euler angles 
+			float pitch_rad, roll_rad, yaw_rad, heading_rad;
+
+			pitch_rad = asinf(ax);
+			roll_rad = asinf(-ay / cosf(pitch_rad));
+			yaw_rad = atan2f(hz * sinf(roll_rad) - hy * cosf(roll_rad), hx * cosf(pitch_rad) + hy * sinf(pitch_rad) * sinf(roll_rad) + hz * sinf(pitch_rad) * cosf(roll_rad));
+			heading_rad = constrainAngle360(yaw_rad);
+
+#ifdef BEARING_DEBUG
+      SerialPort.print("pitch_rad : ");
+      SerialPort.println(pitch_rad);
+      SerialPort.print("roll_rad : ");
+      SerialPort.println(roll_rad);
+      SerialPort.print("yaw_rad : ");
+      SerialPort.println(yaw_rad);
+      SerialPort.print("heading_rad : ");
+      SerialPort.println(heading_rad);
+#endif //DATA_DEBUG
+			
+			tmpcap = heading_rad * R2D;
  			
-#ifdef DATA_DEBUG
+#ifdef BEARING_DEBUG
       SerialPort.print("Compas magnetique : ");
       SerialPort.println(tmpcap);
 #endif //DATA_DEBUG
 			
 //Moyenne
 			
-			if (nbMesureCap < 10) {
+/*			if (nbMesureCap < 10) {
 				if (moyCap == -1) moyCap = 0;
 				moyCap += tmpcap;
 				nbMesureCap++;
@@ -1645,24 +1686,38 @@ float constrainAngle360(float dta) {
 				bearing = moyCap / 10;
 				moyCap = 0;
 				nbMesureCap = 0;				
-			}
+			}*/
+			
+			bearing = tmpcap;
 			 
 			DUMP(bearing); 
-			return bearing;
+//			return bearing;
 		}
 		else {
-/*		bearing = -1;
-		nbMesureCap = 0;
-		TRACE();*/
+			bearing = -1;
+			nbMesureCap = 0;
+			TRACE();
+			return 0;
 		}
 	} 
 	else {
 		bearing = -1;
 		nbMesureCap = 0;
 		TRACE();
+		return 0;
 	}
 	
 	if (bearing > 360) bearing = bearing - 360;
 	if (bearing < 0)   bearing = 360 + bearing;
 	return bearing;
+}
+
+// Bound angle between 0 and 360 
+/*******************************************/
+float VarioData::constrainAngle360(float dta) {
+/*******************************************/
+  dta = fmod(dta, 2.0 * PI);
+  if (dta < 0.0)
+    dta += 2.0 * PI;
+  return dta;
 }

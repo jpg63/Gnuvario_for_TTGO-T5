@@ -27,6 +27,7 @@
 /*  1.2     01/11/19     Suppression de la gestion du volume dans beeper - le volume ne sera géré  */
 /*                       que dans toneHAL                                                          */
 /*  1.3      13/09/20    Ajout VarioXBeeper                                                        */
+/*  1.3.1    17/09/20    Ajout duty / cycle variable et parametrable                               */
 /*                                                                                                 */
 /***************************************************************************************************/
 
@@ -56,9 +57,9 @@
 /* THE CLIMBING BEEP */
 /*********************/
 /* length of beep in vertical meters */ 
-#define CLIMBING_BEEP_HIGH_LENGTH 0.5
+/*#define CLIMBING_BEEP_HIGH_LENGTH 0.5
 #define CLIMBING_BEEP_LOW_LENGTH 0.5
-#define CLIMBING_BEEP_LENGTH (CLIMBING_BEEP_HIGH_LENGTH + CLIMBING_BEEP_LOW_LENGTH)
+#define CLIMBING_BEEP_LENGTH (CLIMBING_BEEP_HIGH_LENGTH + CLIMBING_BEEP_LOW_LENGTH)*/
 
 /* climbing beep sound freq computation : BEEP_FREQ_COEFF * velocity + BEEP_BASE_FREQ */
 #define CLIMBING_BEEP_BASE_FREQ 386.0
@@ -175,6 +176,14 @@ class Beeper {
   double 				beepPaternPosition;
   uint8_t 			beepState;
   uint8_t 			beepType;
+	
+	/*********************/
+/* THE CLIMBING BEEP */
+/*********************/
+/* length of beep in vertical meters */ 
+	double CLIMBING_BEEP_HIGH_LENGTH;  // = 0.5;
+	double CLIMBING_BEEP_LOW_LENGTH; //  = 0.5;
+  double CLIMBING_BEEP_LENGTH;
 
   void 		setBeepParameters(double velocity);
   void 		setBeepPaternPosition(double velocity);

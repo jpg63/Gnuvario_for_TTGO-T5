@@ -193,6 +193,8 @@ private:
 		int 		bearing = 0;
 		int 		moyCap = 0;
 		int			nbMesureCap = 0;
+		
+		float constrainAngle360(float dta);
 };
 
 extern VarioData varioData;
