@@ -57,6 +57,8 @@
 #define HAVE_ACCEL 4
 #define HAVE_MAG 6
 #define HAVE_NEWACCEL 8
+#define HAVE_GYRO 16
+#define HAVE_NEWGYRO 32
 #ifdef MPU_ENABLE_INT_PIN
 #define MPU_FIFO_EMPTIED 7
 #endif //MPU_ENABLE_INT_PIN
@@ -70,7 +72,7 @@ TWScheduler twScheduler;
 /*********************/
 /* static class data */
 /*********************/
-uint8_t volatile TWScheduler::status = 0;   //no problem to not release at start as there is no values
+uint16_t volatile TWScheduler::status = 0;   //no problem to not release at start as there is no values
 #ifdef HAVE_BMP280 
 uint8_t volatile TWScheduler::bmp280Output[2*3];  //two bmp280 output measures
 uint8_t volatile TWScheduler::bmp280Count = TWO_WIRE_SCHEDULER_BMP280_SHIFT;
@@ -408,6 +410,9 @@ void TWScheduler::imuHaveFifoDataCallback(void) {
   /* done ! */
   status |= (1 << HAVE_ACCEL);
   status |= (1 << HAVE_NEWACCEL);
+
+  status |= (1 << HAVE_GYRO);
+  status |= (1 << HAVE_NEWGYRO);
   
 #ifdef MPU_ENABLE_INT_PIN
   /* decrease FiFo counter */
@@ -497,6 +502,44 @@ double TWScheduler::getAccel(double* vertVector) {
   return vertAccel;
 }
 
+bool TWScheduler::haveGyro(void) {
+
+  return bisset(HAVE_GYRO);
+}
+
+bool TWScheduler::haveNewGyro(void) {
+
+  return bisset(HAVE_NEWGYRO);
+}
+
+bool TWScheduler::resetNewGyro(void) {
+
+  return bunset(HAVE_NEWGYRO);
+}
+
+void TWScheduler::getRawGyro(int16_t* rawGyro, int32_t* quat) {
+  
+  /***************/
+  /* check gyro */
+  /***************/
+
+  /* first copy fifo packet */
+  uint8_t fifoPacket[LIGHT_INVENSENSE_COMPRESSED_DMP_PAQUET_LENGTH];
+  xSemaphoreTake(imuMutex, portMAX_DELAY);
+  for(int i = 0; i<LIGHT_INVENSENSE_COMPRESSED_DMP_PAQUET_LENGTH; i++) {
+    fifoPacket[i] =  imuOutput[i];
+  }
+  bunset(HAVE_GYRO);
+  xSemaphoreGive(imuMutex);
+  
+
+  /* parse FiFo packet to get raw measures */
+  uint8_t tap;
+  fastMPUParseFIFO(fifoPacket, rawGyro, NULL, quat, tap);
+
+  /* check tap : use callback if needed */
+  fastMPUCheckTap(tap);
+}
 
 #ifdef AK89xx_SECONDARY
 /************/

@@ -144,6 +144,12 @@ class TWScheduler {
   static bool resetNewAccel(void);
   static void getRawAccel(int16_t* rawAccel, int32_t* quat);
   static double getAccel(double* vertVector); //vertVector = NULL if not needed
+	
+  static bool haveGyro(void);
+  static bool haveNewGyro(void);
+  static bool resetNewGyro(void);
+	static void getRawGyro(int16_t* rawGyro, int32_t* quat);
+
 #ifdef AK89xx_SECONDARY
   static bool haveMag(void);
   static void getRawMag(int16_t* rawMag);
@@ -155,7 +161,7 @@ class TWScheduler {
   static void mainInterrupt(void);
 
  private:
-  static uint8_t volatile status;
+  static uint16_t volatile status;
 #ifdef HAVE_BMP280 
   static uint8_t volatile bmp280Output[2*3];  //two bmp280 output measures
   static uint8_t volatile bmp280Count;

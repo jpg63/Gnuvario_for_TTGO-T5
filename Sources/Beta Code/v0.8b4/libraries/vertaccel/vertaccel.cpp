@@ -312,6 +312,27 @@ uint8_t Vertaccel::readRawAccel(int16_t* accel, int32_t* quat) {
   return haveValue;
 }
 
+uint8_t Vertaccel::readRawGyro(int16_t* gyro, int32_t* quat) {
+
+  uint8_t haveValue = 0;
+
+  while( fastMPUReadFIFO(gyro, NULL, quat) >= 0 ) {
+    haveValue = 1;
+  }
+
+  return haveValue;
+}
+
+uint8_t Vertaccel::readRawSensor(int16_t* gyro, int16_t* accel, int32_t* quat) {
+
+  uint8_t haveValue = 0;
+
+  while( fastMPUReadFIFO(gyro, accel, quat) >= 0 ) {
+    haveValue = 1;
+  }
+
+  return haveValue;
+}
   
 #ifdef AK89xx_SECONDARY
 uint8_t Vertaccel::readRawMag(int16_t* mag) {

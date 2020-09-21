@@ -40,6 +40,8 @@
 
 #include <VarioXBeeper.h>
 
+#define BEEPERVARIABLE
+
 Beeper beeper(volumeDefault);
  
 /***************************************************************************************************/
@@ -178,20 +180,24 @@ void Beeper::setBeepParameters(double velocity) {
 
   /* save velocity */
   beepVelocity = velocity;
+
+#ifdef BEEPERVARIABLE	
 	double tmpcycle;
 	double tmpduty;
+#endif
 
   /* compute the beep freq that depend to beep type */
   switch( beepType ) {
   case BEEP_TYPE_SINKING :
     beepFreq = varioXBeeper.getFrequence(velocity); //SINKING_BEEP_FREQ_COEFF * velocity + SINKING_BEEP_BASE_FREQ;
-		
+	
+#ifdef BEEPERVARIABLE	
 		tmpcycle = varioXBeeper.getCycle(velocity) / 1000.0;
 		tmpduty  = varioXBeeper.getDuty(velocity) / 100.0;
 		CLIMBING_BEEP_HIGH_LENGTH = tmpcycle * tmpduty;
 		CLIMBING_BEEP_LOW_LENGTH  = tmpcycle * (1 - tmpduty);
 		CLIMBING_BEEP_LENGTH = (CLIMBING_BEEP_HIGH_LENGTH + CLIMBING_BEEP_LOW_LENGTH);
-		
+#endif //BEEPERVARIABLE
     break;
 
   case BEEP_TYPE_SILENT :
@@ -201,23 +207,25 @@ void Beeper::setBeepParameters(double velocity) {
   case BEEP_TYPE_GLIDING :
     beepFreq = varioXBeeper.getFrequence(velocity); //CLIMBING_BEEP_FREQ_COEFF * velocity + CLIMBING_BEEP_BASE_FREQ;
 
+#ifdef BEEPERVARIABLE	
 		tmpcycle = varioXBeeper.getCycle(velocity) / 1000.0;
 		tmpduty  = varioXBeeper.getDuty(velocity) / 100.0;
 		CLIMBING_BEEP_HIGH_LENGTH = tmpcycle * tmpduty;
 		CLIMBING_BEEP_LOW_LENGTH  = tmpcycle * (1 - tmpduty);
 		CLIMBING_BEEP_LENGTH = (CLIMBING_BEEP_HIGH_LENGTH + CLIMBING_BEEP_LOW_LENGTH);
-
+#endif //BEEPERVARIABLE
     break;
 
   case BEEP_TYPE_CLIMBING :
     beepFreq = varioXBeeper.getFrequence(velocity); //CLIMBING_BEEP_FREQ_COEFF * velocity + CLIMBING_BEEP_BASE_FREQ;
 
+#ifdef BEEPERVARIABLE	
 		tmpcycle = varioXBeeper.getCycle(velocity) / 1000.0;
 		tmpduty  = varioXBeeper.getDuty(velocity) / 100.0;
 		CLIMBING_BEEP_HIGH_LENGTH = tmpcycle * tmpduty;
 		CLIMBING_BEEP_LOW_LENGTH  = tmpcycle * (1 - tmpduty);
 		CLIMBING_BEEP_LENGTH = (CLIMBING_BEEP_HIGH_LENGTH + CLIMBING_BEEP_LOW_LENGTH);
-
+#endif //BEEPERVARIABLE
     break;
   }
 
