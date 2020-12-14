@@ -3,6 +3,15 @@
 #include <Update.h>
 #include "VarioWebHandler.h"
 
+//************************************************************
+// DISPLAY SCREEN
+//************************************************************
+#define ENABLE_DISPLAY_WEBSERVER
+
+#ifdef ENABLE_DISPLAY_WEBSERVER
+#include <varioscreenGxEPD.h>
+#endif
+
 File uploadFile;
 File varioParamFile;
 File wifiParamFile;
@@ -295,19 +304,21 @@ void VarioWebHandler::handleOtaUpdate(AsyncWebServerRequest *request, String fil
     if (!index)
     {
         Serial.printf("UploadStart: %s\n", filename.c_str());
-        if (!Update.begin(UPDATE_SIZE_UNKNOWN))
+        if (!Update.begin(UPDATE_SIZE_UNKNOWN, U_FLASH))
         { //start with max available size
             Update.printError(Serial);
             request->send(500, "text/plain", "UPDATE FAIL");
             return;
         }
     }
-
-    if (Update.write(data, len) != len)
+    if (len)
     {
-        Update.printError(Serial);
-        request->send(500, "text/plain", "UPDATE FAIL");
-        return;
+        if (Update.write(data, len) != len)
+        {
+            Update.printError(Serial);
+            request->send(500, "text/plain", "UPDATE FAIL");
+            return;
+        }
     }
 
     if (final)
@@ -473,7 +484,7 @@ void VarioWebHandler::handleFileCreate(AsyncWebServerRequest *request, uint8_t *
 AsyncWebServerResponse *VarioWebHandler::handleWifi(AsyncWebServerRequest *request)
 {
 #ifdef WIFI_DEBUG
-    SerialPort.println("handleParams");
+    SerialPort.println("handleParams - handle Wifi");
 #endif
 
     AsyncWebServerResponse *response = request->beginResponse(SD, "/wifi.cfg", "text/plain");
@@ -486,7 +497,7 @@ void VarioWebHandler::handleSaveWifi(AsyncWebServerRequest *request, uint8_t *da
 {
 
 #ifdef WIFI_DEBUG
-    SerialPort.println("handleSaveParams");
+    SerialPort.println("handleSaveParams - Save Wifi");
 #endif
 
     String path = "/wifi.cfg";
@@ -494,13 +505,27 @@ void VarioWebHandler::handleSaveWifi(AsyncWebServerRequest *request, uint8_t *da
 
     if (!index)
     {
+			
+#ifdef WIFI_DEBUG
+				SerialPort.println("handleSaveParams - Backup");
+#endif
+			
         backupFile(path, pathBak);
         if (!(wifiParamFile = SDHAL_SD.open(path.c_str(), FILE_WRITE)))
         {
+
+#ifdef WIFI_DEBUG
+						SerialPort.println("Erreur impossible d'ouvrir wifi.cfg");
+#endif
+
             request->send(500, "text/plain", "NO FILE");
             return;
         }
     }
+
+#ifdef WIFI_DEBUG
+	  SerialPort.println("Save config wifi");
+#endif
 
     wifiParamFile.write(data, len);
 
@@ -516,7 +541,7 @@ void VarioWebHandler::handleSaveWifi(AsyncWebServerRequest *request, uint8_t *da
 AsyncWebServerResponse *VarioWebHandler::handleWebConfig(AsyncWebServerRequest *request)
 {
 #ifdef WIFI_DEBUG
-    SerialPort.println("handleParams");
+    SerialPort.println("handleParams Web config");
 #endif
     AsyncWebServerResponse *response;
 
@@ -571,7 +596,7 @@ AsyncWebServerResponse *VarioWebHandler::handleParseIgc(AsyncWebServerRequest *r
     SerialPort.println("handleParseIgc");
 #endif
     AsyncWebServerResponse *response;
-
+    uint32_t dataToSend = 1;
     String path;
 
     if (request->hasParam("path"))
@@ -586,65 +611,83 @@ AsyncWebServerResponse *VarioWebHandler::handleParseIgc(AsyncWebServerRequest *r
         return response;
     }
 
-    File dataFile;
+    if (!xQueueParse)
+    {
+        xQueueParse = xQueueCreate(5, sizeof(uint32_t));
+#ifdef WIFI_DEBUG
+        SerialPort.println("xQueueParse created");
+#endif
+        if (!xQueueParse)
+        {
+#ifdef WIFI_DEBUG
+            SerialPort.println("xQueueParse failed creation");
+#endif
+        }
+    }
+
+    xQueueSend(xQueueParse, &dataToSend, 0);
+
+    // const TickType_t delay = (100) / portTICK_PERIOD_MS;
+    // vTaskDelay(delay);
 
     TaskHandle_t taskParse;
     xTaskCreate(
         _doParseIgcAndInsert,   /* Task function. */
         "doParseIgcAndInsert",  /* String with name of task. */
-        20000,                  /* Stack size in bytes. */
+        18000,                  /* Stack size in bytes. */
         (void *)(path.c_str()), /* Parameter passed as input of the task */
         1,                      /* Priority of the task. */
         &taskParse);            /* Task handle. */
 
-    response = request->beginChunkedResponse("text/plain", [taskParse](uint8_t *buffer, size_t maxLen, size_t index) -> size_t {
+    response = request->beginChunkedResponse("text/plain", [](uint8_t *buffer, size_t maxLen, size_t index) -> size_t {
         //Write up to "maxLen" bytes into "buffer" and return the amount written.
         //index equals the amount of bytes that have been already sent
         //You will be asked for more data until 0 is returned
         //Keep in mind that you can not delay or yield waiting for more data!
 
-        if (eTaskGetState(taskParse) == eDeleted)
+        uint32_t element;
+        if (!(xQueueReceive(xQueueParse, &element, portMAX_DELAY) == pdTRUE))
         {
-            return 0;
+#ifdef WIFI_DEBUG
+            SerialPort.println("RIEN DANS LA QUEUE");
+#endif
+            //on force le renvoi de la valeur  1
+            element = 1;
         }
         else
         {
-            buffer[0] = 1;
-            return 1;
+#ifdef WIFI_DEBUG
+            SerialPort.print("VALEUR DE LA QUEUE");
+            SerialPort.println(element);
+#endif
+        };
+
+        if (element == 0)
+        {
+            // la queue contient l'element 0 qui signifie que le traitement est terminé
+            vQueueDelete(xQueueParse);
+            xQueueParse = NULL;
+#ifdef WIFI_DEBUG
+            SerialPort.println("handleParseIgc RETURN 0");
+#endif
+            return 0;
+        }
+        else if (element == 2)
+        {
+            //la queue contient l'element 2 qui signifie que le traitement a échoué
+            // on met 0 dans la queue pour terminer la requete au prochain passage
+            uint32_t dataToSend = 0;
+            xQueueSend(xQueueParse, &dataToSend, 0);
+
+            return snprintf((char *)buffer, maxLen, "ERROR");
+        }
+        else
+        {
+            // la queue contient l'element 1 qui signifie que le traitement est en cours
+            return snprintf((char *)buffer, maxLen, ".");
         }
     });
 
-    // //test présence fichier
-    // if (dataFile = SDHAL_SD.open(path, FILE_READ))
-    // {
-    //     //parsage du fichier IGC
-    //     VarioIgcParser varioIgcParser;
-    //     varioIgcParser.parseFile(path);
-
-    //     VarioSqlFlight varioSqlFlight;
-    //     if (varioSqlFlight.insertFlight(varioIgcParser.getJson()))
-    //     {
-
-    //         String tmpFullName = dataFile.name();
-    //         dataFile.close();
-
-    //         String filename = tmpFullName.substring(tmpFullName.lastIndexOf("/") + 1);
-    //         if (!SDHAL_SD.exists("/vols/parsed"))
-    //         {
-    //             SDHAL_SD.mkdir("/vols/parsed");
-    //         }
-    //         SDHAL_SD.rename(path, "/vols/parsed/" + filename);
-
-    //         response = request->beginResponse(200, "text/plain", "OK");
-    //         return response;
-    //     }
-    //     else
-    //     {
-    //         response = request->beginResponse(500, "text/plain", "CANNOT INSERT FLIGHT");
-    //         return response;
-    //     }
-    // }
-    // response = request->beginResponse(500, "text/plain", "BAD ARGS");
     return response;
 }
 
@@ -750,7 +793,7 @@ void VarioWebHandler::handleSetFlight(AsyncWebServerRequest *request, uint8_t *d
         SerialPort.println(id);
         SerialPort.println(content);
 #endif
-        varioSqlFlight.updateFlight(id, content);
+        varioSqlFlight.updateFlight(id, jsonToIgcdata(content));
     }
     else
     {
@@ -759,7 +802,7 @@ void VarioWebHandler::handleSetFlight(AsyncWebServerRequest *request, uint8_t *d
         SerialPort.println(content);
 #endif
 
-        varioSqlFlight.insertFlight(content);
+        varioSqlFlight.insertFlight(jsonToIgcdata(content));
     }
 
     request->send(200);
@@ -940,6 +983,9 @@ AsyncWebServerResponse *VarioWebHandler::handleDelSite(AsyncWebServerRequest *re
 
 void VarioWebHandler::_doParseIgcAndInsert(void *parameter)
 {
+    const String ParsedPath PROGMEM = "/vols/parsed";
+    uint32_t dataToSend = 0;
+
 #ifdef WIFI_DEBUG
     SerialPort.println("_doParseIgcAndInsert");
 #endif
@@ -952,11 +998,11 @@ void VarioWebHandler::_doParseIgcAndInsert(void *parameter)
         dataFile.close();
 
         //parsage du fichier IGC
-        VarioIgcParser varioIgcParser;
-        varioIgcParser.parseFile(path);
+        VarioIgcParser varioIgcParser(path);
+        varioIgcParser.parseFile();
 
         VarioSqlFlight varioSqlFlight;
-        if (varioSqlFlight.insertFlight(varioIgcParser.getJson()))
+        if (varioSqlFlight.insertFlight(varioIgcParser.getIgcdata()))
         {
             String filename = tmpFullName.substring(tmpFullName.lastIndexOf("/") + 1);
 #ifdef WIFI_DEBUG
@@ -966,11 +1012,17 @@ void VarioWebHandler::_doParseIgcAndInsert(void *parameter)
             SerialPort.print("Filename a deplacer: ");
             SerialPort.println(filename);
 #endif
-            if (!SDHAL_SD.exists("/vols/parsed"))
+            if (!SDHAL_SD.exists(ParsedPath))
             {
-                SDHAL_SD.mkdir("/vols/parsed");
+                SDHAL_SD.mkdir(ParsedPath);
             }
-            SDHAL_SD.rename(path, "/vols/parsed/" + filename);
+
+            if (SDHAL_SD.exists(ParsedPath + "/" + filename))
+            {
+                SDHAL_SD.remove(ParsedPath + "/" + filename);
+            }
+
+            SDHAL_SD.rename(path, ParsedPath + "/" + filename);
 #ifdef WIFI_DEBUG
             SerialPort.println("Deplacement du fichier termine");
 #endif
@@ -982,12 +1034,106 @@ void VarioWebHandler::_doParseIgcAndInsert(void *parameter)
 #ifdef WIFI_DEBUG
             SerialPort.println("ECHEC de l insertion");
 #endif
+            dataToSend = 2;
 
             // response = request->beginResponse(500, "text/plain", "CANNOT INSERT FLIGHT");
             // return response;
         }
+
+        varioIgcParser.~VarioIgcParser();
+        varioSqlFlight.~VarioSqlFlight();
     }
+
+    xQueueSend(xQueueParse, &dataToSend, 0);
     vTaskDelete(NULL);
 
     return;
+}
+
+igcdata VarioWebHandler::jsonToIgcdata(String data)
+{
+    igcdata myIgcData;
+
+    DynamicJsonDocument doc(1024);
+    DeserializationError err = deserializeJson(doc, data);
+    if (err)
+    {
+#ifdef SQL_DEBUG
+        Serial.print(F("deserializeJson() failed with code "));
+        Serial.println(err.c_str());
+#endif //SQL_DEBUG
+
+        return myIgcData;
+    }
+
+    if (doc.containsKey("pilot"))
+    {
+        myIgcData.pilot = doc["pilot"].as<String>();
+    }
+    if (doc.containsKey("wing"))
+    {
+        myIgcData.wing = doc["wing"].as<String>();
+    }
+    if (doc.containsKey("flightDate"))
+    {
+        myIgcData.flightDate = doc["flightDate"].as<String>();
+    }
+    if (doc.containsKey("startFlightTime"))
+    {
+        myIgcData.startFlightTime = doc["startFlightTime"].as<String>();
+    }
+    if (doc.containsKey("endFlightTime"))
+    {
+        myIgcData.endFlightTime = doc["endFlightTime"].as<String>();
+    }
+    if (doc.containsKey("startHeight"))
+    {
+        myIgcData.startHeight = doc["startHeight"];
+    }
+    if (doc.containsKey("endHeight"))
+    {
+        myIgcData.endHeight = doc["endHeight"];
+    }
+    if (doc.containsKey("minHeight"))
+    {
+        myIgcData.minHeight = doc["minHeight"];
+    }
+    if (doc.containsKey("maxHeight"))
+    {
+        myIgcData.maxHeight = doc["maxHeight"];
+    }
+    if (doc.containsKey("startLat"))
+    {
+        myIgcData.startLat = doc["startLat"];
+    }
+    if (doc.containsKey("startLon"))
+    {
+        myIgcData.startLon = doc["startLon"];
+    }
+    if (doc.containsKey("endLat"))
+    {
+        myIgcData.endLat = doc["endLat"];
+    }
+    if (doc.containsKey("endLon"))
+    {
+        myIgcData.endLon = doc["endLon"];
+    }
+    if (doc.containsKey("md5"))
+    {
+        myIgcData.md5 = doc["md5"].as<String>();
+    }
+    if (doc.containsKey("filename"))
+    {
+        myIgcData.filename = doc["filename"].as<String>();
+    }
+    if (doc.containsKey("site_id"))
+    {
+        myIgcData.site_id = doc["site_id"];
+    }
+    if (doc.containsKey("comment"))
+    {
+        myIgcData.comment = doc["comment"].as<String>();
+    }
+
+    return myIgcData;
 }

@@ -69,5 +69,4 @@ private:
 
 extern const char* rootCACertificate;
 
-extern esp32FOTA2 esp32FOTA;
 #endif

@@ -1,6 +1,7 @@
 /* GPSSentences -- Generate some standard GPS sentences 
  *
  * Copyright 2016-2019 Baptiste PELLEGRIN
+ *           2020      Jean-philippe GOI
  * 
  * This file is part of GNUVario.
  *
@@ -18,6 +19,18 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+/* 
+ *********************************************************************************
+ *                                                                               *
+ *                           IGCSENTENCE                                         *
+ *                                                                               *
+ *  version    Date     Description                                              *
+ *    1.0                                                                        *
+ *    1.1      25/11/20   modification format date IGC                           *
+ *                                                                               *
+ *********************************************************************************
+ */
+
 #include <IGCSentence.h>
 
 #include <Arduino.h>
@@ -30,8 +43,10 @@
 
 const char IGCHeader00[] PROGMEM = "AXXX ";
 // vario model name
-const char IGCHeader02[] PROGMEM = "\r\nHFDTE";
-const char IGCHeader03[] PROGMEM = "010100";
+//const char IGCHeader02[] PROGMEM = "\r\nHFDTE";
+//const char IGCHeader03[] PROGMEM = "010100";
+const char IGCHeader02[] PROGMEM = "\r\nHFDTEDATE:";
+const char IGCHeader03[] PROGMEM = "010100,00";
 const char IGCHeader04[] PROGMEM = "\r\nHFPLTPILOTINCHARGE: ";
 //pilot name
 const char IGCHeader06[] PROGMEM = "\r\nHFGTYGLIDERTYPE: ";

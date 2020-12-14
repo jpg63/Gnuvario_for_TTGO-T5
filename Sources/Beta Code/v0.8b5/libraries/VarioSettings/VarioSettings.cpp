@@ -996,6 +996,7 @@ void VarioSettings::soundSettingWrite(uint8_t volume) {
 //**********************************************************
 void VarioSettings::loadConfigurationVario(char *filename) {
 //**********************************************************
+//DynamicJsonDocument doc(1900);
   // Open file for reading
 	boolean MajFileParams = false;
 #ifdef SDFAT_LIB
@@ -1775,6 +1776,7 @@ void VarioSettings::loadConfigurationVario(char *filename) {
 //**********************************************************
 void VarioSettings::saveConfigurationVario(char *filename) {
 //**********************************************************
+//DynamicJsonDocument doc(1900);
   // Delete existing file, otherwise the configuration is appended to the file
   SDHAL_SD.remove(filename);
 

@@ -29,6 +29,7 @@
 /*    1.0.3    03/10/19     Ajout gestion HAVE_SDCARD 													 */
 /*    1.0.4    12/10/19     Ajout gestion du dossier de stockage des VOLs        */
 /*    1.0.5    29/11/19     Modif sdfat                                          */
+/*    1.0.6    25/11/20     Modification format date IGC                         */
 /*                                                                               */
 /*********************************************************************************/
 
@@ -184,7 +185,8 @@ void GPSSentence::CreateIgcFile(uint8_t *dateNum, boolean noRecord)
   for (int i = 0; i < 6; i++)
     fileName[i] = dateChar[i];
   int fileNameSize = 8;
-  for (int fileNumber = 0; fileNumber < LF16_FILE_NAME_NUMBER_LIMIT; fileNumber++)
+	int fileNumber   = 0;
+  for (fileNumber = 0; fileNumber < LF16_FILE_NAME_NUMBER_LIMIT; fileNumber++)
   {
 
     /* build file name */
@@ -212,6 +214,8 @@ void GPSSentence::CreateIgcFile(uint8_t *dateNum, boolean noRecord)
   SerialPort.println((char *)fileName);
   SerialPort.print("File : ");
   SerialPort.println((char *)tmpstr);
+  SerialPort.print("FileNumber : ");
+  SerialPort.println(fileNumber);
 #endif //SDCARD_DEBUG
 
   if (!noRecord)
@@ -265,6 +269,19 @@ void GPSSentence::CreateIgcFile(uint8_t *dateNum, boolean noRecord)
 
           dateCharP -= 2;
         }
+
+// Ajout numero du vol
+
+				fileIgc.write(',');
+				
+				if (fileNumber > 99) fileNumber = 99;
+				
+				char output_sprintf[3];
+				sprintf(output_sprintf, "%02d", fileNumber);
+				
+				fileIgc.print(output_sprintf[0]);
+				fileIgc.print(output_sprintf[1]);
+//				fileIgc.print('\n');
 
         for (int i = 4; i < HEADER_STRING_COUNT; i++)
         {

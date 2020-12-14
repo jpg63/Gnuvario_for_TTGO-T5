@@ -1,4 +1,4 @@
- #include <Arduino.h>
+#include <Arduino.h>
 #include <Adafruit_I2CDevice.h>
 
 /*******************/
@@ -6,10 +6,10 @@
 /*******************/
 
 #define VERSION 0
-#define SUB_VERSION 8
-#define BETA_CODE 5
+#define SUB_VERSION 9
+#define BETA_CODE 1
 #define DEVNAME "JPG63/MICELPA/RATAMUSE"
-#define AUTHOR "J" //J=JPG63  P=PUNKDUMP  M=MICHELPA
+#define AUTHOR "J" //J=JPG63  P=PUNKDUMP  M=MICHELPA    R=RATAMUSE
 
 /******************************************************************************************************/
 /*                                              VERSION                                               */
@@ -295,6 +295,16 @@
 *                                    Integration code Pierre - correction site web                    *
 *                                    Reduction allocation memoire varioigcparser                      *
 *                                    Reduction allocation memoire esp32fota2                          *
+*                17/11/20            Ajout variodataprocessing                                        *
+*                21/11/20            Correction Site web                                              *
+*                25/11/20            Mise à jour date IGC                                             *
+*                01/12/20            Correction bug IGC                                               *
+*                                    maj lib busyIo                                                   *
+*                                    Modif page web                                                   *
+*                13/12/20            Mise à jour lib GxEpd2, ...                                      *
+*                                    Correction variolanguage                                         *
+*                                    Correction varioscreenepd291                                     *
+* 0.9 beta 1                                                                                          *                                   
 *******************************************************************************************************
 *                                                                                                     *
 *                                   Developpement a venir                                             *
@@ -305,9 +315,6 @@
 * BUG   - DISPLAY_OBJECT_LINE object ligne ne fonctionne pas                                          *
 *                                                                                                     *
 * v0.7                                                                                                *
-* BUG   - upload wifi - ne se termine pas  - bug espressif le buffer n'est pas vidé à la fin          *
-* BUG   - update manuelle - doit être lancée 2 fois                                                   *
-* BUG   - download à verifier                                                                         *
 *                                                                                                     *        
 * v0.8                                                                                                *       
 * BUG   - Grésillement Buzzer                                                                         * 
@@ -319,6 +326,9 @@
 * AJOUT - Deep-Sleep charge batterie                                                                  *
 * BUG   - % batterie au démmarage                                                                     *
 * BUG   - intergration - bip continu                                                                  *
+* MODIF - Altitude calibrée dans IGC                                                                  *                                                                                                    
+* BUG   - Modification des paramètres wifi                                                            *
+* BUG   - Saisie des sites de vol                                                                     * 
 *                                                                                                     *
 * VX.X                                                                                                *
 * Paramètrage des écrans                                                                              *
@@ -405,6 +415,8 @@
  *  - Ajout de la gestion du PCB V3                                     *
  *  - Gestion du GPS L86                                                *
  *  - Ajout écran de charge                                             *
+ *  - Transfert des vol sur paraglidinglogbook                          *
+ *  - Nouvelles Pages Wifi avec gestion d'un carnet de vol              *
  *                                                                      *
  ************************************************************************/
 
@@ -658,7 +670,7 @@ VarioData varioData;
 
 #ifdef HAVE_WIFI
 #include <VarioWifi.h>
-//#include <esp32fota2.h>
+#include <esp32fota2.h>
 #endif //HAVE_WIFI
 
 /*************************************************
@@ -689,6 +701,8 @@ VarioData varioData;
 //#endif
 
 //esp32FOTA2 esp32FOTA("Gnuvario" + String(VARIOSCREEN_SIZE), VERSION, SUB_VERSION, BETA_CODE); //esp32-fota-http", 0,6,0);
+
+esp32FOTA2 esp32FOTA("Gnuvario" + String(VARIOSCREEN_SIZE), VERSION, SUB_VERSION, BETA_CODE);
 
 #endif //HAVE_WIFI
 
@@ -726,7 +740,7 @@ void setup()
   /* wait for devices power on */
   /*****************************/
 #ifdef PROG_DEBUG
-  delay(5000);
+  delay(2000);
 #else
   delay(VARIOMETER_POWER_ON_DELAY);
 #endif

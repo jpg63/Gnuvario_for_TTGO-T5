@@ -87,9 +87,9 @@
 //#define VOLTAGE_DIVISOR_DEBUG
 //#define SDCARD_DEBUG
 //#define IGC_DEBUG
-#define DATA_DEBUG
+//#define DATA_DEBUG
 //#define BT_DEBUG
-//#define WIFI_DEBUG
+#define WIFI_DEBUG
 //#define SOUND_DEBUG
 //#define AGL_DEBUG
 //#define SQL_DEBUG

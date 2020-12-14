@@ -9,6 +9,7 @@
 
 #include <RingBuf.h>
 #include <sqlite3.h>
+#include <igcdata.h>
 
 class VarioSqlFlight
 {
@@ -29,8 +30,8 @@ private:
 public:
     VarioSqlFlight();
     ~VarioSqlFlight();
-    bool insertFlight(String data);
-    bool updateFlight(uint8_t id, String data);
+    bool insertFlight(igcdata myIgcData);
+    bool updateFlight(uint8_t id, igcdata myIgcData);
     bool delFlight(uint8_t id);
     bool updateFlightMap(uint8_t id, String data);
     String getSites();

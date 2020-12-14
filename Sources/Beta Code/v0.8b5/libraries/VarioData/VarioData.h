@@ -43,6 +43,9 @@
 #define VARIO_DATA_H
 
 #include <HardwareConfig.h>
+
+#include "VarioDataProcessing.h"
+
 #include <kalmanvert.h>
 //#include "VarioDataTwoWireScheduler.h"
 #include <IntTW.h>
@@ -202,6 +205,8 @@ private:
 		bool		SD_present = false;
 		
 		float constrainAngle360(float dta);
+		
+		VarioDataProcessing varioDataProcessing;
 };
 
 extern VarioData varioData;

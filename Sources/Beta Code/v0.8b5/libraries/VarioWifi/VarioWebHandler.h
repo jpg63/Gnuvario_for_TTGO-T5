@@ -29,12 +29,10 @@
 #include <sdcardHAL.h>
 #include <esp32fota2.h>
 #include <DebugConfig.h>
+#include <ArduinoJson.h>
 
 class VarioWebHandler
 {
-private:
-    static void _doParseIgcAndInsert(void *parameter);
-
 public:
     // Récupération de la liste des fichiers du répertoire vols au format json
     AsyncResponseStream *handleListFlights(AsyncWebServerRequest *request);
@@ -103,12 +101,15 @@ public:
     AsyncWebServerResponse *handleDelSite(AsyncWebServerRequest *request);
 
 private:
+    static void _doParseIgcAndInsert(void *parameter);
     String getFileSizeStringFromBytes(int bytes);
     void printDirectoryRecurse(AsyncResponseStream *response, String path, boolean isRecursive);
     static void backupFile(String pathOrig, String pathBack);
     int readFlightsData(uint8_t *buffer, size_t maxLength);
+    static igcdata jsonToIgcdata(String data);
 };
 
 extern esp32FOTA2 esp32FOTA;
+extern QueueHandle_t xQueueParse;
 
 #endif //VARIO_WEBHANDLER_H
