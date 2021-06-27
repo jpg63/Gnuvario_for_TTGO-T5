@@ -317,6 +317,10 @@
 *                05/04/21            Modification altitude négative                                   *                                   
 *                11/04/21            Correction probleme de démmarage avec alti négative              *
 *                12/04/21            Ajout Mute jusqu'au décollage                                    *
+*                22/05/21            Ajout écran 294 (DKEG0290BNS800F6 /QYEG0290BNS800F6C02) pour test*
+*                                    & Ajout écran 2.9" Good Display GDEW029M06                       *
+*                03/06/21            Correction bug maj web - ajout d'un reboot                       *
+*                19/06/21            Correction cap et stabilisation vario                            *
 *******************************************************************************************************
 *                                                                                                     *
 *                                   Developpement a venir                                             *
@@ -772,9 +776,9 @@ void setup()
 
 #if (VARIOVERSION == 154) 
   SerialPort.println("VERSION : 1");
-#elif ((VARIOVERSION == 254) || (VARIOVERSION == 290) || (VARIOVERSION == 291) || (VARIOVERSION == 292) || (VARIOVERSION == 293)) 
+#elif ((VARIOVERSION == 254) || (VARIOVERSION == 290) || (VARIOVERSION == 291) || (VARIOVERSION == 292) || (VARIOVERSION == 293) || (VARIOVERSION == 294)) 
   SerialPort.println("VERSION : 2");
-#elif ((VARIOVERSION == 354) || (VARIOVERSION == 390) || (VARIOVERSION == 391)) 
+#elif ((VARIOVERSION == 354) || (VARIOVERSION == 390) || (VARIOVERSION == 391) || (VARIOVERSION == 392) || (VARIOVERSION == 393)) 
   SerialPort.println("VERSION : 3");
 #else
   SerialPort.println("VERSION : XXX");
@@ -785,9 +789,9 @@ void setup()
 
 #if ((VARIOSCREEN_SIZE == 154) || (VARIOSCREEN_SIZE == 254) || (VARIOSCREEN_SIZE == 354))
   SerialPort.println("ECRAN : 1.54");
-#elif ((VARIOSCREEN_SIZE == 290) || (VARIOVERSION == 292) || (VARIOVERSION == 390))
+#elif ((VARIOSCREEN_SIZE == 290) || (VARIOSCREEN_SIZE == 292) || (VARIOVERSION == 390))
   SerialPort.println("ECRAN : 2.90 PAYSAGE");
-#elif ((VARIOSCREEN_SIZE == 291) || (VARIOVERSION == 293) || (VARIOVERSION == 391))
+#elif ((VARIOSCREEN_SIZE == 291)  || (VARIOSCREEN_SIZE == 293) || (VARIOSCREEN_SIZE == 294))
   SerialPort.println("ECRAN : 2.90 PORTRAIT");
 #endif
 
@@ -928,6 +932,11 @@ void setup()
     beeper.generateTone(659, 150);
     beeper.generateTone(1318, 150);
     beeper.generateTone(2636, 150);
+
+    SerialPort.println("RESTART ESP32");
+    SerialPort.flush();
+    ESP_LOGI("GnuVario-E", "RESTART ESP32");
+    ESP.restart();    
   } 
   
 #endif //HAVE_SDCARD
@@ -1431,7 +1440,7 @@ void loop()
     int tmpcap = varioData.getCap();
     if (tmpcap > 0)
     {
-      String bearingStr = nmeaParser.Bearing_to_Ordinal(tmpcap);
+      String bearingStr = nmeaParser.Bearing_to_Ordinal2c(tmpcap);
 #ifdef DATA_DEBUG
       SerialPort.print("Compas : ");
       SerialPort.print(tmpcap);
@@ -1443,7 +1452,7 @@ void loop()
 
       screen.gpsBearing->setValue(tmpcap);
       screen.gpsBearingText->setValue(bearingStr);
-#if ((VARIOSCREEN_SIZE == 291) || (VARIOSCREEN_SIZE == 292) || (VARIOSCREEN_SIZE == 293))
+#if ((VARIOSCREEN_SIZE == 291) || (VARIOSCREEN_SIZE == 293) || (VARIOSCREEN_SIZE == 294))
       screen.bearing->setValue(tmpcap);
       screen.bearingText->setValue(bearingStr);
 #endif
